@@ -1,12 +1,53 @@
+import MetricCard from "../components/MetricCard";
+import SalesChart from "../components/SalesChart";
+import { Package } from "lucide-react";
+
 export default function Dashboard() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+    <div className="space-y-6">
+      {/* Metric Cards */}
 
-      <div className="grid grid-cols-3 gap-4 mt-4">
-        <div className="p-4 bg-white shadow">Total Orders</div>
-        <div className="p-4 bg-white shadow">Pending</div>
-        <div className="p-4 bg-white shadow">Delivered</div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <MetricCard
+          title="Total Products"
+          value="178"
+          subtitle="Across All Categories"
+          icon={<Package size={30} />}
+          bgColor="bg-[#DCE1F0]"
+        />
+
+        <MetricCard
+          title="Total Products"
+          value="178"
+          subtitle="Across All Categories"
+          icon={<Package size={30} />}
+          bgColor="bg-[#DCE1F0]"
+        />
+        <MetricCard
+          title="Total Products"
+          value="178"
+          subtitle="Across All Categories"
+          icon={<Package size={30} />}
+          bgColor="bg-[#DCE1F0]"
+        />
+      </div>
+
+      {/* Dashboard Content */}
+
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-6">
+          <SalesChart />
+        </div>
+
+        <div className="col-span-12 lg:col-span-6">
+          <SalesChart />
+        </div>
+        <div className="col-span-12 lg:col-span-6">
+          <SalesChart />
+        </div>
+        <div className="col-span-12 lg:col-span-6">
+          <SalesChart />
+        </div>
       </div>
     </div>
   );
