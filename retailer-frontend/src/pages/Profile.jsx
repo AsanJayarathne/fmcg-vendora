@@ -14,8 +14,8 @@ export default function Profile() {
                     <button
                         onClick={() => setActiveTab("profile")}
                         className={`pb-4 text-2xl ${
-                            activeTab === "profile"
-                                ? "text-blue-700 border-b-4 border-blue-700"
+                            activeTab === "profile"?
+                                 "text-blue-700 border-b-4 border-blue-700"
                                 : "text-gray-400"
                         }`}
                     >
@@ -25,8 +25,8 @@ export default function Profile() {
                     <button
                         onClick={() => setActiveTab("security")}
                         className={`pb-4 text-2xl ${
-                            activeTab === "security"
-                                ? "text-blue-700 border-b-4 border-blue-700"
+                            activeTab === "security"?
+                                 "text-blue-700 border-b-4 border-blue-700"
                                 : "text-gray-400"
                         }`}
                     >
