@@ -1,12 +1,24 @@
-import DeliveryJobPool from './pages/DeliveryJobPool';
-import SplitPayment from './pages/SplitPayment';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import DriverLayout from './layouts/DriverLayout';
+import Dashboard from './pages/Dashboard';
+import JobPool from './pages/JobPool';
+import MyRoute from './pages/MyRoute';
+import CashAudit from './pages/CashAudit';
+import Profile from './pages/Profile';
 
 function App() {
   return (
-    <div>
-      <DeliveryJobPool />
-      <SplitPayment />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<DriverLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="jobpool" element={<JobPool />} />
+          <Route path="myroute" element={<MyRoute />} />
+          <Route path="cashaudit" element={<CashAudit />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
