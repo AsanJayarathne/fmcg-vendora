@@ -16,7 +16,7 @@ import {
 export default function Sidebar() {
   const mainMenu = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
-    { name: "Products", path: "/products", icon: Package },
+    { name: "Products", path: "/product", icon: Package },
     { name: "Orders", path: "/orders", icon: ShoppingCart },
     { name: "Delivery", path: "/delivery", icon: Truck },
     { name: "Shops & Drivers", path: "/shops-drivers", icon: Store },
