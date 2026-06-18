@@ -1,0 +1,61 @@
+import { useState } from "react";
+
+import PaymentHeader from "../components/payments/PaymentHeader";
+import PaymentTabs from "../components/payments/PaymentTabs";
+
+import PaymentsTable from "../components/payments/PaymentsTable";
+import OutstandingTable from "../components/payments/OutstandingTable";
+
+import PaymentsPagination from "../components/payments/PaymentsPagination";
+
+export default function PaymentsPage() {
+  const [activeTab, setActiveTab] = useState("payments");
+
+  const payments = [
+    {
+      orderId: "ORD-001",
+      retailer: "Star Grocery Store",
+      orderDate: "20 May 2026",
+      totalAmount: "15000.00",
+      paid: "5000.00",
+      outstanding: "15000.00",
+      paymentStatus: "cash",
+    },
+  ];
+
+  const outstandings = [
+    {
+      retailerId: "RET-001",
+      retailer: "Star Grocery Store",
+      creditLimit: "15000.00",
+      outstanding: "5000.00",
+      availableCredit: "10000.00",
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <PaymentHeader
+        title="Payment History"
+        subtitle="View And Manage your Current Payment"
+      />
+
+      <PaymentTabs
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
+
+      {activeTab === "payments" ? (
+        <PaymentsTable payments={payments} />
+      ) : (
+        <OutstandingTable outstandings={outstandings} />
+      )}
+
+      <PaymentsPagination
+        start={1}
+        end={8}
+        total={20}
+      />
+    </div>
+  );
+}
