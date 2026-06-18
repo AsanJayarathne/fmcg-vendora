@@ -1,6 +1,5 @@
 import MetricCard from "../components/MetricCard";
 import SalesChart from "../components/SalesChart";
-import { Package } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
 import { ChartColumnBig } from "lucide-react";
 import { CreditCard } from 'lucide-react';

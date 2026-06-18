@@ -8,6 +8,8 @@ import OrderHistory from "../pages/OrderHistoryPage";
 import DeliveryPage from "../pages/DeliveryPage";
 import ShopsPage from "../pages/ShopsPage";
 import DriversPage from "../pages/DriversPage";
+import MyInventoryPage from "../pages/MyInventoryPage";
+import RequestStockPage from "../pages/RequestStockPage";
 
 export default function AppRoutes() {
   return (
@@ -24,7 +26,9 @@ export default function AppRoutes() {
         <Route path="order-history" element={<OrderHistory />} />
         <Route path="delivery" element={<DeliveryPage />} />
         <Route path="shops" element={<ShopsPage />} />
-      <Route path="drivers" element={<DriversPage />} />
+        <Route path="drivers" element={<DriversPage />} />
+        <Route path="my-inventory" element={<MyInventoryPage />} />
+        <Route path="request-stock" element={<RequestStockPage />} />
       </Route>
     </Routes>
   );

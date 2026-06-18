@@ -3,7 +3,6 @@ import OrdersTable from "../components/orders/OrdersTable";
 import OrdersPagination from "../components/orders/OrdersPagination";
 import MetricCard from "../components/MetricCard";
 import { ShoppingCart } from "lucide-react";
-import { ChartColumnBig } from "lucide-react";
 import { ClipboardClock } from 'lucide-react';
 import { SquareCheckBig } from 'lucide-react';
 import { Ban } from 'lucide-react';
