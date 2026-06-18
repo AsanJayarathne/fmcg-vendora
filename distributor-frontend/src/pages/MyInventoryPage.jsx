@@ -66,8 +66,8 @@ export default function MyInventoryPage() {
   return (
     <div className="space-y-4">
          <div className="p-4 bg-white border border-gray-200 rounded-lg">
-         <h2 className="text-lg font-bold text-gray-900">"Manage My Stock"</h2>
-         <p className="text-xs text-gray-500">"View And Manage your Current Stock"</p>
+         <h2 className="text-lg font-bold text-gray-900">Manage My Stock</h2>
+         <p className="text-xs text-gray-500">View And Manage your Current Stock</p>
         </div>
      
       <InventoryFilters />

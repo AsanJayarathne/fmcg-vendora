@@ -27,7 +27,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="h-full p-3 bg-white border-r border-gray-200 w-60">
+    <aside className="h-full p-3 overflow-y-auto bg-white border-r border-gray-200 w-60 no-scrollbar">
       <h2 className="mb-4 text-xs font-semibold tracking-wide text-gray-500 uppercase">
         Main Menu
       </h2>
