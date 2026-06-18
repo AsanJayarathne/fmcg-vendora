@@ -5,6 +5,7 @@ import Dashboard from "../pages/DashboardPage";
 import ProductsPage from "../pages/ProductsPage";
 import OrdersPage from "../pages/OrdersPage";
 import OrderHistory from "../pages/OrderHistoryPage";
+import DeliveryPage from "../pages/DeliveryPage";
 
 export default function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ export default function AppRoutes() {
         <Route path="orders" element={<OrdersPage />} />
 
         <Route path="order-history" element={<OrderHistory />} />
+        <Route path="delivery" element={<DeliveryPage />} />
       </Route>
     </Routes>
   );
