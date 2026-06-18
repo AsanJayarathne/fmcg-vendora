@@ -13,20 +13,12 @@ import {
   HelpCircle,
   LogOut,
   ChevronDown,
+  Users,
 } from "lucide-react";
 
 export default function Sidebar() {
   const [ordersOpen, setOrdersOpen] = useState(false);
-
-  const mainMenu = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
-    { name: "Products", path: "/product", icon: Package },
-    { name: "Delivery", path: "/delivery", icon: Truck },
-    { name: "Shops & Drivers", path: "/shops-drivers", icon: Store },
-    { name: "Inventory", path: "/inventory", icon: Warehouse },
-    { name: "Payments", path: "/payments", icon: CreditCard },
-    { name: "Analytics", path: "/analytics", icon: BarChart3 },
-  ];
+  const [shopsDriversOpen, setShopsDriversOpen] = useState(false);
 
   const otherMenu = [
     { name: "Settings", path: "/settings", icon: Settings },
@@ -41,20 +33,21 @@ export default function Sidebar() {
       </h2>
 
       <nav className="flex flex-col gap-2">
-        {mainMenu.slice(0, 2).map((item) => {
-          const Icon = item.icon;
+        <Link
+          to="/"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <LayoutDashboard size={18} />
+          Dashboard
+        </Link>
 
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
-            >
-              <Icon size={18} />
-              {item.name}
-            </Link>
-          );
-        })}
+        <Link
+          to="/product"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <Package size={18} />
+          Products
+        </Link>
 
         {/* Orders Dropdown */}
         <div>
@@ -93,20 +86,74 @@ export default function Sidebar() {
           )}
         </div>
 
-        {mainMenu.slice(2).map((item) => {
-          const Icon = item.icon;
+        <Link
+          to="/delivery"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <Truck size={18} />
+          Delivery
+        </Link>
 
-          return (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
-            >
-              <Icon size={18} />
-              {item.name}
-            </Link>
-          );
-        })}
+        {/* Shops & Drivers Dropdown */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShopsDriversOpen(!shopsDriversOpen)}
+            className="flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+          >
+            <span className="flex items-center gap-3">
+              <Store size={18} />
+              Shops & Drivers
+            </span>
+
+            <ChevronDown
+              size={16}
+              className={`transition ${shopsDriversOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {shopsDriversOpen && (
+            <div className="flex flex-col gap-1 mt-2 ml-8">
+              <Link
+                to="/shops"
+                className="px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+              >
+                Shops
+              </Link>
+
+              <Link
+                to="/drivers"
+                className="px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600"
+              >
+                Drivers
+              </Link>
+            </div>
+          )}
+        </div>
+
+        <Link
+          to="/inventory"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <Warehouse size={18} />
+          Inventory
+        </Link>
+
+        <Link
+          to="/payments"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <CreditCard size={18} />
+          Payments
+        </Link>
+
+        <Link
+          to="/analytics"
+          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 border border-gray-100 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition"
+        >
+          <BarChart3 size={18} />
+          Analytics
+        </Link>
       </nav>
 
       <h2 className="mt-6 mb-3 text-xs font-semibold tracking-wide text-gray-500 uppercase">
