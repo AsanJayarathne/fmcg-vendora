@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import JobCard from '../components/JobCard';
+
 
 function JobPool() {
   const [jobs, setJobs] = useState([
@@ -26,39 +28,16 @@ function JobPool() {
       {/* Job Cards */}
       <div className="bg-white rounded-xl border border-gray-100 p-4">
         <div className="flex flex-col gap-3">
-          {jobs.map((job) => (
-            <div
+         {jobs.map((job) => (
+            <JobCard
               key={job.id}
-              className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-purple-200 hover:bg-purple-50 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-lg">
-                  🚚
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-800">{job.route}</div>
-                  <div className="text-xs text-gray-400 mt-0.5">
-                    {job.items} items · {job.amount} · {job.distance}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {job.status === 'Available' ? (
-                  <button
-                    onClick={() => claimJob(job.id)}
-                    className="text-xs px-4 py-2 rounded-full bg-purple-600 text-white hover:bg-purple-700 transition-all"
-                  >
-                    Claim route
-                  </button>
-                ) : (
-                  <span className="text-xs px-4 py-2 rounded-full bg-green-100 text-green-700">
-                    ✅ Claimed
-                  </span>
-                )}
-              </div>
-
-            </div>
+              route={job.route}
+              items={job.items}
+              amount={job.amount}
+              distance={job.distance}
+              status={job.status}
+              onClaim={() => claimJob(job.id)}
+            />
           ))}
         </div>
       </div>

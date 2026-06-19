@@ -1,3 +1,4 @@
+import { Mail, Phone, MapPin, IdCard } from 'lucide-react';
 function Profile() {
   return (
     <div>
@@ -28,17 +29,17 @@ function Profile() {
 
           <div className="flex flex-col gap-3">
             {[
-              { icon: '📧', label: 'Email', value: 'kamal@vendora.lk' },
-              { icon: '📞', label: 'Phone', value: '071 234 5678' },
-              { icon: '📍', label: 'District', value: 'Colombo' },
-              { icon: '🪪', label: 'Driver ID', value: 'D001' },
+              { icon: Mail, label: 'Email', value: 'kamal@vendora.lk' },
+              { icon: Phone, label: 'Phone', value: '071 234 5678' },
+              { icon: MapPin, label: 'District', value: 'Colombo' },
+              { icon: IdCard, label: 'Driver ID', value: 'D001' },
             ].map((item) => (
               <div
                 key={item.label}
                 className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
               >
                 <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{item.icon}</span>
+                  <item.icon size={14} />
                   {item.label}
                 </div>
                 <div className="text-xs font-medium text-gray-800">{item.value}</div>

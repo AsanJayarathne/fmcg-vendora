@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Truck, CheckCircle, XCircle } from 'lucide-react';
+import StatusBadge from '../components/StatusBadge';
 
 function MyRoute() {
   const [routes, setRoutes] = useState([
@@ -13,12 +15,7 @@ function MyRoute() {
     ));
   };
 
-  const statusStyle = {
-    Pending: 'bg-yellow-100 text-yellow-700',
-    Delivered: 'bg-green-100 text-green-700',
-    Returned: 'bg-red-100 text-red-600',
-  };
-
+  
   return (
     <div>
       {/* Header */}
@@ -36,17 +33,15 @@ function MyRoute() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-lg">
-                  🚚
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Truck size={18} className="text-purple-600" />
                 </div>
                 <div>
                   <div className="text-sm font-medium text-gray-800">{route.orderId}</div>
                   <div className="text-xs text-gray-400 mt-0.5">{route.route}</div>
                 </div>
               </div>
-              <span className={`text-xs px-3 py-1 rounded-full ${statusStyle[route.status]}`}>
-                {route.status}
-              </span>
+              <StatusBadge status={route.status} />
             </div>
 
             <div className="flex items-center justify-between pt-3 border-t border-gray-50">
@@ -56,30 +51,30 @@ function MyRoute() {
 
               {route.status === 'Pending' && (
                 <div className="flex items-center gap-2">
-                  <button
+                 <button
                     onClick={() => updateStatus(route.id, 'Delivered')}
-                    className="text-xs px-4 py-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-all"
+                    className="text-xs px-4 py-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-all flex items-center gap-1.5"
                   >
-                    ✅ Delivered
+                    <CheckCircle size={13} /> Delivered
                   </button>
                   <button
                     onClick={() => updateStatus(route.id, 'Returned')}
-                    className="text-xs px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all"
+                    className="text-xs px-4 py-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all flex items-center gap-1.5"
                   >
-                    ❌ Returned
+                    <XCircle size={13} /> Returned
                   </button>
                 </div>
               )}
 
               {route.status === 'Delivered' && (
-                <div className="text-xs text-green-600 font-medium">
-                  ✅ Delivery completed
+                <div className="text-xs text-green-600 font-medium flex items-center gap-1.5">
+                  <CheckCircle size={13} /> Delivery completed
                 </div>
               )}
 
               {route.status === 'Returned' && (
-                <div className="text-xs text-red-500 font-medium">
-                  ❌ Order returned
+                <div className="text-xs text-red-500 font-medium flex items-center gap-1.5">
+                  <XCircle size={13} /> Order returned
                 </div>
               )}
             </div>
