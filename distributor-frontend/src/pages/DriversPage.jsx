@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DriverTabs from "../components/drivers/DriverTabs";
 import DriversTable from "../components/drivers/DriversTable";
 import DriversPagination from "../components/drivers/DriversPagination";
@@ -24,7 +25,7 @@ const drivers = [
     vehicleType: "Truck",
     licenseNo: "WP472356",
     licenseType: "Heavy Vehicle",
-    status: "Pending",
+    status: "Pending Approval",
     registeredOn: "25 April 2026",
   },
   {
@@ -54,13 +55,20 @@ const drivers = [
 ];
 
 export default function DriversPage() {
+  const [activeTab, setActiveTab] = useState("All Drivers");
+
+  const filteredDrivers =
+    activeTab === "All Drivers"
+      ? drivers
+      : drivers.filter((driver) => driver.status === activeTab);
+
   return (
     <div className="space-y-4">
-      <DriverTabs />
+      <DriverTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <DriversTable drivers={drivers} />
+      <DriversTable drivers={filteredDrivers} />
 
-      <DriversPagination start={1} end={2} total={2} />
+      <DriversPagination start={1} end={filteredDrivers.length} total={drivers.length} />
     </div>
   );
 }

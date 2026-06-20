@@ -72,6 +72,6 @@ export default function DriversTable({ drivers }) {
 
 function getStatusStyle(status) {
   if (status === "Approved") return "text-green-600 bg-green-100";
-  if (status === "Pending") return "text-yellow-600 bg-yellow-100";
+  if (status === "Pending Approval") return "text-yellow-600 bg-yellow-100";
   return "text-red-600 bg-red-100";
 }

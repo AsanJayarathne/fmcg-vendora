@@ -1,5 +1,7 @@
+import { useState } from "react";
 import ShopTabs from "../components/shops/ShopTabs";
 import ShopsTable from "../components/shops/ShopsTable";
+import SetCreditTable from "../components/shops/SetCreditTable";
 import ShopsPagination from "../components/shops/ShopsPagination";
 
 const shops = [
@@ -11,11 +13,11 @@ const shops = [
     address: "NO 45,MAIN Street",
     city: "Negombo",
     creditLimit: "50,000.00",
-    status: "Pending",
+    status: "Pending Approval",
     registeredOn: "25 April 2026",
   },
   {
-    id: "Shop-1002",
+    id: "Shop-1003",
     name: "Aruna Super",
     initials: "AR",
     contact: "071-2578831",
@@ -26,7 +28,7 @@ const shops = [
     registeredOn: "25 April 2026",
   },
   {
-    id: "DR-1002",
+    id: "Shop-1004",
     name: "Nuwan Silva",
     initials: "NS",
     contact: "071-2578831",
@@ -39,13 +41,24 @@ const shops = [
 ];
 
 export default function ShopsPage() {
+  const [activeTab, setActiveTab] = useState("All Shop");
+
+  const filteredShops =
+    activeTab === "All Shop" || activeTab === "Set Credit"
+      ? shops
+      : shops.filter((shop) => shop.status === activeTab);
+
   return (
     <div className="space-y-4">
-      <ShopTabs />
+      <ShopTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <ShopsTable shops={shops} />
+      {activeTab === "Set Credit" ? (
+        <SetCreditTable shops={shops.filter((shop) => shop.status === "Approved")} />
+      ) : (
+        <ShopsTable shops={filteredShops} />
+      )}
 
-      <ShopsPagination start={1} end={2} total={2} />
+      <ShopsPagination start={1} end={filteredShops.length} total={shops.length} />
     </div>
   );
 }
