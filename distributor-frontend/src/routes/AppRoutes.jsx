@@ -11,6 +11,8 @@ import DriversPage from "../pages/DriversPage";
 import MyInventoryPage from "../pages/MyInventoryPage";
 import RequestStockPage from "../pages/RequestStockPage";
 import PaymentsPage from "../pages/PaymentsPage";
+import AnalyticsPage from "../pages/AnalyticsPage";
+import SettingsPage from "../pages/SettingsPage";
 
 export default function AppRoutes() {
   return (
@@ -31,6 +33,8 @@ export default function AppRoutes() {
         <Route path="my-inventory" element={<MyInventoryPage />} />
         <Route path="request-stock" element={<RequestStockPage />} />
         <Route path="payments" element={<PaymentsPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );
