@@ -15,21 +15,26 @@ function DriverLayout() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       
+      
       {/* Sidebar */}
-      <div className="w-52 bg-gray-900 flex flex-col p-4">
-        <div className="text-purple-400 text-lg font-semibold mb-8 px-2">
-          VENDORA
+      <div className="w-60 bg-orange-50 flex flex-col p-4 border-r border-orange-100">
+        <div className="flex items-center gap-3 mb-8 px-2 pt-2">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-300 to-red-400" />
+          <div>
+            <div className="text-xs text-gray-400">Hello Again!</div>
+            <div className="text-sm font-medium text-orange-600">Jayarathne Stores</div>
+          </div>
         </div>
 
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-2">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-all ${
                 location.pathname === item.path
-                  ? 'bg-purple-600 text-white'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  ? 'bg-orange-500 text-white shadow-sm'
+                  : 'text-gray-500 hover:bg-orange-100'
               }`}
             >
               <item.icon size={17} />
@@ -39,9 +44,9 @@ function DriverLayout() {
         </nav>
 
         <div className="mt-auto">
-          <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-gray-800 w-full">
-            <LogOut size={17} />
-            Log Out
+          <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-full text-sm font-medium text-gray-500 border border-gray-200 hover:bg-orange-100 w-full">
+            <LogOut size={16} />
+            Log out
           </button>
         </div>
       </div>
