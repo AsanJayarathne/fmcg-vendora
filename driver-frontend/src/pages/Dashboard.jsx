@@ -1,7 +1,14 @@
 import { Briefcase, CheckCircle, Wallet, Undo2, Truck } from 'lucide-react';
 import StatCard from '../components/StatCard';
-import StatusBadge from '../components/StatusBadge';
-import JobCard from '../components/JobCard';
+import {
+  Truck,
+  CheckCircle,
+  Wallet,
+  ShoppingCart,
+  Undo2
+} from 'lucide-react';
+
+import StatCard from '../components/StatCard';
 
 function Dashboard() {
   
@@ -18,33 +25,87 @@ function Dashboard() {
   const returned = history.filter((h) => h.status === 'Returned').length;
   const cashCollected = completed * 31250; // placeholder calculation until backend is connected
 
-  const stats = [
-    { label: 'Jobs Claimed', value: jobsClaimed, icon: Briefcase, color: 'text-purple-600' },
-    { label: 'Completed', value: completed, icon: CheckCircle, color: 'text-green-600' },
-    { label: 'Cash Collected', value: `Rs. ${cashCollected.toLocaleString()}`, icon: Wallet, color: 'text-amber-600' },
-    { label: 'Returned', value: returned, icon: Undo2, color: 'text-red-500' },
-  ];
+ const stats = [
+  {
+    title: 'Jobs Claimed',
+    value: 4,
+    percentage: '↑ 18.72%',
+    icon: Truck,
+    percentageColor: 'text-green-600',
+    iconColor: 'text-gray-500'
+  },
+
+  {
+    title: 'Jobs Completed',
+    value: 4,
+    percentage: '↓ 33.02%',
+    icon: CheckCircle,
+    percentageColor: 'text-red-500',
+    iconColor: 'text-black'
+  },
+
+  {
+    title: 'Cash Claimed',
+    value: 'Rs. 125,000',
+    percentage: '↑ 33.02%',
+    icon: Wallet,
+    percentageColor: 'text-green-600',
+    iconColor: 'text-gray-400'
+  },
+
+  {
+    title: 'Cash Processed',
+    value: 'Rs. 250,000',
+    percentage: '↓ 33.02%',
+    icon: ShoppingCart,
+    percentageColor: 'text-red-500',
+    iconColor: 'text-gray-400'
+  },
+
+  {
+    title: 'Returned',
+    value: 0,
+    percentage: '↑ 18.72%',
+    icon: Undo2,
+    percentageColor: 'text-green-600',
+    iconColor: 'text-gray-500'
+  }
+];
 
   
   return (
     <div>
       {/* Page title */}
       <div className="mb-6">
-        <h2 className="text-xl font-medium text-gray-800">Dashboard</h2>
-        <p className="text-sm text-gray-500 mt-1">Here's your summary for today</p>
+        <h2 className="text-5xl font-bold text-black">
+        Today Summary
+        </h2>
+        
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-4 gap-6 mb-4">
         {stats.map((stat) => (
           <StatCard
-            key={stat.label}
-            label={stat.label}
+            key={stat.title}
+            title={stat.title}
             value={stat.value}
+            percentage={stat.percentage}
             icon={stat.icon}
-            color={stat.color}
+            percentageColor={stat.percentageColor}
+            iconColor={stat.iconColor}
           />
         ))}
+      </div>
+      <div className="w-[220px] mt-4 mb-10">
+        <StatCard
+          title="Returned"
+          value="0"
+          percentage="↑ 18.72%"
+          icon={Undo2}
+          percentageColor="text-green-600"
+          iconColor="text-gray-500"
+        />
       </div>
 
       {/* Bottom grid */}
