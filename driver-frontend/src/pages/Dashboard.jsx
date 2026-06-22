@@ -1,106 +1,106 @@
-import { Briefcase, CheckCircle, Wallet, Undo2 } from 'lucide-react';
+import { Truck, CheckCircle, Wallet, ShoppingCart, Undo2, Download } from 'lucide-react';
 import StatCard from '../components/StatCard';
 import StatusBadge from '../components/StatusBadge';
-import JobCard from '../components/JobCard';
 
 function Dashboard() {
   const history = [
-    { id: 'ORD-1234', route: 'Colombo — Nugegoda', status: 'Delivered', date: '17/06/26' },
-    { id: 'ORD-1235', route: 'Kandy — Peradeniya', status: 'Delivered', date: '17/06/26' },
-    { id: 'ORD-1236', route: 'Galle — Matara', status: 'Returned', date: '17/06/26' },
-    { id: 'ORD-1237', route: 'Negombo — Ja-Ela', status: 'Pending', date: '17/06/26' },
+    { id: 'ORD-1234', route: 'Colombo - Nugegoda', status: 'Delivered', date: '17/06/26', paymentType: 'Cash on delivery', amount: 'Rs. 5,756.00', weight: '21kg', items: 22 },
+    { id: 'ORD-1235', route: 'Kandy - Peradeniya', status: 'Delivered', date: '17/06/26', paymentType: 'Credit', amount: 'Rs. 5,450.00', weight: '10kg', items: 20 },
+    { id: 'ORD-1236', route: 'Galle - Matara', status: 'Returned', date: '17/06/26', paymentType: 'Cash on delivery', amount: 'Rs. 3,200.00', weight: '8kg', items: 12 },
   ];
 
   const jobsClaimed = history.length;
-  const completed = history.filter((h) => h.status === 'Delivered').length;
+  const jobsCompleted = history.filter((h) => h.status === 'Delivered').length;
   const returned = history.filter((h) => h.status === 'Returned').length;
-  const cashCollected = completed * 31250;
+  const cashClaimed = history.reduce((sum, h) => sum + parseFloat(h.amount.replace('Rs. ', '').replace(',', '')), 0);
+  const cashProcessed = history.filter((h) => h.status === 'Delivered').reduce((sum, h) => sum + parseFloat(h.amount.replace('Rs. ', '').replace(',', '')), 0);
 
   const stats = [
-    { label: 'Jobs Claimed', value: jobsClaimed, icon: Briefcase, color: 'text-orange-500' },
-    { label: 'Completed', value: completed, icon: CheckCircle, color: 'text-green-600' },
-    { label: 'Cash Collected', value: `Rs. ${cashCollected.toLocaleString()}`, icon: Wallet, color: 'text-amber-600' },
-    { label: 'Returned', value: returned, icon: Undo2, color: 'text-red-500' },
+    { label: 'Jobs Claimed', value: jobsClaimed, icon: Truck, percentage: '18.72%', percentageUp: true },
+    { label: 'Jobs Completed', value: jobsCompleted, icon: CheckCircle, percentage: '33.02%', percentageUp: false },
+    { label: 'Cash Claimed', value: `Rs. ${cashClaimed.toLocaleString()}.00`, icon: Wallet, percentage: '33.02%', percentageUp: true },
+    { label: 'Cash Processed', value: `Rs. ${cashProcessed.toLocaleString()}.00`, icon: ShoppingCart, percentage: '33.02%', percentageUp: false },
+    { label: 'Returned', value: returned, icon: Undo2, percentage: '18.72%', percentageUp: true },
+  ];
+
+  const avatarColors = [
+    'bg-pink-200',
+    'bg-yellow-200',
+    'bg-blue-200',
   ];
 
   return (
-    <div>
-      <div className="mb-6">
-        <h2 className="text-xl font-medium text-gray-800">Dashboard</h2>
-        <p className="text-sm text-gray-500 mt-1">Here's your summary for today</p>
+    <div className="bg-white min-h-screen p-6">
+
+      {/* Title */}
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-gray-900">Today Summary</h2>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        {stats.map((stat) => (
-          <StatCard
-            key={stat.label}
-            label={stat.label}
-            value={stat.value}
-            icon={stat.icon}
-            color={stat.color}
-          />
+      {/* Stats — 4 in first row */}
+      <div className="grid grid-cols-4 gap-4 mb-4">
+        {stats.slice(0, 4).map((stat) => (
+          <StatCard key={stat.label} {...stat} />
         ))}
       </div>
 
-      {/* Bottom grid */}
-      <div className="grid grid-cols-2 gap-4">
-
-        {/* Delivery History */}
-        <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-800">Delivery history</h3>
-            <span className="text-xs text-orange-500 cursor-pointer">View all</span>
-          </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-gray-400 border-b border-gray-100">
-                <th className="pb-2 font-medium">Order No.</th>
-                <th className="pb-2 font-medium">Route</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2 font-medium text-right">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((item) => (
-                <tr key={item.id} className="border-b border-gray-50 last:border-0">
-                  <td className="py-2.5 text-gray-800 font-medium">{item.id}</td>
-                  <td className="py-2.5 text-gray-500">{item.route}</td>
-                  <td className="py-2.5">
-                    <StatusBadge status={item.status} />
-                  </td>
-                  <td className="py-2.5 text-gray-400 text-right">{item.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Open Jobs */}
-        <div className="bg-white rounded-xl border border-gray-100 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-800">Open jobs nearby</h3>
-            <span className="text-xs text-orange-500 cursor-pointer">See all</span>
-          </div>
-          <div className="flex flex-col gap-3">
-            {[
-              { route: 'Colombo — Nugegoda', items: 5, amount: 'Rs. 32,000', status: 'Available' },
-              { route: 'Kandy — Peradeniya', items: 3, amount: 'Rs. 18,500', status: 'Available' },
-              { route: 'Galle — Matara', items: 7, amount: 'Rs. 47,000', status: 'Available' },
-            ].map((job) => (
-              <JobCard
-                key={job.route}
-                route={job.route}
-                items={job.items}
-                amount={job.amount}
-                status={job.status}
-                onClaim={() => alert('Go to Job Pool page to claim routes')}
-              />
-            ))}
-          </div>
-        </div>
-
+      {/* Stats — 1 in second row */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <StatCard {...stats[4]} />
       </div>
+
+      {/* Delivery History */}
+      <div>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Delivery History</h3>
+        <div className="flex flex-col gap-3">
+          {history.map((item, index) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between p-4 rounded-2xl bg-orange-50 border border-orange-100"
+            >
+              {/* Avatar + Order Info */}
+              <div className="flex items-center gap-4 w-48">
+                <div className={`w-10 h-10 rounded-full ${avatarColors[index % avatarColors.length]} flex items-center justify-center`}>
+                  <Truck size={18} className="text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">{item.id}</div>
+                  <div className="text-xs text-orange-500 mt-0.5">
+                    Weight: <span className="font-medium">{item.weight}</span> &nbsp;
+                    Items: <span className="font-medium">{item.items}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Type */}
+              <div className="w-36">
+                <div className="text-xs text-gray-400 mb-0.5">Payment Type</div>
+                <div className="text-xs text-orange-500 font-medium">{item.paymentType}</div>
+              </div>
+
+              {/* Status */}
+              <div className="w-28">
+                <div className="text-xs text-gray-400 mb-0.5">Status</div>
+                <div className="text-xs text-orange-500 font-medium">{item.status}</div>
+              </div>
+
+              {/* Amount */}
+              <div className="w-28">
+                <div className="text-xs text-gray-400 mb-0.5">Amount</div>
+                <div className="text-xs text-orange-500 font-medium">{item.amount}</div>
+              </div>
+
+              {/* Download Button */}
+              <button className="flex items-center gap-2 text-xs px-4 py-2 rounded-full border border-orange-400 text-orange-500 hover:bg-orange-100 transition-all">
+                <Download size={13} />
+                Download Invoice
+              </button>
+
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }

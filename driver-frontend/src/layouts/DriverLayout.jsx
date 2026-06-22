@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Map, Wallet, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Map, Wallet, User, LogOut, MessageCircle, Bell } from 'lucide-react';
 
 function DriverLayout() {
   const location = useLocation();
@@ -54,17 +54,18 @@ function DriverLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-auto">
         
-        {/* Top Bar */}
-        <div className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
-          <div>
-            <div className="text-sm font-medium text-gray-800">Hello, Kamal</div>
-            <div className="text-xs text-gray-400">Delivery Driver · D001</div>
-          </div>
+       {/* Top Bar */}
+        <div className="h-16 bg-white border-b border-orange-100 flex items-center justify-between px-6 flex-shrink-0">
+          <div></div>
           <div className="flex items-center gap-3">
-            <span className="text-xs bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-              On Duty
-            </span>
-            <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs font-medium">
+            <button className="flex items-center gap-2 bg-gray-900 text-white text-xs px-4 py-2 rounded-full hover:bg-gray-700">
+              <MessageCircle size={14} />
+              Messages
+            </button>
+            <button className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center hover:bg-orange-200">
+              <Bell size={16} className="text-orange-500" />
+            </button>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-300 to-red-400 flex items-center justify-center text-white text-xs font-medium">
               KP
             </div>
           </div>
