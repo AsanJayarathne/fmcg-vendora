@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import JobCard from '../components/JobCard';
 
-
 function JobPool() {
   const [jobs, setJobs] = useState([
-    { id: 1, route: 'Colombo — Nugegoda', items: 5, amount: 'Rs. 32,000', distance: '12 km', status: 'Available' },
-    { id: 2, route: 'Kandy — Peradeniya', items: 3, amount: 'Rs. 18,500', distance: '8 km', status: 'Available' },
-    { id: 3, route: 'Galle — Matara', items: 7, amount: 'Rs. 47,000', distance: '20 km', status: 'Available' },
-    { id: 4, route: 'Negombo — Ja-Ela', items: 4, amount: 'Rs. 25,000', distance: '15 km', status: 'Available' },
-    { id: 5, route: 'Kurunegala — Polgahawela', items: 6, amount: 'Rs. 38,000', distance: '18 km', status: 'Available' },
+    { id: 1, orderId: 'ORD-1234', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '12 kg', items: '10 Items', distance: '12 km', status: 'Available' },
+    { id: 2, orderId: 'ORD-1235', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '8 kg', items: '6 Items', distance: '8 km', status: 'Available' },
+    { id: 3, orderId: 'ORD-1236', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '15 kg', items: '12 Items', distance: '20 km', status: 'Available' },
+    { id: 4, orderId: 'ORD-1237', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '5 kg', items: '4 Items', distance: '5 km', status: 'Available' },
+    { id: 5, orderId: 'ORD-1238', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '10 kg', items: '8 Items', distance: '15 km', status: 'Available' },
+    { id: 6, orderId: 'ORD-1239', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '7 kg', items: '5 Items', distance: '10 km', status: 'Available' },
+    { id: 7, orderId: 'ORD-1240', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '20 kg', items: '15 Items', distance: '25 km', status: 'Available' },
+    { id: 8, orderId: 'ORD-1241', store: 'Jayarathne Stores', address: 'No.297, Galle Road, Colombo 03', weight: '3 kg', items: '2 Items', distance: '3 km', status: 'Available' },
   ]);
 
   const claimJob = (id) => {
@@ -18,28 +20,19 @@ function JobPool() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-xl font-medium text-gray-800">Open job pool</h2>
-        <p className="text-sm text-gray-500 mt-1">Claim available delivery routes</p>
+    <div className="bg-white min-h-screen p-6">
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-gray-900">Job Pool</h2>
       </div>
 
-      {/* Job Cards */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <div className="flex flex-col gap-3">
-         {jobs.map((job) => (
-            <JobCard
-              key={job.id}
-              route={job.route}
-              items={job.items}
-              amount={job.amount}
-              distance={job.distance}
-              status={job.status}
-              onClaim={() => claimJob(job.id)}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-4 gap-4">
+        {jobs.map((job) => (
+          <JobCard
+            key={job.id}
+            job={job}
+            onClaim={() => claimJob(job.id)}
+          />
+        ))}
       </div>
     </div>
   );

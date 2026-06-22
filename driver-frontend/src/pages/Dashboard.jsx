@@ -72,26 +72,26 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Payment Type */}
+             {/* Payment Type */}
               <div className="w-36">
-                <div className="text-xs text-gray-400 mb-0.5">Payment Type</div>
-                <div className="text-xs text-orange-500 font-medium">{item.paymentType}</div>
+                <div className="text-xs font-semibold text-gray-900 mb-0.5">Payment Type</div>
+                <div className="text-xs text-gray-400">{item.paymentType}</div>
               </div>
 
               {/* Status */}
               <div className="w-28">
-                <div className="text-xs text-gray-400 mb-0.5">Status</div>
-                <div className="text-xs text-orange-500 font-medium">{item.status}</div>
+                <div className="text-xs font-semibold text-gray-900 mb-0.5">Status</div>
+                <div className="text-xs text-gray-400">{item.status}</div>
               </div>
 
               {/* Amount */}
               <div className="w-28">
-                <div className="text-xs text-gray-400 mb-0.5">Amount</div>
-                <div className="text-xs text-orange-500 font-medium">{item.amount}</div>
+                <div className="text-xs font-semibold text-gray-900 mb-0.5">Amount</div>
+                <div className="text-xs text-gray-400">{item.amount}</div>
               </div>
 
               {/* Download Button */}
-              <button className="flex items-center gap-2 text-xs px-4 py-2 rounded-full border border-orange-400 text-orange-500 hover:bg-orange-100 transition-all">
+              <button className="flex items-center gap-2 text-xs px-4 py-2 rounded-full border border-blue-500 text-blue-500 hover:bg-blue-50 transition-all">
                 <Download size={13} />
                 Download Invoice
               </button>
