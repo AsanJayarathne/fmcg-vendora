@@ -1,17 +1,33 @@
-function StatusBadge({ status }) {
-  const styles = {
-    Delivered: 'bg-green-100 text-green-700',
-    Returned: 'bg-red-100 text-red-600',
-    Pending: 'bg-yellow-100 text-yellow-700',
-    Available: 'bg-purple-100 text-purple-600',
-    Claimed: 'bg-green-100 text-green-700',
-  };
-
+function StatCard({
+  title,
+  value,
+  percentage,
+  icon: Icon,
+  iconColor = "text-gray-500",
+  percentageColor = "text-green-600"
+}) {
   return (
-    <span className={`text-xs px-3 py-1 rounded-full ${styles[status] || 'bg-gray-100 text-gray-600'}`}>
-      {status}
-    </span>
+    <div className="bg-[#F7F1EA] rounded-3xl p-5 flex justify-between items-center min-h-[110px]">
+      <div>
+        <h4 className="text-sm font-medium text-black mb-4">
+          {title}
+        </h4>
+
+        <div className="text-3xl font-semibold text-black">
+          {value}
+        </div>
+
+        <div className={`text-sm mt-1 ${percentageColor}`}>
+          {percentage}
+        </div>
+      </div>
+
+      <Icon
+        size={42}
+        className={iconColor}
+      />
+    </div>
   );
 }
 
-export default StatusBadge;
+export default StatCard;
