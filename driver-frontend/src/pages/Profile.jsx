@@ -1,26 +1,27 @@
 import { Mail, Phone, MapPin, IdCard } from 'lucide-react';
+
 function Profile() {
   return (
-    <div>
-      {/* Header */}
+    <div className="bg-white min-h-screen p-6">
+
       <div className="mb-6">
-        <h2 className="text-xl font-medium text-gray-800">Profile</h2>
-        <p className="text-sm text-gray-500 mt-1">Your account details</p>
+        <h2 className="text-4xl font-bold text-gray-900">Profile</h2>
+        <p className="text-sm text-gray-400 mt-1">Your account details</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
 
         {/* Profile Card */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center gap-4 mb-5 pb-5 border-b border-gray-100">
-            <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-lg font-medium">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-300 to-red-400 flex items-center justify-center text-white text-lg font-medium">
               KP
             </div>
             <div>
               <div className="text-base font-medium text-gray-800">Kamal Perera</div>
               <div className="text-xs text-gray-400 mt-0.5">Delivery Driver · D001</div>
               <div className="mt-1.5">
-                <span className="text-xs bg-purple-100 text-purple-600 px-3 py-0.5 rounded-full">
+                <span className="text-xs bg-orange-100 text-orange-500 px-3 py-0.5 rounded-full">
                   On Duty
                 </span>
               </div>
@@ -49,11 +50,11 @@ function Profile() {
         </div>
 
         {/* Stats Card */}
-        <div className="bg-white rounded-xl border border-gray-100 p-5">
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
           <h3 className="text-sm font-medium text-gray-800 mb-4">Performance summary</h3>
           <div className="flex flex-col gap-3">
             {[
-              { label: 'Total deliveries', value: '248', color: 'text-purple-600' },
+              { label: 'Total deliveries', value: '248', color: 'text-orange-500' },
               { label: 'Successful deliveries', value: '241', color: 'text-green-600' },
               { label: 'Returned orders', value: '7', color: 'text-red-500' },
               { label: 'Success rate', value: '97%', color: 'text-amber-600' },
