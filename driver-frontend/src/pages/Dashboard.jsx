@@ -13,14 +13,13 @@ function Dashboard() {
   const jobsCompleted = history.filter((h) => h.status === 'Delivered').length;
   const returned = history.filter((h) => h.status === 'Returned').length;
   const cashClaimed = history.reduce((sum, h) => sum + parseFloat(h.amount.replace('Rs. ', '').replace(',', '')), 0);
-  const cashProcessed = history.filter((h) => h.status === 'Delivered').reduce((sum, h) => sum + parseFloat(h.amount.replace('Rs. ', '').replace(',', '')), 0);
-
+ 
   const stats = [
     { label: 'Jobs Claimed', value: jobsClaimed, icon: Truck, percentage: '18.72%', percentageUp: true },
     { label: 'Jobs Completed', value: jobsCompleted, icon: CheckCircle, percentage: '33.02%', percentageUp: false },
     { label: 'Cash Claimed', value: `Rs. ${cashClaimed.toLocaleString()}.00`, icon: Wallet, percentage: '33.02%', percentageUp: true },
-    { label: 'Cash Processed', value: `Rs. ${cashProcessed.toLocaleString()}.00`, icon: ShoppingCart, percentage: '33.02%', percentageUp: false },
     { label: 'Returned', value: returned, icon: Undo2, percentage: '18.72%', percentageUp: true },
+    
   ];
 
   const avatarColors = [
@@ -44,11 +43,7 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Stats — 1 in second row */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <StatCard {...stats[4]} />
-      </div>
-
+    
       {/* Delivery History */}
       <div>
         <h3 className="text-xl font-bold text-gray-900 mb-4">Delivery History</h3>
