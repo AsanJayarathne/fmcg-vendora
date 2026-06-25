@@ -1,7 +1,7 @@
 import {
   FiHome,
   FiShoppingBag,
-  FiTruck,
+  FiBarChart2,
   FiClipboard,
   FiSettings,
   FiLogOut
@@ -22,15 +22,16 @@ function Sidebar() {
       path: "/products",
       icon: <FiShoppingBag size={20} />
     },
-    {
-      name: "Distributors",
-      path: "/distributors",
-      icon: <FiTruck size={20} />
-    },
+    
     {
       name: "My Orders",
       path: "/orders",
       icon: <FiClipboard size={20} />
+    },
+    {
+      name: "Analytics",
+      path: "/analytics",
+      icon: <FiBarChart2 size={20} />
     },
     {
       name: "Settings",
@@ -95,7 +96,7 @@ function Sidebar() {
 
       </div>
 
-      {/* Logout */}
+      
       <div className="mt-auto">
 
         <button
