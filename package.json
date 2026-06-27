@@ -17,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/AsanJayarathne/fmcg-vendora/issues"
   },
-  "homepage": "https://github.com/AsanJayarathne/fmcg-vendora#readme"
+  "homepage": "https://github.com/AsanJayarathne/fmcg-vendora#readme",
+  "dependencies": {
+    "react-router-dom": "^7.18.0"
+  },
+  "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.81"
+  }
 }
