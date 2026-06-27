@@ -1,36 +1,42 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+
 
 const Sidebar = () => {
   const menuItems = [
-    { 
-      id: 'dashboard', 
-      label: 'Dashboard', 
+    {
+      id: 'dashboard',
+      label: 'Dashboard',
+      path: '/dashboard',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M15.1581 16.885H9.34306C8.92906 16.885 8.59306 16.549 8.59306 16.135C8.59306 15.721 8.92906 15.385 9.34306 15.385H15.1581C15.5721 15.385 15.9081 15.721 15.9081 16.135C15.9081 16.549 15.5721 16.885 15.1581 16.885ZM19.4991 6.158C19.1361 5.838 18.7231 5.476 18.2311 5.021C18.0081 4.841 17.7641 4.635 17.5051 4.417C16.0451 3.186 14.0451 1.5 12.2221 1.5C10.4201 1.5 8.54906 3.092 7.04606 4.371C6.76806 4.607 6.50806 4.829 6.24306 5.044C5.77706 5.476 5.36406 5.839 5.00006 6.16C2.61306 8.261 2.16406 8.812 2.16406 13.713C2.16406 22.5 4.70506 22.5 12.2501 22.5C19.7941 22.5 22.3361 22.5 22.3361 13.713C22.3361 8.811 21.8871 8.26 19.4991 6.158Z" fill="currentColor" />
         </svg>
       )
     },
-    { 
-      id: 'products Catalog', 
-      label: 'Products Catalog', 
+    {
+      id: 'products Catalog',
+      label: 'Products Catalog',
+      path: '/products',
       icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g stroke="currentColor" strokeWidth="1.5" fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round">
-            <g transform="translate(2.5, 1.5)">
-              <path d="M14.01373,20 L5.66590392,20 C2.59954235,20 0.247139589,18.8924486 0.915331812,14.4347827 L1.69336385,8.39359272 C2.10526317,6.16933642 3.52402748,5.31807783 4.76887874,5.31807783 L14.9473685,5.31807783 C16.2105264,5.31807783 17.5469108,6.23340964 18.0228834,8.39359272 L18.8009154,14.4347827 C19.3684211,18.3890161 17.0800916,20 14.01373,20 Z" />
-              <path d="M14.1510298,5.09839819 C14.1510298,2.71232585 12.216736,0.7779932 9.83066366,0.7779932 C8.68166274,0.773163349 7.57805185,1.22619323 6.76386233,2.03694736 C5.9496728,2.84770148 5.49199087,3.94938696 5.49199087,5.09839819" />
-              <line x1="12.7963387" y1="9.60183071" x2="12.7505721" y2="9.60183071" />
-              <line x1="6.96567509" y1="9.60183071" x2="6.9199085" y2="9.60183071" />
-            </g>
-          </g>
-        </svg>
-      ),
-      active: true 
+        
+<svg id="Bag" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Iconly/Light/Bag</title>
+    <g id="Iconly/Light/Bag" stroke="none" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Bag" transform="translate(2.500000, 1.500000)" stroke="#000000" stroke-width="1.5">
+            <path d="M14.01373,20.0000001 L5.66590392,20.0000001 C2.59954235,20.0000001 0.247139589,18.8924486 0.915331812,14.4347827 L1.69336385,8.39359272 C2.10526317,6.16933642 3.52402748,5.31807783 4.76887874,5.31807783 L14.9473685,5.31807783 C16.2105264,5.31807783 17.5469108,6.23340964 18.0228834,8.39359272 L18.8009154,14.4347827 C19.3684211,18.3890161 17.0800916,20.0000001 14.01373,20.0000001 Z" id="Path_33955"></path>
+            <path d="M14.1510298,5.09839819 C14.1510298,2.71232585 12.216736,0.7779932 9.83066366,0.7779932 L9.83066366,0.7779932 C8.68166274,0.773163349 7.57805185,1.22619323 6.76386233,2.03694736 C5.9496728,2.84770148 5.49199087,3.94938696 5.49199087,5.09839819 L5.49199087,5.09839819" id="Path_33956"></path>
+            <line x1="12.7963387" y1="9.60183071" x2="12.7505721" y2="9.60183071" id="Line_192"></line>
+            <line x1="6.96567509" y1="9.60183071" x2="6.9199085" y2="9.60183071" id="Line_193"></line>
+        </g>
+    </g>
+</svg>
+      )
     },
-    { 
-      id: 'Warehouse Management', 
-      label: 'Warehouse Management', 
+    {
+      id: 'Warehouse Management',
+      label: 'Warehouse Management',
+      path: '/warehouse',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
           <g stroke="none" strokeWidth="1.5" fill="none" fillRule="evenodd">
@@ -42,9 +48,10 @@ const Sidebar = () => {
         </svg>
       )
     },
-    { 
-      id: 'Distributor Management', 
-      label: 'Distributor Management', 
+    {
+      id: 'Distributor Management',
+      label: 'Distributor Management',
+      path: '/distributor',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fillRule="evenodd" clipRule="evenodd" d="M18.7249 12.3084C17.5849 12.3084 16.5149 12.5384 15.6149 12.9284C18.7649 13.8384 20.9949 16.0184 21.0549 18.5684C22.6949 18.3584 24.4649 17.7384 24.4649 16.0484C24.4649 14.0184 21.8349 12.3084 18.7249 12.3084Z" fill="currentColor" />
@@ -56,9 +63,29 @@ const Sidebar = () => {
         </svg>
       )
     },
-    { 
-      id: 'analytics', 
-      label: 'Analytics', 
+    {
+      id: 'Order Request',
+      label: 'Order Request',
+      path: '/order-request',
+      icon: (
+        
+<svg id="Bag" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Iconly/Light/Bag</title>
+    <g id="Iconly/Light/Bag" stroke="none" stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="Bag" transform="translate(2.500000, 1.500000)" stroke="#000000" stroke-width="1.5">
+            <path d="M14.01373,20.0000001 L5.66590392,20.0000001 C2.59954235,20.0000001 0.247139589,18.8924486 0.915331812,14.4347827 L1.69336385,8.39359272 C2.10526317,6.16933642 3.52402748,5.31807783 4.76887874,5.31807783 L14.9473685,5.31807783 C16.2105264,5.31807783 17.5469108,6.23340964 18.0228834,8.39359272 L18.8009154,14.4347827 C19.3684211,18.3890161 17.0800916,20.0000001 14.01373,20.0000001 Z" id="Path_33955"></path>
+            <path d="M14.1510298,5.09839819 C14.1510298,2.71232585 12.216736,0.7779932 9.83066366,0.7779932 L9.83066366,0.7779932 C8.68166274,0.773163349 7.57805185,1.22619323 6.76386233,2.03694736 C5.9496728,2.84770148 5.49199087,3.94938696 5.49199087,5.09839819 L5.49199087,5.09839819" id="Path_33956"></path>
+            <line x1="12.7963387" y1="9.60183071" x2="12.7505721" y2="9.60183071" id="Line_192"></line>
+            <line x1="6.96567509" y1="9.60183071" x2="6.9199085" y2="9.60183071" id="Line_193"></line>
+        </g>
+    </g>
+</svg>
+      )
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      path: '/analytics',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g fillRule="evenodd">
@@ -69,19 +96,7 @@ const Sidebar = () => {
         </svg>
       )
     },
-    { 
-      id: 'requests', 
-      label: 'New Requests', 
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g fillRule="evenodd">
-            <g transform="translate(2, 2.5)" fill="currentColor" fillRule="nonzero">
-              <path d="M7.5,12.5151923 C11.5667957,12.5151923 15,13.1843563 15,15.7687489 C15,18.3531414 11.5447751,19 7.5,19 C3.43320432,19 -1.59872116e-14,18.3298221 -1.59872116e-14,15.7464434 C-1.59872116e-14,13.1620508 3.45422394,12.5151923 7.5,12.5151923 Z M16.9989726,5 C17.4952055,5 17.8979452,5.40944608 17.8979452,5.9116166 L17.8979452,5.9116166 L17.8979452,7.08786248 L19.1010274,7.08786248 C19.5962329,7.08786248 20,7.49730856 20,7.99947908 C20,8.50164959 19.5962329,8.91109568 19.1010274,8.91109568 L19.1010274,8.91109568 L17.8979452,8.91109568 L17.8979452,10.0883834 C17.8979452,10.5905539 17.4952055,11 16.9989726,11 C16.5037671,11 16.1,10.5905539 16.1,10.0883834 L16.1,10.0883834 L16.1,8.91109568 L14.8989726,8.91109568 C14.4027397,8.91109568 14,8.50164959 14,7.99947908 C14,7.49730856 14.4027397,7.08786248 14.8989726,7.08786248 L14.8989726,7.08786248 L16.1,7.08786248 L16.1,5.9116166 C16.1,5.40944608 16.5037671,5 16.9989726,5 Z M7.5,-5.32907052e-15 C10.2545709,-5.32907052e-15 12.4626318,2.23663006 12.4626318,5.02684127 C12.4626318,7.81705248 10.2545709,10.0536825 7.5,10.0536825 C4.74542907,10.0536825 2.53736821,7.81705248 2.53736821,5.02684127 C2.53736821,2.23663006 4.74542907,-5.32907052e-15 7.5,-5.32907052e-15 Z" />
-            </g>
-          </g>
-        </svg>
-      )
-    },
+    
   ];
 
   return (
@@ -89,16 +104,17 @@ const Sidebar = () => {
       <div className="h-[70px] flex items-center px-6 text-2xl font-bold text-blue-500 border-b border-slate-200">
         Vendora Admin
       </div>
-      <ul className="py-5 flex-1 list-none m-0 p-0">
+      <ul className="py-5 flex-1 list-none m-0 p-0 flex flex-col">
         {menuItems.map((item) => (
-          <li 
-            key={item.id} 
-            className={`px-6 py-3 flex items-center gap-3 cursor-pointer transition-colors font-medium
-              ${item.active ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'}`}
+          <NavLink
+            key={item.id}
+            to={item.path}
+            className={({ isActive }) => `px-6 py-3 flex items-center gap-3 cursor-pointer transition-colors font-medium
+              ${isActive ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-slate-500 hover:bg-slate-50 hover:text-blue-600'}`}
           >
             <span className="flex items-center justify-center w-6 h-6">{item.icon}</span>
             <span>{item.label}</span>
-          </li>
+          </NavLink>
         ))}
       </ul>
     </aside>
