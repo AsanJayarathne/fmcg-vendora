@@ -7,7 +7,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import AnalyticsHeader from "../components/analytics/AnalyticsHeader";
+import PageHeader from "../components/PageHeader";
 import AnalyticsKpiCards from "../components/analytics/AnalyticsKpiCards";
 import SalesOverview from "../components/analytics/SalesOverview";
 import SalesByTerritory from "../components/analytics/SalesByTerritory";
@@ -157,7 +157,12 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <AnalyticsHeader />
+      
+
+        <PageHeader
+              title="Analytics Overview"
+              subtitle=" Real-time insights into your business performance"
+            />
 
       <AnalyticsKpiCards kpis={kpis} />
 

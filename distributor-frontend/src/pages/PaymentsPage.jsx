@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-import PaymentHeader from "../components/payments/PaymentHeader";
 import PaymentTabs from "../components/payments/PaymentTabs";
 
 import PaymentsTable from "../components/payments/PaymentsTable";
 import OutstandingTable from "../components/payments/OutstandingTable";
 
 import PaymentsPagination from "../components/payments/PaymentsPagination";
+import PageHeader from "../components/PageHeader";
 
 export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState("payments");
@@ -35,7 +35,7 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-4">
-      <PaymentHeader
+      <PageHeader
         title="Payment History"
         subtitle="View And Manage your Current Payment"
       />

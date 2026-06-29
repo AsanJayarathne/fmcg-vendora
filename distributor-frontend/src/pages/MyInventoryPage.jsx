@@ -2,6 +2,7 @@ import InventoryFilters from "../components/inventory/InventoryFilters";
 import InventoryTable from "../components/inventory/InventoryTable";
 import InventoryPagination from "../components/inventory/InventoryPagination";
 import BatchDetailsTable from "../components/inventory/BatchDetailsTable";
+import PageHeader from "../components/PageHeader";
 
 const inventoryItems = [
   {
@@ -64,11 +65,11 @@ const batchDetails = [
 
 export default function MyInventoryPage() {
   return (
-    <div className="space-y-4">
-         <div className="p-4 bg-white border border-gray-200 rounded-lg">
-         <h2 className="text-lg font-bold text-gray-900">Manage My Stock</h2>
-         <p className="text-xs text-gray-500">View And Manage your Current Stock</p>
-        </div>
+    <div className="space-y-4">    
+          <PageHeader
+                title="Manage My Stock"
+                subtitle="View And Manage your Current Stock"
+              />
      
       <InventoryFilters />
 
