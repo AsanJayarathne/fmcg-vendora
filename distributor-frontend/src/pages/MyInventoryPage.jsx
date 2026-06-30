@@ -1,6 +1,6 @@
 import InventoryFilters from "../components/inventory/InventoryFilters";
 import InventoryTable from "../components/inventory/InventoryTable";
-import InventoryPagination from "../components/inventory/InventoryPagination";
+import Pagination from "../components/Pagination";
 import BatchDetailsTable from "../components/inventory/BatchDetailsTable";
 import PageHeader from "../components/PageHeader";
 
@@ -75,7 +75,7 @@ export default function MyInventoryPage() {
 
       <InventoryTable items={inventoryItems} />
 
-      <InventoryPagination start={1} end={8} total={178} />
+      <Pagination start={1} end={8} total={178} label="Products" />
 
       <BatchDetailsTable
         title="Batch Details-Item(ID-010)"

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import OrderTabs from "../components/orders/OrderTabs";
 import OrdersTable from "../components/orders/OrdersTable";
-import OrdersPagination from "../components/orders/OrdersPagination";
+import Pagination from "../components/Pagination";
 import MetricCard from "../components/MetricCard";
 import {
   ShoppingCart,
@@ -110,7 +110,7 @@ export default function OrdersPage() {
 
       <OrdersTable orders={filteredOrders} />
 
-      <OrdersPagination />
+      <Pagination start={1} end={8} total={20} label="Orders" />
     </div>
   );
 }

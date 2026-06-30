@@ -5,7 +5,7 @@ import RequestStockFilters from "../components/inventory/RequestStockFilters";
 import RequestStockTable from "../components/inventory/RequestStockTable";
 import RequestedStockTable from "../components/inventory/RequestedStockTable";
 import ReceivedStockTable from "../components/inventory/ReceivedStockTable";
-import RequestStockPagination from "../components/inventory/RequestStockPagination";
+import Pagination from "../components/Pagination";
 import CurrentRequestCard from "../components/inventory/CurrentRequestCard";
 import PageHeader from "../components/PageHeader";
 
@@ -95,7 +95,7 @@ export default function RequestStockPage() {
       {activeTab === "Request Stock" && (
         <>
           <RequestStockTable products={products} />
-          <RequestStockPagination start={1} end={8} total={178} />
+          <Pagination start={1} end={8} total={178} label="Products" />
           <CurrentRequestCard request={currentRequest} />
         </>
       )}
@@ -103,10 +103,11 @@ export default function RequestStockPage() {
       {activeTab === "Requested Stock" && (
         <>
           <RequestedStockTable requests={requestedStocks} />
-          <RequestStockPagination
+          <Pagination
             start={1}
             end={requestedStocks.length}
             total={requestedStocks.length}
+            label="Products"
           />
         </>
       )}
@@ -114,10 +115,11 @@ export default function RequestStockPage() {
       {activeTab === "Received Stock" && (
         <>
           <ReceivedStockTable receivedStocks={receivedStocks} />
-          <RequestStockPagination
+          <Pagination
             start={1}
             end={receivedStocks.length}
             total={receivedStocks.length}
+            label="Products"
           />
         </>
       )}

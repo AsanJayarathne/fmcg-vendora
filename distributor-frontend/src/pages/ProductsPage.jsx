@@ -1,6 +1,6 @@
 import ProductFilters from "../components/product/ProductFilters";
 import ProductTable from "../components/product/ProductTable";
-import ProductPagination from "../components/product/ProductPagination";
+import Pagination from "../components/Pagination";
 import MetricCard from "../components/MetricCard";
 import { ShoppingCart } from "lucide-react";
 import { ChartColumnBig } from "lucide-react";
@@ -48,7 +48,7 @@ export default function ProductsPage() {
       </div>
       <ProductFilters />
       <ProductTable />
-      <ProductPagination />
+      <Pagination start={1} end={8} total={178} label="Products" />
     </div>
   );
 }

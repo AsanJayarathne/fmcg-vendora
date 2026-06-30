@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DriverTabs from "../components/drivers/DriverTabs";
 import DriversTable from "../components/drivers/DriversTable";
-import DriversPagination from "../components/drivers/DriversPagination";
+import Pagination from "../components/Pagination";
 
 const drivers = [
   {
@@ -68,7 +68,7 @@ export default function DriversPage() {
 
       <DriversTable drivers={filteredDrivers} />
 
-      <DriversPagination start={1} end={filteredDrivers.length} total={drivers.length} />
+      <Pagination start={1} end={filteredDrivers.length} total={drivers.length} label="Pages" />
     </div>
   );
 }

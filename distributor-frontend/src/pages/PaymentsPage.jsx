@@ -5,7 +5,7 @@ import PaymentTabs from "../components/payments/PaymentTabs";
 import PaymentsTable from "../components/payments/PaymentsTable";
 import OutstandingTable from "../components/payments/OutstandingTable";
 
-import PaymentsPagination from "../components/payments/PaymentsPagination";
+import Pagination from "../components/Pagination";
 import PageHeader from "../components/PageHeader";
 
 export default function PaymentsPage() {
@@ -51,10 +51,11 @@ export default function PaymentsPage() {
         <OutstandingTable outstandings={outstandings} />
       )}
 
-      <PaymentsPagination
+      <Pagination
         start={1}
         end={8}
         total={20}
+        label="Orders"
       />
     </div>
   );

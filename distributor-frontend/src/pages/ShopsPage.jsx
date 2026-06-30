@@ -2,7 +2,7 @@ import { useState } from "react";
 import ShopTabs from "../components/shops/ShopTabs";
 import ShopsTable from "../components/shops/ShopsTable";
 import SetCreditTable from "../components/shops/SetCreditTable";
-import ShopsPagination from "../components/shops/ShopsPagination";
+import Pagination from "../components/Pagination";
 
 const shops = [
   {
@@ -58,7 +58,7 @@ export default function ShopsPage() {
         <ShopsTable shops={filteredShops} />
       )}
 
-      <ShopsPagination start={1} end={filteredShops.length} total={shops.length} />
+      <Pagination start={1} end={filteredShops.length} total={shops.length} label="Pages" />
     </div>
   );
 }
