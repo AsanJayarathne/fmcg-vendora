@@ -1,5 +1,4 @@
-import StatCard from "../components/StatCard.jsx";
-
+import StatCard from "../components/dashboard/StatCard.jsx";
 import FastMovingProducts from "../components/products/FastMovingProducts.jsx";
 import MostOrderedProducts from "../components/products/MostOrderedProducts.jsx";
 
@@ -8,6 +7,15 @@ import SavingsSummary from "../components/Cash/SavingSummary.jsx";
 
 import CreditStatsCards from "../components/Credits/CreditStatsCards.jsx";
 import CreditUsageChart from "../components/Credits/CreditUsageChart.jsx";
+
+import {
+  FiHome,
+  FiShoppingBag,
+  FiBarChart2,
+  FiClipboard,
+  FiSettings,
+  FiLogOut
+} from "react-icons/fi";
 
 export default function Analytics() {
     const creditData = {
@@ -40,7 +48,10 @@ export default function Analytics() {
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Analytics Overview</h1>
+        <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900">
+      <FiBarChart2 className="text-slate-900 w-8 h-8" />
+      <span>Analytics</span>
+    </h1>
 
         <div className="flex gap-3">
           <select className="border rounded-lg px-4 py-2">
