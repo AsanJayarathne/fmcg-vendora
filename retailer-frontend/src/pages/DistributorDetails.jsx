@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import distributors from "../data/distributors";
 import products from "../data/products";
@@ -9,16 +9,19 @@ import ProductDetailsModal from "../components/products/ProductDetailsModal";
 import AddToCartModal from "../components/products/AddToCartModal";
 import { CartContext } from "../context/CartContextObject";
 
+
 function DistributorDetails() {
+
   const { id } = useParams();
 
-  const {
-    cartCount,
-    addToCart,
-  } = useContext(CartContext);
+  const { cartItems, addToCart } =
+    useContext(CartContext);
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cartProduct, setCartProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState(null);
+
+  const [cartProduct, setCartProduct] =
+    useState(null);
 
   const distributor =
     distributors.find(
@@ -41,18 +44,21 @@ function DistributorDetails() {
 
   return (
     <div className="p-6">
+
       <DistributorHeader
         distributor={distributor}
       />
-
       <div className="mb-6 bg-blue-50 p-4 rounded-xl">
-        <h2 className="font-bold">
-          Distributor Order
-        </h2>
 
-        <p>
-          Items in Cart: {cartCount}
-        </p>
+      <h2 className="font-bold">
+        Distributor Order
+      </h2>
+
+      <p>
+        Items in Cart:
+        {cartItems.length}
+      </p>
+
       </div>
 
       <FastMovingProducts
@@ -69,14 +75,19 @@ function DistributorDetails() {
 
       <ProductDetailsModal
         product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        onClose={() =>
+          setSelectedProduct(null)
+        }
       />
 
       <AddToCartModal
-        product={cartProduct}
-        onClose={() => setCartProduct(null)}
-        onConfirm={addToCart}
-      />
+      product={cartProduct}
+      onClose={() =>
+      setCartProduct(null)
+      }
+      onConfirm={addToCart}
+    />
+
     </div>
   );
 }
