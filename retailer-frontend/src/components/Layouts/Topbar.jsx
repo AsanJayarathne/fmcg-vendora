@@ -3,7 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { CartContext } from "../../context/CartContextObject";
 import { OrderContext } from "../../context/OrderContextObject";
 import {
-  FiBell,
+  
   FiMessageSquare,
   FiShoppingCart,
   FiSettings,
@@ -101,10 +101,6 @@ function Topbar() {
           </div>
         )}
       </div>
-
-      <button className="relative bg-blue-600 text-white p-3 rounded-full">
-        <FiBell size={20} />
-      </button>
 
       <Link to="/cart" className="relative inline-block">
         <button className="bg-blue-600 text-white p-3 rounded-full">

@@ -1,13 +1,11 @@
-import { FiBarChart2, FiCalendar } from "react-icons/fi";
+import { FiHome, FiCalendar } from "react-icons/fi";
 
 export default function DashboardHeader() {
   return (
     <div className="flex justify-between items-center mb-6">
-
-      {/* LEFT SIDE */}
       <div>
         <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-          <FiBarChart2 />
+          <FiHome />
           Dashboard
         </h1>
 
@@ -16,7 +14,6 @@ export default function DashboardHeader() {
         </p>
       </div>
 
-      {/* RIGHT SIDE (DATE / FILTER) */}
       <div className="flex items-center gap-3">
 
         <div className="flex items-center gap-2 border rounded-lg px-3 py-2 bg-white shadow-sm">
