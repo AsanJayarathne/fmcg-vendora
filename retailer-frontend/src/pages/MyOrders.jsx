@@ -116,9 +116,12 @@ function MyOrders() {
   const deliveredOrders = orders.filter((order) => order.status === "Delivered");
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">My Orders</h1>
+    <div className="p-6 bg-slate-50 min-h-screen">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900">
+          <FiTruck className="text-slate-900 w-8 h-8" />
+          <span>My Orders</span>
+        </h1>
         <p className="text-gray-500 mt-1">
           Track distributor orders, payment details, and delivery status.
         </p>
