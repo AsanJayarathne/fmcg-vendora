@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-
+import {FiShoppingBag} from "react-icons/fi";
 import products from "../data/products";
 import { CartContext } from "../context/CartContextObject";
 import SearchBar from "../components/products/SearchBar";
@@ -34,6 +34,7 @@ function Products() {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">
+        <FiShoppingBag className="inline mr-2" />
         Products
       </h1>
 
