@@ -13,11 +13,13 @@ import RequestStockPage from "../pages/RequestStockPage";
 import PaymentsPage from "../pages/PaymentsPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
 import SettingsPage from "../pages/SettingsPage";
+import RegisterPage from "../auth/RegisterPage";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       <Route path="/" element={<DistributorLayout />}>
         <Route index element={<Dashboard />} />
