@@ -14,11 +14,13 @@ class UserRepository {
         return $stmt->fetch() ?: null;
     }
     public function create(array $data): int {
-        $stmt = $this->db->prepare("INSERT INTO users (full_name, email, phone, password, role_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$data['full_name'], $data['email'], $data['phone'], password_hash($data['password'], PASSWORD_BCRYPT), $data['role_id']]);
+        $isActive = isset($data['is_active']) ? ($data['is_active'] ? 1 : 0) : 1;
+        $stmt = $this->db->prepare("INSERT INTO users (full_name, email, phone, password, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$data['full_name'], $data['email'], $data['phone'], password_hash($data['password'], PASSWORD_BCRYPT), $data['role_id'], $isActive]);
         return (int)$this->db->lastInsertId();
     }
     public function setActive(int $userId, bool $active): void {
         $this->db->prepare("UPDATE users SET is_active = ? WHERE user_id = ?")->execute([$active ? 1 : 0, $userId]);
     }
 }
+

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../util/Database.php';
 require_once __DIR__ . '/../repository/UserRepository.php';
 require_once __DIR__ . '/../repository/TokenRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
@@ -48,6 +49,67 @@ class AuthService {
     public function logout(string $token): void {
         $this->tokenRepo->deleteByToken($token);
     }
+
+    // ─── Registration ────────────────────────────────────────────────────────
+
+    public function registerRetailer(array $userData, array $profileData): int {
+        $db = Database::getConnection();
+        $db->beginTransaction();
+        try {
+            if ($this->userRepo->findByEmail($userData['email'])) {
+                throw new Exception("Email is already registered", 400);
+            }
+            $userData['role_id']   = 3;     // RETAILER
+            $userData['is_active'] = false; // Inactive until Distributor approves
+            $userId = $this->userRepo->create($userData);
+            $this->retailerRepo->create($userId, $profileData);
+            $db->commit();
+            return $userId;
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function registerDistributor(array $userData, array $profileData): int {
+        $db = Database::getConnection();
+        $db->beginTransaction();
+        try {
+            if ($this->userRepo->findByEmail($userData['email'])) {
+                throw new Exception("Email is already registered", 400);
+            }
+            $userData['role_id']   = 2;     // DISTRIBUTOR
+            $userData['is_active'] = false; // Inactive until Admin approves
+            $userId = $this->userRepo->create($userData);
+            $this->distributorRepo->create($userId, $profileData);
+            $db->commit();
+            return $userId;
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    public function registerDriver(array $userData, array $profileData): int {
+        $db = Database::getConnection();
+        $db->beginTransaction();
+        try {
+            if ($this->userRepo->findByEmail($userData['email'])) {
+                throw new Exception("Email is already registered", 400);
+            }
+            $userData['role_id']   = 4;     // DRIVER
+            $userData['is_active'] = false; // Inactive until Distributor approves
+            $userId = $this->userRepo->create($userData);
+            $this->driverRepo->create($userId, $profileData);
+            $db->commit();
+            return $userId;
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw $e;
+        }
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private function getProfileId(int $userId, string $role): ?int {
         return match ($role) {
