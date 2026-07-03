@@ -13,11 +13,13 @@ import MyOrders from "./pages/MyOrders";
 import Messages from "./pages/Messages";
 import Analytics from "./pages/Analytics";
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login.jsx";
 
 function App() {
   return (
     <Routes>
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
 
       <Route
         path="*"
