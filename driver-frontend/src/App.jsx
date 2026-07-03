@@ -6,6 +6,7 @@ import MyRoute from './pages/MyRoute';
 import CashAudit from './pages/CashAudit';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
 
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route path="/" element={<DriverLayout />}>
           <Route index element={<Dashboard />} />
