@@ -80,7 +80,7 @@ function filterOrders(orders, activeTab) {
 
 function StatCard({ icon, label, value, linkText, color }) {
   return (
-    <div className="bg-white border rounded-xl p-5 flex gap-4 items-start">
+    <div className="bg-white border border-gray-200 rounded-xl p-5 flex gap-4 items-start">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
         {icon}
       </div>
@@ -128,13 +128,13 @@ function MyOrders() {
       </div>
 
       {!latestOrder ? (
-        <div className="bg-white border rounded-xl p-8 text-center text-gray-500">
+        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
           No confirmed orders yet.
         </div>
       ) : (
         <>
           <div className="grid gap-5 xl:grid-cols-[1.35fr_1fr]">
-            <section className="bg-white border rounded-xl p-5">
+            <section className="bg-white border border-gray-200 rounded-xl p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex gap-4">
                   <div className="w-14 h-14 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center">
@@ -235,8 +235,8 @@ function MyOrders() {
             </div>
           </div>
 
-          <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-            <section className="bg-white border rounded-xl overflow-hidden">
+          <div className="grid gap-5 mt-6 xl:grid-cols-[1fr_1fr]">
+            <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
               <div className="flex items-center justify-between p-5">
                 <h2 className="font-bold text-slate-900">Recent Orders</h2>
                 <button
@@ -309,7 +309,7 @@ function MyOrders() {
             </section>
 
             {selectedOrder && (
-              <section className="bg-white border rounded-xl overflow-hidden">
+              <section className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 <div className="flex items-center justify-between p-5 border-b">
                   <div className="flex items-center gap-3">
                     <FiArrowLeft />
@@ -323,7 +323,7 @@ function MyOrders() {
                 </div>
 
                 <div className="grid gap-4 p-5 md:grid-cols-2">
-                  <div className="border rounded-xl p-4">
+                  <div className="border border-gray-200 rounded-xl p-4">
                     <h3 className="font-bold mb-4">Order Information</h3>
                     <div className="space-y-3 text-sm">
                       <p className="flex justify-between">
@@ -367,7 +367,7 @@ function MyOrders() {
                     </div>
                   </div>
 
-                  <div className="border rounded-xl p-4">
+                  <div className="border border-gray-200 rounded-xl p-4">
                     <h3 className="font-bold mb-4">Order Status</h3>
                     <div className="space-y-4">
                       {selectedOrder.statusHistory.map((status) => (
@@ -393,7 +393,7 @@ function MyOrders() {
 
                 <div className="px-5 pb-5 overflow-x-auto">
                   <h3 className="font-bold mb-3">Ordered Items</h3>
-                  <table className="w-full text-sm border rounded-xl overflow-hidden">
+                  <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
                     <thead className="bg-gray-50 text-gray-500">
                       <tr>
                         <th className="text-left p-3">Product</th>
