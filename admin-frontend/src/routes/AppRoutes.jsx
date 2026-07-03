@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import Login from "../auth/Login";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductsPage from "../pages/ProductsPage";
 import Dashboard from "../pages/dashboard";
@@ -10,6 +11,8 @@ import AnalyticsPage from "../pages/AnalyticsPage";
 const AppRoutes = () => {
     return (
         <Routes>
+            <Route path="/login" element={<Login />} />
+            
             <Route path="/" element={<AdminLayout />}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
