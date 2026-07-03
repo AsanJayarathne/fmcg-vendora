@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "../auth/Login";
+import Register from "../auth/Register";
+import ProtectedRoute from "./ProtectedRoute";
 import DistributorLayout from "../layout/DistributorLayout";
 import Dashboard from "../pages/DashboardPage";
 import ProductsPage from "../pages/ProductsPage";
@@ -17,15 +19,22 @@ import SettingsPage from "../pages/SettingsPage";
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      <Route path="/" element={<DistributorLayout />}>
+      {/* Protected distributor routes */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <DistributorLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Dashboard />} />
-
         <Route path="product" element={<ProductsPage />} />
-
         <Route path="orders" element={<OrdersPage />} />
-
         <Route path="order-history" element={<OrderHistory />} />
         <Route path="delivery" element={<DeliveryPage />} />
         <Route path="shops" element={<ShopsPage />} />
