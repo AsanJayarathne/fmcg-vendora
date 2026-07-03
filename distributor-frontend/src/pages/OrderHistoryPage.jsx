@@ -1,3 +1,4 @@
+import { useState } from "react";
 import MetricCard from "../components/MetricCard";
 import OrderHistoryFilters from "../components/orders/OrderHistoryFilters";
 import OrderHistoryTable from "../components/orders/OrderHistoryTable";
@@ -5,6 +6,8 @@ import Pagination from "../components/Pagination";
 import { ShoppingCart, CheckSquare, Truck, Ban } from "lucide-react";
 
 export default function OrderHistory() {
+  const [currentPage, setCurrentPage] = useState(1);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -46,7 +49,13 @@ export default function OrderHistory() {
       </div>
       <OrderHistoryFilters />
       <OrderHistoryTable />
-      <Pagination start={1} end={8} total={1508} label="Orders" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={1508}
+        itemsPerPage={8}
+        label="Orders"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

@@ -56,6 +56,7 @@ const drivers = [
 
 export default function DriversPage() {
   const [activeTab, setActiveTab] = useState("All Drivers");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredDrivers =
     activeTab === "All Drivers"
@@ -68,7 +69,13 @@ export default function DriversPage() {
 
       <DriversTable drivers={filteredDrivers} />
 
-      <Pagination start={1} end={filteredDrivers.length} total={drivers.length} label="Pages" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={drivers.length}
+        itemsPerPage={8}
+        label="Drivers"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

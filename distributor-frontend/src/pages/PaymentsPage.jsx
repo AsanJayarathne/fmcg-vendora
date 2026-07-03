@@ -10,6 +10,7 @@ import PageHeader from "../components/PageHeader";
 
 export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState("payments");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const payments = [
     {
@@ -52,10 +53,11 @@ export default function PaymentsPage() {
       )}
 
       <Pagination
-        start={1}
-        end={8}
-        total={20}
+        currentPage={currentPage}
+        totalItems={20}
+        itemsPerPage={8}
         label="Orders"
+        onPageChange={setCurrentPage}
       />
     </div>
   );

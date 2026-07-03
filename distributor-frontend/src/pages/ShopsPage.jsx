@@ -42,6 +42,7 @@ const shops = [
 
 export default function ShopsPage() {
   const [activeTab, setActiveTab] = useState("All Shop");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredShops =
     activeTab === "All Shop" || activeTab === "Set Credit"
@@ -58,7 +59,13 @@ export default function ShopsPage() {
         <ShopsTable shops={filteredShops} />
       )}
 
-      <Pagination start={1} end={filteredShops.length} total={shops.length} label="Pages" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={shops.length}
+        itemsPerPage={8}
+        label="Shops"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

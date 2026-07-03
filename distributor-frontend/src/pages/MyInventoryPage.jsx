@@ -1,3 +1,4 @@
+import { useState } from "react";
 import InventoryFilters from "../components/inventory/InventoryFilters";
 import InventoryTable from "../components/inventory/InventoryTable";
 import Pagination from "../components/Pagination";
@@ -64,6 +65,8 @@ const batchDetails = [
 ];
 
 export default function MyInventoryPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
   return (
     <div className="space-y-4">    
           <PageHeader
@@ -75,7 +78,13 @@ export default function MyInventoryPage() {
 
       <InventoryTable items={inventoryItems} />
 
-      <Pagination start={1} end={8} total={178} label="Products" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={178}
+        itemsPerPage={8}
+        label="Products"
+        onPageChange={setCurrentPage}
+      />
 
       <BatchDetailsTable
         title="Batch Details-Item(ID-010)"
