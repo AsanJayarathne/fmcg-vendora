@@ -1,7 +1,7 @@
 import MetricCard from "../components/MetricCard";
 import OrderHistoryFilters from "../components/orders/OrderHistoryFilters";
 import OrderHistoryTable from "../components/orders/OrderHistoryTable";
-import OrderHistoryPagination from "../components/orders/OrderHistoryPagination";
+import Pagination from "../components/Pagination";
 import { ShoppingCart, CheckSquare, Truck, Ban } from "lucide-react";
 
 export default function OrderHistory() {
@@ -46,7 +46,7 @@ export default function OrderHistory() {
       </div>
       <OrderHistoryFilters />
       <OrderHistoryTable />
-      <OrderHistoryPagination />
+      <Pagination start={1} end={8} total={1508} label="Orders" />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import PaymentsPage from "../pages/PaymentsPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
 import SettingsPage from "../pages/SettingsPage";
 
+
 export default function AppRoutes() {
   return (
     <Routes>

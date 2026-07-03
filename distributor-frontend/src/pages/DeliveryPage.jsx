@@ -1,6 +1,6 @@
 import DeliveryFilters from "../components/delivery/DeliveryFilters";
 import DeliveryTable from "../components/delivery/DeliveryTable";
-import DeliveryPagination from "../components/delivery/DeliveryPagination";
+import Pagination from "../components/Pagination";
 
 const deliveries = [
   {
@@ -30,7 +30,7 @@ export default function DeliveryPage() {
     <div className="space-y-4">
       <DeliveryFilters />
       <DeliveryTable deliveries={deliveries} />
-      <DeliveryPagination start={1} end={8} total={1508} />
+      <Pagination start={1} end={8} total={1508} label="Orders" />
     </div>
   );
 }

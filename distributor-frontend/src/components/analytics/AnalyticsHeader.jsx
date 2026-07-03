@@ -1,4 +1,3 @@
-import { Calendar } from "lucide-react";
 
 export default function AnalyticsHeader() {
   return (
@@ -10,10 +9,6 @@ export default function AnalyticsHeader() {
         </p>
       </div>
 
-      <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white border rounded-lg">
-        <Calendar size={16} />
-        This Week
-      </button>
     </div>
   );
 }
