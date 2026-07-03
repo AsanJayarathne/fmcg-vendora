@@ -12,34 +12,33 @@ import Payment from "./pages/Payment";
 import MyOrders from "./pages/MyOrders";
 import Messages from "./pages/Messages";
 import Analytics from "./pages/Analytics";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
-    <MainLayout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
+    <Routes>
+      <Route path="/landing" element={<LandingPage />} />
 
-        <Route path="/products" element={<Products />} />
-
-        <Route path="/distributors" element={<Distributors />} />
-        <Route path="/distributors/:id" element={<DistributorDetails />} />
-
-        <Route path="/profile" element={<Profile />} />
-
-        <Route path="/cart" element={<Cart />} />
-
-        <Route path="/payment/:distributor" element={<Payment />} />
-
-        <Route path="/orders" element={<MyOrders />} />
-
-        <Route path="/analytics" element={<Analytics />} />
-
-        <Route path="/messages" element={<Messages />} />
-
-        <Route path="*" element={<Dashboard />} />
-
-      </Routes>
-    </MainLayout>
+      <Route
+        path="*"
+        element={
+          <MainLayout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/distributors" element={<Distributors />} />
+              <Route path="/distributors/:id" element={<DistributorDetails />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/payment/:distributor" element={<Payment />} />
+              <Route path="/orders" element={<MyOrders />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/messages" element={<Messages />} />
+            </Routes>
+          </MainLayout>
+        }
+      />
+    </Routes>
   );
 }
 
