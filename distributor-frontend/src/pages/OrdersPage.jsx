@@ -60,6 +60,7 @@ const orders = [
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState("All Orders");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredOrders =
     activeTab === "All Orders"
@@ -110,7 +111,13 @@ export default function OrdersPage() {
 
       <OrdersTable orders={filteredOrders} />
 
-      <Pagination start={1} end={8} total={20} label="Orders" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={20}
+        itemsPerPage={8}
+        label="Orders"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import DeliveryFilters from "../components/delivery/DeliveryFilters";
 import DeliveryTable from "../components/delivery/DeliveryTable";
 import Pagination from "../components/Pagination";
@@ -26,11 +27,19 @@ const deliveries = [
 ];
 
 export default function DeliveryPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
   return (
     <div className="space-y-4">
       <DeliveryFilters />
       <DeliveryTable deliveries={deliveries} />
-      <Pagination start={1} end={8} total={1508} label="Orders" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={1508}
+        itemsPerPage={8}
+        label="Orders"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

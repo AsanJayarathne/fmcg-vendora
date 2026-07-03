@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ProductFilters from "../components/product/ProductFilters";
 import ProductTable from "../components/product/ProductTable";
 import Pagination from "../components/Pagination";
@@ -8,6 +9,8 @@ import { CreditCard } from "lucide-react";
 import { TriangleAlert } from "lucide-react";
 
 export default function ProductsPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -48,7 +51,13 @@ export default function ProductsPage() {
       </div>
       <ProductFilters />
       <ProductTable />
-      <Pagination start={1} end={8} total={178} label="Products" />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={178}
+        itemsPerPage={8}
+        label="Products"
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

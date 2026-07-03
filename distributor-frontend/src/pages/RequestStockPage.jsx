@@ -81,6 +81,9 @@ const currentRequest = {
 
 export default function RequestStockPage() {
   const [activeTab, setActiveTab] = useState("Request Stock");
+  const [requestPage, setRequestPage] = useState(1);
+  const [requestedPage, setRequestedPage] = useState(1);
+  const [receivedPage, setReceivedPage] = useState(1);
 
   return (
     <div className="space-y-4">
@@ -95,7 +98,13 @@ export default function RequestStockPage() {
       {activeTab === "Request Stock" && (
         <>
           <RequestStockTable products={products} />
-          <Pagination start={1} end={8} total={178} label="Products" />
+          <Pagination
+            currentPage={requestPage}
+            totalItems={178}
+            itemsPerPage={8}
+            label="Products"
+            onPageChange={setRequestPage}
+          />
           <CurrentRequestCard request={currentRequest} />
         </>
       )}
@@ -104,10 +113,11 @@ export default function RequestStockPage() {
         <>
           <RequestedStockTable requests={requestedStocks} />
           <Pagination
-            start={1}
-            end={requestedStocks.length}
-            total={requestedStocks.length}
-            label="Products"
+            currentPage={requestedPage}
+            totalItems={requestedStocks.length}
+            itemsPerPage={8}
+            label="Requests"
+            onPageChange={setRequestedPage}
           />
         </>
       )}
@@ -116,10 +126,11 @@ export default function RequestStockPage() {
         <>
           <ReceivedStockTable receivedStocks={receivedStocks} />
           <Pagination
-            start={1}
-            end={receivedStocks.length}
-            total={receivedStocks.length}
-            label="Products"
+            currentPage={receivedPage}
+            totalItems={receivedStocks.length}
+            itemsPerPage={8}
+            label="Records"
+            onPageChange={setReceivedPage}
           />
         </>
       )}
