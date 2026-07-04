@@ -1,14 +1,52 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import deliveryImg from "../assets/delivery.png";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    console.log("Logging in with:", email, password);
-    // Add your login API call here
+  const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost/fmcg-vendora/backend/api/auth/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const json = await res.json();
+
+      if (!json.success) {
+        setError(json.message || "Login failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (json.data.role !== 'DRIVER') {
+        setError("Access denied. This portal is for Drivers only.");
+        setLoading(false);
+        return;
+      }
+
+      login(json.data);
+      navigate("/");
+    } catch (err) {
+      setError("Network error — make sure the backend is running.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,12 +57,15 @@ export default function Login() {
         <div style={styles.leftPanel}>
           <h1 style={styles.title}>Welcome Back</h1>
 
+          {error && <div style={styles.errorBanner}>{error}</div>}
+
           <div style={styles.fieldGroup}>
             <label style={styles.label}>E-mail</label>
             <input
+              id="login-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setError(""); }}
               style={styles.input}
             />
           </div>
@@ -32,9 +73,10 @@ export default function Login() {
           <div style={styles.fieldGroup}>
             <label style={styles.label}>Password</label>
             <input
+              id="login-password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(""); }}
               style={styles.input}
             />
           </div>
@@ -52,13 +94,18 @@ export default function Login() {
             <span style={styles.forgotLink}>Forgot Password?</span>
           </div>
 
-          <button onClick={handleLogin} style={styles.loginBtn}>
-            Log in
+          <button
+            id="login-submit"
+            onClick={handleLogin}
+            disabled={loading}
+            style={loading ? { ...styles.loginBtn, opacity: 0.6, cursor: "not-allowed" } : styles.loginBtn}
+          >
+            {loading ? "Logging in..." : "Log in"}
           </button>
 
           <p style={styles.registerText}>
             Don't Have an Account?{" "}
-            <span style={styles.registerLink}>Register</span>
+            <span onClick={() => navigate("/register")} style={styles.registerLink}>Register</span>
           </p>
         </div>
 
@@ -105,6 +152,15 @@ const styles = {
     fontWeight: "800",
     color: "#111111",
     margin: "0 0 36px 0",
+  },
+  errorBanner: {
+    backgroundColor: "#FEE2E2",
+    border: "1px solid #FCA5A5",
+    color: "#B91C1C",
+    padding: "12px",
+    borderRadius: "12px",
+    fontSize: "14px",
+    marginBottom: "20px",
   },
   fieldGroup: {
     marginBottom: "24px",

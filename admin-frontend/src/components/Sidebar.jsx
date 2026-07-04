@@ -1,8 +1,16 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 
 const Sidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   const menuItems = [
     {
       id: 'dashboard',
@@ -106,6 +114,21 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </ul>
+      <div className="p-4 border-t border-slate-200">
+        <button
+          onClick={handleLogout}
+          className="w-full px-6 py-3 flex items-center gap-3 cursor-pointer transition-colors font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-lg border-none bg-transparent"
+        >
+          <span className="flex items-center justify-center w-6 h-6">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span>Sign Out</span>
+        </button>
+      </div>
     </aside>
   );
 };

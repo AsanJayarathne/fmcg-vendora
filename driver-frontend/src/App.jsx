@@ -7,24 +7,35 @@ import CashAudit from './pages/CashAudit';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { AuthProvider } from './auth/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <AuthProvider>
+        <Routes>
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route path="/" element={<DriverLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="jobpool" element={<JobPool />} />
-          <Route path="myroute" element={<MyRoute />} />
-          <Route path="cashaudit" element={<CashAudit />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <DriverLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="jobpool" element={<JobPool />} />
+            <Route path="myroute" element={<MyRoute />} />
+            <Route path="cashaudit" element={<CashAudit />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
 
-      </Routes>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
