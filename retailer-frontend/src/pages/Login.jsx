@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
-import loginImage from "../assets/images/Login.png"; 
+import loginImage from "../assets/images/shop.png"; 
 
 function Login() {
   const [remember, setRemember] = useState(false);
