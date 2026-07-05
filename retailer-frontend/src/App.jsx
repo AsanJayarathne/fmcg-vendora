@@ -14,11 +14,15 @@ import Messages from "./pages/Messages";
 import Analytics from "./pages/Analytics";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
+import RegisterStep1 from "./pages/RegisterStep1.jsx";
+import RegisterStep2 from "./pages/RegisterStep2.jsx";
 
 function App() {
   return (
     <Routes>
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/register" element={<RegisterStep1 />} />
+      <Route path="/register-step2" element={<RegisterStep2 />} />
       <Route path="/login" element={<Login />} />
 
       <Route
