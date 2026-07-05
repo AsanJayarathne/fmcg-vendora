@@ -86,82 +86,84 @@ export default function Register() {
           {error && <div style={styles.errorBanner}>{error}</div>}
           {success && <div style={styles.successBanner}>{success}</div>}
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              value={form.fullName}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+          <div style={styles.formGrid}>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                value={form.fullName}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>E-mail</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>E-mail</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Password</label>
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>License Number</label>
-            <input
-              type="text"
-              name="licenseNumber"
-              value={form.licenseNumber}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>License Number</label>
+              <input
+                type="text"
+                name="licenseNumber"
+                value={form.licenseNumber}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Vehicle No.</label>
-            <input
-              type="text"
-              name="vehicleNumber"
-              value={form.vehicleNumber}
-              onChange={handleChange}
-              style={styles.input}
-            />
-          </div>
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Vehicle No.</label>
+              <input
+                type="text"
+                name="vehicleNumber"
+                value={form.vehicleNumber}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Distributor ID</label>
-            <input
-              type="number"
-              name="distributorId"
-              min="1"
-              value={form.distributorId}
-              onChange={handleChange}
-              style={styles.input}
-            />
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Distributor ID</label>
+              <input
+                type="number"
+                name="distributorId"
+                min="1"
+                value={form.distributorId}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
           </div>
 
           <button
@@ -186,7 +188,7 @@ export default function Register() {
 const styles = {
   pageWrapper: {
     minHeight: "100vh",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F97316",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -201,7 +203,8 @@ const styles = {
     overflow: "hidden",
     width: "100%",
     maxWidth: "960px",
-    minHeight: "580px",
+    minHeight: "520px",
+    boxShadow: "0 8px 40px rgba(0,0,0,0.15)",
   },
   leftPanel: {
     width: "45%",
@@ -218,7 +221,7 @@ const styles = {
   },
   rightPanel: {
     flex: 1,
-    padding: "40px 52px",
+    padding: "24px 44px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -227,7 +230,7 @@ const styles = {
     fontSize: "32px",
     fontWeight: "800",
     color: "#111111",
-    margin: "0 0 24px 0",
+    margin: "0 0 16px 0",
   },
   errorBanner: {
     backgroundColor: "#FEE2E2",
@@ -236,7 +239,7 @@ const styles = {
     padding: "12px",
     borderRadius: "12px",
     fontSize: "14px",
-    marginBottom: "20px",
+    marginBottom: "12px",
   },
   successBanner: {
     backgroundColor: "#D1FAE5",
@@ -245,16 +248,22 @@ const styles = {
     padding: "12px",
     borderRadius: "12px",
     fontSize: "14px",
-    marginBottom: "20px",
+    marginBottom: "12px",
+  },
+  formGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "12px 20px",
+    marginBottom: "12px",
   },
   fieldGroup: {
-    marginBottom: "16px",
+    marginBottom: "0",
   },
   label: {
     display: "block",
     fontSize: "14px",
     color: "#666",
-    marginBottom: "6px",
+    marginBottom: "4px",
   },
   input: {
     width: "100%",
