@@ -1,3 +1,4 @@
+import logo from "../../assets/images/logo.png";
 import {
   FiHome,
   FiShoppingBag,
@@ -43,26 +44,11 @@ function Sidebar() {
   return (
      <div className="w-72 h-screen bg-white flex flex-col p-5">
 
-      
-      <div className="flex items-center gap-3 mb-10">
-
-        <img
-          src="https://i.pravatar.cc/100"
-          alt=""
-          className="w-14 h-14 rounded-full"
-        />
-
-        <div>
-          <p className="text-xs text-gray-500">
-            Hello Again!
-          </p>
-
-          <h3 className="font-semibold text-slate-800">
-            Jayarathne Stores
-          </h3>
-        </div>
-
-      </div>
+      <img
+        src={logo}
+        alt="Logo"
+        className="w-auto h-auto mb-7"
+      />    
 
       <div className="flex flex-col gap-2">
 
