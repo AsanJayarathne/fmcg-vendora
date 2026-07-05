@@ -16,6 +16,7 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login.jsx";
 import RegisterStep1 from "./pages/RegisterStep1.jsx";
 import RegisterStep2 from "./pages/RegisterStep2.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -28,20 +29,22 @@ function App() {
       <Route
         path="*"
         element={
-          <MainLayout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/distributors" element={<Distributors />} />
-              <Route path="/distributors/:id" element={<DistributorDetails />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/payment/:distributor" element={<Payment />} />
-              <Route path="/orders" element={<MyOrders />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/messages" element={<Messages />} />
-            </Routes>
-          </MainLayout>
+          <ProtectedRoute>
+            <MainLayout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/distributors" element={<Distributors />} />
+                <Route path="/distributors/:id" element={<DistributorDetails />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/payment/:distributor" element={<Payment />} />
+                <Route path="/orders" element={<MyOrders />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/messages" element={<Messages />} />
+              </Routes>
+            </MainLayout>
+          </ProtectedRoute>
         }
       />
     </Routes>

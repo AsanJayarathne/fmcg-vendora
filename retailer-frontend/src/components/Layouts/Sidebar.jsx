@@ -8,9 +8,17 @@ import {
   FiLogOut
 } from "react-icons/fi";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const menuItems = [
     {
@@ -85,6 +93,7 @@ function Sidebar() {
       <div className="mt-auto">
 
         <button
+          onClick={handleLogout}
           className="
             w-full
             flex
