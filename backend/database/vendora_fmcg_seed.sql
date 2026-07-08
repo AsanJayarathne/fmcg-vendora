@@ -54,12 +54,12 @@ INSERT INTO `product_category` (`category_id`, `category_name`, `description`, `
 -- ============================================================
 -- 5. PRODUCT
 -- ============================================================
-INSERT INTO `product` (`product_id`, `category_id`, `product_name`, `description`, `unit`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Orange Juice 1L',    '100% natural orange juice',   'bottle', 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
-(2, 1, 'Mango Drink 500ml',  'Sweet mango fruit drink',     'bottle', 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
-(3, 2, 'Potato Chips 100g',  'Crispy salted potato chips',  'pack',   'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
-(4, 3, 'Milk 500ml',         'Fresh pasteurized milk',      'bottle', 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
-(5, 4, 'Rice 5kg',           'Premium Basmati rice',        'bag',    'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55');
+INSERT INTO `product` (`product_id`, `category_id`, `product_name`, `description`, `unit`, `image_url`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Orange Juice 1L',    '100% natural orange juice',   'bottle', NULL, 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
+(2, 1, 'Mango Drink 500ml',  'Sweet mango fruit drink',     'bottle', NULL, 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
+(3, 2, 'Potato Chips 100g',  'Crispy salted potato chips',  'pack',   NULL, 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
+(4, 3, 'Milk 500ml',         'Fresh pasteurized milk',      'bottle', NULL, 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55'),
+(5, 4, 'Rice 5kg',           'Premium Basmati rice',        'bag',    NULL, 'Active', '2026-06-22 17:31:55', '2026-06-22 17:31:55');
 
 -- ============================================================
 -- 6. PRODUCT PRICING
