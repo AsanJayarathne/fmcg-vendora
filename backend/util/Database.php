@@ -11,10 +11,11 @@ class Database {
 
     public static function getConnection(): PDO {
         if (self::$instance === null) {
-            $host   = 'localhost';
-            $dbname = 'vendora_fmcg';
-            $user   = 'root';
-            $pass   = '';
+            $config = parse_ini_file(__DIR__ . '/../.env') ?: [];
+            $host   = $config['DB_HOST']   ?? 'localhost';
+            $dbname = $config['DB_NAME']   ?? 'vendora_fmcg';
+            $user   = $config['DB_USER']   ?? 'root';
+            $pass   = $config['DB_PASS']   ?? '';
 
             try {
                 self::$instance = new PDO(

@@ -98,6 +98,7 @@ CREATE TABLE `product` (
   `product_name` varchar(150)               NOT NULL,
   `description`  varchar(500)               DEFAULT NULL,
   `unit`         varchar(50)                DEFAULT NULL,
+  `image_url`    varchar(255)               DEFAULT NULL,
   `status`       enum('Active','Inactive')   DEFAULT 'Active',
   `created_at`   timestamp                  NOT NULL DEFAULT current_timestamp(),
   `updated_at`   timestamp                  NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),

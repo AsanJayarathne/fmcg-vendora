@@ -21,7 +21,7 @@ class AuthService {
         $this->driverRepo      = new DriverRepository();
     }
 
-    public function login(string $email, string $password): array {
+    public function  login(string $email, string $password): array {
         $user = $this->userRepo->findByEmail($email);
         if (!$user) throw new Exception("Invalid email or password", 401);
         if (!$user['is_active']) throw new Exception("Account is deactivated", 403);

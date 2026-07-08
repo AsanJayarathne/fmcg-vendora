@@ -1,0 +1,20 @@
+# ============================================================
+# FMCG Vendora — Git Ignore Rules
+# ============================================================
+
+# Environment / secrets
+backend/.env
+
+# XAMPP / OS artifacts
+*.log
+Thumbs.db
+.DS_Store
+
+# Frontend build outputs
+admin-frontend/dist/
+distributor-frontend/dist/
+retailer-frontend/dist/
+driver-frontend/dist/
+
+# Node modules
+node_modules/

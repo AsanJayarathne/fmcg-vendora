@@ -16,13 +16,13 @@ class ProductRepository {
         $stmt->execute([$productId]); return $stmt->fetch() ?: null;
     }
     public function create(array $data): int {
-        $stmt = $this->db->prepare("INSERT INTO product (category_id, product_name, description, unit) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$data['category_id'], $data['product_name'], $data['description'] ?? null, $data['unit'] ?? null]);
+        $stmt = $this->db->prepare("INSERT INTO product (category_id, product_name, description, unit, image_url) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$data['category_id'], $data['product_name'], $data['description'] ?? null, $data['unit'] ?? null, $data['image_url'] ?? null]);
         return (int)$this->db->lastInsertId();
     }
     public function update(int $productId, array $data): void {
-        $this->db->prepare("UPDATE product SET category_id = ?, product_name = ?, description = ?, unit = ? WHERE product_id = ?")
-                 ->execute([$data['category_id'], $data['product_name'], $data['description'] ?? null, $data['unit'] ?? null, $productId]);
+        $this->db->prepare("UPDATE product SET category_id = ?, product_name = ?, description = ?, unit = ?, image_url = ? WHERE product_id = ?")
+                 ->execute([$data['category_id'], $data['product_name'], $data['description'] ?? null, $data['unit'] ?? null, $data['image_url'] ?? null, $productId]);
     }
     public function setStatus(int $productId, string $status): void {
         $this->db->prepare("UPDATE product SET status = ? WHERE product_id = ?")->execute([$status, $productId]);
