@@ -9,7 +9,12 @@ function AddToCartModal({
 
   if (!product) return null;
 
-  const subtotal = quantity * product.price;
+  // Support real API field names first, then old mock shape
+  const name     = product.product_name ?? product.name;
+  const price    = product.unit_price   ?? product.base_price ?? product.price;
+  const stockQty = product.available_qty ?? product.stock_qty ?? product.stock ?? 0;
+
+  const subtotal = quantity * Number(price);
 
   let discountRate = 0;
 
@@ -28,11 +33,11 @@ function AddToCartModal({
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="bg-white p-6 rounded-xl w-[650px] max-w-[calc(100vw-2rem)]">
         <h2 className="text-2xl font-bold mb-4">
-          {product.name}
+          {name}
         </h2>
 
         <p className="text-gray-600">
-          Available Stock: {product.stock}
+          Available Stock: {stockQty}
         </p>
 
         <div className="flex items-center gap-3 mt-5">
@@ -52,7 +57,7 @@ function AddToCartModal({
           <button
             onClick={() =>
               setQuantity((current) =>
-                Math.min(product.stock, current + 1)
+                Math.min(stockQty, current + 1)
               )
             }
             className="bg-blue-600 text-white w-10 h-10 rounded text-lg"
