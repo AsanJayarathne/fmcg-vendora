@@ -1,6 +1,5 @@
 import { useContext, useMemo } from "react";
 import { CartContext } from "../context/CartContextObject";
-import products from "../data/products";
 import { useNavigate } from "react-router-dom";
 
 function Cart() {
@@ -18,12 +17,8 @@ function Cart() {
 
   const distributorOrders = useMemo(() => {
     const orders = cartItems.reduce((groups, item) => {
-      const product = products.find(
-        (productItem) => productItem.id === item.id,
-      );
-
-      const distributorName =
-        item.distributor || product?.distributor || "Unknown Distributor";
+      // distributor name is already normalised inside the cart item
+      const distributorName = item.distributor || "Unknown Distributor";
 
       if (!groups[distributorName]) {
         groups[distributorName] = {
@@ -38,19 +33,13 @@ function Cart() {
 
       const subtotal = item.subtotal ?? item.price * item.quantity;
       const discount = item.discount ?? 0;
-      const total = item.total ?? subtotal - discount;
+      const total    = item.total    ?? subtotal - discount;
 
-      groups[distributorName].items.push({
-        ...item,
-        distributor: distributorName,
-        subtotal,
-        discount,
-        total,
-      });
+      groups[distributorName].items.push({ ...item, subtotal, discount, total });
       groups[distributorName].totalQuantity += item.quantity;
-      groups[distributorName].subtotal += subtotal;
-      groups[distributorName].discount += discount;
-      groups[distributorName].total += total;
+      groups[distributorName].subtotal      += subtotal;
+      groups[distributorName].discount      += discount;
+      groups[distributorName].total         += total;
 
       return groups;
     }, {});

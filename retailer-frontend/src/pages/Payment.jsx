@@ -1,28 +1,58 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContextObject";
 import { OrderContext } from "../context/OrderContextObject";
+import { useAuth } from "../context/AuthContext";
+import { placeOrder, fetchCreditInfo } from "../services/orderService";
 
 function Payment() {
   const { state: order } = useLocation();
-  const navigate = useNavigate();
-  const { removeFromCart } = useContext(CartContext);
-  const { addOrder } = useContext(OrderContext);
+  const navigate         = useNavigate();
+  const { auth }         = useAuth();
+  const token            = auth?.token ?? null;
 
+  const { removeFromCart }   = useContext(CartContext);
+  const { addOrder }         = useContext(OrderContext);
+
+  // ── Payment form state ─────────────────────────────────────────
   const [paymentType, setPaymentType] = useState("cash");
-  const [orderType, setOrderType] = useState("Normal");
-  const [cashAmount, setCashAmount] = useState(order?.total ?? 0);
+  const [orderType,   setOrderType]   = useState("Normal");
+  const [cashAmount,  setCashAmount]  = useState(order?.total ?? 0);
 
+  // ── Credit account state ───────────────────────────────────────
+  const [creditInfo,    setCreditInfo]    = useState(null);   // null = loading | false = no account
+  const [creditLoading, setCreditLoading] = useState(true);
+  const [creditError,   setCreditError]   = useState(null);
+
+  // ── Order submission state ─────────────────────────────────────
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+
+  // ── Fetch real credit info on mount ───────────────────────────
+  useEffect(() => {
+    if (!token) { setCreditLoading(false); return; }
+
+    fetchCreditInfo(token)
+      .then((data) => {
+        setCreditInfo(data ?? false);   // false = no credit account
+      })
+      .catch((err) => {
+        console.error("Credit fetch error:", err);
+        setCreditError("Could not load credit info.");
+        setCreditInfo(false);
+      })
+      .finally(() => setCreditLoading(false));
+  }, [token]);
+
+  // ── Guard: no order passed ─────────────────────────────────────
   if (!order) {
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white rounded-xl shadow p-6 text-center">
           <h1 className="text-2xl font-bold">Payment details unavailable</h1>
-
           <p className="mt-2 text-gray-500">
             Please return to your cart and choose a distributor order again.
           </p>
-
           <button
             onClick={() => navigate("/cart")}
             className="mt-6 bg-blue-600 text-white px-5 py-3 rounded-lg"
@@ -34,84 +64,86 @@ function Payment() {
     );
   }
 
-  const urgentCharge = orderType === "Urgent" ? 500 : 0;
-  const payableTotal = order.total + urgentCharge;
-  const creditLimit = 5000;
+  // ── Derived values ─────────────────────────────────────────────
+  const urgentCharge   = orderType === "Urgent" ? 500 : 0;
+  const payableTotal   = order.total + urgentCharge;
+
+  // Real credit limit from backend (or 0 if no account)
+  const creditLimit    = creditInfo ? Number(creditInfo.available_credit ?? 0) : 0;
+  const creditBlocked  = creditInfo?.status === "Blocked";
+
   const normalizedCashAmount = Math.min(
     payableTotal,
     Math.max(0, Number(cashAmount) || 0)
   );
   const minimumCash = Math.max(0, payableTotal - creditLimit);
-  const creditUsed =
+  const creditUsed  =
     paymentType === "credit" ? payableTotal - normalizedCashAmount : 0;
   const remainingCredit = creditLimit - creditUsed;
 
-  const handleConfirmOrder = () => {
+  // ── Confirm order → POST to backend ───────────────────────────
+  const handleConfirmOrder = async () => {
+    setSubmitError(null);
+
+    if (paymentType === "credit" && creditBlocked) {
+      setSubmitError("Your credit account is blocked. Please use full cash payment.");
+      return;
+    }
+    if (paymentType === "credit" && !creditInfo) {
+      setSubmitError("No credit account found for your account.");
+      return;
+    }
     if (paymentType === "credit" && normalizedCashAmount < minimumCash) {
-      alert(`Minimum cash required is Rs. ${minimumCash}`);
+      setSubmitError(`Minimum cash required is Rs. ${minimumCash}`);
       return;
     }
 
-    const now = new Date().toISOString();
-    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
-    const confirmedOrder = {
-      orderId,
-      distributor: order.distributor,
-      items: order.items,
-      subtotal: order.subtotal,
-      discount: order.discount,
-      urgentCharge,
-      total: payableTotal,
-      orderType,
-      paymentType,
-      cashAmount:
-        paymentType === "cash" ? payableTotal : normalizedCashAmount,
-      creditUsed,
-      status: "Placed",
-      createdAt: now,
-      statusHistory: [
-        {
-          name: "Placed",
-          completed: true,
-          date: now,
-        },
-        {
-          name: "Accepted",
-          completed: false,
-          date: "",
-        },
-        {
-          name: "Packed",
-          completed: false,
-          date: "",
-        },
-        {
-          name: "Out for Delivery",
-          completed: false,
-          date: "",
-        },
-        {
-          name: "Delivered",
-          completed: false,
-          date: "",
-        },
-      ],
-    };
+    // Build items payload for backend
+    const itemsPayload = order.items.map((item) => ({
+      product_id: item.productId ?? item.product_id ?? item.id,
+      quantity:   item.quantity,
+    }));
 
-    const savedOrder = addOrder(confirmedOrder);
+    const backendPaymentMethod = paymentType === "credit" ? "Credit" : "Cash";
 
-    order.items.forEach((item) => {
-      removeFromCart(item.id);
-    });
+    setSubmitting(true);
+    try {
+      const placed = await placeOrder(token, itemsPayload, backendPaymentMethod);
 
-    navigate("/orders");
+      // Enrich with UI-only fields that the backend doesn't store
+      const confirmedOrder = {
+        ...placed,
+        orderType,
+        urgentCharge,
+        total:       payableTotal,
+        cashAmount:  paymentType === "cash" ? payableTotal : normalizedCashAmount,
+        creditUsed,
+        paymentType,
+        paymentLabel: paymentType === "credit" ? "Cash + Credit" : "Full Cash",
+      };
+
+      // Optimistically add to local order list
+      addOrder(confirmedOrder);
+
+      // Clear placed items from cart
+      order.items.forEach((item) => {
+        removeFromCart(item.id ?? item.productId ?? item.product_id);
+      });
+
+      navigate("/orders");
+    } catch (err) {
+      console.error("Place order error:", err);
+      setSubmitError(err.message || "Failed to place order. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* ── Order Summary ──────────────────────────────────────────── */}
       <div className="bg-white rounded-xl shadow p-6">
         <h1 className="text-3xl font-bold">Payment</h1>
-
         <p className="mt-2 text-gray-500">{order.distributor}</p>
 
         <hr className="my-6" />
@@ -121,13 +153,12 @@ function Payment() {
         <div className="divide-y">
           {order.items.map((item) => (
             <div
-              key={item.id}
+              key={item.id ?? item.productId}
               className="flex justify-between gap-4 py-3"
             >
               <span>
-                {item.name} x {item.quantity}
+                {item.name} × {item.quantity}
               </span>
-
               <span className="font-semibold">Rs. {item.total}</span>
             </div>
           ))}
@@ -145,6 +176,7 @@ function Payment() {
         </div>
       </div>
 
+      {/* ── Order Type ────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl shadow p-6 mt-6">
         <h2 className="font-bold text-lg">Order Type</h2>
 
@@ -193,11 +225,12 @@ function Payment() {
         </div>
       </div>
 
+      {/* ── Payment Method ────────────────────────────────────────── */}
       <div className="bg-white rounded-xl shadow p-6 mt-6">
         <h2 className="font-bold text-lg">Payment Method</h2>
 
         <div className="mt-4 space-y-3">
-          <label className="flex gap-2">
+          <label className="flex gap-2 cursor-pointer">
             <input
               type="radio"
               value="cash"
@@ -207,22 +240,37 @@ function Payment() {
             Full Cash
           </label>
 
-          <label className="flex gap-2">
-            <input
-              type="radio"
-              value="credit"
-              checked={paymentType === "credit"}
-              onChange={() => setPaymentType("credit")}
-            />
-            Cash + Credit
-          </label>
+          {/* Credit option — shown only when a credit account exists */}
+          {creditLoading ? (
+            <p className="text-sm text-gray-400">Checking credit account…</p>
+          ) : creditInfo ? (
+            <label className={`flex gap-2 cursor-pointer ${creditBlocked ? "opacity-50" : ""}`}>
+              <input
+                type="radio"
+                value="credit"
+                checked={paymentType === "credit"}
+                onChange={() => setPaymentType("credit")}
+                disabled={creditBlocked}
+              />
+              Cash + Credit
+              {creditBlocked && (
+                <span className="text-xs text-red-600 ml-2">(Account blocked)</span>
+              )}
+            </label>
+          ) : (
+            <p className="text-sm text-gray-400">
+              No credit account — only full cash payment available.
+              {creditError && <span className="text-red-500 ml-2">{creditError}</span>}
+            </p>
+          )}
         </div>
 
-        {paymentType === "credit" && (
+        {/* Credit details panel */}
+        {paymentType === "credit" && creditInfo && !creditBlocked && (
           <div className="mt-6">
             <div className="space-y-2 text-gray-700">
-              <p>Credit Limit: Rs. {creditLimit}</p>
-              <p>Minimum Cash Required: Rs. {minimumCash}</p>
+              <p>Available Credit: Rs. {creditLimit.toLocaleString()}</p>
+              <p>Minimum Cash Required: Rs. {minimumCash.toLocaleString()}</p>
             </div>
 
             <input
@@ -230,23 +278,35 @@ function Payment() {
               min={minimumCash}
               max={payableTotal}
               value={cashAmount}
-              onChange={(event) => setCashAmount(event.target.value)}
+              onChange={(e) => setCashAmount(e.target.value)}
               className="w-full border p-3 rounded mt-4"
               placeholder="Enter Cash Amount"
             />
 
             <div className="mt-4 space-y-2 text-gray-700">
-              <p>Credit Used: Rs. {creditUsed}</p>
-              <p>Remaining redit: Rs. {remainingCredit}</p>
+              <p>Credit Used: Rs. {creditUsed.toLocaleString()}</p>
+              <p>Remaining Credit: Rs. {remainingCredit.toLocaleString()}</p>
             </div>
+          </div>
+        )}
+
+        {/* Error banner */}
+        {submitError && (
+          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm font-medium">
+            ⚠️ {submitError}
           </div>
         )}
 
         <button
           onClick={handleConfirmOrder}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6"
+          disabled={submitting}
+          className={`w-full py-3 rounded-lg mt-6 font-semibold text-white transition-colors ${
+            submitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Confirm Order
+          {submitting ? "Placing Order…" : "Confirm Order"}
         </button>
       </div>
     </div>
