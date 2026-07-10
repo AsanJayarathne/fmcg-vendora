@@ -50,15 +50,17 @@ function Sidebar() {
   ];
 
   return (
-     <div className="w-72 h-screen bg-white flex flex-col p-5">
+     <div className="w-60 h-screen bg-white flex flex-col p-4 border-r border-slate-100">
 
-      <img
-        src={logo}
-        alt="Logo"
-        className="w-auto h-auto mb-7"
-      />    
+      <div className="px-2 mb-6">
+        <img
+          src={logo}
+          alt="Logo"
+          className="h-8 w-auto object-contain"
+        />    
+      </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
 
         {menuItems.map((item) => (
 
@@ -66,20 +68,20 @@ function Sidebar() {
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all
+              `flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm font-medium
               ${
                 isActive
-                  ? "bg-blue-600 text-white shadow-md"
-                  : "text-slate-700 hover:bg-slate-100"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`
             }
           >
 
-            <span className="text-xl">
+            <span className="text-lg">
               {item.icon}
             </span>
 
-            <span className="font-medium">
+            <span>
               {item.name}
             </span>
 
@@ -99,15 +101,19 @@ function Sidebar() {
             flex
             items-center
             justify-center
-            gap-3
-            py-4
-            rounded-2xl
+            gap-2
+            py-2.5
+            rounded-xl
             border
-            text-red-500
+            border-slate-200
+            text-sm
+            font-medium
+            text-red-600
             hover:bg-red-50
+            transition-colors
           "
         >
-          <FiLogOut />
+          <FiLogOut size={16} />
 
           Logout
         </button>
