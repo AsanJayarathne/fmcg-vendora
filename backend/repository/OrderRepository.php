@@ -5,7 +5,7 @@ class OrderRepository {
     public function __construct() { $this->db = Database::getConnection(); }
 
     public function findById(int $orderId): ?array {
-        $stmt = $this->db->prepare("SELECT o.*, r.shop_name, r.owner_name, d.company_name AS distributor_name FROM orders o JOIN retailer r ON r.retailer_id = o.retailer_id JOIN distributor d ON d.distributor_id = o.distributor_id WHERE o.order_id = ?");
+        $stmt = $this->db->prepare("SELECT o.*, r.shop_name, r.owner_name, d.company_name AS distributor_name, dl.status AS delivery_status FROM orders o JOIN retailer r ON r.retailer_id = o.retailer_id JOIN distributor d ON d.distributor_id = o.distributor_id LEFT JOIN delivery dl ON dl.order_id = o.order_id WHERE o.order_id = ?");
         $stmt->execute([$orderId]); return $stmt->fetch() ?: null;
     }
     public function getItemsByOrder(int $orderId): array {
@@ -13,7 +13,7 @@ class OrderRepository {
         $stmt->execute([$orderId]); return $stmt->fetchAll();
     }
     public function getByRetailer(int $retailerId): array {
-        $stmt = $this->db->prepare("SELECT o.*, d.company_name AS distributor_name FROM orders o JOIN distributor d ON d.distributor_id = o.distributor_id WHERE o.retailer_id = ? ORDER BY o.created_at DESC");
+        $stmt = $this->db->prepare("SELECT o.*, d.company_name AS distributor_name, dl.status AS delivery_status FROM orders o JOIN distributor d ON d.distributor_id = o.distributor_id LEFT JOIN delivery dl ON dl.order_id = o.order_id WHERE o.retailer_id = ? ORDER BY o.created_at DESC");
         $stmt->execute([$retailerId]); return $stmt->fetchAll();
     }
     public function getByDistributor(int $distributorId, string $status = ''): array {
@@ -42,5 +42,8 @@ class OrderRepository {
     }
     public function updateStatus(int $orderId, string $status): void {
         $this->db->prepare("UPDATE orders SET status = ? WHERE order_id = ?")->execute([$status, $orderId]);
+    }
+    public function delete(int $orderId): void {
+        $this->db->prepare("DELETE FROM orders WHERE order_id = ?")->execute([$orderId]);
     }
 }

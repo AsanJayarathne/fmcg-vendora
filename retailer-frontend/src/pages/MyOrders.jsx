@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   FiBox,
   FiBriefcase,
@@ -13,7 +13,9 @@ import {
 import { OrderContext } from "../context/OrderContextObject";
 
 const tabs = ["All Orders", "Normal Orders", "Urgent Orders", "Delivered", "Cancelled"];
-const STATUS_STEPS = ["Placed", "Accepted", "Packed", "Out for Delivery", "Delivered"];
+const STATUS_STEPS = ["Placed", "Accepted", "Out for Delivery", "Delivered"];
+
+const LOCK_WINDOW_MS = 15 * 60 * 1000; // must match backend LOCK_WINDOW_MINUTES
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -47,6 +49,102 @@ function filterOrders(orders, tab) {
   if (tab === "Delivered")     return orders.filter((o) => o.status === "Delivered");
   if (tab === "Cancelled")     return orders.filter((o) => o.status === "Cancelled");
   return orders;
+}
+
+// ── useEditCountdown hook ────────────────────────────────────────────────────
+// Returns remaining seconds (0 when expired). Ticks every second.
+function useEditCountdown(createdAt) {
+  // MySQL returns "YYYY-MM-DD HH:MM:SS" — replace space with T for reliable parsing
+  const parseDate = (raw) => new Date((raw ?? "").replace(" ", "T"));
+
+  const calcRemaining = () => {
+    if (!createdAt) return 0;
+    const expiresAt = parseDate(createdAt).getTime() + LOCK_WINDOW_MS;
+    const secs = Math.max(0, Math.floor((expiresAt - Date.now()) / 1000));
+    return secs;
+  };
+
+  const [remaining, setRemaining] = useState(calcRemaining);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (!createdAt) { setRemaining(0); return; }
+    setRemaining(calcRemaining());
+    intervalRef.current = setInterval(() => {
+      const secs = calcRemaining();
+      setRemaining(secs);
+      if (secs <= 0) clearInterval(intervalRef.current);
+    }, 1000);
+    return () => clearInterval(intervalRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdAt]);
+
+  return remaining;
+}
+
+// ── EditWindowBanner ──────────────────────────────────────────────────────────
+function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
+  // Only relevant for Pending orders
+  const isPending   = backendStatus === "Pending";
+  const remaining   = useEditCountdown(isPending ? createdAt : null);
+  const prevPending = useRef(isPending);
+
+  // When the window just closed while order was Pending, notify parent to refresh
+  useEffect(() => {
+    if (prevPending.current && remaining === 0 && isPending) {
+      onExpired && onExpired();
+    }
+    prevPending.current = isPending;
+  }, [remaining, isPending, onExpired]);
+
+  // Hide banner if not pending or window has already expired
+  if (!isPending || remaining <= 0) return null;
+
+  const mins     = Math.floor(remaining / 60);
+  const secs     = remaining % 60;
+  const pad      = (n) => String(n).padStart(2, "0");
+  const isUrgent = remaining <= 60;
+
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-xl px-4 py-3 mb-4 text-sm font-medium border ${
+        isUrgent
+          ? "bg-red-50 border-red-200 text-red-700"
+          : "bg-amber-50 border-amber-200 text-amber-800"
+      }`}
+    >
+      {/* Pulsing dot */}
+      <span className="relative flex h-3 w-3 shrink-0">
+        <span
+          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+            isUrgent ? "bg-red-400" : "bg-amber-400"
+          }`}
+        />
+        <span
+          className={`relative inline-flex rounded-full h-3 w-3 ${
+            isUrgent ? "bg-red-500" : "bg-amber-500"
+          }`}
+        />
+      </span>
+
+      <span className="flex-1">
+        {isUrgent
+          ? "⚡ Hurry! Edit window closing soon"
+          : "⏱ You can still edit or cancel this order"}
+      </span>
+
+      {/* Countdown pill */}
+      <span
+        className={`font-mono text-base font-bold px-3 py-1 rounded-lg ${
+          isUrgent
+            ? "bg-red-100 text-red-700"
+            : "bg-amber-100 text-amber-800"
+        }`}
+      >
+        {pad(mins)}:{pad(secs)}
+      </span>
+    </div>
+  );
 }
 
 // ── Stat Card ─────────────────────────────────────────────────────────────────
@@ -382,21 +480,26 @@ function MyOrders() {
               </div>
             </div>
 
+            {/* Edit-window countdown — only shown while order is Pending and within 15 min */}
+            <EditWindowBanner
+              createdAt={latestOrder.createdAt}
+              backendStatus={latestOrder.backendStatus}
+              onExpired={loadOrders}
+            />
+
             {/* Progress stepper */}
-            <div className="grid grid-cols-5 gap-2">
-              {STATUS_STEPS.map((step) => {
-                const activeIndex = STATUS_STEPS.indexOf(latestOrder.status);
-                const stepIndex   = STATUS_STEPS.indexOf(step);
-                const isComplete  = stepIndex <= activeIndex && activeIndex !== -1;
+            <div className="grid grid-cols-4 gap-2">
+              {(latestOrder.statusHistory ?? []).map((step) => {
+                const isComplete = step.completed;
                 return (
-                  <div key={step} className="text-center">
+                  <div key={step.name} className="text-center">
                     <div className={`h-1.5 rounded-full mb-2 ${isComplete ? "bg-green-500" : "bg-gray-200"}`} />
                     <div className={`w-7 h-7 mx-auto rounded-full flex items-center justify-center ${
                       isComplete ? "bg-green-500 text-white" : "bg-white border-2 border-gray-200"
                     }`}>
                       {isComplete && <FiCheckCircle size={14} />}
                     </div>
-                    <p className="text-xs font-medium mt-1.5 text-gray-600">{step}</p>
+                    <p className="text-xs font-medium mt-1.5 text-gray-600">{step.name}</p>
                   </div>
                 );
               })}

@@ -4,13 +4,19 @@ import ProductFilters from '../components/ProductFilters';
 import ProductTable from '../components/Tables/ProductTable';
 import Pagination from '../components/Pagination';
 import AddProductModal from '../components/AddProductModal';
+import EditProductModal from '../components/EditProductModal';
 
 const ProductsPage = () => {
-  const [showModal, setShowModal]   = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [showAddModal, setShowAddModal]     = useState(false);
+  const [editProduct, setEditProduct]       = useState(null);   // product object to edit
+  const [refreshKey, setRefreshKey]         = useState(0);
 
   const handleProductAdded = () => {
-    // bump key to trigger re-fetch in ProductTable
+    setRefreshKey(k => k + 1);
+  };
+
+  const handleProductUpdated = () => {
+    // re-fetch table after a successful update
     setRefreshKey(k => k + 1);
   };
 
@@ -21,7 +27,7 @@ const ProductsPage = () => {
         <h1 className="text-2xl font-bold text-slate-800">Products Catalog</h1>
         <button
           id="add-product-btn"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowAddModal(true)}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-all"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -33,14 +39,26 @@ const ProductsPage = () => {
 
       <ProductStatCards />
       <ProductFilters />
-      <ProductTable refreshKey={refreshKey} />
+      <ProductTable
+        refreshKey={refreshKey}
+        onEditProduct={p => setEditProduct(p)}
+      />
       <Pagination />
 
       {/* Add Product Modal */}
-      {showModal && (
+      {showAddModal && (
         <AddProductModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowAddModal(false)}
           onProductAdded={handleProductAdded}
+        />
+      )}
+
+      {/* Edit Product Modal */}
+      {editProduct && (
+        <EditProductModal
+          product={editProduct}
+          onClose={() => setEditProduct(null)}
+          onProductUpdated={handleProductUpdated}
         />
       )}
     </div>

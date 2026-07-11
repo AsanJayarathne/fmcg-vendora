@@ -81,7 +81,7 @@ class OrderService {
         $order = $this->orderRepo->findById($orderId);
         if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
         if (!$this->isEditable($order)) throw new Exception("Order lock window has expired.", 403);
-        $this->orderRepo->updateStatus($orderId, 'Rejected');
+        $this->orderRepo->delete($orderId);
     }
 
     public function approveOrder(int $orderId, int $distributorId): array {
@@ -128,13 +128,27 @@ class OrderService {
 
     public function getRetailerOrders(int $retailerId): array {
         $orders = $this->orderRepo->getByRetailer($retailerId);
-        foreach ($orders as &$order) { $this->applyLockIfExpired($order); $order['editable'] = $this->isEditable($order); }
+        foreach ($orders as &$order) {
+            $this->applyLockIfExpired($order);
+            // Only refresh the status field so we don't lose extra joined columns
+            $fresh = $this->orderRepo->findById((int)$order['order_id']);
+            if ($fresh) $order['status'] = $fresh['status'];
+            $order['editable'] = $this->isEditable($order);
+        }
+        unset($order); // break reference
         return $orders;
     }
 
     public function getDistributorOrders(int $distributorId, string $status = ''): array {
         $orders = $this->orderRepo->getByDistributor($distributorId, $status);
-        foreach ($orders as &$order) { $this->applyLockIfExpired($order); }
+        foreach ($orders as &$order) {
+            // applyLockIfExpired may UPDATE the DB row (Pending → Processing).
+            // Only refresh the status field so we don't lose extra joined columns.
+            $this->applyLockIfExpired($order);
+            $fresh = $this->orderRepo->findById((int)$order['order_id']);
+            if ($fresh) $order['status'] = $fresh['status'];
+        }
+        unset($order); // break reference
         return $orders;
     }
 }

@@ -1,51 +1,39 @@
 import { apiFetch } from "../utils/api";
 
-// ---------------------------------------------------------------------------
-// Backend status  →  UI display label / progress-step mapping
-// ---------------------------------------------------------------------------
-const STATUS_MAP = {
-  Pending:          "Placed",
-  Processing:       "Accepted",
-  Approved:         "Packed",
-  "Out for Delivery": "Out for Delivery",
-  Delivered:        "Delivered",
-  Rejected:         "Cancelled",
-};
-
 // UI progress steps used in MyOrders status tracker
-const STATUS_STEPS = ["Placed", "Accepted", "Packed", "Out for Delivery", "Delivered"];
+const STATUS_STEPS = ["Placed", "Accepted", "Out for Delivery", "Delivered"];
 
-function mapStatus(backendStatus) {
-  return STATUS_MAP[backendStatus] ?? backendStatus;
+function determineUIStatus(backendStatus, deliveryStatus) {
+  if (backendStatus === "Delivered") return "Delivered";
+  if (backendStatus === "Rejected") return "Cancelled";
+  if (deliveryStatus === "CLAIMED") return "Out for Delivery";
+  if (backendStatus === "Approved") return "Accepted";
+  if (backendStatus === "Processing") return "Placed";
+  return "Pending";
 }
 
 /**
  * Build a statusHistory array (compatible with MyOrders UI) from a backend order.
- * The backend does not store individual step timestamps, so we synthesise them:
- *   - Every step up to and including the current one is marked completed.
- *   - The current step gets the order's updated_at / created_at as its timestamp.
  */
-function buildStatusHistory(backendStatus, createdAt) {
-  const uiStatus    = mapStatus(backendStatus);
-  const activeIndex = STATUS_STEPS.indexOf(uiStatus);
+function buildStatusHistory(backendStatus, deliveryStatus, createdAt) {
+  const isPlaced = ["Processing", "Approved", "Delivered"].includes(backendStatus);
+  const isAccepted = ["Approved", "Delivered"].includes(backendStatus);
+  const isOutForDelivery = ["CLAIMED", "DELIVERED"].includes(deliveryStatus) || backendStatus === "Delivered";
+  const isDelivered = backendStatus === "Delivered";
 
-  return STATUS_STEPS.map((step, idx) => ({
-    name:      step,
-    completed: idx <= activeIndex,
-    date:      idx === activeIndex ? createdAt : (idx < activeIndex ? createdAt : ""),
-  }));
+  return [
+    { name: "Placed",           completed: isPlaced,           date: isPlaced ? createdAt : "" },
+    { name: "Accepted",         completed: isAccepted,         date: isAccepted ? createdAt : "" },
+    { name: "Out for Delivery", completed: isOutForDelivery,   date: isOutForDelivery ? createdAt : "" },
+    { name: "Delivered",        completed: isDelivered,        date: isDelivered ? createdAt : "" },
+  ];
 }
 
 /**
  * Normalise a raw backend order object into the shape the UI expects.
- *
- * Backend shape (key fields):
- *   order_id, distributor_name, total_amount, payment_method,
- *   created_at, status, editable,
- *   items[]: { product_id, product_name, unit, quantity, unit_price, total_price }
  */
 function normaliseOrder(raw) {
-  const uiStatus     = mapStatus(raw.status);
+  const uiStatus     = determineUIStatus(raw.status, raw.delivery_status);
   const paymentLabel = raw.payment_method === "Credit" ? "Cash + Credit" : "Full Cash";
 
   const items = (raw.items ?? []).map((item) => ({
@@ -85,9 +73,12 @@ function normaliseOrder(raw) {
     // Dates
     createdAt:    raw.created_at,
 
+    // Delivery Status
+    deliveryStatus: raw.delivery_status,
+
     // Items & status timeline
     items,
-    statusHistory: buildStatusHistory(raw.status, raw.created_at),
+    statusHistory: buildStatusHistory(raw.status, raw.delivery_status, raw.created_at),
 
     // Can the retailer still edit / cancel?
     editable: raw.editable === true || raw.editable === 1,

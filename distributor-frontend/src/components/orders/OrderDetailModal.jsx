@@ -4,11 +4,11 @@ import { fetchOrderById, approveOrder, rejectOrder, fetchDeliveries } from "../.
 import { useAuth } from "../../auth/AuthContext";
 
 const STATUS_MAP = {
-  Pending:    { label: "Pending Approval", color: "bg-amber-100 text-amber-700"  },
-  Processing: { label: "Processing",       color: "bg-blue-100 text-blue-700"    },
-  Approved:   { label: "Approved",         color: "bg-green-100 text-green-700"  },
-  Delivered:  { label: "Delivered",        color: "bg-emerald-100 text-emerald-700" },
-  Rejected:   { label: "Rejected",         color: "bg-red-100 text-red-700"      },
+  Pending:    { label: "Pending",    color: "bg-amber-100 text-amber-700"  },
+  Processing: { label: "Processing", color: "bg-blue-100 text-blue-700"    },
+  Approved:   { label: "Approved",   color: "bg-green-100 text-green-700"  },
+  Delivered:  { label: "Delivered",  color: "bg-emerald-100 text-emerald-700" },
+  Rejected:   { label: "Rejected",   color: "bg-red-100 text-red-700"      },
 };
 
 function fmt(dateStr) {

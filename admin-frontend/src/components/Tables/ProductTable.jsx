@@ -47,7 +47,7 @@ const ProductThumb = ({ imageUrl, name }) => {
 /* ─── Skeleton Row ───────────────────────────────────────── */
 const SkeletonRow = () => (
   <tr className="animate-pulse">
-    {[...Array(7)].map((_, i) => (
+    {[...Array(8)].map((_, i) => (
       <td key={i} className="px-5 py-4 border-b border-slate-100">
         <div className="h-4 bg-slate-200 rounded w-3/4" />
       </td>
@@ -55,8 +55,24 @@ const SkeletonRow = () => (
   </tr>
 );
 
+/* ─── Edit Button ────────────────────────────────────────── */
+const EditBtn = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title="Edit product"
+    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-100 transition-colors active:scale-95"
+  >
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+    Edit
+  </button>
+);
+
 /* ─── Main Component ─────────────────────────────────────── */
-const ProductTable = ({ refreshKey = 0 }) => {
+const ProductTable = ({ refreshKey = 0, onEditProduct }) => {
   const { auth } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -95,7 +111,7 @@ const ProductTable = ({ refreshKey = 0 }) => {
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            {['Image', 'Product', 'Category', 'Unit', 'Base Price', 'MRP', 'Status'].map(h => (
+            {['Image', 'Product', 'Category', 'Unit', 'Base Price', 'MRP', 'Status', 'Actions'].map(h => (
               <th
                 key={h}
                 className="bg-slate-50 text-slate-500 text-left px-5 py-4 text-xs font-semibold uppercase tracking-wider border-b border-slate-200"
@@ -110,7 +126,7 @@ const ProductTable = ({ refreshKey = 0 }) => {
             [...Array(5)].map((_, i) => <SkeletonRow key={i} />)
           ) : products.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-5 py-12 text-center text-slate-400 text-sm">
+              <td colSpan={8} className="px-5 py-12 text-center text-slate-400 text-sm">
                 <div className="flex flex-col items-center gap-2">
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-300">
                     <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
@@ -160,6 +176,10 @@ const ProductTable = ({ refreshKey = 0 }) => {
                   {/* Status */}
                   <td className={`px-5 py-3.5 ${border}`}>
                     <StatusBadge status={p.status} />
+                  </td>
+                  {/* Actions */}
+                  <td className={`px-5 py-3.5 ${border}`}>
+                    <EditBtn onClick={() => onEditProduct && onEditProduct(p)} />
                   </td>
                 </tr>
               );

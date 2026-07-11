@@ -1,11 +1,11 @@
 import { Loader2 } from "lucide-react";
 
 const STATUS_MAP = {
-  Pending:    { label: "Pending Approval", color: "text-amber-600"  },
-  Processing: { label: "Processing",       color: "text-blue-600"   },
-  Approved:   { label: "Approved",         color: "text-green-600"  },
-  Delivered:  { label: "Delivered",        color: "text-emerald-600"},
-  Rejected:   { label: "Rejected",         color: "text-red-500"    },
+  Pending:    { label: "Pending",    color: "text-amber-600"  },
+  Processing: { label: "Processing", color: "text-blue-600"   },
+  Approved:   { label: "Approved",   color: "text-green-600"  },
+  Delivered:  { label: "Delivered",  color: "text-emerald-600"},
+  Rejected:   { label: "Rejected",   color: "text-red-500"    },
 };
 
 function fmtDate(dateStr) {
