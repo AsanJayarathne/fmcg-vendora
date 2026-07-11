@@ -56,7 +56,7 @@ function Sidebar() {
         <img
           src={logo}
           alt="Logo"
-          className="h-8 w-auto object-contain"
+          className="h-11 w-auto object-contain"
         />    
       </div>
 

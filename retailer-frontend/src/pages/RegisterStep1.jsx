@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
@@ -66,7 +66,7 @@ export default function RegisterStep1() {
         <LeftPanel />
 
         <div className="flex-1 flex flex-col justify-between">
-          <img src={logo} alt="Vendora" className="w-44 h-auto mx-auto" />
+          <img src={logo} alt="Vendora" className="w-56 h-auto mx-auto" />
 
           <p className="text-center text-base text-gray-400 mt-2">1 / 2</p>
 
@@ -141,7 +141,7 @@ export default function RegisterStep1() {
             />
           </div>
 
-          <div className="flex justify-center mt-6 mb-4">
+          <div className="flex flex-col items-center mt-6 mb-4 gap-3">
             <button
               type="button"
               onClick={handleContinue}
@@ -159,6 +159,13 @@ export default function RegisterStep1() {
             >
               Continue
             </button>
+
+            <p className="text-sm text-slate-500">
+              Already have an account?{" "}
+              <Link to="/login" className="text-blue-700 font-semibold hover:underline">
+                Login
+              </Link>
+            </p>
           </div>
         </div>
       </div>

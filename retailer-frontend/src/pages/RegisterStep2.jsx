@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
@@ -95,7 +95,7 @@ export default function RegisterStep2() {
         <LeftPanel />
 
         <div className="flex-1 flex flex-col">
-          <img src={logo} alt="Vendora" className="w-44 mx-auto" />
+          <img src={logo} alt="Vendora" className="w-56 mx-auto" />
 
           <p className="text-center text-base text-gray-400 mt-2">2 / 2</p>
 
@@ -190,24 +190,33 @@ export default function RegisterStep2() {
             </div>
           </div>
 
-          <div className="mt-10 mb-4 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              disabled={loading}
-              className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50"
-            >
-              Back
-            </button>
+          <div className="mt-10 mb-4 flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-4">
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                disabled={loading}
+                className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50"
+              >
+                Back
+              </button>
 
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50"
-            >
-              {loading ? "Registering..." : "Register"}
-            </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50"
+              >
+                {loading ? "Registering..." : "Register"}
+              </button>
+            </div>
+
+            <p className="text-sm text-slate-500">
+              Already have an account?{" "}
+              <Link to="/login" className="text-blue-700 font-semibold hover:underline">
+                Login
+              </Link>
+            </p>
           </div>
         </div>
       </div>
