@@ -1,6 +1,7 @@
 // src/components/landing/CTA.jsx
 
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 export default function CTA() {
   return (
@@ -48,7 +49,8 @@ export default function CTA() {
 
               <div className="flex flex-wrap gap-4 mt-10">
 
-                <button
+                <Link
+                  to="/register"
                   className="
                   bg-white
                   text-blue-700
@@ -66,7 +68,7 @@ export default function CTA() {
 
                   <FiArrowRight />
 
-                </button>
+                </Link>
 
                 <button
                   className="

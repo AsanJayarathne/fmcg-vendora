@@ -5,11 +5,11 @@ export default function ProtectedRoute({ children }) {
   const { auth } = useAuth();
   
   if (!auth || !auth.token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/landing" replace />;
   }
 
   if (auth.role !== 'RETAILER') {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/landing" replace />;
   }
 
   return children;

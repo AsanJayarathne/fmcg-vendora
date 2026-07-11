@@ -1,5 +1,6 @@
 import { FiChevronDown } from "react-icons/fi";
 import logo from "../../assets/images/logo.png";
+import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
@@ -56,17 +57,19 @@ function Navbar() {
         {/* Buttons */}
         <div className="flex items-center gap-4">
 
-          <button
+          <Link
+            to="/login"
             className="px-6 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 font-medium transition"
           >
             Log In
-          </button>
+          </Link>
 
-          <button
+          <Link
+            to="/register"
             className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-500/20 transition"
           >
             Register Shop
-          </button>
+          </Link>
 
         </div>
 

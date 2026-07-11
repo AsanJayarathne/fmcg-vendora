@@ -6,6 +6,7 @@ import {
   FiCreditCard,
   FiRefreshCw
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
@@ -48,15 +49,20 @@ function Hero() {
             {/* Buttons */}
             <div className="flex flex-wrap gap-4 mt-10">
 
-              <button className="flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg transition">
+              <Link to="/register" className="flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg transition">
                 Register Your Shop
                 <FiArrowRight />
-              </button>
+              </Link>
 
-              <button className="flex items-center gap-2 px-8 py-4 rounded-xl border border-slate-300 hover:bg-slate-50 font-medium transition">
+              <a
+                href="https://youtu.be/x8wQ65XQ_1Y?si=U2cE8V9Z5XQ_1Y"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-8 py-4 rounded-xl border border-slate-300 hover:bg-slate-50 font-medium transition"
+              >
                 <FiPlayCircle />
                 Watch Demo
-              </button>
+              </a>
 
             </div>
 
