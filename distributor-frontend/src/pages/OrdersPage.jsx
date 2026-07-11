@@ -1,123 +1,219 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import OrderTabs from "../components/orders/OrderTabs";
 import OrdersTable from "../components/orders/OrdersTable";
+import OrderDetailModal from "../components/orders/OrderDetailModal";
 import Pagination from "../components/Pagination";
 import MetricCard from "../components/MetricCard";
+import { useAuth } from "../auth/AuthContext";
+import { fetchOrders, fetchDeliveries, approveOrder, rejectOrder } from "../services/ordersApi";
 import {
   ShoppingCart,
   ClipboardClock,
   SquareCheckBig,
   Ban,
+  RotateCcw,
+  Loader2,
 } from "lucide-react";
 
-const orders = [
-  {
-    id: "ORD-001",
-    retailer: "Star Grocery Store",
-    date: "20 May 2026",
-    time: "10.45 A.M",
-    amount: "15,000.00",
-    payment: "cash",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-002",
-    retailer: "Asan Grocery Store",
-    date: "19 May 2026",
-    time: "10.05 A.M",
-    amount: "31,340.00",
-    payment: "credit",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-003",
-    retailer: "New Grocery Store",
-    date: "18 May 2026",
-    time: "08.45 P.M",
-    amount: "10,000.00",
-    payment: "---",
-    status: "Pending Approval",
-  },
-  {
-    id: "ORD-004",
-    retailer: "Green Super",
-    date: "20 May 2026",
-    time: "11.25 A.M",
-    amount: "15,000.00",
-    payment: "---",
-    status: "Processing",
-  },
-  {
-    id: "ORD-005",
-    retailer: "Happy Mart",
-    date: "21 May 2026",
-    time: "09.30 A.M",
-    amount: "12,000.00",
-    payment: "cash",
-    status: "Cancelled",
-  },
-];
+const TABS = ["All Orders", "Pending", "Processing", "Approved", "Delivered", "Returned", "Rejected"];
+
+const ITEMS_PER_PAGE = 8;
 
 export default function OrdersPage() {
-  const [activeTab, setActiveTab] = useState("All Orders");
-  const [currentPage, setCurrentPage] = useState(1);
+  const { auth } = useAuth();
 
-  const filteredOrders =
-    activeTab === "All Orders"
-      ? orders
-      : orders.filter((order) => order.status === activeTab);
+  const [allOrders, setAllOrders]       = useState([]);
+  const [returnedOrderIds, setReturnedOrderIds] = useState(new Set());
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState("");
+  const [activeTab, setActiveTab]       = useState("All Orders");
+  const [currentPage, setCurrentPage]   = useState(1);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [actioningId, setActioningId]   = useState(null);
+
+  // Load all orders + deliveries together
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [ordersData, deliveriesData] = await Promise.all([
+        fetchOrders(auth?.token, ""),
+        fetchDeliveries(auth?.token).catch(() => []), // fallback gracefully
+      ]);
+      setAllOrders(ordersData ?? []);
+      // Build set of order_ids that have a RETURNED delivery
+      const returnedIds = new Set(
+        (deliveriesData ?? [])
+          .filter((d) => d.status === "RETURNED")
+          .map((d) => Number(d.order_id))
+      );
+      setReturnedOrderIds(returnedIds);
+      setCurrentPage(1);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [auth?.token]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  // Tab filtering
+  const filteredOrders = useMemo(() => {
+    switch (activeTab) {
+      case "All Orders":  return allOrders;
+      case "Pending":     return allOrders.filter((o) => o.status === "Pending");
+      case "Processing":  return allOrders.filter((o) => o.status === "Processing");
+      case "Approved":    return allOrders.filter((o) => o.status === "Approved");
+      case "Delivered":   return allOrders.filter((o) => o.status === "Delivered");
+      // Returned = Rejected in orders table BUT has a RETURNED delivery record
+      case "Returned":    return allOrders.filter(
+                            (o) => o.status === "Rejected" && returnedOrderIds.has(Number(o.order_id))
+                          );
+      // Rejected by distributor = Rejected in orders table but NOT from a returned delivery
+      case "Rejected":    return allOrders.filter(
+                            (o) => o.status === "Rejected" && !returnedOrderIds.has(Number(o.order_id))
+                          );
+      default:            return allOrders;
+    }
+  }, [allOrders, activeTab, returnedOrderIds]);
+
+  const paginated = filteredOrders.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Inline approve
+  const handleApprove = async (orderId) => {
+    setActioningId(orderId);
+    try {
+      await approveOrder(auth?.token, orderId);
+      await loadData();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  // Inline reject
+  const handleReject = async (orderId) => {
+    setActioningId(orderId);
+    try {
+      await rejectOrder(auth?.token, orderId);
+      await loadData();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  // Metrics
+  const totalCount    = allOrders.length;
+  const pendingCount  = allOrders.filter((o) => o.status === "Pending").length;
+  const approvedCount = allOrders.filter((o) => o.status === "Approved").length;
+  const returnedCount = allOrders.filter(
+    (o) => o.status === "Rejected" && returnedOrderIds.has(Number(o.order_id))
+  ).length;
+  const rejectedCount = allOrders.filter(
+    (o) => o.status === "Rejected" && !returnedOrderIds.has(Number(o.order_id))
+  ).length;
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard
           title="Total Orders"
-          value={orders.length}
-          subtitle="Today"
-          icon={<ShoppingCart className="text-[#0228e3]" size={40} />}
+          value={totalCount}
+          subtitle="All Time"
+          icon={<ShoppingCart className="text-[#0228e3]" size={36} />}
           bgColor="bg-[#DCE1F0]"
           iconBg="bg-[#5BDAF2]"
         />
-
         <MetricCard
-          title="Pending Orders"
-          value={orders.filter((order) => order.status === "Pending Approval").length}
+          title="Pending"
+          value={pendingCount}
           subtitle="Awaiting Approval"
-          icon={<ClipboardClock className="text-[#e3a002]" size={40} />}
+          icon={<ClipboardClock className="text-[#e3a002]" size={36} />}
           bgColor="bg-[#FFFCD6]"
           iconBg="bg-[#FFE365]"
         />
-
         <MetricCard
-          title="Delivered Orders"
-          value={orders.filter((order) => order.status === "Delivered").length}
-          subtitle="This Month"
-          icon={<SquareCheckBig className="text-[#02e302]" size={40} />}
+          title="Approved"
+          value={approvedCount}
+          subtitle="Total"
+          icon={<SquareCheckBig className="text-[#02e302]" size={36} />}
           bgColor="bg-[#EBFFE4]"
           iconBg="bg-[#A4FF83]"
         />
-
         <MetricCard
-          title="Cancelled Orders"
-          value={orders.filter((order) => order.status === "Cancelled").length}
-          subtitle="This Month"
-          icon={<Ban className="text-[#e30202]" size={40} />}
+          title="Returned"
+          value={returnedCount}
+          subtitle="Driver returned"
+          icon={<RotateCcw className="text-orange-500" size={36} />}
+          bgColor="bg-[#FFF3E2]"
+          iconBg="bg-[#FFD8A4]"
+        />
+        <MetricCard
+          title="Rejected"
+          value={rejectedCount}
+          subtitle="By distributor"
+          icon={<Ban className="text-[#e30202]" size={36} />}
           bgColor="bg-[#FFE4E4]"
           iconBg="bg-[#FFA4A4]"
         />
       </div>
 
-      <OrderTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
 
-      <OrdersTable orders={filteredOrders} />
+      {/* Tabs */}
+      <OrderTabs
+        tabs={TABS}
+        activeTab={activeTab}
+        setActiveTab={(tab) => { setActiveTab(tab); setCurrentPage(1); }}
+      />
 
+      {/* Table */}
+      {loading ? (
+        <div className="flex items-center justify-center py-16 bg-white border border-gray-200 rounded-lg">
+          <Loader2 size={32} className="animate-spin text-blue-500" />
+        </div>
+      ) : (
+        <OrdersTable
+          orders={paginated}
+          returnedOrderIds={returnedOrderIds}
+          onView={setSelectedOrderId}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          actioningId={actioningId}
+        />
+      )}
+
+      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
-        totalItems={20}
-        itemsPerPage={8}
+        totalItems={filteredOrders.length}
+        itemsPerPage={ITEMS_PER_PAGE}
         label="Orders"
         onPageChange={setCurrentPage}
       />
+
+      {/* Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+          onActionDone={loadData}
+        />
+      )}
     </div>
   );
 }

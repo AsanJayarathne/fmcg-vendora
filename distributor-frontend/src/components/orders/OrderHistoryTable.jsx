@@ -1,144 +1,112 @@
 import { Download } from "lucide-react";
 
-const orders = [
-  {
-    id: "ORD-001",
-    retailer: "Star Grocery Store",
-    orderDate: "20 May 2026",
-    time: "10.45 A.M",
-    amount: "15,000.00",
-    deliveryDate: "18 May 2026",
-    payment: "cash",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-002",
-    retailer: "Asan Grocery Store",
-    orderDate: "19 May 2026",
-    time: "10.05 A.M",
-    amount: "31,340.00",
-    deliveryDate: "20 May 2026",
-    payment: "credit",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-003",
-    retailer: "New Grocery Store",
-    orderDate: "18 May 2026",
-    time: "08.45 P.M",
-    amount: "10,000.00",
-    deliveryDate: "20 May 2026",
-    payment: "Partial",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-004",
-    retailer: "Green Super",
-    orderDate: "20 May 2026",
-    time: "11.25 A.M",
-    amount: "15,000.00",
-    deliveryDate: "20 May 2026",
-    payment: "---",
-    status: "Returned",
-  },
-];
+const DELIVERY_STATUS = {
+  DELIVERED: { label: "Delivered", color: "text-emerald-600", bg: "bg-emerald-50" },
+  RETURNED:  { label: "Returned",  color: "text-orange-600", bg: "bg-orange-50"  },
+};
 
-export default function OrderHistoryTable() {
+function fmtDate(dateStr) {
+  if (!dateStr) return { date: "—", time: "" };
+  const d = new Date(dateStr);
+  return {
+    date: d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+    time: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+function fmtAmount(val) {
+  return Number(val || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 });
+}
+
+export default function OrderHistoryTable({ deliveries, onView }) {
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
       <table className="w-full text-sm text-left">
         <thead className="border-b border-gray-200 bg-gray-50">
           <tr>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Order ID
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Retailer
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Order Date
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Total Amount (LKR)
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Delivery Date
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Payment
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Status
-            </th>
-            <th className="px-6 py-4 text-sm font-semibold text-gray-700">
-              Action
-            </th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order ID</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Retailer</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order Date</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Delivery Date</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Amount (LKR)</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Driver</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Delivery Status</th>
+            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Action</th>
           </tr>
         </thead>
 
-        <tbody>
-          {orders.map((order, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                {order.id}
-              </td>
-
-              <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                {order.retailer}
-              </td>
-
-              <td className="px-6 py-4">
-                <p className="text-sm font-medium text-gray-800">
-                  {order.orderDate}
-                </p>
-                <p className="text-xs text-gray-500">{order.time}</p>
-              </td>
-
-              <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                {order.amount}
-              </td>
-
-              <td className="px-6 py-4 text-sm font-medium text-gray-800">
-                {order.deliveryDate}
-              </td>
-
-              <td
-                className={`px-6 py-4 text-sm font-medium ${
-                  order.payment === "cash"
-                    ? "text-green-600"
-                    : order.payment === "credit"
-                    ? "text-red-500"
-                    : order.payment === "Partial"
-                    ? "text-purple-500"
-                    : "text-gray-500"
-                }`}
-              >
-                {order.payment}
-              </td>
-
-              <td
-                className={`px-6 py-4 text-sm font-semibold ${
-                  order.status === "Delivered"
-                    ? "text-green-600"
-                    : "text-red-500"
-                }`}
-              >
-                {order.status}
-              </td>
-
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <button className="px-5 py-2 text-sm font-medium border border-gray-300 rounded-md text-sky-500 hover:bg-sky-50">
-                    View
-                  </button>
-
-                  <button className="p-2 border border-gray-300 rounded-md text-sky-500 hover:bg-sky-50">
-                    <Download size={16} />
-                  </button>
-                </div>
+        <tbody className="divide-y divide-gray-100">
+          {deliveries.length === 0 ? (
+            <tr>
+              <td colSpan="8" className="px-6 py-10 text-center text-gray-400 text-sm">
+                No completed deliveries found
               </td>
             </tr>
-          ))}
+          ) : (
+            deliveries.map((delivery) => {
+              const ordered  = fmtDate(delivery.created_at);
+              const delivered = fmtDate(delivery.delivery_date);
+              const status   = DELIVERY_STATUS[delivery.status] ?? {
+                label: delivery.status, color: "text-gray-500", bg: "bg-gray-50",
+              };
+
+              return (
+                <tr key={delivery.delivery_id} className="hover:bg-gray-50 transition">
+
+                  <td className="px-5 py-3.5 font-semibold text-gray-800">
+                    #{delivery.order_id}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <p className="font-medium text-gray-800">{delivery.shop_name}</p>
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <p className="text-gray-800">{ordered.date}</p>
+                    <p className="text-[11px] text-gray-500">{ordered.time}</p>
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <p className="text-gray-800">{delivered.date}</p>
+                    <p className="text-[11px] text-gray-500">{delivered.time}</p>
+                  </td>
+
+                  <td className="px-5 py-3.5 font-medium text-gray-800">
+                    {fmtAmount(delivery.order_amount)}
+                  </td>
+
+                  <td className="px-5 py-3.5 text-gray-700">
+                    {delivery.driver_name ?? <span className="text-gray-400">—</span>}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${status.color} ${status.bg}`}>
+                      {status.label}
+                    </span>
+                    {delivery.status === "RETURNED" && delivery.remarks && (
+                      <p className="text-[10px] text-gray-400 mt-0.5 max-w-[120px] truncate" title={delivery.remarks}>
+                        {delivery.remarks}
+                      </p>
+                    )}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onView?.(delivery.order_id)}
+                        className="px-4 py-1.5 text-xs font-semibold border border-gray-300 rounded-md text-sky-600 hover:bg-sky-50 transition"
+                      >
+                        View
+                      </button>
+                      <button className="p-1.5 border border-gray-300 rounded-md text-sky-600 hover:bg-sky-50 transition">
+                        <Download size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>
