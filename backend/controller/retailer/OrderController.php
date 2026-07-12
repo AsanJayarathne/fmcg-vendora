@@ -22,7 +22,8 @@ class OrderController {
     private function placeOrder(int $retailerId): void {
         $body = getBody();
         if (empty($body['items']) || !is_array($body['items'])) sendError('Order items required', 400);
-        sendSuccess($this->orderService->placeOrder($retailerId, $body['payment_method'] ?? 'Cash', $body['items']), 'Order placed', 201);
+        $distributorId = (int)($body['distributor_id'] ?? 0);
+        sendSuccess($this->orderService->placeOrder($retailerId, $body['payment_method'] ?? 'Cash', $body['items'], $distributorId), 'Order placed', 201);
     }
     private function modifyOrder(int $retailerId): void {
         $id = (int)($_GET['id'] ?? 0); $body = getBody();

@@ -74,7 +74,7 @@ export default function OrderDetailModal({ orderId, onClose, onActionDone }) {
   };
 
   const canApprove = order?.status === "Processing";
-  const canReject  = order?.status === "Pending" || order?.status === "Processing";
+  const canReject  = order?.status === "Processing";
   let badge = STATUS_MAP[order?.status] ?? { label: order?.status, color: "bg-gray-100 text-gray-600" };
   if (order?.status === "Rejected" && order?.isReturned) {
     badge = { label: "Returned", color: "bg-orange-100 text-orange-700" };

@@ -24,16 +24,20 @@ function getDiscountRate(quantity) {
  * Returns a flat object with consistent id / name / price / stock keys.
  */
 function normaliseProduct(product) {
+  const baseId = product.product_id ?? product.id;
+  const distId = product.distributor_id ?? null;
   return {
     ...product,
     // Stable id used as cart key
-    id:          product.product_id   ?? product.id,
+    id:          distId ? `${baseId}-${distId}` : baseId,
+    productId:   baseId,
     // Display fields
     name:        product.product_name ?? product.name,
     price:       Number(product.unit_price ?? product.base_price ?? product.price ?? 0),
     stock:       product.available_qty ?? product.stock_qty ?? product.stock ?? 0,
     category:    product.category_name ?? product.category ?? "",
     distributor: product.distributor_name ?? product.distributor ?? "Unknown Distributor",
+    distributor_id: distId,
   };
 }
 

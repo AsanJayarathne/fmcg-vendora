@@ -1,13 +1,14 @@
 import Lang from "./Lang";
 import { Bell } from "lucide-react";
+import logo from "../assets/vendora logo.png";
 
 export default function Navbar() {
   return (
     <header className="flex items-center justify-between h-20 px-6 bg-gray-100 border-b border-gray-200">
 
-      <h1 className="text-3xl font-bold text-black">
-        VENDORA
-      </h1>
+      <div className="flex items-center">
+        <img src={logo} alt="Vendora Logo" className="h-13 w-auto object-contain" />
+      </div>
 
       <div className="flex items-center gap-4">
 

@@ -4,30 +4,43 @@ require_once __DIR__ . '/../repository/ProductRepository.php';
 require_once __DIR__ . '/../repository/CreditRepository.php';
 require_once __DIR__ . '/../repository/DeliveryRepository.php';
 require_once __DIR__ . '/../repository/RetailerRepository.php';
+require_once __DIR__ . '/../repository/DistributorRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
 require_once __DIR__ . '/../util/Database.php';
 
 class OrderService {
-    private OrderRepository     $orderRepo;
-    private ProductRepository   $productRepo;
-    private CreditRepository    $creditRepo;
-    private DeliveryRepository  $deliveryRepo;
-    private RetailerRepository  $retailerRepo;
-    private NotificationService $notifService;
+    private OrderRepository       $orderRepo;
+    private ProductRepository     $productRepo;
+    private CreditRepository      $creditRepo;
+    private DeliveryRepository    $deliveryRepo;
+    private RetailerRepository    $retailerRepo;
+    private DistributorRepository $distributorRepo;
+    private NotificationService   $notifService;
 
     public function __construct() {
-        $this->orderRepo    = new OrderRepository();
-        $this->productRepo  = new ProductRepository();
-        $this->creditRepo   = new CreditRepository();
-        $this->deliveryRepo = new DeliveryRepository();
-        $this->retailerRepo = new RetailerRepository();
-        $this->notifService = new NotificationService();
+        $this->orderRepo       = new OrderRepository();
+        $this->productRepo     = new ProductRepository();
+        $this->creditRepo      = new CreditRepository();
+        $this->deliveryRepo    = new DeliveryRepository();
+        $this->retailerRepo    = new RetailerRepository();
+        $this->distributorRepo = new DistributorRepository();
+        $this->notifService    = new NotificationService();
     }
 
-    public function placeOrder(int $retailerId, string $paymentMethod, array $items): array {
-        $distributor = $this->retailerRepo->getDistributorForRetailer($retailerId);
-        if (!$distributor) throw new Exception("No approved distributor found for your region", 422);
-        $distributorId = (int)$distributor['distributor_id'];
+    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0): array {
+        $retailer = $this->retailerRepo->findById($retailerId);
+        if (!$retailer) throw new Exception("Retailer profile not found", 404);
+
+        if (!$distributorId) {
+            $distributor = $this->retailerRepo->getDistributorForRetailer($retailerId);
+            if (!$distributor) throw new Exception("No approved distributor found for your region", 422);
+            $distributorId = (int)$distributor['distributor_id'];
+        } else {
+            $distributor = $this->distributorRepo->findById($distributorId);
+            if (!$distributor || $distributor['status'] !== 'Approved' || (int)$distributor['region_id'] !== (int)$retailer['region_id']) {
+                throw new Exception("Invalid or unapproved distributor for your region", 422);
+            }
+        }
 
         $enrichedItems = [];
         $totalAmount   = 0.0;
@@ -100,6 +113,9 @@ class OrderService {
     public function rejectOrder(int $orderId, int $distributorId): void {
         $order = $this->orderRepo->findById($orderId);
         if (!$order || (int)$order['distributor_id'] !== $distributorId) throw new Exception("Order not found", 404);
+        $this->applyLockIfExpired($order);
+        $order = $this->orderRepo->findById($orderId);
+        if ($order['status'] !== 'Processing') throw new Exception("Order must be in 'Processing' status to be rejected. Current: {$order['status']}", 422);
         $this->orderRepo->updateStatus($orderId, 'Rejected');
         $retailer = $this->retailerRepo->findById((int)$order['retailer_id']);
         if ($retailer) $this->notifService->send($retailer['user_id'], "Order Rejected", "Your order #$orderId was rejected.");

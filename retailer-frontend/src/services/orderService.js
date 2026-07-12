@@ -97,12 +97,13 @@ function normaliseOrder(raw) {
  * @param {string} paymentMethod  — "Cash" | "Credit"
  * @returns {Promise<object>}  normalised order
  */
-export async function placeOrder(token, items, paymentMethod = "Cash") {
+export async function placeOrder(token, items, paymentMethod = "Cash", distributorId = null) {
   const result = await apiFetch("/retailer/orders.php", token, {
     method: "POST",
     body: JSON.stringify({
       payment_method: paymentMethod,
       items,
+      distributor_id: distributorId,
     }),
   });
   return normaliseOrder(result.data);

@@ -1,18 +1,39 @@
 import React from 'react';
 
-const StatCard = ({ title, value, icon, trend, trendUp }) => {
+const StatCard = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  bgColor = "bg-slate-200",
+  iconBg = "bg-white",
+  loading = false,
+}) => {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] transition-transform hover:-translate-y-0.5">
-      <div className="w-14 h-14 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl">
+    <div className={`${bgColor} rounded-2xl p-5 flex items-center gap-4 shadow-sm transition-transform hover:-translate-y-0.5`}>
+      {/* Icon */}
+      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconBg} flex-shrink-0`}>
         {icon}
       </div>
-      <div>
-        <h4 className="text-slate-500 text-sm font-medium mb-1">{title}</h4>
-        <div className="text-2xl font-bold text-slate-900">{value}</div>
-        {trend && (
-          <div className={`text-xs mt-1 ${trendUp ? 'text-emerald-500' : 'text-red-500'}`}>
-            {trendUp ? '↑' : '↓'} {trend} vs last month
-          </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <h4 className="text-sm font-semibold text-gray-700">
+          {title}
+        </h4>
+
+        {loading ? (
+          <div className="h-8 w-20 bg-black/10 rounded-lg mt-1 animate-pulse" />
+        ) : (
+          <h2 className="text-2xl font-bold leading-tight text-gray-900">
+            {value}
+          </h2>
+        )}
+
+        {subtitle && (
+          <p className="text-xs text-gray-500 mt-0.5">
+            {subtitle}
+          </p>
         )}
       </div>
     </div>

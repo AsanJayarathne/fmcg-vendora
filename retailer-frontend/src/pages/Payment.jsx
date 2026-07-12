@@ -108,7 +108,7 @@ function Payment() {
 
     setSubmitting(true);
     try {
-      const placed = await placeOrder(token, itemsPayload, backendPaymentMethod);
+      const placed = await placeOrder(token, itemsPayload, backendPaymentMethod, order.distributor_id);
 
       // Enrich with UI-only fields that the backend doesn't store
       const confirmedOrder = {

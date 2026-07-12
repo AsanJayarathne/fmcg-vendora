@@ -23,6 +23,7 @@ function Cart() {
       if (!groups[distributorName]) {
         groups[distributorName] = {
           distributor: distributorName,
+          distributor_id: item.distributor_id,
           items: [],
           totalQuantity: 0,
           subtotal: 0,

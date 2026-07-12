@@ -20,7 +20,8 @@ export async function fetchProductsWithCategories(token, categoryId = null) {
   const result = await apiFetch(path, token);
 
   return {
-    products:   result.data?.products   ?? [],
-    categories: result.data?.categories ?? [],
+    products:     result.data?.products     ?? [],
+    categories:   result.data?.categories   ?? [],
+    distributors: result.data?.distributors ?? [],
   };
 }

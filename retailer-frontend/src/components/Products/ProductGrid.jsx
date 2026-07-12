@@ -34,7 +34,7 @@ function ProductGrid({ products, onView, onCart, isLoading }) {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => {
-          const key = product.product_id ?? product.id;
+          const key = `${product.product_id ?? product.id}-${product.distributor_id}`;
           return (
             <ProductCard
               key={key}

@@ -90,4 +90,33 @@ class ProductRepository {
         $this->db->prepare("INSERT INTO distributor_pricing (distributor_id, product_id, price, effective_from) VALUES (?, ?, ?, CURDATE())")
                  ->execute([$distributorId, $productId, $price]);
     }
+    public function getCatalogForRegion(int $regionId, int $categoryId = 0): array {
+        $sql = "SELECT 
+                    p.*, 
+                    pc.category_name, 
+                    pc.category_id,
+                    d.distributor_id,
+                    d.company_name AS distributor_name,
+                    COALESCE(dp.price, pp.base_price) AS unit_price,
+                    COALESCE(ds.quantity, 0) AS available_qty
+                FROM product p
+                JOIN product_category pc ON pc.category_id = p.category_id
+                CROSS JOIN distributor d 
+                LEFT JOIN product_pricing pp ON pp.product_id = p.product_id AND pp.effective_to IS NULL
+                LEFT JOIN distributor_pricing dp ON dp.product_id = p.product_id AND dp.distributor_id = d.distributor_id AND dp.effective_to IS NULL
+                LEFT JOIN distributor_stock ds ON ds.product_id = p.product_id AND ds.distributor_id = d.distributor_id
+                WHERE p.status = 'Active' 
+                  AND d.region_id = ? 
+                  AND d.status = 'Approved'
+                  AND COALESCE(ds.quantity, 0) > 0";
+        $params = [$regionId];
+        if ($categoryId > 0) {
+            $sql .= " AND p.category_id = ?";
+            $params[] = $categoryId;
+        }
+        $sql .= " ORDER BY p.product_name, d.company_name";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

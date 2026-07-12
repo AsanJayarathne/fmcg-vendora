@@ -72,27 +72,7 @@ const EditBtn = ({ onClick }) => (
 );
 
 /* ─── Main Component ─────────────────────────────────────── */
-const ProductTable = ({ refreshKey = 0, onEditProduct }) => {
-  const { auth } = useAuth();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
-
-  useEffect(() => {
-    setLoading(true);
-    setError('');
-    fetch(API, {
-      headers: { Authorization: `Bearer ${auth?.token}` },
-    })
-      .then(r => r.json())
-      .then(r => {
-        if (r.success) setProducts(r.data);
-        else setError(r.message || 'Failed to load products');
-      })
-      .catch(() => setError('Network error — could not reach the server'))
-      .finally(() => setLoading(false));
-  }, [auth, refreshKey]);
-
+const ProductTable = ({ products = [], loading = false, error = '', onEditProduct }) => {
   const formatPrice = val =>
     val != null ? `Rs. ${parseFloat(val).toFixed(2)}` : '—';
 
