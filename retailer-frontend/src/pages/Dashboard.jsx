@@ -1,5 +1,6 @@
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import StatCard from "../components/dashboard/StatCard";
+import { FiCreditCard, FiFileText, FiTag, FiUsers } from "react-icons/fi";
 
 import RecentOrdersStatus from "../components/orders/RecentOrdersStatus";
 import RecentOrdersTable from "../components/orders/RecentOrdersTable";
@@ -11,10 +12,10 @@ import RecentlyOrderedProducts from "../components/products/RecentlyOrderedProdu
 import TodayStorefrontPayments from "../components/payments/TodayStorefrontPayments";
 
 const stats = [
-  { title: "Orders", value: "152" },
-  { title: "Products", value: "1,250" },
-  { title: "Spending", value: "Rs. 245,000" },
-  { title: "Savings", value: "Rs. 12,500" },
+  { title: "Spending", value: "Rs. 245,000", color: "green", icon: <FiCreditCard size={18} />, subtitle: "+8% from yesterday" },
+  { title: "Total Order", value: "300", color: "blue", icon: <FiFileText size={18} />, subtitle: "+5% from yesterday" },
+  { title: "No of Products", value: "120", color: "orange", icon: <FiTag size={18} />, subtitle: "+1.2% from yesterday" },
+  { title: "Savings", value: "Rs. 12,500", color: "purple", icon: <FiUsers size={18} />, subtitle: "0.5% from yesterday" },
 ];
 
 const creditData = {
@@ -29,12 +30,6 @@ const creditChartData = [
   { week: "W2", credit: 6000 },
   { week: "W3", credit: 3500 },
   { week: "W4", credit: 7000 },
-];
-
-const orderStatus = [
-  { id: "ORD-1003", status: "Delivered", updated: "Today" },
-  { id: "ORD-1004", status: "Processing", updated: "2h ago" },
-  { id: "ORD-1005", status: "Pending", updated: "6h ago" },
 ];
 
 const recentOrders = [
@@ -95,7 +90,14 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         {stats.map((item) => (
-          <StatCard key={item.title} title={item.title} value={item.value} />
+          <StatCard
+            key={item.title}
+            title={item.title}
+            value={item.value}
+            color={item.color}
+            icon={item.icon}
+            subtitle={item.subtitle}
+          />
         ))}
       </div>
 
@@ -104,12 +106,10 @@ export default function Dashboard() {
         <CreditOverview data={creditData} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <RecentOrdersStatus orders={orderStatus} />
-        <RecentOrdersTable orders={recentOrders} />
-      </div>
-
-      <div className="mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+          <RecentOrdersStatus orders={recentOrders} />
+        </div>
         <RecentlyOrderedProducts products={recentProducts} />
       </div>
 

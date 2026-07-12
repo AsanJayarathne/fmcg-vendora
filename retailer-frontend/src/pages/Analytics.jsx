@@ -14,8 +14,9 @@ import {
   FiBarChart2,
   FiClipboard,
   FiSettings,
-  FiLogOut
+  FiLogOut,
 } from "react-icons/fi";
+import { FiCreditCard, FiFileText, FiTag, FiUsers } from "react-icons/fi";
 
 export default function Analytics() {
     const creditData = {
@@ -64,17 +65,13 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-4 gap-5 mb-6">
-        <StatCard title="Total Orders" value="152" color="blue" />
+        <StatCard title="Spending" value="Rs. 245,000" color="green" icon={<FiCreditCard size={18} />} subtitle={"+8% from yesterday"} />
 
-        <StatCard
-          title="Products Purchased"
-          value="1,250 Units"
-          color="green"
-        />
+        <StatCard title="Total Orders" value="300" color="blue" icon={<FiFileText size={18} />} subtitle={"+5% from yesterday"} />
 
-        <StatCard title="Monthly Spending" value="Rs. 245,000" color="orange" />
+        <StatCard title="No of Products" value="120" color="orange" icon={<FiTag size={18} />} subtitle={"+1.2% from yesterday"} />
 
-        <StatCard title="Total Savings" value="Rs. 12,500" color="purple" />
+        <StatCard title="Savings" value="Rs. 12,500" color="purple" icon={<FiUsers size={18} />} subtitle={"0.5% from yesterday"} />
       </div>
 
       <div className="grid grid-cols-2 gap-5 mb-6">
