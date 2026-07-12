@@ -6,7 +6,7 @@ class StockRepository {
     public function __construct() { $this->db = Database::getConnection(); }
 
     public function getWarehouseAll(): array {
-        $stmt = $this->db->prepare("SELECT ws.*, p.product_name, p.unit, pc.category_name FROM warehouse_stock ws JOIN product p ON p.product_id = ws.product_id JOIN product_category pc ON pc.category_id = p.category_id ORDER BY p.product_name");
+        $stmt = $this->db->prepare("SELECT ws.*, p.product_name, p.unit, p.image_url, pc.category_name, pp.base_price, pp.mrp_max_retail_price FROM warehouse_stock ws JOIN product p ON p.product_id = ws.product_id JOIN product_category pc ON pc.category_id = p.category_id LEFT JOIN product_pricing pp ON pp.product_id = ws.product_id AND pp.effective_to IS NULL ORDER BY p.product_name");
         $stmt->execute(); return $stmt->fetchAll();
     }
     public function getWarehouseByProduct(int $productId): ?array {

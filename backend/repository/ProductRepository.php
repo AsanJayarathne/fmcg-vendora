@@ -40,6 +40,9 @@ class ProductRepository {
         $this->db->prepare("UPDATE product_category SET category_name = ?, description = ? WHERE category_id = ?")
                  ->execute([$data['category_name'], $data['description'] ?? null, $categoryId]);
     }
+    public function deleteCategory(int $categoryId): void {
+        $this->db->prepare("DELETE FROM product_category WHERE category_id = ?")->execute([$categoryId]);
+    }
     public function setPrice(int $productId, float $basePrice, float $mrp): void {
         $this->db->prepare("UPDATE product_pricing SET effective_to = CURDATE() WHERE product_id = ? AND effective_to IS NULL")->execute([$productId]);
         $this->db->prepare("INSERT INTO product_pricing (product_id, base_price, mrp_max_retail_price, effective_from) VALUES (?, ?, ?, CURDATE())")->execute([$productId, $basePrice, $mrp]);

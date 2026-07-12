@@ -29,6 +29,7 @@ class ProductController {
                     'GET'    => sendSuccess($this->productRepo->getAllCategories()),
                     'POST'   => $this->createCategory(),
                     'PUT'    => $this->updateCategory(),
+                    'DELETE' => $this->deleteCategory(),
                     default  => sendError('Method not allowed', 405)
                 };
                 return;
@@ -151,6 +152,21 @@ class ProductController {
         if (!$id) sendError('Category ID required', 400);
         $this->productRepo->updateCategory($id, getBody());
         sendSuccess(null, 'Updated');
+    }
+
+    private function deleteCategory(): void {
+        $id = (int)($_GET['id'] ?? 0);
+        if (!$id) sendError('Category ID required', 400);
+        try {
+            $this->productRepo->deleteCategory($id);
+            sendSuccess(null, 'Deleted');
+        } catch (Exception $e) {
+            // Check if foreign key constraint error
+            if (str_contains($e->getMessage(), 'FOREIGN KEY') || str_contains($e->getMessage(), '1217') || str_contains($e->getMessage(), '1451')) {
+                throw new Exception('Cannot delete category because it contains active products.', 409);
+            }
+            throw $e;
+        }
     }
 
     private function setPrice(): void {
