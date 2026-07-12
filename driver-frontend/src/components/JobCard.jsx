@@ -1,4 +1,4 @@
-function JobCard({ job, onClaim }) {
+function JobCard({ job, onClaim, claiming = false }) {
   return (
     <div className="bg-orange-50 rounded-2xl p-4 flex flex-col gap-3">
       
@@ -14,31 +14,31 @@ function JobCard({ job, onClaim }) {
       {/* Order ID */}
       <div className="text-2xl font-bold text-gray-900">{job.orderId}</div>
 
-      {/* Weight and Items pills */}
+      {/* Items pill */}
       <div className="flex items-center gap-2">
-        <span className="text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600">
-          {job.weight}
-        </span>
-        <span className="text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600">
-          {job.items}
-        </span>
+        {job.items && (
+          <span className="text-xs px-3 py-1 rounded-full border border-gray-200 bg-white text-gray-600 font-medium">
+            {job.items}
+          </span>
+        )}
       </div>
 
       {/* Divider */}
       <div className="border-t border-orange-100" />
 
-      {/* Distance and Button */}
+      {/* Amount, Payment Method, and Claim Button */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm font-bold text-gray-900">{job.distance}</div>
-          <div className="text-xs text-gray-400">Distance</div>
+          <div className="text-sm font-bold text-gray-900">{job.amount}</div>
+          <div className="text-xs text-gray-400">{job.paymentMethod}</div>
         </div>
         {job.status === 'Available' ? (
           <button
             onClick={onClaim}
-            className="text-xs px-4 py-2 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-all font-medium"
+            disabled={claiming}
+            className="text-xs px-4 py-2 rounded-full bg-orange-500 text-white hover:bg-orange-600 disabled:bg-orange-300 transition-all font-medium cursor-pointer"
           >
-            Take Order
+            {claiming ? 'Claiming...' : 'Take Order'}
           </button>
         ) : (
           <span className="text-xs px-4 py-2 rounded-full bg-green-100 text-green-700 font-medium">

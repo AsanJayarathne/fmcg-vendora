@@ -30,6 +30,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="jobpool" element={<JobPool />} />
             <Route path="myroute" element={<MyRoute />} />
+            <Route path="myorders" element={<CashAudit />} />
             <Route path="cashaudit" element={<CashAudit />} />
             <Route path="profile" element={<Profile />} />
           </Route>

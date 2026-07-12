@@ -1,12 +1,12 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Map, Wallet, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Map, Wallet, User, LogOut, Package } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/jobpool', label: 'Open Job Pool', icon: Briefcase },
-  { path: '/myroute', label: 'My Route', icon: Map },
-  { path: '/cashaudit', label: 'Cash Audit', icon: Wallet },
+  { path: '/myroute', label: 'My Orders', icon: Package },
+  { path: '/cashaudit', label: 'My Route', icon: Map },
   { path: '/profile', label: 'Profile', icon: User },
 ];
 

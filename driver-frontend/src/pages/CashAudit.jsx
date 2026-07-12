@@ -1,144 +1,162 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../auth/AuthContext';
+
+const loadLeaflet = () => {
+  return new Promise((resolve) => {
+    if (window.L) {
+      resolve(window.L);
+      return;
+    }
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.onload = () => resolve(window.L);
+    document.head.appendChild(script);
+  });
+};
 
 function CashAudit() {
-  const [invoiceNumber, setInvoiceNumber] = useState('');
-  const [customerId, setCustomerId] = useState('');
-  const [totalAmount, setTotalAmount] = useState('');
-  const [cashAmount, setCashAmount] = useState('');
+  const { auth } = useAuth();
+  const [routes, setRoutes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const mapRef = useRef(null);
+  const markersRef = useRef([]);
 
-  const total = parseFloat(totalAmount) || 0;
-  const cash = parseFloat(cashAmount) || 0;
-  const credit = Math.max(0, total - cash);
+  const fetchRoutes = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost/fmcg-vendora/backend/api/driver/deliveries.php", {
+        headers: {
+          "Authorization": `Bearer ${auth?.token}`
+        }
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const mappedRoutes = json.data.map(item => ({
+          id: item.delivery_id,
+          store: item.shop_name,
+          address: item.city ? `${item.shop_address}, ${item.city}` : item.shop_address,
+          amount: `Rs. ${parseFloat(item.order_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+          status: item.status === 'CLAIMED' ? 'Pending' : (item.status === 'DELIVERED' ? 'Delivered' : 'Returned'),
+          latitude: item.latitude ? parseFloat(item.latitude) : null,
+          longitude: item.longitude ? parseFloat(item.longitude) : null
+        }));
+        setRoutes(mappedRoutes);
+      }
+    } catch (err) {
+      console.error("Error loading route map data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const todaysPayments = [
-    { total: 32000, cash: 20000 },
-    { total: 18500, cash: 18500 },
-    { total: 47000, cash: 10000 },
-    { total: 25000, cash: 25000 },
-  ];
+  useEffect(() => {
+    if (auth?.token) {
+      fetchRoutes();
+    } else {
+      setLoading(false);
+    }
+  }, [auth]);
 
-  const todaysTotal = todaysPayments.reduce((sum, p) => sum + p.total, 0);
-  const todaysCash = todaysPayments.reduce((sum, p) => sum + p.cash, 0);
-  const todaysCredit = todaysTotal - todaysCash;
-  const todaysPending = todaysCredit;
+  // Leaflet Map integration effect
+  useEffect(() => {
+    let isMounted = true;
+    const pendingRoutes = routes.filter(r => r.status === 'Pending' && r.latitude && r.longitude);
+
+    if (pendingRoutes.length === 0 || loading) {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      return;
+    }
+
+    loadLeaflet().then((L) => {
+      if (!isMounted) return;
+      const container = document.getElementById('map-container');
+      if (!container) return;
+
+      const defaultCenter = [6.9271, 79.8612]; // Colombo
+      const center = [pendingRoutes[0].latitude, pendingRoutes[0].longitude];
+
+      if (!mapRef.current) {
+        mapRef.current = L.map('map-container').setView(center, 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(mapRef.current);
+      } else {
+        mapRef.current.setView(center, 13);
+      }
+
+      // Clear old markers
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
+
+      // Add new markers
+      const bounds = [];
+      pendingRoutes.forEach(r => {
+        const marker = L.marker([r.latitude, r.longitude])
+          .addTo(mapRef.current)
+          .bindPopup(`<b>${r.store}</b><br>${r.address}<br>${r.amount}`);
+        markersRef.current.push(marker);
+        bounds.push([r.latitude, r.longitude]);
+      });
+
+      if (bounds.length > 0) {
+        mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [routes, loading]);
 
   return (
-    <div className="bg-white min-h-screen p-6">
+    <div className="bg-white min-h-screen p-6 font-sans">
 
       {/* Title */}
-      <div className="mb-8">
-        <h2 className="text-4xl font-bold text-gray-900">Cash audit</h2>
-        <p className="text-sm text-gray-400 mt-1">Split payment calculator</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-
-        {/* Payment Calculator */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <h3 className="text-base font-bold text-gray-900 mb-5">Payment calculator</h3>
-
-          {/* Invoice Number */}
-          <div className="mb-4">
-            <label className="text-xs text-orange-500 mb-1.5 block">Invoice number</label>
-            <input
-              type="text"
-              placeholder="e.g. INV-1234"
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:border-orange-400"
-            />
-          </div>
-
-          {/* Customer ID */}
-          <div className="mb-4">
-            <label className="text-xs text-orange-500 mb-1.5 block">Customer ID</label>
-            <input
-              type="text"
-              placeholder="e.g. CUST-5678"
-              value={customerId}
-              onChange={(e) => setCustomerId(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:border-orange-400"
-            />
-          </div>
-
-          {/* Total Invoice Amount */}
-          <div className="mb-4">
-            <label className="text-xs text-orange-500 mb-1.5 block">Total invoice amount (Rs.)</label>
-            <input
-              type="number"
-              placeholder="0.00"
-              value={totalAmount}
-              onChange={(e) => setTotalAmount(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:border-orange-400"
-            />
-          </div>
-
-          {/* Cash Received */}
-          <div className="mb-5">
-            <label className="text-xs text-orange-500 mb-1.5 block">Cash received (Rs.)</label>
-            <input
-              type="number"
-              placeholder="0.00"
-              value={cashAmount}
-              onChange={(e) => setCashAmount(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:border-orange-400"
-            />
-          </div>
-
-          {/* Result */}
-          <div className="border-t border-gray-100 pt-4 mb-5">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Cash</div>
-                <div className="text-base font-bold text-green-500">
-                  Rs. {cash.toLocaleString()}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Credit</div>
-                <div className="text-base font-bold text-purple-500">
-                  Rs. {credit.toLocaleString()}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Total</div>
-                <div className="text-base font-bold text-gray-800">
-                  Rs. {total.toLocaleString()}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Confirm Button */}
-          <button className="w-full py-3 rounded-xl bg-orange-500 text-white text-sm font-medium hover:bg-orange-600 transition-all">
-            Confirm payment
+      <div className="mb-8 flex items-center justify-between max-w-6xl">
+        <div>
+          <h2 className="text-4xl font-bold text-gray-900">My Route</h2>
+          <p className="text-sm text-gray-400 mt-1">Interactive map of picked up orders</p>
+        </div>
+        {!loading && (
+          <button
+            onClick={fetchRoutes}
+            className="text-xs px-4 py-2 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-50 transition-all font-medium cursor-pointer"
+          >
+            Refresh Route
           </button>
-        </div>
-
-        {/* Today's Cash Summary */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <h3 className="text-base font-bold text-gray-900 mb-5">Today's cash summary</h3>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between py-3 border-b border-gray-50">
-              <div className="text-sm text-gray-400">Total invoices</div>
-              <div className="text-sm font-bold text-gray-900">Rs. {todaysTotal.toLocaleString()}</div>
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-gray-50">
-              <div className="text-sm text-gray-400">Cash collected</div>
-              <div className="text-sm font-bold text-green-500">Rs. {todaysCash.toLocaleString()}</div>
-            </div>
-            <div className="flex items-center justify-between py-3 border-b border-gray-50">
-              <div className="text-sm text-gray-400">Credit given</div>
-              <div className="text-sm font-bold text-purple-500">Rs. {todaysCredit.toLocaleString()}</div>
-            </div>
-            <div className="flex items-center justify-between py-3">
-              <div className="text-sm text-gray-400">Pending collection</div>
-              <div className="text-sm font-bold text-orange-500">Rs. {todaysPending.toLocaleString()}</div>
-            </div>
-          </div>
-        </div>
-
+        )}
       </div>
+
+      {/* Leaflet Map Card */}
+      {!loading && routes.some(r => r.status === 'Pending' && r.latitude && r.longitude) ? (
+        <div className="mb-6 max-w-6xl bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse" />
+            Route Locations Map
+          </h3>
+          <div 
+            id="map-container" 
+            className="w-full h-[550px] rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0"
+            style={{ minHeight: '500px' }}
+          />
+        </div>
+      ) : (
+        !loading && (
+          <div className="mb-6 max-w-6xl text-center py-12 text-sm text-gray-500 bg-gray-50 rounded-2xl border border-gray-100">
+            No picked up orders found. Claim orders to view your route map!
+          </div>
+        )
+      )}
+
     </div>
   );
 }

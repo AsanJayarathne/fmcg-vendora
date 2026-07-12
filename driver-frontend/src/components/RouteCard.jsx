@@ -9,14 +9,13 @@ function RouteCard({ store, distance, weight, items, paymentType, address, amoun
         <HandCoins size={20} className="text-pink-500" />
       </div>
 
-      {/* Store + Weight */}
+      {/* Store + Items */}
       <div className="w-52">
         <div className="text-sm font-bold text-gray-900">
-          {store} <span className="font-bold">({distance})</span>
+          {store}
         </div>
         <div className="text-xs mt-0.5">
-          Weight: <span className="text-orange-500 font-semibold">{weight}</span>
-          &nbsp; Items: <span className="text-orange-500 font-semibold">{items}</span>
+          Items: <span className="text-orange-500 font-semibold">{items}</span>
         </div>
       </div>
 
