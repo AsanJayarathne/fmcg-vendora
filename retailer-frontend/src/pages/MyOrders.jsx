@@ -1,55 +1,27 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   FiBox,
-  FiBriefcase,
   FiCheckCircle,
   FiClipboard,
   FiLoader,
   FiTruck,
   FiX,
   FiXCircle,
-  FiZap,
 } from "react-icons/fi";
 import { OrderContext } from "../context/OrderContextObject";
+import OrdersHeader from "../components/orders/OrdersHeader";
+import OrdersStats from "../components/orders/OrdersStats";
+import {
+  LOCK_WINDOW_MS,
+  filterOrders,
+  formatCurrency,
+  formatDate,
+  getStatusClass,
+  getTypeClass,
+} from "../utils/orderHelpers";
 
 const tabs = ["All Orders", "Normal Orders", "Urgent Orders", "Delivered", "Cancelled"];
 const STATUS_STEPS = ["Placed", "Accepted", "Out for Delivery", "Delivered"];
-
-const LOCK_WINDOW_MS = 15 * 60 * 1000; // must match backend LOCK_WINDOW_MINUTES
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatCurrency(amount) {
-  return `Rs. ${Number(amount || 0).toLocaleString("en-US")}`;
-}
-
-function formatDate(date, includeTime = false) {
-  if (!date) return "";
-  const options = { day: "2-digit", month: "short", year: "numeric" };
-  if (includeTime) { options.hour = "2-digit"; options.minute = "2-digit"; }
-  return new Intl.DateTimeFormat("en-GB", options).format(new Date(date));
-}
-
-function getStatusClass(status) {
-  if (status === "Delivered")        return "bg-green-100 text-green-700";
-  if (status === "Cancelled")        return "bg-red-100 text-red-700";
-  if (status === "Packed")           return "bg-orange-100 text-orange-700";
-  if (status === "Out for Delivery") return "bg-violet-100 text-violet-700";
-  if (status === "Accepted")         return "bg-teal-100 text-teal-700";
-  return "bg-blue-100 text-blue-700";
-}
-
-function getTypeClass(type) {
-  return type === "Urgent" ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700";
-}
-
-function filterOrders(orders, tab) {
-  if (tab === "Normal Orders") return orders.filter((o) => o.orderType === "Normal");
-  if (tab === "Urgent Orders") return orders.filter((o) => o.orderType === "Urgent");
-  if (tab === "Delivered")     return orders.filter((o) => o.status === "Delivered");
-  if (tab === "Cancelled")     return orders.filter((o) => o.status === "Cancelled");
-  return orders;
-}
 
 // ── useEditCountdown hook ────────────────────────────────────────────────────
 // Returns remaining seconds (0 when expired). Ticks every second.
@@ -143,23 +115,6 @@ function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
       >
         {pad(mins)}:{pad(secs)}
       </span>
-    </div>
-  );
-}
-
-// ── Stat Card ─────────────────────────────────────────────────────────────────
-
-function StatCard({ icon, label, value, linkText, color }) {
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 flex gap-4 items-start">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-        {icon}
-      </div>
-      <div>
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className="text-3xl font-bold text-slate-900">{value}</p>
-        <p className="text-xs text-blue-600 mt-1">{linkText}</p>
-      </div>
     </div>
   );
 }
@@ -399,16 +354,7 @@ function MyOrders() {
   return (
     <div className="p-6 bg-slate-50 min-h-screen">
 
-      {/* ── Page Header ────────────────────────────────────────────────────── */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900">
-          <FiTruck className="w-8 h-8" />
-          <span>My Orders</span>
-        </h1>
-        <p className="text-gray-500 text-sm">
-          Track distributor orders, payment details, and delivery status.
-        </p>
-      </div>
+      <OrdersHeader />
 
       {/* Cancel error banner */}
       {cancelError && (
@@ -418,13 +364,12 @@ function MyOrders() {
         </div>
       )}
 
-      {/* ── ROW 1 · KPI Cards ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCard icon={<FiBriefcase size={22} />} label="Total Orders"    value={orders.length}          linkText="All time"    color="bg-blue-100 text-blue-700"    />
-        <StatCard icon={<FiTruck size={22} />}      label="Active Orders"   value={activeOrders.length}    linkText="In progress" color="bg-green-100 text-green-700"   />
-        <StatCard icon={<FiZap size={22} />}        label="Urgent Orders"   value={urgentOrders.length}    linkText="Priority"    color="bg-red-100 text-red-700"      />
-        <StatCard icon={<FiClipboard size={22} />}  label="Delivered"       value={deliveredOrders.length} linkText="Completed"   color="bg-violet-100 text-violet-700" />
-      </div>
+      <OrdersStats
+        orders={orders}
+        activeOrders={activeOrders}
+        urgentOrders={urgentOrders}
+        deliveredOrders={deliveredOrders}
+      />
 
       {!latestOrder ? (
         <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
