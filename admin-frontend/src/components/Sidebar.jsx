@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import logo from '../assets/vendora logo.png';
 
 
 const Sidebar = () => {
@@ -98,8 +99,8 @@ const Sidebar = () => {
 
   return (
     <aside className="w-[260px] bg-white border-r border-slate-200 h-screen fixed left-0 top-0 flex flex-col z-[100]">
-      <div className="h-[70px] flex items-center px-6 text-2xl font-bold text-blue-500 border-b border-slate-200">
-        Vendora Admin
+      <div className="h-[70px] flex items-center px-6 border-b border-slate-200">
+        <img src={logo} alt="Vendora Logo" className="h-12 w-auto object-contain" />
       </div>
       <ul className="py-5 flex-1 list-none m-0 p-0 flex flex-col">
         {menuItems.map((item) => (
