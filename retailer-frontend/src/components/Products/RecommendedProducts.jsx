@@ -18,7 +18,7 @@ function RecommendedProducts({ products, onView, onCart }) {
 
       <div className="flex gap-4 overflow-x-auto pb-4">
         {recommended.map((product) => {
-          const key = product.product_id ?? product.id;
+          const key = `${product.product_id ?? product.id}-${product.distributor_id}`;
           return (
             <div key={key} className="min-w-[280px]">
               <ProductCard
