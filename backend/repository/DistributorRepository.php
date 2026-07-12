@@ -23,4 +23,9 @@ class DistributorRepository {
     public function updateStatus(int $distributorId, string $status): void {
         $this->db->prepare("UPDATE distributor SET status = ? WHERE distributor_id = ?")->execute([$status, $distributorId]);
     }
+    public function getByRegion(int $regionId): array {
+        $stmt = $this->db->prepare("SELECT d.*, u.full_name, u.email, u.phone FROM distributor d JOIN users u ON u.user_id = d.user_id WHERE d.region_id = ? AND d.status = 'Approved'");
+        $stmt->execute([$regionId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

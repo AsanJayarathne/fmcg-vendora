@@ -54,6 +54,12 @@ function ProductCard({ product, onView, onCart }) {
         <p className="text-xs text-gray-400">{unit}</p>
       )}
 
+      {product.distributor_name && (
+        <p className="text-xs text-gray-500 mt-2 font-medium">
+          Distributor: {product.distributor_name}
+        </p>
+      )}
+
       {/* Stock badge */}
       <p className={`text-sm font-medium mt-1 ${
         isOutOfStock ? "text-red-500" : isLowStock ? "text-yellow-500" : "text-green-600"

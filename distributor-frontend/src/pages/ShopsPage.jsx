@@ -63,7 +63,10 @@ export default function ShopsPage() {
   const filteredShops =
     activeTab === "All Shop" || activeTab === "Set Credit"
       ? shops
-      : shops.filter((shop) => shop.status === activeTab);
+      : shops.filter((shop) => {
+          const targetStatus = activeTab === "Pending Approval" ? "Pending" : activeTab;
+          return shop.status === targetStatus;
+        });
 
   // Approved shops for credit tab
   const approvedShops = shops.filter((shop) => shop.status === "Approved");

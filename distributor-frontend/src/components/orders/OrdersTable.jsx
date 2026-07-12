@@ -106,8 +106,8 @@ export default function OrdersTable({ orders, returnedOrderIds, onView, onApprov
                         </button>
                       )}
 
-                      {/* Reject — for Pending or Processing */}
-                      {(order.status === "Pending" || order.status === "Processing") && (
+                      {/* Reject — only for Processing */}
+                      {order.status === "Processing" && (
                         <button
                           onClick={() => onReject(order.order_id)}
                           disabled={isActioning}

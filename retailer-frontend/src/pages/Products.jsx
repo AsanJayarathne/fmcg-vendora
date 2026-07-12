@@ -19,14 +19,16 @@ function Products() {
   const { addToCart } = useContext(CartContext);
 
   // ── Data state ────────────────────────────────────────────────
-  const [products,   setProducts]   = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [products,     setProducts]     = useState([]);
+  const [categories,   setCategories]   = useState([]);
+  const [distributors, setDistributors] = useState([]);
 
   // ── UI state ─────────────────────────────────────────────────
-  const [searchTerm,         setSearchTerm]         = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // null = All
-  const [selectedProduct,    setSelectedProduct]    = useState(null);
-  const [cartProduct,        setCartProduct]        = useState(null);
+  const [selectedDistributorId, setSelectedDistributorId] = useState(""); // "" = All
+  const [searchTerm,            setSearchTerm]            = useState("");
+  const [selectedCategoryId,    setSelectedCategoryId]    = useState(null); // null = All
+  const [selectedProduct,       setSelectedProduct]       = useState(null);
+  const [cartProduct,           setCartProduct]           = useState(null);
 
   // ── Loading & error state ─────────────────────────────────────
   const [loading, setLoading] = useState(true);
@@ -46,8 +48,14 @@ function Products() {
     setError(null);
 
     fetchProductsWithCategories(token, selectedCategoryId)
-      .then(({ products: prods, categories: cats }) => {
-        setProducts(prods);
+      .then(({ products: prods, categories: cats, distributors: dists }) => {
+        setProducts(prods.map(p => ({
+          ...p,
+          distributor_id: Number(p.distributor_id),
+          unit_price: Number(p.unit_price),
+          available_qty: Number(p.available_qty)
+        })));
+        setDistributors(dists || []);
         // Only update categories on first load (All) to keep filter pills stable
         if (!selectedCategoryId) {
           setCategories(cats);
@@ -60,15 +68,21 @@ function Products() {
       .finally(() => setLoading(false));
   }, [token, selectedCategoryId]);
 
-  // ── Client-side search filter ─────────────────────────────────
+  // ── Client-side filter ─────────────────────────────────
   const filteredProducts = useMemo(() => {
-    if (!searchTerm.trim()) return products;
-    const term = searchTerm.toLowerCase();
-    return products.filter((p) => {
-      const name = (p.product_name ?? p.name ?? "").toLowerCase();
-      return name.includes(term);
-    });
-  }, [products, searchTerm]);
+    let result = products;
+    if (selectedDistributorId) {
+      result = result.filter(p => p.distributor_id === Number(selectedDistributorId));
+    }
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter((p) => {
+        const name = (p.product_name ?? p.name ?? "").toLowerCase();
+        return name.includes(term);
+      });
+    }
+    return result;
+  }, [products, selectedDistributorId, searchTerm]);
 
   // ── Category change handler ────────────────────────────────────
   function handleCategorySelect(categoryId) {
@@ -108,12 +122,12 @@ function Products() {
       {!selectedCategoryId && !searchTerm && !loading && products.length > 0 && (
         <>
           <TrendingProducts
-            products={products}
+            products={products.filter(p => !selectedDistributorId || p.distributor_id === Number(selectedDistributorId))}
             onView={setSelectedProduct}
             onCart={setCartProduct}
           />
           <RecommendedProducts
-            products={products}
+            products={products.filter(p => !selectedDistributorId || p.distributor_id === Number(selectedDistributorId))}
             onView={setSelectedProduct}
             onCart={setCartProduct}
           />
@@ -125,11 +139,40 @@ function Products() {
         {headingText}
       </h2>
 
-      {/* Search bar */}
-      <SearchBar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
+      {/* Search and Distributor Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+        </div>
+        {!loading && distributors.length > 0 && (
+          <div className="w-full md:w-64">
+            <select
+              value={selectedDistributorId}
+              onChange={(e) => setSelectedDistributorId(e.target.value)}
+              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-slate-700 appearance-none cursor-pointer"
+              style={{
+                backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundSize: '1.5em 1.5em',
+                backgroundRepeat: 'no-repeat',
+              }}
+            >
+              <option value="">All Distributors</option>
+              {distributors.map((d) => (
+                <option key={d.distributor_id} value={d.distributor_id}>
+                  {d.company_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
 
       {/* Category filter pills */}
       <CategoryFilter

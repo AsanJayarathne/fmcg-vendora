@@ -43,7 +43,10 @@ export default function DriversPage() {
   const filteredDrivers =
     activeTab === "All Drivers"
       ? drivers
-      : drivers.filter((driver) => driver.status === activeTab);
+      : drivers.filter((driver) => {
+          const targetStatus = activeTab === "Pending Approval" ? "Pending" : activeTab;
+          return driver.status === targetStatus;
+        });
 
   // Paginate
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
