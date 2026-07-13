@@ -12,7 +12,7 @@ const Dashboard = () => {
         <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
       </div>
       <div className="w-full">
-        {/* Date Picker */}
+        
        
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

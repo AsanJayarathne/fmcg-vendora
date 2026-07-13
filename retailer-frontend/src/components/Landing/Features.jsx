@@ -6,6 +6,13 @@ import {
   FiBarChart2,
   FiRefreshCcw,
 } from "react-icons/fi";
+import img1 from "../../assets/images/Inventory Dashboard.png";
+import img2 from "../../assets/images/Flexible Credit.png";
+import img3 from "../../assets/images/Easy Ordering.png";
+import img4 from "../../assets/images/Live Delivery Tracking.png";
+import img5 from "../../assets/images/Business Analytics.png";
+import img6 from "../../assets/images/Quick Returns.png";
+
 
 const features = [
   {
@@ -14,7 +21,7 @@ const features = [
       "Monitor stock levels in real-time and never run out of fast-moving products.",
     icon: <FiBox size={28} />,
     color: "bg-blue-100 text-blue-600",
-    image: "Inventory Dashboard",
+    image: img1,
   },
   {
     title: "Flexible Credit",
@@ -22,7 +29,7 @@ const features = [
       "Purchase products with distributor credit while tracking outstanding balances.",
     icon: <FiCreditCard size={28} />,
     color: "bg-emerald-100 text-emerald-600",
-    image: "Credit Wallet",
+    image: img2,
   },
   {
     title: "Easy Ordering",
@@ -30,7 +37,7 @@ const features = [
       "Browse thousands of FMCG products and place orders within seconds.",
     icon: <FiShoppingCart size={28} />,
     color: "bg-orange-100 text-orange-500",
-    image: "Ordering Screen",
+    image: img3,
   },
   {
     title: "Live Delivery Tracking",
@@ -38,7 +45,7 @@ const features = [
       "Know exactly where your orders are with real-time delivery updates.",
     icon: <FiTruck size={28} />,
     color: "bg-purple-100 text-purple-600",
-    image: "Delivery Tracker",
+    image: img4,
   },
   {
     title: "Business Analytics",
@@ -46,7 +53,7 @@ const features = [
       "Understand your sales, inventory movement and purchasing behaviour.",
     icon: <FiBarChart2 size={28} />,
     color: "bg-cyan-100 text-cyan-600",
-    image: "Analytics Dashboard",
+    image: img5,
   },
   {
     title: "Quick Returns",
@@ -54,7 +61,7 @@ const features = [
       "Request product returns or replacements directly through the platform.",
     icon: <FiRefreshCcw size={28} />,
     color: "bg-red-100 text-red-500",
-    image: "Returns Management",
+    image: img6,
   },
 ];
 
@@ -93,6 +100,7 @@ export default function Features() {
             <div
               key={index}
               className="
+              group
               bg-white
               rounded-[32px]
               overflow-hidden
@@ -105,23 +113,24 @@ export default function Features() {
               duration-300"
             >
 
-              {/* Image Placeholder */}
 
-              <div className="h-56 bg-slate-100 border-b border-dashed border-slate-300 flex items-center justify-center">
+              {/* Image / Placeholder */}
 
-                <div className="text-center">
-
-                  <div className="text-5xl mb-4">
-                    🖼️
+              <div className="h-56 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
+                {feature.image ? (
+                  <img
+                    src={feature.image}
+                    alt={feature.title}
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <div className="text-5xl mb-4">🖼️</div>
+                    <p className="text-slate-500 font-medium">No Image</p>
                   </div>
-
-                  <p className="text-slate-500 font-medium">
-                    {feature.image}
-                  </p>
-
-                </div>
-
+                )}
               </div>
+
 
               {/* Content */}
 
