@@ -1,4 +1,4 @@
-// src/components/landing/AnalyticsPreview.jsx
+import analyticsImage from "../../assets/images/analytics.png";
 
 import {
   FiBarChart2,
@@ -10,7 +10,7 @@ import {
 
 export default function AnalyticsPreview() {
   return (
-    <section className="py-32 bg-slate-50">
+    <section id="analytics" className="py-32 bg-slate-50">
 
       <div className="max-w-7xl mx-auto px-8">
 
@@ -85,168 +85,48 @@ export default function AnalyticsPreview() {
 
           {/* RIGHT SIDE */}
 
-          <div className="relative">
+          {/* RIGHT SIDE */}
+            <div className="relative">
 
-            {/* Main Dashboard */}
+              {/* Main Dashboard */}
+              <div className="bg-white rounded-[40px] shadow-2xl border border-slate-200 p-5">
+                <img
+                  src={analyticsImage}
+                  alt="Analytics Dashboard"
+                  className="w-full h-auto rounded-3xl"
+                />
+              </div>
 
-            <div
-              className="
-              bg-white
-              rounded-[40px]
-              shadow-2xl
-              border
-              border-slate-200
-              p-6"
-            >
-
-              <div
-                className="
-                h-[600px]
-                rounded-3xl
-                border-2
-                border-dashed
-                border-slate-300
-                bg-slate-100
-                flex
-                items-center
-                justify-center"
-              >
-
-                <div className="text-center">
-
-                  <div className="text-8xl">
-                    📊
+              {/* Floating Card 1 */}
+              <div className="absolute -top-8 -right-8 bg-white rounded-3xl shadow-xl p-6 w-60">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <FiTrendingUp className="text-blue-600" />
                   </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-slate-700">
-                    Analytics Dashboard Screenshot
-                  </h3>
-
-                  <p className="mt-2 text-slate-500">
-                    Replace with analytics-dashboard.png
-                  </p>
-
+                  <div>
+                    <p className="text-slate-500 text-sm">Revenue</p>
+                    <h3 className="text-2xl font-bold">Rs.245K</h3>
+                  </div>
                 </div>
-
               </div>
 
-            </div>
+              {/* Floating Card 2 */}
+              <div className="absolute bottom-16 -left-8 bg-white rounded-3xl shadow-xl p-6 w-56">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                    <FiShoppingCart className="text-orange-500" />
+                  </div>
 
-            {/* Floating Card 1 */}
-
-            <div
-              className="
-              absolute
-              -top-10
-              -right-10
-              bg-white
-              rounded-3xl
-              shadow-xl
-              p-6
-              w-60"
-            >
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-
-                  <FiTrendingUp className="text-blue-600" />
-
+                  <div>
+                    <p className="text-slate-500 text-sm">Orders</p>
+                    <h3 className="text-2xl font-bold">128</h3>
+                  </div>
                 </div>
-
-                <div>
-
-                  <p className="text-slate-500 text-sm">
-                    Revenue
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    Rs.245K
-                  </h3>
-
-                </div>
-
               </div>
 
-            </div>
-
-            {/* Floating Card 2 */}
-
-            <div
-              className="
-              absolute
-              bottom-16
-              -left-10
-              bg-white
-              rounded-3xl
-              shadow-xl
-              p-6
-              w-56"
-            >
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-
-                  <FiShoppingCart className="text-orange-500" />
-
-                </div>
-
-                <div>
-
-                  <p className="text-slate-500 text-sm">
-                    Orders
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    128
-                  </h3>
-
-                </div>
-
-              </div>
 
             </div>
-
-            {/* Floating Card 3 */}
-
-            <div
-              className="
-              absolute
-              bottom-0
-              right-8
-              bg-white
-              rounded-3xl
-              shadow-xl
-              p-6
-              w-60"
-            >
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-
-                  <FiPackage className="text-emerald-600" />
-
-                </div>
-
-                <div>
-
-                  <p className="text-slate-500 text-sm">
-                    Inventory
-                  </p>
-
-                  <h3 className="text-2xl font-bold">
-                    94%
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
 
         </div>
 
