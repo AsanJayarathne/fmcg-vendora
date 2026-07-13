@@ -24,19 +24,38 @@ function MyRoute() {
         throw new Error(json.message || "Failed to load route deliveries");
       }
       
-      const mappedRoutes = json.data.map(item => ({
-        id: item.delivery_id,
-        store: item.shop_name,
-        address: item.city ? `${item.shop_address}, ${item.city}` : item.shop_address,
-        items: `${item.total_items} Items`,
-        paymentType: `${item.payment_method} Payment`,
-        amount: `Rs. ${parseFloat(item.order_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
-        status: item.status === 'CLAIMED' ? 'Pending' : (item.status === 'DELIVERED' ? 'Delivered' : 'Returned'),
-        numericAmount: parseFloat(item.order_amount),
-        isCash: item.payment_method === 'Cash',
-        latitude: item.latitude ? parseFloat(item.latitude) : null,
-        longitude: item.longitude ? parseFloat(item.longitude) : null
-      }));
+      const mappedRoutes = json.data.map(item => {
+        const orderAmount = parseFloat(item.order_amount) || 0;
+        const cashAmt     = parseFloat(item.cash_amount) || 0;
+        const creditAmt   = parseFloat(item.credit_amount) || 0;
+        const outstanding = parseFloat(item.outstanding_credit) || 0;
+
+        // Total the driver needs to collect = cash portion of this order + any outstanding credit
+        const totalCollectible = cashAmt + outstanding;
+
+        // Determine payment label
+        let paymentLabel = 'Cash Payment';
+        if (item.payment_method === 'Credit') paymentLabel = 'Full Credit';
+        else if (item.payment_method === 'Cash_Credit') paymentLabel = 'Cash + Credit';
+
+        return {
+          id: item.delivery_id,
+          store: item.shop_name,
+          address: item.city ? `${item.shop_address}, ${item.city}` : item.shop_address,
+          items: `${item.total_items} Items`,
+          paymentType: paymentLabel,
+          amount: `Rs. ${orderAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+          status: item.status === 'CLAIMED' ? 'Pending' : (item.status === 'DELIVERED' ? 'Delivered' : 'Returned'),
+          numericAmount: orderAmount,
+          cashAmount: cashAmt,
+          creditAmount: creditAmt,
+          outstandingCredit: outstanding,
+          totalCollectible: totalCollectible,
+          isCash: item.payment_method === 'Cash',
+          latitude: item.latitude ? parseFloat(item.latitude) : null,
+          longitude: item.longitude ? parseFloat(item.longitude) : null
+        };
+      });
       setRoutes(mappedRoutes);
     } catch (err) {
       setError(err.message || "Error connecting to the server");
@@ -56,8 +75,10 @@ function MyRoute() {
   const handleAction = async (id, action, routeItem) => {
     setUpdatingId(id);
     try {
+      // When marking as delivered, collect the total collectible amount
+      // (order cash portion + outstanding credit settlement)
       const body = action === 'deliver' 
-        ? { collected_amount: routeItem.isCash ? routeItem.numericAmount : 0, remarks: "Delivered successfully" }
+        ? { collected_amount: routeItem.totalCollectible ?? routeItem.numericAmount, remarks: "Delivered successfully" }
         : { remarks: "Returned by customer" };
 
       const res = await fetch(`http://localhost/fmcg-vendora/backend/api/driver/deliveries.php?id=${id}&action=${action}`, {
@@ -155,6 +176,10 @@ function MyRoute() {
               address={route.address}
               amount={route.amount}
               status={route.status}
+              cashAmount={route.cashAmount}
+              creditAmount={route.creditAmount}
+              outstandingCredit={route.outstandingCredit}
+              totalCollectible={route.totalCollectible}
               onDeliver={() => handleAction(route.id, 'deliver', route)}
               onReturn={() => handleAction(route.id, 'return', route)}
             />

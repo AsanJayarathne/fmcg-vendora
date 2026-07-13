@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { fetchOrders, cancelOrder as apiCancelOrder } from "../services/orderService";
+import { fetchOrders, cancelOrder as apiCancelOrder, confirmOrderNow as apiConfirmOrder } from "../services/orderService";
 
 export const OrderContext = createContext();
 
@@ -76,6 +76,13 @@ export function OrderProvider({ children }) {
     await loadOrders();
   }, [token, loadOrders]);
 
+  // ── Confirm an order immediately ───────────────────────────────
+  const confirmOrder = useCallback(async (backendId) => {
+    await apiConfirmOrder(token, backendId);
+    // Refresh the list so status is up to date
+    await loadOrders();
+  }, [token, loadOrders]);
+
   // ── Mark a message as read ─────────────────────────────────────
   const markMessageRead = useCallback((orderId) => {
     setReadIds((prev) => new Set([...prev, orderId]));
@@ -106,6 +113,7 @@ export function OrderProvider({ children }) {
         unreadMessageCount,
         addOrder,
         cancelOrder,
+        confirmOrder,
         loadOrders,
         markMessageRead,
       }}

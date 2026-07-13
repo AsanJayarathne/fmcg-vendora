@@ -53,18 +53,62 @@ class DeliveryService {
 
         $this->db->beginTransaction();
         try {
+            // 1. Deduct distributor stock for delivered items
             $items = $this->orderRepo->getItemsByOrder((int)$order['order_id']);
             foreach ($items as $item) {
                 $this->stockRepo->deductDistributorStock((int)$order['distributor_id'], (int)$item['product_id'], (int)$item['quantity']);
             }
-            if ($order['payment_method'] === 'Credit') {
+
+            $creditAmount = (float)($order['credit_amount'] ?? 0);
+            $cashAmount   = (float)($order['cash_amount'] ?? 0);
+
+            // 2. If credit was used in this order, debit the credit account
+            if ($creditAmount > 0) {
                 $credit = $this->creditRepo->findByRetailerAndDistributor((int)$order['retailer_id'], (int)$order['distributor_id']);
                 if ($credit) {
-                    $this->creditRepo->debit((int)$credit['credit_id'], (float)$order['total_amount']);
+                    $this->creditRepo->debit((int)$credit['credit_id'], $creditAmount);
                     $updated = $this->creditRepo->findById((int)$credit['credit_id']);
-                    $this->creditRepo->addTransaction((int)$credit['credit_id'], 'Debit', (float)$order['total_amount'], (float)$updated['current_balance'], "Order #{$order['order_id']} delivered", (int)$order['order_id']);
+                    $this->creditRepo->addTransaction(
+                        (int)$credit['credit_id'],
+                        'Debit',
+                        $creditAmount,
+                        (float)$updated['current_balance'],
+                        "Order #{$order['order_id']} delivered — credit portion",
+                        (int)$order['order_id']
+                    );
                 }
             }
+
+            // 3. Outstanding credit settlement
+            //    If the driver collected more than this order's cash portion,
+            //    the excess goes toward settling previous outstanding credit.
+            if ($collectedAmount > $cashAmount) {
+                $settlement = round($collectedAmount - $cashAmount, 2);
+                $credit = $credit ?? $this->creditRepo->findByRetailerAndDistributor((int)$order['retailer_id'], (int)$order['distributor_id']);
+                if ($credit && $settlement > 0) {
+                    // Don't settle more than the outstanding balance
+                    $outstanding = (float)$credit['current_balance'];
+                    // Refresh if we already debited above
+                    if ($creditAmount > 0) {
+                        $refreshed = $this->creditRepo->findById((int)$credit['credit_id']);
+                        $outstanding = (float)$refreshed['current_balance'];
+                    }
+                    $settlement = min($settlement, $outstanding);
+                    if ($settlement > 0) {
+                        $this->creditRepo->credit((int)$credit['credit_id'], $settlement);
+                        $afterSettle = $this->creditRepo->findById((int)$credit['credit_id']);
+                        $this->creditRepo->addTransaction(
+                            (int)$credit['credit_id'],
+                            'Credit',
+                            $settlement,
+                            (float)$afterSettle['current_balance'],
+                            "Outstanding credit settlement via Order #{$order['order_id']} delivery",
+                            (int)$order['order_id']
+                        );
+                    }
+                }
+            }
+
             $this->deliveryRepo->markDelivered($deliveryId, $collectedAmount, $remarks);
             $this->orderRepo->updateStatus((int)$order['order_id'], 'Delivered');
             $this->db->commit();

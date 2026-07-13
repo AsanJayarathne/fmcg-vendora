@@ -27,7 +27,7 @@ class OrderService {
         $this->notifService    = new NotificationService();
     }
 
-    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0): array {
+    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0, float $creditAmount = 0, float $cashAmount = 0): array {
         $retailer = $this->retailerRepo->findById($retailerId);
         if (!$retailer) throw new Exception("Retailer profile not found", 404);
 
@@ -57,14 +57,52 @@ class OrderService {
             $enrichedItems[] = ['product_id' => $item['product_id'], 'quantity' => $item['quantity'], 'unit_price' => $product['unit_price']];
         }
 
-        if ($paymentMethod === 'Credit') {
-            $credit = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
-            if (!$credit) throw new Exception("No credit account found. Please contact your distributor.", 403);
-            if ($credit['status'] === 'Blocked') throw new Exception("Your credit account is blocked.", 403);
-            if ($totalAmount > (float)$credit['available_credit']) throw new Exception("Order total LKR $totalAmount exceeds available credit LKR {$credit['available_credit']}", 402);
+        // Fetch credit account to find previous outstanding balance (if any)
+        $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
+        $outstanding = $creditObj ? (float)$creditObj['current_balance'] : 0.0;
+
+        // ── Payment validation ──────────────────────────────────────
+        $creditAmount = round((float)$creditAmount, 2);
+        $cashAmount   = round((float)$cashAmount, 2);
+
+        if ($paymentMethod === 'Cash') {
+            // Full cash — no credit used
+            $creditAmount = 0;
+            $cashAmount   = $totalAmount;
+        } elseif ($paymentMethod === 'Credit') {
+            // Full credit — entire order on credit
+            if (!$creditObj) throw new Exception("No credit account found. Please contact your distributor.", 403);
+            if ($creditObj['status'] === 'Blocked') throw new Exception("Your credit account is blocked.", 403);
+            $creditAmount = $totalAmount;
+            $cashAmount   = 0;
+            if ($creditAmount > (float)$creditObj['available_credit']) {
+                throw new Exception("Order total LKR " . number_format($totalAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
+            }
+        } elseif ($paymentMethod === 'Cash_Credit') {
+            // Split payment — validate amounts
+            if (!$creditObj) throw new Exception("No credit account found. Please contact your distributor.", 403);
+            if ($creditObj['status'] === 'Blocked') throw new Exception("Your credit account is blocked.", 403);
+            if ($creditAmount <= 0) throw new Exception("Credit amount must be greater than 0 for split payment.", 400);
+            if ($cashAmount <= 0) throw new Exception("Cash amount must be greater than 0 for split payment.", 400);
+            if (abs(($cashAmount + $creditAmount) - $totalAmount) > 0.01) {
+                throw new Exception("Cash (LKR " . number_format($cashAmount, 2) . ") + Credit (LKR " . number_format($creditAmount, 2) . ") must equal order total (LKR " . number_format($totalAmount, 2) . ")", 400);
+            }
+            if ($creditAmount > (float)$creditObj['available_credit']) {
+                throw new Exception("Credit amount LKR " . number_format($creditAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
+            }
+        } else {
+            throw new Exception("Invalid payment method: $paymentMethod", 400);
         }
 
-        $orderId = $this->orderRepo->create(['retailer_id' => $retailerId, 'distributor_id' => $distributorId, 'total_amount' => $totalAmount, 'payment_method' => $paymentMethod]);
+        $orderId = $this->orderRepo->create([
+            'retailer_id'        => $retailerId,
+            'distributor_id'     => $distributorId,
+            'total_amount'       => $totalAmount,
+            'payment_method'     => $paymentMethod,
+            'credit_amount'      => $creditAmount,
+            'cash_amount'        => $cashAmount,
+            'outstanding_credit' => $outstanding,
+        ]);
         $this->orderRepo->createItems($orderId, $enrichedItems);
         $this->notifService->send($distributor['user_id'], "New Order Received", "Order #$orderId placed. Total: LKR $totalAmount");
         return $this->getOrderWithItems($orderId);
@@ -150,6 +188,7 @@ class OrderService {
             $fresh = $this->orderRepo->findById((int)$order['order_id']);
             if ($fresh) $order['status'] = $fresh['status'];
             $order['editable'] = $this->isEditable($order);
+            $order['items']    = $this->orderRepo->getItemsByOrder((int)$order['order_id']);
         }
         unset($order); // break reference
         return $orders;
@@ -163,8 +202,20 @@ class OrderService {
             $this->applyLockIfExpired($order);
             $fresh = $this->orderRepo->findById((int)$order['order_id']);
             if ($fresh) $order['status'] = $fresh['status'];
+            $order['items']    = $this->orderRepo->getItemsByOrder((int)$order['order_id']);
         }
         unset($order); // break reference
         return $orders;
+    }
+    public function confirmOrder(int $orderId, int $retailerId): void {
+        $order = $this->orderRepo->findById($orderId);
+        if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
+        if ($order['status'] !== 'Pending') throw new Exception("Order is already locked or processed.", 400);
+        $this->orderRepo->updateStatus($orderId, 'Processing');
+        
+        $distributor = $this->distributorRepo->findById((int)$order['distributor_id']);
+        if ($distributor) {
+            $this->notifService->send($distributor['user_id'], "Order Confirmed by Retailer", "Retailer has locked order #$orderId for processing.");
+        }
     }
 }

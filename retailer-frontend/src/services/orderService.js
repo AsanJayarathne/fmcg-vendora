@@ -33,8 +33,15 @@ function buildStatusHistory(backendStatus, deliveryStatus, createdAt) {
  * Normalise a raw backend order object into the shape the UI expects.
  */
 function normaliseOrder(raw) {
-  const uiStatus     = determineUIStatus(raw.status, raw.delivery_status);
-  const paymentLabel = raw.payment_method === "Credit" ? "Cash + Credit" : "Full Cash";
+  const uiStatus = determineUIStatus(raw.status, raw.delivery_status);
+
+  // Determine payment label from backend method
+  let paymentLabel = "Full Cash";
+  if (raw.payment_method === "Credit") paymentLabel = "Full Credit";
+  else if (raw.payment_method === "Cash_Credit") paymentLabel = "Cash + Credit";
+
+  const creditUsed = Number(raw.credit_amount ?? 0);
+  const cashAmount = Number(raw.cash_amount ?? 0);
 
   const items = (raw.items ?? []).map((item) => ({
     id:        item.order_item_id ?? item.product_id,
@@ -58,8 +65,9 @@ function normaliseOrder(raw) {
     distributor:  raw.distributor_name ?? "Unknown",
     status:       uiStatus,
     backendStatus: raw.status,
-    orderType:    raw.order_type ?? "Normal",     // backend may not have this — defaults Normal
-    paymentType:  raw.payment_method === "Credit" ? "credit" : "cash",
+    orderType:    raw.order_type ?? "Normal",
+    paymentType:  raw.payment_method === "Cash" ? "cash" : (raw.payment_method === "Credit" ? "credit" : "cash_credit"),
+    paymentMethod: raw.payment_method,
     paymentLabel,
 
     // Financials
@@ -67,8 +75,8 @@ function normaliseOrder(raw) {
     subtotal:     Number(raw.total_amount),
     discount:     0,
     urgentCharge: 0,
-    cashAmount:   Number(raw.total_amount),
-    creditUsed:   0,
+    cashAmount,
+    creditUsed,
 
     // Dates
     createdAt:    raw.created_at,
@@ -97,13 +105,15 @@ function normaliseOrder(raw) {
  * @param {string} paymentMethod  — "Cash" | "Credit"
  * @returns {Promise<object>}  normalised order
  */
-export async function placeOrder(token, items, paymentMethod = "Cash", distributorId = null) {
+export async function placeOrder(token, items, paymentMethod = "Cash", distributorId = null, creditAmount = 0, cashAmount = 0) {
   const result = await apiFetch("/retailer/orders.php", token, {
     method: "POST",
     body: JSON.stringify({
       payment_method: paymentMethod,
       items,
       distributor_id: distributorId,
+      credit_amount: creditAmount,
+      cash_amount: cashAmount,
     }),
   });
   return normaliseOrder(result.data);
@@ -163,4 +173,18 @@ export async function fetchCreditInfo(token) {
     if (err.status === 404) return null;
     throw err;
   }
+}
+
+/**
+ * Confirm and lock an order immediately.
+ *
+ * @param {string} token
+ * @param {number} orderId  — numeric backend ID
+ * @returns {Promise<object>} normalised order
+ */
+export async function confirmOrderNow(token, orderId) {
+  const result = await apiFetch(`/retailer/orders.php?id=${orderId}&action=confirm`, token, {
+    method: "PUT",
+  });
+  return normaliseOrder(result.data);
 }
