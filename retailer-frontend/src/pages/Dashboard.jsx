@@ -3,13 +3,12 @@ import StatCard from "../components/dashboard/StatCard";
 import { FiCreditCard, FiFileText, FiTag, FiUsers } from "react-icons/fi";
 
 import RecentOrdersStatus from "../components/orders/RecentOrdersStatus";
-import RecentOrdersTable from "../components/orders/RecentOrdersTable";
-
-import CreditOverview from "../components/Credits/CreditOverview";
-import CreditUsageChart from "../components/Credits/CreditUsageChart";
 
 import RecentlyOrderedProducts from "../components/products/RecentlyOrderedProducts.jsx";
 import TodayStorefrontPayments from "../components/payments/TodayStorefrontPayments";
+import CreditUsageChart from "../components/Credits/CreditUsageChart";
+import CreditOverview from "../components/Credits/CreditOverview";
+import SpendingSummary from "../components/Cash/SpendingSummary";
 
 const stats = [
   { title: "Spending", value: "Rs. 245,000", color: "green", icon: <FiCreditCard size={18} />, subtitle: "+8% from yesterday" },
@@ -18,19 +17,19 @@ const stats = [
   { title: "Savings", value: "Rs. 12,500", color: "purple", icon: <FiUsers size={18} />, subtitle: "0.5% from yesterday" },
 ];
 
-const creditData = {
-  limit: 50000,
-  used: 18500,
-  available: 31500,
-  usedPercent: 37,
-};
-
 const creditChartData = [
   { week: "W1", credit: 4000 },
   { week: "W2", credit: 6000 },
   { week: "W3", credit: 3500 },
   { week: "W4", credit: 7000 },
 ];
+
+const creditData = {
+  limit: 50000,
+  used: 18500,
+  available: 31500,
+  usedPercent: 37,
+};
 
 const recentOrders = [
   {
@@ -101,19 +100,35 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <CreditUsageChart data={creditChartData} />
-        <CreditOverview data={creditData} />
+
+      <div className="w-full mb-6">
+        <RecentOrdersStatus orders={recentOrders} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <RecentOrdersStatus orders={recentOrders} />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch">
+        <div className="w-full h-full">
+          <TodayStorefrontPayments
+            cashAmount={12000}
+            creditAmount={6750}
+            transactionCount={24}
+          />
         </div>
-        <RecentlyOrderedProducts products={recentProducts} />
+        <div className="w-full h-full">
+          <CreditOverview data={creditData} />
+        </div>
+        <div className="w-full h-full">
+          <RecentlyOrderedProducts products={recentProducts} />
+        </div>
       </div>
 
-      <TodayStorefrontPayments total={18750} transactionCount={24} />
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6 mb-6">
+        <div className="bg-white p-5 rounded-xl shadow-sm">
+          <CreditUsageChart data={creditChartData} />
+        </div>
+        <div className="bg-white p-5 rounded-xl shadow-sm">
+          <SpendingSummary />
+        </div>
+      </div>
     </div>
   );
 }

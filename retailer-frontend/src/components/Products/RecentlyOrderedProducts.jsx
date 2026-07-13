@@ -11,20 +11,19 @@ export default function RecentlyOrderedProducts({ products = [] }) {
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
         {products.map((product) => (
-          <div key={product.id} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div
+            key={product.id}
+            className="flex min-w-[140px] flex-1 items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+          >
             <div>
               <p className="font-semibold text-slate-900">{product.name}</p>
-              <p className="text-sm text-slate-500">{product.distributor}</p>
+              <p className="text-sm text-slate-500">Qty {product.quantity}</p>
             </div>
-            <div className="text-right">
-              <p className="font-semibold text-slate-900">{product.price}</p>
-              <p className="text-sm text-slate-500 mb-2">Qty {product.quantity}</p>
-              <button className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700">
-                Reorder
-              </button>
-            </div>
+            <button className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700">
+              Reorder
+            </button>
           </div>
         ))}
       </div>

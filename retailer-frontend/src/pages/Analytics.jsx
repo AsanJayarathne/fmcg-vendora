@@ -5,7 +5,7 @@ import MostOrderedProducts from "../components/products/MostOrderedProducts.jsx"
 import SpendingSummary from "../components/Cash/SpendingSummary.jsx";
 import SavingsSummary from "../components/Cash/SavingSummary.jsx";
 
-import CreditStatsCards from "../components/Credits/CreditStatsCards.jsx";
+import CreditOverview from "../components/Credits/CreditOverview.jsx";
 import CreditUsageChart from "../components/Credits/CreditUsageChart.jsx";
 
 import {
@@ -96,7 +96,7 @@ export default function Analytics() {
 
 
           <div className="bg-white p-5 rounded-xl shadow">
-            <CreditStatsCards data={creditData} />
+            <CreditOverview data={creditData} />
           </div>
         </div>
       </div>
