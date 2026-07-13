@@ -17,7 +17,8 @@ function ProductCard({ product, onView, onCart }) {
   const unit     = product.unit          ?? "";
 
   const gradient       = CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Default;
-  const imageUrl       = product.image_url ?? product.image ?? null;
+  const UPLOADS_BASE   = "http://localhost/fmcg-vendora/backend/uploads/products/";
+  const imageUrl       = product.image_url ? `${UPLOADS_BASE}${product.image_url}` : (product.image ?? null);
   const usePlaceholder = !imageUrl || imageUrl.includes("placeholder");
   const isOutOfStock   = stockQty === 0;
   const isLowStock     = stockQty > 0 && stockQty < 50;

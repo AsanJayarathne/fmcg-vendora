@@ -28,8 +28,9 @@ function ProductDetailsModal({ product, onClose }) {
   const stockQty = product.available_qty  ?? product.stock_qty  ?? product.stock ?? 0;
   const unit     = product.unit           ?? "";
 
+  const UPLOADS_BASE   = "http://localhost/fmcg-vendora/backend/uploads/products/";
   const gradient       = CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Default;
-  const imageUrl       = product.image_url ?? product.image ?? null;
+  const imageUrl       = product.image_url ? `${UPLOADS_BASE}${product.image_url}` : (product.image ?? null);
   const usePlaceholder = !imageUrl || imageUrl.includes("placeholder");
   const isOutOfStock   = stockQty === 0;
 

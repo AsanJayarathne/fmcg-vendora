@@ -107,8 +107,7 @@ class ProductRepository {
                 LEFT JOIN distributor_stock ds ON ds.product_id = p.product_id AND ds.distributor_id = d.distributor_id
                 WHERE p.status = 'Active' 
                   AND d.region_id = ? 
-                  AND d.status = 'Approved'
-                  AND COALESCE(ds.quantity, 0) > 0";
+                  AND d.status = 'Approved'";
         $params = [$regionId];
         if ($categoryId > 0) {
             $sql .= " AND p.category_id = ?";
