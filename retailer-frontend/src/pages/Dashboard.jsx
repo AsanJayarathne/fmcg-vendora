@@ -1,3 +1,4 @@
+import { useState, useEffect, useMemo } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import StatCard from "../components/dashboard/StatCard";
 import { FiCreditCard, FiFileText, FiTag, FiUsers } from "react-icons/fi";
@@ -10,26 +11,15 @@ import CreditUsageChart from "../components/Credits/CreditUsageChart";
 import CreditOverview from "../components/Credits/CreditOverview";
 import SpendingSummary from "../components/Cash/SpendingSummary";
 
+import { useAuth } from "../context/AuthContext";
+import { fetchCreditInfo } from "../services/orderService";
+
 const stats = [
   { title: "Spending", value: "Rs. 245,000", color: "green", icon: <FiCreditCard size={18} />, subtitle: "+8% from yesterday" },
   { title: "Total Order", value: "300", color: "blue", icon: <FiFileText size={18} />, subtitle: "+5% from yesterday" },
   { title: "No of Products", value: "120", color: "orange", icon: <FiTag size={18} />, subtitle: "+1.2% from yesterday" },
   { title: "Savings", value: "Rs. 12,500", color: "purple", icon: <FiUsers size={18} />, subtitle: "0.5% from yesterday" },
 ];
-
-const creditChartData = [
-  { week: "W1", credit: 4000 },
-  { week: "W2", credit: 6000 },
-  { week: "W3", credit: 3500 },
-  { week: "W4", credit: 7000 },
-];
-
-const creditData = {
-  limit: 50000,
-  used: 18500,
-  available: 31500,
-  usedPercent: 37,
-};
 
 const recentOrders = [
   {
@@ -83,8 +73,60 @@ const recentProducts = [
 ];
 
 export default function Dashboard() {
+  const { auth } = useAuth();
+  const token = auth?.token ?? null;
+  const [creditInfo, setCreditInfo] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchCreditInfo(token)
+      .then((data) => {
+        setCreditInfo(data);
+      })
+      .catch((err) => {
+        console.error("Failed to load credit info in Dashboard:", err);
+      });
+  }, [token]);
+
+  // Dynamically calculate credit overview values from database creditInfo
+  const creditData = useMemo(() => {
+    const limit = creditInfo ? Number(creditInfo.credit_limit ?? 0) : 0;
+    const used = creditInfo ? Number(creditInfo.current_balance ?? 0) : 0;
+    const available = creditInfo ? Number(creditInfo.available_credit ?? 0) : 0;
+    const usedPercent = limit ? (used / limit) * 100 : 0;
+
+    return {
+      limit,
+      used,
+      available,
+      usedPercent,
+    };
+  }, [creditInfo]);
+
+  // Dynamically map real credit transactions to chart usage coordinates
+  const creditChartData = useMemo(() => {
+    if (!creditInfo?.transactions || creditInfo.transactions.length === 0) {
+      return [
+        { week: "Start", credit: 0 },
+      ];
+    }
+
+    // Take the last 8 transactions and display them chronologically
+    const list = [...creditInfo.transactions].reverse().slice(-8);
+    return list.map((tx, idx) => {
+      const txDate = tx.created_at
+        ? new Date(tx.created_at.replace(" ", "T")).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+        : "";
+      return {
+        week: `TX-${tx.transaction_id}`,
+        month: txDate,
+        credit: parseFloat(tx.balance_after || 0)
+      };
+    });
+  }, [creditInfo]);
+
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-6 bg-slate-50 min-h-screen font-sans">
       <DashboardHeader />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -99,7 +141,6 @@ export default function Dashboard() {
           />
         ))}
       </div>
-
 
       <div className="w-full mb-6">
         <RecentOrdersStatus orders={recentOrders} />

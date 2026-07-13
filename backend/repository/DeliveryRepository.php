@@ -5,15 +5,15 @@ class DeliveryRepository {
     public function __construct() { $this->db = Database::getConnection(); }
 
     public function findById(int $deliveryId): ?array {
-        $stmt = $this->db->prepare("SELECT dl.*, o.retailer_id, o.distributor_id, o.total_amount AS order_amount, r.shop_name, r.shop_address, r.owner_name, r.phone AS shop_phone, r.latitude, r.longitude FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.delivery_id = ?");
+        $stmt = $this->db->prepare("SELECT dl.*, o.retailer_id, o.distributor_id, o.total_amount AS order_amount, o.payment_method, o.credit_amount, o.cash_amount, o.outstanding_credit, r.shop_name, r.shop_address, r.owner_name, r.phone AS shop_phone, r.latitude, r.longitude FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.delivery_id = ?");
         $stmt->execute([$deliveryId]); return $stmt->fetch() ?: null;
     }
     public function getOpenPool(int $distributorId): array {
-        $stmt = $this->db->prepare("SELECT dl.*, r.shop_name, r.shop_address, r.city, o.total_amount AS order_amount, o.payment_method, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_id = dl.order_id), 0) AS total_items FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.status = 'OPEN' AND o.distributor_id = ? ORDER BY dl.created_at ASC");
+        $stmt = $this->db->prepare("SELECT dl.*, r.shop_name, r.shop_address, r.city, o.total_amount AS order_amount, o.payment_method, o.credit_amount, o.cash_amount, o.outstanding_credit, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_id = dl.order_id), 0) AS total_items FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.status = 'OPEN' AND o.distributor_id = ? ORDER BY dl.created_at ASC");
         $stmt->execute([$distributorId]); return $stmt->fetchAll();
     }
     public function getByDriver(int $driverId): array {
-        $stmt = $this->db->prepare("SELECT dl.*, r.shop_name, r.shop_address, r.city, r.latitude, r.longitude, o.total_amount AS order_amount, o.payment_method, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_id = dl.order_id), 0) AS total_items FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.driver_id = ? ORDER BY dl.created_at DESC");
+        $stmt = $this->db->prepare("SELECT dl.*, r.shop_name, r.shop_address, r.city, r.latitude, r.longitude, o.total_amount AS order_amount, o.payment_method, o.credit_amount, o.cash_amount, o.outstanding_credit, COALESCE((SELECT SUM(quantity) FROM order_items WHERE order_id = dl.order_id), 0) AS total_items FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id WHERE dl.driver_id = ? ORDER BY dl.created_at DESC");
         $stmt->execute([$driverId]); return $stmt->fetchAll();
     }
     public function getByRetailer(int $retailerId): array {

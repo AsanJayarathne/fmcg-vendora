@@ -102,7 +102,7 @@ function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
       <span className="flex-1">
         {isUrgent
           ? "⚡ Hurry! Edit window closing soon"
-          : "⏱ You can still edit or cancel this order"}
+          : "⏱ You can still cancel this order"}
       </span>
 
       {/* Countdown pill */}
@@ -119,9 +119,123 @@ function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
   );
 }
 
+// ── Cancel Confirmation Modal ────────────────────────────────────────────────
+function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      style={{ backgroundColor: "rgba(15,23,42,0.65)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 overflow-hidden transform transition-all scale-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">Cancel Order</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-205 transition-colors cursor-pointer"
+          >
+            <FiX className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
+            <FiXCircle className="w-5 h-5 text-red-500 shrink-0" />
+            <p className="text-xs text-red-700 font-semibold leading-relaxed">
+              Are you sure you want to cancel order <strong className="font-bold">{orderId}</strong>? This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            disabled={isCancelling}
+            className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50 cursor-pointer bg-white"
+          >
+            No, Keep Order
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isCancelling}
+            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isCancelling ? "Cancelling..." : "Yes, Cancel Order"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Fast Order Confirmation Modal ────────────────────────────────────────────
+function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      style={{ backgroundColor: "rgba(15,23,42,0.65)", backdropFilter: "blur(4px)" }}
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 overflow-hidden transform transition-all scale-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">Confirm Order Now</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-205 transition-colors cursor-pointer"
+          >
+            <FiX className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-100 rounded-xl">
+            <FiCheckCircle className="w-5 h-5 text-green-500 shrink-0" />
+            <p className="text-xs text-green-700 font-semibold leading-relaxed">
+              Are you sure you want to confirm order <strong className="font-bold">{orderId}</strong> now? This will lock the order for processing immediately. You will no longer be able to cancel this order.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            disabled={isConfirming}
+            className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50 cursor-pointer bg-white"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isConfirming}
+            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isConfirming ? "Confirming..." : "Yes, Confirm Now"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Order Detail Modal ────────────────────────────────────────────────────────
 
-function OrderDetailModal({ order, onClose, onCancel, cancellingId }) {
+function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLock, confirmingLockId }) {
   if (!order) return null;
 
   return (
@@ -150,14 +264,24 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId }) {
               {order.status}
             </span>
             {order.editable && (
-              <button
-                onClick={() => onCancel(order)}
-                disabled={cancellingId === order.backendId}
-                className="flex items-center gap-1.5 border border-red-200 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors"
-              >
-                <FiXCircle size={12} />
-                {cancellingId === order.backendId ? "Cancelling…" : "Cancel Order"}
-              </button>
+              <>
+                <button
+                  onClick={() => onConfirmLock(order)}
+                  disabled={confirmingLockId === order.backendId || cancellingId === order.backendId}
+                  className="flex items-center gap-1.5 border border-green-200 text-green-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-green-50 disabled:opacity-50 transition-colors"
+                >
+                  <FiCheckCircle size={12} />
+                  {confirmingLockId === order.backendId ? "Confirming..." : "Confirm Now"}
+                </button>
+                <button
+                  onClick={() => onCancel(order)}
+                  disabled={cancellingId === order.backendId || confirmingLockId === order.backendId}
+                  className="flex items-center gap-1.5 border border-red-200 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-50 disabled:opacity-50 transition-colors"
+                >
+                  <FiXCircle size={12} />
+                  {cancellingId === order.backendId ? "Cancelling…" : "Cancel Order"}
+                </button>
+              </>
             )}
             <button
               onClick={onClose}
@@ -298,12 +422,34 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 function MyOrders() {
-  const { orders, loading, error, cancelOrder, loadOrders } = useContext(OrderContext);
+  const { orders, loading, error, cancelOrder, confirmOrder, loadOrders } = useContext(OrderContext);
 
   const [activeTab,    setActiveTab]    = useState("All Orders");
   const [modalOrder,   setModalOrder]   = useState(null);   // order shown in modal
   const [cancellingId, setCancellingId] = useState(null);
   const [cancelError,  setCancelError]  = useState(null);
+
+  const [orderToConfirmLock, setOrderToConfirmLock] = useState(null);
+  const [confirmingLockId, setConfirmingLockId] = useState(null);
+
+  function handleConfirmLockClick(order) {
+    setOrderToConfirmLock(order);
+  }
+
+  async function handleConfirmLockConfirm() {
+    if (!orderToConfirmLock) return;
+    const order = orderToConfirmLock;
+    setOrderToConfirmLock(null);
+    setConfirmingLockId(order.backendId);
+    try {
+      await confirmOrder(order.backendId);
+      setModalOrder(null); // close details modal after confirming
+    } catch (err) {
+      alert(err.message || "Failed to confirm order.");
+    } finally {
+      setConfirmingLockId(null);
+    }
+  }
 
   const filteredOrders  = useMemo(() => filterOrders(orders, activeTab), [orders, activeTab]);
   const latestOrder     = orders[0];
@@ -311,8 +457,16 @@ function MyOrders() {
   const urgentOrders    = orders.filter((o) => o.orderType === "Urgent");
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
 
-  async function handleCancel(order) {
-    if (!window.confirm(`Cancel order ${order.orderId}? This cannot be undone.`)) return;
+  const [orderToCancel, setOrderToCancel] = useState(null);
+
+  function handleCancelClick(order) {
+    setOrderToCancel(order);
+  }
+
+  async function handleCancelConfirm() {
+    if (!orderToCancel) return;
+    const order = orderToCancel;
+    setOrderToCancel(null);
     setCancelError(null);
     setCancellingId(order.backendId);
     try {
@@ -533,15 +687,26 @@ function MyOrders() {
                             </button>
                             {/* Cancel button (only if editable) */}
                             {order.editable && (
-                              <button
-                                onClick={() => handleCancel(order)}
-                                disabled={cancellingId === order.backendId}
-                                className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
-                              >
-                                {cancellingId === order.backendId
-                                  ? <FiLoader className="animate-spin" size={11} />
-                                  : "Cancel"}
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleConfirmLockClick(order)}
+                                  disabled={confirmingLockId === order.backendId || cancellingId === order.backendId}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 disabled:opacity-50 transition-colors whitespace-nowrap animate-pulse-subtle"
+                                >
+                                  {confirmingLockId === order.backendId
+                                    ? <FiLoader className="animate-spin" size={11} />
+                                    : "Confirm Now"}
+                                </button>
+                                <button
+                                  onClick={() => handleCancelClick(order)}
+                                  disabled={cancellingId === order.backendId || confirmingLockId === order.backendId}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                                >
+                                  {cancellingId === order.backendId
+                                    ? <FiLoader className="animate-spin" size={11} />
+                                    : "Cancel"}
+                                </button>
+                              </>
                             )}
                           </div>
                         </td>
@@ -566,9 +731,31 @@ function MyOrders() {
       <OrderDetailModal
         order={modalOrder}
         onClose={() => setModalOrder(null)}
-        onCancel={handleCancel}
+        onCancel={handleCancelClick}
         cancellingId={cancellingId}
+        onConfirmLock={handleConfirmLockClick}
+        confirmingLockId={confirmingLockId}
       />
+
+      {/* ── Cancel Confirmation Modal ───────────────────────────────────────── */}
+      {orderToCancel && (
+        <CancelConfirmModal
+          orderId={orderToCancel.orderId}
+          onConfirm={handleCancelConfirm}
+          onClose={() => setOrderToCancel(null)}
+          isCancelling={cancellingId === orderToCancel.backendId}
+        />
+      )}
+
+      {/* ── Fast Order Confirmation Modal ───────────────────────────────────── */}
+      {orderToConfirmLock && (
+        <ConfirmNowModal
+          orderId={orderToConfirmLock.orderId}
+          onConfirm={handleConfirmLockConfirm}
+          onClose={() => setOrderToConfirmLock(null)}
+          isConfirming={confirmingLockId === orderToConfirmLock.backendId}
+        />
+      )}
     </div>
   );
 }
