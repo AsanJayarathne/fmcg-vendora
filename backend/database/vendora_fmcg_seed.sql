@@ -164,7 +164,27 @@ INSERT INTO `distributor_stock` (`distributor_stock_id`, `distributor_id`, `prod
 (4, 1, 4, 120,  60.00),
 (5, 1, 5,  80, 110.00),
 (6, 1, 6,  50, 400.00),
-(7, 1, 7, 300,  45.00);
+(7, 1, 7, 300,  45.00),
+(8, 1, 8,   0,  80.00),
+(9, 1, 9,   0,  95.00),
+(10, 1, 10, 250, 85.00),
+(11, 1, 11, 400, 120.00),
+(12, 1, 12,   0, 75.00),
+(13, 1, 13, 150, 45.00),
+(14, 1, 14, 300, 60.00),
+(15, 1, 15,   0, 130.00),
+(16, 1, 16,   0, 90.00),
+(17, 1, 17,  50, 110.00),
+(18, 1, 18, 120, 50.00),
+(19, 1, 19,   0, 60.00),
+(20, 1, 20,  30, 70.00),
+(21, 1, 21,  80, 65.00),
+(22, 1, 22,   0, 85.00),
+(23, 1, 23, 120, 150.00),
+(24, 1, 24, 200, 110.00),
+(25, 1, 25,   0, 95.00),
+(26, 1, 26, 180, 95.00),
+(27, 1, 27, 110, 45.00);
 
 -- ============================================================
 -- 12. DISTRIBUTOR PRICING
@@ -204,7 +224,7 @@ ALTER TABLE `warehouse_stock`     AUTO_INCREMENT = 8;
 ALTER TABLE `distributor`         AUTO_INCREMENT = 2;
 ALTER TABLE `retailer`            AUTO_INCREMENT = 2;
 ALTER TABLE `driver`              AUTO_INCREMENT = 2;
-ALTER TABLE `distributor_stock`   AUTO_INCREMENT = 8;
+ALTER TABLE `distributor_stock`   AUTO_INCREMENT = 28;
 ALTER TABLE `distributor_pricing` AUTO_INCREMENT = 8;
 ALTER TABLE `credit_account`      AUTO_INCREMENT = 2;
 ALTER TABLE `orders`              AUTO_INCREMENT = 1;

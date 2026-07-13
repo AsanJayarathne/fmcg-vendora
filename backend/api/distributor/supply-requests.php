@@ -12,7 +12,11 @@ $supplyService = new SupplyService();
 $method        = $_SERVER['REQUEST_METHOD'];
 try {
     if ($method === 'GET') {
-        sendSuccess($supplyService->getByDistributor($distributorId));
+        if (isset($_GET['id'])) {
+            sendSuccess($supplyService->getRequestWithItems((int)$_GET['id']));
+        } else {
+            sendSuccess($supplyService->getByDistributor($distributorId));
+        }
     } elseif ($method === 'POST') {
         $body = getBody(); $items = $body['items'] ?? []; $remarks = $body['remarks'] ?? '';
         if (empty($items)) sendError('Items are required', 400);

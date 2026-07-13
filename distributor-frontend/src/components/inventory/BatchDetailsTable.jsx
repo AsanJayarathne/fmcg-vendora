@@ -1,54 +1,65 @@
-import { PackageCheck, Trash2 } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
-export default function BatchDetailsTable({ title, batches }) {
+export default function BatchDetailsTable({ title, batches = [], selectedProduct }) {
+  if (!selectedProduct) {
+    return (
+      <div className="p-8 bg-slate-50 border border-gray-200 border-dashed rounded-lg text-center text-gray-400 font-sans">
+        <TriangleAlert className="mx-auto mb-2 text-gray-300" size={24} />
+        <p className="text-sm font-semibold">No Product Selected</p>
+        <p className="text-xs mt-1">Select a product from the table above to view batch and unit cost details.</p>
+      </div>
+    );
+  }
+
   const totalQty = batches.reduce((sum, batch) => sum + batch.qty, 0);
 
   return (
-    <div className="p-4 bg-white border border-gray-200 rounded-lg">
+    <div className="p-4 bg-white border border-gray-200 rounded-lg font-sans">
       <h3 className="mb-3 text-sm font-bold text-gray-900">{title}</h3>
 
       <div className="overflow-hidden border border-gray-200 rounded-md">
-        <table className="w-full text-xs text-left">
-          <thead className="border-b border-gray-200">
+        <table className="w-full text-xs text-left border-collapse">
+          <thead className="border-b border-gray-200 bg-gray-50/75 text-gray-700 font-bold">
             <tr>
               <th className="px-6 py-3">Batch No.</th>
-              <th>Purchase Date</th>
-              <th>Expiry date</th>
-              <th>Qty</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th className="py-3">Last Updated</th>
+              <th className="py-3">Expiry Date</th>
+              <th className="py-3">Unit Cost</th>
+              <th className="py-3">Quantity</th>
+              <th className="py-3 font-semibold">Status</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="text-gray-600 divide-y divide-gray-100">
             {batches.map((batch, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="px-6 py-3">{batch.batchNo}</td>
+              <tr key={index} className="hover:bg-gray-50/50">
+                <td className="px-6 py-3 font-mono font-semibold">{batch.batchNo}</td>
                 <td>{batch.purchaseDate}</td>
-                <td>{batch.expiryDate}</td>
-                <td>{batch.qty}</td>
-                <td>{batch.status}</td>
+                <td className="text-gray-400">{batch.expiryDate}</td>
+                <td className="font-semibold text-gray-800">
+                  {selectedProduct.unit_cost != null ? `Rs. ${parseFloat(selectedProduct.unit_cost).toFixed(2)}` : "—"}
+                </td>
+                <td className="font-bold text-gray-900">{batch.qty} {selectedProduct.unit || "units"}</td>
                 <td>
-                  <div className="flex items-center gap-6">
-                    <button className="flex items-center gap-1 px-3 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md">
-                      <PackageCheck size={12} />
-                      Adjust Stock
-                    </button>
-
-                    <button className="p-1 text-red-500 border border-gray-300 rounded-md">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
+                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                    batch.status === "Good"
+                      ? "text-green-600 bg-green-50 border-green-100"
+                      : batch.status === "Low"
+                      ? "text-amber-600 bg-amber-50 border-amber-100"
+                      : "text-red-600 bg-red-50 border-red-100"
+                  }`}>
+                    {batch.status}
+                  </span>
                 </td>
               </tr>
             ))}
 
-            <tr>
-              <td className="px-6 py-3 font-medium">Total</td>
+            <tr className="bg-gray-50/30 font-semibold text-gray-900 border-t border-gray-100">
+              <td className="px-6 py-3">Total Inventory</td>
               <td></td>
               <td></td>
-              <td>{totalQty}</td>
               <td></td>
+              <td className="font-bold">{totalQty} {selectedProduct.unit || "units"}</td>
               <td></td>
             </tr>
           </tbody>

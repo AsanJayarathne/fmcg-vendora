@@ -34,7 +34,7 @@ const ProductThumb = ({ imageUrl, name }) => {
 /* ─── Skeleton Loader Rows ──────────────────────────────── */
 const SkeletonRow = () => (
   <tr className="animate-pulse">
-    {[...Array(6)].map((_, i) => (
+    {[...Array(7)].map((_, i) => (
       <td key={i} className="px-6 py-4 border-b border-slate-100">
         <div className="h-4 bg-slate-200 rounded w-3/4" />
       </td>
@@ -61,6 +61,7 @@ const WarehouseTable = () => {
   const [updateError, setUpdateError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [updateExpiry, setUpdateExpiry] = useState('');
 
   const fetchStock = async () => {
     setLoading(true);
@@ -92,6 +93,7 @@ const WarehouseTable = () => {
   const handleUpdateClick = (item) => {
     setEditingItem(item);
     setUpdateQty(item.quantity);
+    setUpdateExpiry(item.expiry_date || '');
     setUpdateError('');
   };
 
@@ -112,7 +114,8 @@ const WarehouseTable = () => {
         },
         body: JSON.stringify({
           product_id: editingItem.product_id,
-          quantity: parseInt(updateQty)
+          quantity: parseInt(updateQty),
+          expiry_date: updateExpiry || null
         })
       });
       const json = await res.json();
@@ -121,7 +124,7 @@ const WarehouseTable = () => {
       }
       // Update local state dynamically
       setStockItems(prev => prev.map(item => 
-        item.product_id === editingItem.product_id ? { ...item, quantity: parseInt(updateQty) } : item
+        item.product_id === editingItem.product_id ? { ...item, quantity: parseInt(updateQty), expiry_date: updateExpiry || null } : item
       ));
       setEditingItem(null);
     } catch (err) {
@@ -243,6 +246,7 @@ const WarehouseTable = () => {
                 <th className="py-4 px-6 text-right">Base Price</th>
                 <th className="py-4 px-6 text-right">MRP</th>
                 <th className="py-4 px-6">Stock Status</th>
+                <th className="py-4 px-6">Expiry Date</th>
                 <th className="py-4 px-6 text-center">Actions</th>
               </tr>
             </thead>
@@ -251,7 +255,7 @@ const WarehouseTable = () => {
                 [...Array(5)].map((_, i) => <SkeletonRow key={i} />)
               ) : filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-slate-400 font-medium">
+                  <td colSpan="7" className="py-12 text-center text-slate-400 font-medium">
                     No products found in warehouse stock.
                   </td>
                 </tr>
@@ -284,6 +288,7 @@ const WarehouseTable = () => {
                           </span>
                         </div>
                       </td>
+                      <td className="py-3.5 px-6 text-slate-500 font-medium">{item.expiry_date ? item.expiry_date : '—'}</td>
                       <td className="py-3.5 px-6">
                         <div className="flex items-center justify-center gap-3">
                           <button 
@@ -355,6 +360,15 @@ const WarehouseTable = () => {
                   min="0"
                   className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
                   required
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Expiry Date</label>
+                <input
+                  type="date"
+                  value={updateExpiry}
+                  onChange={e => setUpdateExpiry(e.target.value)}
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
                 />
               </div>
               <div className="flex gap-3 justify-end pt-2">

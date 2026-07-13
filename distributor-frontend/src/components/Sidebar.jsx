@@ -10,7 +10,6 @@ import {
   CreditCard,
   BarChart3,
   Settings,
-  HelpCircle,
   LogOut,
   ChevronDown,
 } from "lucide-react";
@@ -22,7 +21,6 @@ export default function Sidebar() {
 
   const otherMenu = [
     { name: "Settings", path: "/settings", icon: Settings },
-    { name: "FAQ", path: "/faq", icon: HelpCircle },
     { name: "Sign Out", path: "/login", icon: LogOut },
   ];
 

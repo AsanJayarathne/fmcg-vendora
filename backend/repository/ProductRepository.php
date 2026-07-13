@@ -67,7 +67,8 @@ class ProductRepository {
                     pp.base_price,
                     pp.mrp_max_retail_price AS mrp,
                     COALESCE(dp.price, pp.base_price) AS selling_price,
-                    COALESCE(ds.quantity, 0) AS stock
+                    COALESCE(ds.quantity, 0) AS stock,
+                    COALESCE(ws.quantity, 0) AS warehouse_stock
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
                 LEFT JOIN product_pricing pp ON pp.product_id = p.product_id 
@@ -77,6 +78,7 @@ class ProductRepository {
                     AND dp.effective_to IS NULL
                 LEFT JOIN distributor_stock ds ON ds.product_id = p.product_id 
                     AND ds.distributor_id = ?
+                LEFT JOIN warehouse_stock ws ON ws.product_id = p.product_id
                 ORDER BY p.product_name";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$distributorId, $distributorId]);
