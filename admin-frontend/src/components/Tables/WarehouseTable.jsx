@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import Pagination from '../Pagination';
 
 const API = 'http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php';
 const UPLOADS_BASE = 'http://localhost/fmcg-vendora/backend/uploads/products/';
@@ -58,6 +59,8 @@ const WarehouseTable = () => {
   const [updateQty, setUpdateQty] = useState('');
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchStock = async () => {
     setLoading(true);
@@ -132,6 +135,7 @@ const WarehouseTable = () => {
     setSearchTerm('');
     setSelectedCategory('All Categories');
     setSelectedStatus('All Statuses');
+    setCurrentPage(1);
   };
 
   // Determine categories dynamically from current stockItems
@@ -183,7 +187,7 @@ const WarehouseTable = () => {
             <input 
               type="text" 
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               placeholder="Search by product or ID..." 
               className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition text-sm text-slate-800 w-64 placeholder-slate-400"
             />
@@ -197,7 +201,7 @@ const WarehouseTable = () => {
           
           <select 
             value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
+            onChange={e => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
             className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm text-slate-700 font-semibold cursor-pointer"
           >
             {categoriesList.map(cat => (
@@ -207,7 +211,7 @@ const WarehouseTable = () => {
           
           <select 
             value={selectedStatus}
-            onChange={e => setSelectedStatus(e.target.value)}
+            onChange={e => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
             className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm text-slate-700 font-semibold cursor-pointer"
           >
             <option value="All Statuses">All Statuses</option>
@@ -252,7 +256,7 @@ const WarehouseTable = () => {
                   </td>
                 </tr>
               ) : (
-                filteredItems.map((item) => {
+                filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => {
                   const status = getStatus(item.quantity);
                   const code = `PROD-${String(item.product_id).padStart(3, '0')}`;
                   return (
@@ -300,6 +304,13 @@ const WarehouseTable = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredItems.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          label="products"
+        />
       </div>
 
       {/* Stock Update Modal */}

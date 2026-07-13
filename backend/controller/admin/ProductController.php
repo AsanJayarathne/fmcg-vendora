@@ -41,8 +41,9 @@ class ProductController {
             }
             match ($method) {
                 'GET'    => $this->getProducts(),
-                'POST'   => $this->createProduct(),
+                'POST'   => isset($_GET['id']) ? $this->updateProduct() : $this->createProduct(),
                 'PUT'    => $this->updateProduct(),
+                'DELETE' => $this->deleteProduct(),
                 default  => sendError('Method not allowed', 405)
             };
         } catch (Exception $e) {
@@ -206,5 +207,26 @@ class ProductController {
         }
 
         return $filename;
+    }
+
+    private function deleteProduct(): void {
+        $id = (int)($_GET['id'] ?? 0);
+        if (!$id) sendError('Product ID required', 400);
+
+        $product = $this->productRepo->findById($id);
+        if (!$product) sendError('Product not found', 404);
+
+        if ($this->productRepo->hasOrderOrSupplyHistory($id)) {
+            sendError('Cannot delete product because it has active order or supply history. You can deactivate it instead.', 409);
+        }
+
+        // Delete any uploaded image from disk if it exists
+        if ($product['image_url']) {
+            $oldPath = self::UPLOAD_DIR . $product['image_url'];
+            if (file_exists($oldPath)) @unlink($oldPath);
+        }
+
+        $this->productRepo->delete($id);
+        sendSuccess(null, 'Product deleted successfully');
     }
 }
