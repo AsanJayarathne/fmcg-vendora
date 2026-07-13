@@ -7,6 +7,7 @@ import {
   FiRefreshCw
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import dashboardImage from "../../assets/images/dashboard.png";
 
 function Hero() {
   return (
@@ -125,28 +126,14 @@ function Hero() {
           <div className="relative">
 
             {/* Main Dashboard Card */}
-            <div className="bg-white rounded-[32px] shadow-2xl border border-slate-200 p-6">
-
-              <div className="h-[550px] rounded-3xl border-2 border-dashed border-slate-300 flex items-center justify-center">
-
-                <div className="text-center">
-
-                  <div className="text-7xl">
-                    🖥️
-                  </div>
-
-                  <h3 className="mt-6 text-xl font-semibold text-slate-700">
-                    Dashboard Preview Image
-                  </h3>
-
-                  <p className="text-slate-500 mt-2">
-                    Replace with hero-dashboard.png
-                  </p>
-
-                </div>
-
+            <div className="relative -mt-10">
+              <div className="bg-white rounded-[32px] shadow-2xl border border-slate-200 p-6">
+                <img
+                  src={dashboardImage}
+                  alt="Dashboard Preview"
+                  className="w-full h-auto rounded-3xl"
+                />
               </div>
-
             </div>
 
             {/* Floating Credit Card */}

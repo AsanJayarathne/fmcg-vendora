@@ -19,17 +19,17 @@ export default function RecentOrdersStatus({ orders = [] }) {
   };
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-bold text-xl">Recent Orders</h2>
         <button className="text-sm font-semibold text-slate-500 hover:text-slate-900">See All</button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 w-full">
         {displayOrders.map((order, idx) => (
           <div
             key={order.id}
-            className={`overflow-hidden rounded-[32px] p-6 shadow-xl ${
+            className={`w-full min-h-[320px] overflow-hidden rounded-[32px] p-6 shadow-xl ${
               idx === 0 ? "bg-blue-700 text-white" : "bg-slate-100"
             }`}
           >
