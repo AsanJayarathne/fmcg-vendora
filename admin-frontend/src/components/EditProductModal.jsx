@@ -111,7 +111,7 @@ const EditProductModal = ({ product, onClose, onProductUpdated }) => {
 
       /* 1 — update product core fields */
       const res  = await fetch(`${API}?id=${product.product_id}`, {
-        method:  'PUT',
+        method:  'POST',
         headers: { Authorization: `Bearer ${auth?.token}` },
         body:    fd,
       });
@@ -143,6 +143,27 @@ const EditProductModal = ({ product, onClose, onProductUpdated }) => {
     } catch (err) {
       setError(err.message);
     } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${product.product_name}?`)) return;
+    setError('');
+    setSuccess('');
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API}?id=${product.product_id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${auth?.token}` },
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Failed to delete product');
+      setSuccess('Product deleted successfully!');
+      onProductUpdated(); // Refresh parent catalog
+      setTimeout(onClose, 900);
+    } catch (err) {
+      setError(err.message);
       setSubmitting(false);
     }
   };
@@ -344,6 +365,18 @@ const EditProductModal = ({ product, onClose, onProductUpdated }) => {
 
           {/* Footer Buttons */}
           <div className="flex gap-3 justify-end pt-1">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={submitting}
+              className="mr-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+              Delete Product
+            </button>
             <button
               type="button"
               onClick={onClose}

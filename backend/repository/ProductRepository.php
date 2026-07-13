@@ -67,7 +67,8 @@ class ProductRepository {
                     pp.base_price,
                     pp.mrp_max_retail_price AS mrp,
                     COALESCE(dp.price, pp.base_price) AS selling_price,
-                    COALESCE(ds.quantity, 0) AS stock
+                    COALESCE(ds.quantity, 0) AS stock,
+                    COALESCE(ws.quantity, 0) AS warehouse_stock
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
                 LEFT JOIN product_pricing pp ON pp.product_id = p.product_id 
@@ -77,6 +78,7 @@ class ProductRepository {
                     AND dp.effective_to IS NULL
                 LEFT JOIN distributor_stock ds ON ds.product_id = p.product_id 
                     AND ds.distributor_id = ?
+                LEFT JOIN warehouse_stock ws ON ws.product_id = p.product_id
                 ORDER BY p.product_name";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$distributorId, $distributorId]);
@@ -117,5 +119,33 @@ class ProductRepository {
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function hasOrderOrSupplyHistory(int $productId): bool {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM order_items WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        if ((int)$stmt->fetchColumn() > 0) return true;
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM supply_request_items WHERE product_id = ?");
+        $stmt->execute([$productId]);
+        if ((int)$stmt->fetchColumn() > 0) return true;
+
+        return false;
+    }
+
+    public function delete(int $productId): void {
+        $this->db->beginTransaction();
+        try {
+            // Delete related tables records first to prevent foreign key errors
+            $this->db->prepare("DELETE FROM warehouse_stock WHERE product_id = ?")->execute([$productId]);
+            $this->db->prepare("DELETE FROM distributor_stock WHERE product_id = ?")->execute([$productId]);
+            $this->db->prepare("DELETE FROM distributor_pricing WHERE product_id = ?")->execute([$productId]);
+            $this->db->prepare("DELETE FROM product_pricing WHERE product_id = ?")->execute([$productId]);
+            $this->db->prepare("DELETE FROM product WHERE product_id = ?")->execute([$productId]);
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 }

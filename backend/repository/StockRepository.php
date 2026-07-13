@@ -18,8 +18,8 @@ class StockRepository {
         $stmt->execute([$qty, $productId, $qty]);
         if ($stmt->rowCount() === 0) throw new Exception("Insufficient warehouse stock for product ID $productId", 422);
     }
-    public function adjustWarehouse(int $productId, int $newQty): void {
-        $this->db->prepare("INSERT INTO warehouse_stock (product_id, quantity) VALUES (?, ?) ON DUPLICATE KEY UPDATE quantity = ?")->execute([$productId, $newQty, $newQty]);
+    public function adjustWarehouse(int $productId, int $newQty, ?string $expiryDate = null): void {
+        $this->db->prepare("INSERT INTO warehouse_stock (product_id, quantity, expiry_date) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE quantity = ?, expiry_date = ?")->execute([$productId, $newQty, $expiryDate, $newQty, $expiryDate]);
     }
     public function getDistributorStock(int $distributorId): array {
         $stmt = $this->db->prepare("SELECT ds.*, p.product_name, p.unit, pc.category_name FROM distributor_stock ds JOIN product p ON p.product_id = ds.product_id JOIN product_category pc ON pc.category_id = p.category_id WHERE ds.distributor_id = ? ORDER BY p.product_name");

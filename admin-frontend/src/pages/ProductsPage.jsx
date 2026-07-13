@@ -55,6 +55,7 @@ const ProductsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedStatus, setSelectedStatus]     = useState('all');
   const [sortBy, setSortBy]                     = useState('newest');
+  const [currentPage, setCurrentPage]           = useState(1);
 
   const handleProductAdded = () => {
     setRefreshKey(k => k + 1);
@@ -90,6 +91,10 @@ const ProductsPage = () => {
     return 0;
   });
 
+  const itemsPerPage = 10;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = sortedProducts.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="w-full">
       {/* Page Header */}
@@ -116,19 +121,25 @@ const ProductsPage = () => {
       <ProductFilters
         categories={categoriesList}
         selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={cat => { setSelectedCategory(cat); setCurrentPage(1); }}
         selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
+        onStatusChange={stat => { setSelectedStatus(stat); setCurrentPage(1); }}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={sort => { setSortBy(sort); setCurrentPage(1); }}
       />
       <ProductTable
-        products={sortedProducts}
+        products={paginatedProducts}
         loading={loading}
         error={error}
         onEditProduct={p => setEditProduct(p)}
       />
-      <Pagination />
+      <Pagination
+        currentPage={currentPage}
+        totalItems={sortedProducts.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        label="products"
+      />
 
       {/* Add Product Modal */}
       {showAddModal && (

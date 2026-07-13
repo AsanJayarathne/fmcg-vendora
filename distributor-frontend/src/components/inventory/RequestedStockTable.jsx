@@ -1,58 +1,79 @@
-export default function RequestedStockTable({ requests }) {
+export default function RequestedStockTable({ requests = [], onViewRequest }) {
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Approved":
+      case "Partially_Approved":
+      case "Delivered":
+      case "Received":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Rejected":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
   return (
-    <div className="overflow-hidden bg-white border border-gray-200 rounded-xl">
-      <table className="w-full text-sm text-left">
-        <thead className="border-b border-gray-200">
+    <div className="overflow-hidden bg-white border border-gray-200 rounded-xl font-sans">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-700 font-bold">
           <tr>
-            <th className="px-6 py-4">Request ID</th>
-            <th>Request Date</th>
-            <th>Total Items</th>
-            <th>Total Amount</th>
-            <th>Status</th>
-            <th>Expected Date</th>
-            <th>Action</th>
+            <th className="px-6 py-4 text-xs uppercase tracking-wider">Request ID</th>
+            <th className="py-4 text-xs uppercase tracking-wider">Request Date</th>
+            <th className="py-4 text-xs uppercase tracking-wider text-center">Total Items</th>
+            <th className="py-4 text-xs uppercase tracking-wider">Status</th>
+            <th className="py-4 text-xs uppercase tracking-wider">Remarks / Notes</th>
+            <th className="py-4 text-xs uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
 
-        <tbody>
-          {requests.map((request) => (
-            <tr
-              key={request.id}
-              className="border-b border-gray-100"
-            >
-              <td className="px-6 py-4 font-medium">
-                {request.id}
-              </td>
-
-              <td>{request.date}</td>
-
-              <td>{request.items}</td>
-
-              <td>LKR {request.amount}</td>
-
-              <td>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    request.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : request.status === "Approved"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {request.status}
-                </span>
-              </td>
-
-              <td>{request.expected}</td>
-
-              <td>
-                <button className="px-5 py-1 text-xs font-semibold border rounded-md text-sky-500">
-                  View
-                </button>
+        <tbody className="divide-y divide-gray-100 text-gray-600">
+          {requests.length === 0 ? (
+            <tr>
+              <td colSpan="6" className="px-6 py-8 text-center text-gray-400">
+                No stock requests found.
               </td>
             </tr>
-          ))}
+          ) : (
+            requests.map((request) => {
+              const code = `REQ-${String(request.request_id).padStart(3, "0")}`;
+              const formattedDate = request.request_date 
+                ? new Date(request.request_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
+                : "—";
+
+              return (
+                <tr key={request.request_id} className="hover:bg-gray-50/50">
+                  <td className="px-6 py-4 font-mono font-semibold text-gray-900">{code}</td>
+                  <td className="py-4">{formattedDate}</td>
+                  <td className="py-4 text-center font-bold text-gray-800">{request.item_count || 0}</td>
+                  <td className="py-4">
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusStyle(request.status)}`}>
+                      {request.status.replace("_", " ")}
+                    </span>
+                  </td>
+                  <td className="py-4 text-xs text-gray-500 italic max-w-xs truncate" title={request.remarks}>
+                    {request.remarks || "—"}
+                  </td>
+                  <td className="py-4">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => onViewRequest && onViewRequest(request)}
+                        className="px-3.5 py-1.5 text-xs font-bold border border-gray-200 rounded-md text-sky-600 bg-white hover:bg-sky-50 active:scale-95 transition-all cursor-pointer"
+                      >
+                        View Items
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>
