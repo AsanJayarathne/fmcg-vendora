@@ -346,22 +346,48 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
           </div>
 
           {/* Financials strip */}
-          <div className={`grid gap-3 text-center ${(order.urgentCharge ?? 0) > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
-            <div className="bg-blue-50 border border-blue-100 rounded-xl py-4">
-              <p className="text-xs text-gray-500 mb-1">Subtotal</p>
-              <p className="font-bold text-slate-800">{formatCurrency(order.subtotal)}</p>
-            </div>
-            {(order.urgentCharge ?? 0) > 0 && (
-              <div className="bg-orange-50 border border-orange-100 rounded-xl py-4">
-                <p className="text-xs text-gray-500 mb-1">Urgent Charge</p>
-                <p className="font-bold text-orange-700">{formatCurrency(order.urgentCharge)}</p>
+          {(() => {
+            const boxes = [];
+            boxes.push(
+              <div key="subtotal" className="bg-blue-50 border border-blue-100 rounded-xl py-4">
+                <p className="text-xs text-gray-500 mb-1">Subtotal</p>
+                <p className="font-bold text-slate-800">{formatCurrency(order.subtotal)}</p>
               </div>
-            )}
-            <div className="bg-green-50 border border-green-100 rounded-xl py-4">
-              <p className="text-xs text-gray-500 mb-1">Total Paid</p>
-              <p className="font-bold text-green-700">{formatCurrency(order.total)}</p>
-            </div>
-          </div>
+            );
+            if ((order.discount ?? 0) > 0) {
+              boxes.push(
+                <div key="discount" className="bg-emerald-50 border border-emerald-100 rounded-xl py-4">
+                  <p className="text-xs text-emerald-600 mb-1">Discount</p>
+                  <p className="font-bold text-emerald-700">- {formatCurrency(order.discount)}</p>
+                </div>
+              );
+            }
+            if ((order.urgentCharge ?? 0) > 0) {
+              boxes.push(
+                <div key="urgent" className="bg-orange-50 border border-orange-100 rounded-xl py-4">
+                  <p className="text-xs text-gray-500 mb-1">Urgent Charge</p>
+                  <p className="font-bold text-orange-700">{formatCurrency(order.urgentCharge)}</p>
+                </div>
+              );
+            }
+            boxes.push(
+              <div key="total" className="bg-green-50 border border-green-100 rounded-xl py-4">
+                <p className="text-xs text-gray-500 mb-1">Total Paid</p>
+                <p className="font-bold text-green-700">{formatCurrency(order.total)}</p>
+              </div>
+            );
+
+            const gridColsClass = 
+              boxes.length === 4 ? "grid-cols-2 md:grid-cols-4" :
+              boxes.length === 3 ? "grid-cols-3" :
+              "grid-cols-2";
+
+            return (
+              <div className={`grid gap-3 text-center ${gridColsClass}`}>
+                {boxes}
+              </div>
+            );
+          })()}
 
           {/* Items table */}
           <div>
@@ -380,7 +406,14 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                 <tbody className="divide-y divide-gray-100">
                   {(order.items ?? []).map((item, idx) => (
                     <tr key={item.id ?? idx} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-slate-800">{item.name}</td>
+                      <td className="px-4 py-3 font-medium text-slate-800">
+                        <div>{item.name}</div>
+                        {item.discountRate > 0 && (
+                          <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-semibold inline-block mt-0.5">
+                            {item.discountRate}% bulk discount applied
+                          </span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-gray-400 text-xs">{item.unit}</td>
                       <td className="px-4 py-3 text-center">{item.quantity}</td>
                       <td className="px-4 py-3 text-right text-gray-600">{formatCurrency(item.price)}</td>

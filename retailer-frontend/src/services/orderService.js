@@ -43,18 +43,36 @@ function normaliseOrder(raw) {
   const creditUsed = Number(raw.credit_amount ?? 0);
   const cashAmount = Number(raw.cash_amount ?? 0);
 
-  const items = (raw.items ?? []).map((item) => ({
-    id:        item.order_item_id ?? item.product_id,
-    productId: item.product_id,
-    name:      item.product_name ?? `Product #${item.product_id}`,
-    unit:      item.unit ?? "",
-    quantity:  Number(item.quantity),
-    price:     Number(item.unit_price),
-    total:     Number(item.total_price ?? item.unit_price * item.quantity),
-    subtotal:  Number(item.unit_price) * Number(item.quantity),
-    discount:  0,
-    discountRate: 0,
-  }));
+  const items = (raw.items ?? []).map((item) => {
+    const qty = Number(item.quantity);
+    const price = Number(item.unit_price);
+    const subtotal = price * qty;
+    const total = Number(item.total_price ?? subtotal);
+    const discount = Math.max(0, subtotal - total);
+    
+    let discountRate = 0;
+    if (qty >= 50) discountRate = 15;
+    else if (qty >= 25) discountRate = 10;
+    else if (qty >= 10) discountRate = 5;
+
+    return {
+      id:        item.order_item_id ?? item.product_id,
+      productId: item.product_id,
+      name:      item.product_name ?? `Product #${item.product_id}`,
+      unit:      item.unit ?? "",
+      quantity:  qty,
+      price,
+      total,
+      subtotal,
+      discount,
+      discountRate,
+    };
+  });
+
+  const orderSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const orderDiscount = items.reduce((sum, item) => sum + item.discount, 0);
+  const isUrgent = raw.order_type === "Urgent";
+  const urgentCharge = isUrgent ? 500 : 0;
 
   return {
     // IDs
@@ -72,9 +90,9 @@ function normaliseOrder(raw) {
 
     // Financials
     total:        Number(raw.total_amount),
-    subtotal:     Number(raw.total_amount),
-    discount:     0,
-    urgentCharge: 0,
+    subtotal:     orderSubtotal,
+    discount:     orderDiscount,
+    urgentCharge,
     cashAmount,
     creditUsed,
 

@@ -52,9 +52,28 @@ class OrderService {
             }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
             if ($product['available_qty'] < $item['quantity']) throw new Exception("Insufficient stock for: {$product['product_name']}", 422);
-            $lineTotal       = round($product['unit_price'] * $item['quantity'], 2);
-            $totalAmount    += $lineTotal;
-            $enrichedItems[] = ['product_id' => $item['product_id'], 'quantity' => $item['quantity'], 'unit_price' => $product['unit_price']];
+            
+            $qty = (int)$item['quantity'];
+            $discountRate = 0;
+            if ($qty >= 50) {
+                $discountRate = 15;
+            } elseif ($qty >= 25) {
+                $discountRate = 10;
+            } elseif ($qty >= 10) {
+                $discountRate = 5;
+            }
+            
+            $subtotal = $product['unit_price'] * $qty;
+            $discount = $subtotal * $discountRate / 100;
+            $lineTotal = round($subtotal - $discount, 2);
+            $totalAmount += $lineTotal;
+            
+            $enrichedItems[] = [
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $product['unit_price'],
+                'total_price' => $lineTotal
+            ];
         }
 
         // Fetch credit account to find previous outstanding balance (if any)
@@ -113,14 +132,35 @@ class OrderService {
         if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
         if (!$this->isEditable($order)) throw new Exception("Order lock window has expired.", 403);
         $distributorId = (int)$order['distributor_id'];
-        $enrichedItems = []; $totalAmount = 0.0;
+        $enrichedItems = [];
+        $totalAmount = 0.0;
         foreach ($items as $item) {
             $catalog = $this->productRepo->getCatalogForDistributor($distributorId, 0);
             $product = null;
             foreach ($catalog as $p) { if ((int)$p['product_id'] === (int)$item['product_id']) { $product = $p; break; } }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
-            $totalAmount    += round($product['unit_price'] * $item['quantity'], 2);
-            $enrichedItems[] = ['product_id' => $item['product_id'], 'quantity' => $item['quantity'], 'unit_price' => $product['unit_price']];
+            
+            $qty = (int)$item['quantity'];
+            $discountRate = 0;
+            if ($qty >= 50) {
+                $discountRate = 15;
+            } elseif ($qty >= 25) {
+                $discountRate = 10;
+            } elseif ($qty >= 10) {
+                $discountRate = 5;
+            }
+            
+            $subtotal = $product['unit_price'] * $qty;
+            $discount = $subtotal * $discountRate / 100;
+            $lineTotal = round($subtotal - $discount, 2);
+            $totalAmount += $lineTotal;
+            
+            $enrichedItems[] = [
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $product['unit_price'],
+                'total_price' => $lineTotal
+            ];
         }
         $this->orderRepo->deleteItems($orderId);
         $this->orderRepo->createItems($orderId, $enrichedItems);
