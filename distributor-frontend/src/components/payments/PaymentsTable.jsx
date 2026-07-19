@@ -1,67 +1,67 @@
 export default function PaymentsTable({ payments }) {
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-      <table className="w-full text-xs">
-        <thead className="border-b border-gray-200">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/75">
           <tr>
-            <th className="px-6 py-4 text-left">Order ID</th>
-            <th className="text-left">Retailer</th>
-            <th className="text-left">Order Date</th>
-            <th className="text-left">Total Amount(LKR)</th>
-            <th className="text-left">Paid</th>
-            <th className="text-left">Outstanding</th>
-            <th className="text-left">Payment Status</th>
-            <th className="text-left">Action</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order Date</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Total Amount (LKR)</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Paid</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Outstanding</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Status</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-gray-100">
           {payments.map((payment, index) => (
             <tr
               key={index}
-              className="border-b border-gray-200"
+              className="hover:bg-gray-50/50 transition-colors"
             >
-              <td className="px-6 py-4">
-                {payment.orderId}
+              <td className="px-6 py-4 font-mono font-semibold text-gray-900">
+                #{payment.orderId}
               </td>
 
-              <td>
+              <td className="px-6 py-4 font-medium text-gray-900">
                 {payment.retailer}
               </td>
 
-              <td>
+              <td className="px-6 py-4 text-gray-700">
                 <div>
-                  <p>{payment.orderDate}</p>
+                  <p className="font-medium text-gray-800">{payment.orderDate}</p>
                   <p className="text-[10px] text-gray-400">
                     10:45 AM
                   </p>
                 </div>
               </td>
 
-              <td>
+              <td className="px-6 py-4 text-right font-semibold text-gray-950">
                 {payment.totalAmount}
               </td>
 
-              <td>
+              <td className="px-6 py-4 text-right text-green-600 font-semibold">
                 {payment.paid}
               </td>
 
-              <td>
+              <td className="px-6 py-4 text-right text-red-500 font-semibold">
                 {payment.outstanding}
               </td>
 
               <td
-                className={`font-medium ${
+                className={`px-6 py-4 font-semibold ${
                   payment.paymentStatus === "cash"
                     ? "text-green-500"
                     : "text-red-500"
                 }`}
               >
-                {payment.paymentStatus}
+                <span className="capitalize">{payment.paymentStatus}</span>
               </td>
 
-              <td>
-                <button className="px-5 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md">
+              <td className="px-6 py-4 text-center">
+                <button className="px-5 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md hover:bg-sky-50 transition-colors">
                   View
                 </button>
               </td>

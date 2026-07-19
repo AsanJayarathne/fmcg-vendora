@@ -21,17 +21,17 @@ function fmtAmount(val) {
 export default function OrderHistoryTable({ deliveries, onView }) {
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-      <table className="w-full text-sm text-left">
-        <thead className="border-b border-gray-200 bg-gray-50">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/75">
           <tr>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order ID</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Retailer</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order Date</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Delivery Date</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Amount (LKR)</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Driver</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Delivery Status</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Action</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order Date</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Delivery Date</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Amount (LKR)</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Delivery Status</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
 
@@ -51,35 +51,35 @@ export default function OrderHistoryTable({ deliveries, onView }) {
               };
 
               return (
-                <tr key={delivery.delivery_id} className="hover:bg-gray-50 transition">
+                <tr key={delivery.delivery_id} className="hover:bg-gray-50/50 transition-colors">
 
-                  <td className="px-5 py-3.5 font-semibold text-gray-800">
+                  <td className="px-6 py-4 font-mono font-semibold text-gray-900">
                     #{delivery.order_id}
                   </td>
 
-                  <td className="px-5 py-3.5">
+                  <td className="px-6 py-4 text-gray-700">
                     <p className="font-medium text-gray-800">{delivery.shop_name}</p>
                   </td>
 
-                  <td className="px-5 py-3.5">
-                    <p className="text-gray-800">{ordered.date}</p>
+                  <td className="px-6 py-4 text-gray-700">
+                    <p className="font-medium text-gray-800">{ordered.date}</p>
                     <p className="text-[11px] text-gray-500">{ordered.time}</p>
                   </td>
 
-                  <td className="px-5 py-3.5">
-                    <p className="text-gray-800">{delivered.date}</p>
+                  <td className="px-6 py-4 text-gray-700">
+                    <p className="font-medium text-gray-800">{delivered.date}</p>
                     <p className="text-[11px] text-gray-500">{delivered.time}</p>
                   </td>
 
-                  <td className="px-5 py-3.5 font-medium text-gray-800">
+                  <td className="px-6 py-4 text-right font-semibold text-gray-900">
                     {fmtAmount(delivery.order_amount)}
                   </td>
 
-                  <td className="px-5 py-3.5 text-gray-700">
+                  <td className="px-6 py-4 text-gray-700">
                     {delivery.driver_name ?? <span className="text-gray-400">—</span>}
                   </td>
 
-                  <td className="px-5 py-3.5">
+                  <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${status.color} ${status.bg}`}>
                       {status.label}
                     </span>
@@ -90,8 +90,8 @@ export default function OrderHistoryTable({ deliveries, onView }) {
                     )}
                   </td>
 
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => onView?.(delivery.order_id)}
                         className="px-4 py-1.5 text-xs font-semibold border border-gray-300 rounded-md text-sky-600 hover:bg-sky-50 transition"

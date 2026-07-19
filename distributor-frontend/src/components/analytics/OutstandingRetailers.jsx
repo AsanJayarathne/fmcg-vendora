@@ -6,19 +6,19 @@ export default function OutstandingRetailers({ retailers }) {
       title="Outstanding by Retailer"
       action={<button className="text-xs font-semibold text-blue-600">View All</button>}
     >
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="border-b">
-            <th className="py-3 text-left">Retailer Name</th>
-            <th className="text-left">Outstanding (LKR)</th>
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/50">
+          <tr>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer Name</th>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Outstanding (LKR)</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-gray-100">
           {retailers.map((item) => (
-            <tr key={item.name} className="border-b">
-              <td className="py-3">{item.name}</td>
-              <td>{item.amount}</td>
+            <tr key={item.name} className="hover:bg-gray-50/50 transition-colors">
+              <td className="px-4 py-2.5 font-medium text-gray-900">{item.name}</td>
+              <td className="px-4 py-2.5 text-right font-semibold text-red-500">{item.amount}</td>
             </tr>
           ))}
         </tbody>

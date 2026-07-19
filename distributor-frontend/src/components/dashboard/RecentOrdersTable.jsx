@@ -6,23 +6,23 @@ export default function RecentOrdersTable({ orders }) {
         <button className="text-xs font-semibold text-blue-600">View All</button>
       </div>
 
-      <table className="w-full text-xs text-left">
-        <thead className="border-b border-gray-200">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/50">
           <tr>
-            <th className="py-3">Order ID</th>
-            <th>Retailer</th>
-            <th>Amount</th>
-            <th>Status</th>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Amount</th>
+            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Status</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-gray-100">
           {orders.map((order) => (
-            <tr key={order.id} className="border-b border-gray-100">
-              <td className="py-3 font-semibold">{order.id}</td>
-              <td>{order.retailer}</td>
-              <td>LKR {order.amount}</td>
-              <td>
+            <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
+              <td className="px-4 py-2.5 font-mono font-semibold text-gray-900">#{order.id}</td>
+              <td className="px-4 py-2.5 text-gray-700">{order.retailer}</td>
+              <td className="px-4 py-2.5 text-right text-gray-900 font-semibold">LKR {order.amount}</td>
+              <td className="px-4 py-2.5 text-center">
                 <span className={`px-3 py-1 text-[10px] font-semibold rounded-full ${getStatusStyle(order.status)}`}>
                   {order.status}
                 </span>

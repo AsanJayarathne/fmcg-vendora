@@ -18,29 +18,29 @@ export default function BatchDetailsTable({ title, batches = [], selectedProduct
       <h3 className="mb-3 text-sm font-bold text-gray-900">{title}</h3>
 
       <div className="overflow-hidden border border-gray-200 rounded-md">
-        <table className="w-full text-xs text-left border-collapse">
-          <thead className="border-b border-gray-200 bg-gray-50/75 text-gray-700 font-bold">
+        <table className="w-full text-sm text-left border-collapse">
+          <thead className="border-b border-gray-200 bg-gray-50/75">
             <tr>
-              <th className="px-6 py-3">Batch No.</th>
-              <th className="py-3">Last Updated</th>
-              <th className="py-3">Expiry Date</th>
-              <th className="py-3">Unit Cost</th>
-              <th className="py-3">Quantity</th>
-              <th className="py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Batch No.</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Updated</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Expiry Date</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit Cost</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Quantity</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
             </tr>
           </thead>
 
-          <tbody className="text-gray-600 divide-y divide-gray-100">
+          <tbody className="text-gray-700 divide-y divide-gray-100">
             {batches.map((batch, index) => (
-              <tr key={index} className="hover:bg-gray-50/50">
-                <td className="px-6 py-3 font-mono font-semibold">{batch.batchNo}</td>
-                <td>{batch.purchaseDate}</td>
-                <td className="text-gray-400">{batch.expiryDate}</td>
-                <td className="font-semibold text-gray-800">
+              <tr key={index} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-4 py-3 font-mono font-semibold text-gray-900">{batch.batchNo}</td>
+                <td className="px-4 py-3 text-gray-700">{batch.purchaseDate}</td>
+                <td className="px-4 py-3 text-gray-400">{batch.expiryDate}</td>
+                <td className="px-4 py-3 font-semibold text-gray-800">
                   {selectedProduct.unit_cost != null ? `Rs. ${parseFloat(selectedProduct.unit_cost).toFixed(2)}` : "—"}
                 </td>
-                <td className="font-bold text-gray-900">{batch.qty} {selectedProduct.unit || "units"}</td>
-                <td>
+                <td className="px-4 py-3 font-bold text-gray-900">{batch.qty} {selectedProduct.unit || "units"}</td>
+                <td className="px-4 py-3">
                   <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                     batch.status === "Good"
                       ? "text-green-600 bg-green-50 border-green-100"
@@ -55,12 +55,12 @@ export default function BatchDetailsTable({ title, batches = [], selectedProduct
             ))}
 
             <tr className="bg-gray-50/30 font-semibold text-gray-900 border-t border-gray-100">
-              <td className="px-6 py-3">Total Inventory</td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td className="font-bold">{totalQty} {selectedProduct.unit || "units"}</td>
-              <td></td>
+              <td className="px-4 py-3">Total Inventory</td>
+              <td className="px-4 py-3"></td>
+              <td className="px-4 py-3"></td>
+              <td className="px-4 py-3"></td>
+              <td className="px-4 py-3 font-bold">{totalQty} {selectedProduct.unit || "units"}</td>
+              <td className="px-4 py-3"></td>
             </tr>
           </tbody>
         </table>

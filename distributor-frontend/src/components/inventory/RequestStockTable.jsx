@@ -8,14 +8,14 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg font-sans">
       <table className="w-full text-sm text-left border-collapse">
         {/* Table Header */}
-        <thead className="bg-gray-50/75 border-b border-gray-200 text-gray-700 font-bold">
+        <thead className="bg-gray-50/75 border-b border-gray-200">
           <tr>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider">Product</th>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider">Product ID</th>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider text-right">Admin Warehouse Stock</th>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider text-right">Base Price</th>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider text-right">MRP</th>
-            <th className="px-6 py-4 text-xs uppercase tracking-wider text-center">Action</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product ID</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Admin Warehouse Stock</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Base Price</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">MRP</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
 

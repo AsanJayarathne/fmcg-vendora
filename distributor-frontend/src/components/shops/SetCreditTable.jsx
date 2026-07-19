@@ -78,32 +78,32 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
 
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-      <table className="w-full text-xs text-left">
-        <thead className="border-b border-gray-200">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/75">
           <tr>
-            <th className="px-6 py-4">Retailer ID</th>
-            <th>Retailer</th>
-            <th>Current Credit Limit</th>
-            <th>New Credit Limit</th>
-            <th>Outstanding</th>
-            <th>Available Credit</th>
-            <th>Action</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer ID</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Current Credit Limit</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">New Credit Limit</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Outstanding</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Available Credit</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-gray-100">
           {shops.map((shop) => {
             const acct = localAccounts[shop.retailer_id];
             const isLoading = loadingId === shop.retailer_id;
             const msg = messages[shop.retailer_id];
             return (
-              <tr key={shop.retailer_id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-3 font-mono">
+              <tr key={shop.retailer_id} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-6 py-3.5 font-mono text-gray-700">
                   SHOP-{String(shop.retailer_id).padStart(4, "0")}
                 </td>
-                <td className="font-medium">{shop.shop_name || shop.full_name}</td>
+                <td className="px-6 py-3.5 font-medium text-gray-900">{shop.shop_name || shop.full_name}</td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700">
                   {acct ? (
                     <span className="font-semibold text-gray-700">
                       {Number(acct.credit_limit).toLocaleString()}.00
@@ -113,7 +113,7 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
                   )}
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <div className="flex flex-col gap-1">
                     <input
                       type="number"
@@ -133,15 +133,15 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
                   </div>
                 </td>
 
-                <td className="font-semibold text-red-500">
+                <td className="px-6 py-3.5 font-semibold text-red-500">
                   {acct ? `${Number(acct.current_balance).toLocaleString()}.00` : "—"}
                 </td>
 
-                <td className="font-semibold text-green-500">
+                <td className="px-6 py-3.5 font-semibold text-green-500">
                   {acct ? `${Number(acct.available_credit).toLocaleString()}.00` : "—"}
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <button
                     onClick={() => handleSave(shop)}
                     disabled={isLoading}

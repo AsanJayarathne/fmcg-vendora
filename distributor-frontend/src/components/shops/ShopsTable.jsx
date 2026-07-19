@@ -67,62 +67,62 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
   return (
     <>
       <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-        <table className="w-full text-xs text-left">
-          <thead className="border-b border-gray-200">
+        <table className="w-full text-sm text-left border-collapse">
+          <thead className="border-b border-gray-200 bg-gray-50/75">
             <tr>
-              <th className="px-6 py-4">Shop</th>
-              <th>Contact</th>
-              <th>Shop Details</th>
-              <th>Credit Limit</th>
-              <th>Status</th>
-              <th>Registered On</th>
-              <th>Action</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Shop</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Shop Details</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Credit Limit</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Registered On</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-gray-100">
             {shops.map((shop) => (
-              <tr key={shop.retailer_id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-3">
+              <tr key={shop.retailer_id} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center text-xs font-bold text-blue-600 bg-blue-100 rounded-full w-9 h-9 shrink-0">
                       {(shop.shop_name || shop.full_name || "?")
                         .split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold">{shop.shop_name || shop.full_name}</p>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="font-semibold text-gray-900">{shop.shop_name || shop.full_name}</p>
+                      <p className="text-[10px] text-gray-400">
                         SHOP-{String(shop.retailer_id).padStart(4, "0")}
                       </p>
                     </div>
                   </div>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700">
                   <div className="flex items-center gap-2">
-                    <Phone size={13} />
+                    <Phone size={13} className="text-gray-400" />
                     {shop.phone || shop.contact || "—"}
                   </div>
                 </td>
 
-                <td>
-                  <p className="font-medium">{shop.shop_address || "—"}</p>
+                <td className="px-6 py-3.5 text-gray-700">
+                  <p className="font-medium text-gray-800">{shop.shop_address || "—"}</p>
                   <p className="text-[10px] text-gray-500">{shop.city || "—"}</p>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700 font-semibold">
                   {creditAccounts[shop.retailer_id]
                     ? `${Number(creditAccounts[shop.retailer_id].credit_limit).toLocaleString()}.00`
                     : <span className="text-gray-400 italic text-[10px]">Not Set</span>}
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <span className={`px-4 py-1 text-[10px] font-semibold rounded ${getStatusStyle(shop.status)}`}>
                     {shop.status}
                   </span>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700">
                   {shop.created_at
                     ? new Date(shop.created_at).toLocaleDateString("en-GB", {
                         day: "numeric", month: "long", year: "numeric",
@@ -130,7 +130,7 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
                     : "—"}
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <button
                     onClick={() => { setSelected(shop); setActionError(""); }}
                     className="px-5 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md hover:bg-sky-50 transition-colors"

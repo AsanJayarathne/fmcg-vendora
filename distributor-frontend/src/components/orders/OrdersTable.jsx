@@ -24,16 +24,16 @@ function fmtAmount(val) {
 export default function OrdersTable({ orders, returnedOrderIds, onView, onApprove, onReject, actioningId }) {
   return (
     <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-      <table className="w-full text-sm text-left">
-        <thead className="border-b border-gray-200 bg-gray-50">
+      <table className="w-full text-sm text-left border-collapse">
+        <thead className="border-b border-gray-200 bg-gray-50/75">
           <tr>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order ID</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Retailer</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Order Date</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Total (LKR)</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Payment</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Status</th>
-            <th className="px-5 py-3.5 text-xs font-semibold text-gray-600 uppercase">Action</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order ID</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Order Date</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Total (LKR)</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
 
@@ -54,38 +54,38 @@ export default function OrdersTable({ orders, returnedOrderIds, onView, onApprov
               const isActioning = actioningId === order.order_id;
 
               return (
-                <tr key={order.order_id} className="hover:bg-gray-50 transition">
-                  <td className="px-5 py-3 font-semibold text-gray-800">
+                <tr key={order.order_id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 font-mono font-semibold text-gray-900">
                     #{order.order_id}
                   </td>
 
-                  <td className="px-5 py-3">
+                  <td className="px-6 py-4 text-gray-700">
                     <p className="font-medium text-gray-800">{order.shop_name}</p>
                     <p className="text-xs text-gray-500">{order.owner_name}</p>
                   </td>
 
-                  <td className="px-5 py-3">
-                    <p className="text-gray-800">{date}</p>
+                  <td className="px-6 py-4 text-gray-700">
+                    <p className="font-medium text-gray-800">{date}</p>
                     <p className="text-[11px] text-gray-500">{time}</p>
                   </td>
 
-                  <td className="px-5 py-3 font-medium text-gray-800">
+                  <td className="px-6 py-4 text-right font-semibold text-gray-900">
                     {fmtAmount(order.total_amount)}
                   </td>
 
-                  <td className={`px-5 py-3 font-medium ${
+                  <td className={`px-6 py-4 font-medium ${
                     order.payment_method === "Cash"   ? "text-green-600" :
                     order.payment_method === "Credit" ? "text-red-500"   : "text-gray-500"
                   }`}>
                     {order.payment_method ?? "—"}
                   </td>
 
-                  <td className={`px-5 py-3 font-semibold ${statusInfo.color}`}>
+                  <td className={`px-6 py-4 font-semibold ${statusInfo.color}`}>
                     {statusInfo.label}
                   </td>
 
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2 flex-wrap">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
                       {/* View always visible */}
                       <button
                         onClick={() => onView(order.order_id)}

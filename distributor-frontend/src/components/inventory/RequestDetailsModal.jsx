@@ -57,30 +57,30 @@ export default function RequestDetailsModal({ request, onClose }) {
           <div className="space-y-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Request Items List</h3>
             <div className="overflow-hidden border border-gray-200 rounded-lg">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead className="bg-slate-50 border-b border-gray-200 text-gray-700 font-bold">
+              <table className="w-full text-sm text-left border-collapse">
+                <thead className="bg-slate-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-4 py-2.5">Product Name</th>
-                    <th className="py-2.5 text-right">Requested Qty</th>
-                    <th className="py-2.5 text-right">Approved Qty</th>
+                    <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product Name</th>
+                    <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Requested Qty</th>
+                    <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Approved Qty</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 text-gray-600">
+                <tbody className="divide-y divide-gray-100 text-gray-700">
                   {(!request.items || request.items.length === 0) ? (
                     <tr>
-                      <td colSpan="3" className="px-4 py-6 text-center text-gray-400">
+                      <td colSpan="3" className="px-4 py-6 text-center text-gray-400 text-sm">
                         No items found in this request.
                       </td>
                     </tr>
                   ) : (
                     request.items.map((item) => (
-                      <tr key={item.request_item_id} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-2.5 font-semibold text-gray-800">
+                      <tr key={item.request_item_id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-4 py-3 font-semibold text-gray-900">
                           {item.product_name}
-                          <span className="text-[10px] text-gray-400 font-normal ml-1">({item.unit})</span>
+                          <span className="text-xs text-gray-400 font-normal ml-1">({item.unit})</span>
                         </td>
-                        <td className="text-right font-mono font-bold pr-2">{item.requested_qty}</td>
-                        <td className="text-right font-mono font-bold pr-2 text-emerald-600">
+                        <td className="px-4 py-3 text-right font-mono font-semibold text-gray-700">{item.requested_qty}</td>
+                        <td className="px-4 py-3 text-right font-mono font-semibold text-emerald-600">
                           {item.approved_qty !== null ? item.approved_qty : "—"}
                         </td>
                       </tr>

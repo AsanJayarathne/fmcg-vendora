@@ -33,20 +33,20 @@ export default function CurrentRequestCard({
       {/* Table */}
       <div className="overflow-hidden border border-gray-200 rounded-lg">
         <table className="w-full text-sm text-left border-collapse">
-          <thead className="border-b border-gray-200 bg-gray-50 text-gray-700 font-bold">
+          <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-xs uppercase tracking-wider">Product</th>
-              <th className="py-3 text-xs uppercase tracking-wider text-right">Quantity</th>
-              <th className="py-3 text-xs uppercase tracking-wider text-right">Base Price</th>
-              <th className="py-3 text-xs uppercase tracking-wider text-right">Amount</th>
-              <th className="text-center py-3 text-xs uppercase tracking-wider">Action</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Quantity</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Base Price</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Amount</th>
+              <th className="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-gray-100 text-gray-600">
+          <tbody className="divide-y divide-gray-100 text-gray-700">
             {request.items.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-6 py-8 text-center text-gray-400">
+                <td colSpan="5" className="px-4 py-8 text-center text-gray-400 text-sm">
                   No items added to current request yet. Enter a quantity and click "Request" in the table above.
                 </td>
               </tr>
@@ -54,19 +54,19 @@ export default function CurrentRequestCard({
               request.items.map((item) => {
                 const amount = item.quantity * parseFloat(item.base_price || 0);
                 return (
-                  <tr key={item.product_id} className="hover:bg-gray-50/50">
-                    <td className="px-6 py-3 font-semibold text-gray-900">
+                  <tr key={item.product_id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-gray-900">
                       {item.product_name}
                     </td>
-                    <td className="text-right font-mono font-semibold">{item.quantity.toLocaleString()}</td>
-                    <td className="text-right">Rs. {parseFloat(item.base_price || 0).toFixed(2)}</td>
-                    <td className="font-semibold text-right text-gray-900">
+                    <td className="px-4 py-3 text-right font-mono font-semibold text-gray-700">{item.quantity.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-gray-700">Rs. {parseFloat(item.base_price || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 font-semibold text-right text-gray-900">
                       Rs. {amount.toFixed(2)}
                     </td>
-                    <td className="text-center py-2">
+                    <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => onRemoveItem && onRemoveItem(item.product_id)}
-                        className="p-1.5 text-red-500 border border-red-100 rounded-md hover:bg-red-50 active:scale-95 transition-all cursor-pointer bg-white"
+                        className="p-1.5 text-red-500 border border-red-100 rounded-md hover:bg-red-50 active:scale-95 transition-all cursor-pointer bg-white inline-flex items-center justify-center"
                         title="Remove product"
                       >
                         <Trash2 size={13} />

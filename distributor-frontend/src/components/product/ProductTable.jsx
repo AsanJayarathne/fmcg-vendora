@@ -25,25 +25,25 @@ export default function ProductTable({ products = [], onViewProduct, onEditPrice
       <table className="w-full text-sm text-left border-collapse">
         <thead className="border-b border-gray-200 bg-gray-50/75">
           <tr>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Product
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Category
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Base Price (LKR)
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               MRP (LKR)
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               My Selling Price (LKR)
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Stock
             </th>
-            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">
+            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 text-center">
               Action
             </th>
           </tr>

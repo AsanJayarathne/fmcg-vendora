@@ -157,25 +157,25 @@ export default function OrderDetailModal({ orderId, onClose, onActionDone }) {
                   <Package size={13} /> Order Items
                 </p>
                 <div className="overflow-hidden border border-gray-200 rounded-xl">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-sm text-left border-collapse">
                     <thead className="bg-gray-50 border-b border-gray-200">
                       <tr>
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-gray-600">Product</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-gray-600">Qty</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-gray-600">Unit (LKR)</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-gray-600">Total (LKR)</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Unit (LKR)</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total (LKR)</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 text-gray-700">
                       {(order.items ?? []).map((item, i) => (
-                        <tr key={i}>
-                          <td className="px-4 py-2.5 text-gray-800 font-medium">
+                        <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 py-3 text-gray-900 font-medium">
                             {item.product_name}
-                            {item.unit && <span className="ml-1 text-xs text-gray-400">({item.unit})</span>}
+                            {item.unit && <span className="ml-1 text-xs text-gray-400 font-normal">({item.unit})</span>}
                           </td>
-                          <td className="px-4 py-2.5 text-right text-gray-700">{item.quantity}</td>
-                          <td className="px-4 py-2.5 text-right text-gray-700">{fmtAmount(item.unit_price)}</td>
-                          <td className="px-4 py-2.5 text-right font-semibold text-gray-900">{fmtAmount(item.total_price)}</td>
+                          <td className="px-4 py-3 text-right font-mono text-gray-700">{item.quantity}</td>
+                          <td className="px-4 py-3 text-right font-mono text-gray-700">{fmtAmount(item.unit_price)}</td>
+                          <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900">{fmtAmount(item.total_price)}</td>
                         </tr>
                       ))}
                     </tbody>

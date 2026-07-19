@@ -67,61 +67,61 @@ export default function DriversTable({ drivers, onRefresh }) {
   return (
     <>
       <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-        <table className="w-full text-xs text-left">
-          <thead className="border-b border-gray-200">
+        <table className="w-full text-sm text-left border-collapse">
+          <thead className="border-b border-gray-200 bg-gray-50/75">
             <tr>
-              <th className="px-6 py-4">Driver</th>
-              <th>Contact</th>
-              <th>Vehicle Details</th>
-              <th>License Details</th>
-              <th>Status</th>
-              <th>Registered On</th>
-              <th>Action</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Vehicle Details</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">License Details</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Registered On</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-gray-100">
             {drivers.map((driver) => (
-              <tr key={driver.driver_id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-3">
+              <tr key={driver.driver_id} className="hover:bg-gray-50/50 transition-colors">
+                <td className="px-6 py-3.5">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center text-xs font-bold text-green-600 bg-green-100 rounded-full w-9 h-9 shrink-0">
                       {(driver.full_name || "?")
                         .split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-semibold">{driver.full_name}</p>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="font-semibold text-gray-900">{driver.full_name}</p>
+                      <p className="text-[10px] text-gray-400">
                         DR-{String(driver.driver_id).padStart(4, "0")}
                       </p>
                     </div>
                   </div>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700">
                   <div className="flex items-center gap-2">
-                    <Phone size={13} />
+                    <Phone size={13} className="text-gray-400" />
                     {driver.phone || "—"}
                   </div>
                 </td>
 
-                <td>
-                  <p className="font-medium">{driver.vehicle_number || "—"}</p>
+                <td className="px-6 py-3.5 text-gray-700">
+                  <p className="font-medium text-gray-800">{driver.vehicle_number || "—"}</p>
                   <p className="text-[10px] text-gray-500">Vehicle</p>
                 </td>
 
-                <td>
-                  <p className="font-medium">{driver.license_number || "—"}</p>
+                <td className="px-6 py-3.5 text-gray-700">
+                  <p className="font-medium text-gray-800">{driver.license_number || "—"}</p>
                   <p className="text-[10px] text-gray-500">License No.</p>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <span className={`px-4 py-1 text-[10px] font-semibold rounded ${getStatusStyle(driver.status)}`}>
                     {driver.status}
                   </span>
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5 text-gray-700">
                   {driver.created_at
                     ? new Date(driver.created_at).toLocaleDateString("en-GB", {
                         day: "numeric", month: "long", year: "numeric",
@@ -129,7 +129,7 @@ export default function DriversTable({ drivers, onRefresh }) {
                     : "—"}
                 </td>
 
-                <td>
+                <td className="px-6 py-3.5">
                   <button
                     onClick={() => { setSelected(driver); setActionError(""); }}
                     className="px-5 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md hover:bg-sky-50 transition-colors"
