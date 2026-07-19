@@ -5,6 +5,7 @@ require_once __DIR__ . '/../repository/CreditRepository.php';
 require_once __DIR__ . '/../repository/DeliveryRepository.php';
 require_once __DIR__ . '/../repository/RetailerRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
+require_once __DIR__ . '/../repository/StockRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
 require_once __DIR__ . '/../util/Database.php';
 
@@ -15,6 +16,7 @@ class OrderService {
     private DeliveryRepository    $deliveryRepo;
     private RetailerRepository    $retailerRepo;
     private DistributorRepository $distributorRepo;
+    private StockRepository       $stockRepo;
     private NotificationService   $notifService;
 
     public function __construct() {
@@ -24,6 +26,7 @@ class OrderService {
         $this->deliveryRepo    = new DeliveryRepository();
         $this->retailerRepo    = new RetailerRepository();
         $this->distributorRepo = new DistributorRepository();
+        $this->stockRepo       = new StockRepository();
         $this->notifService    = new NotificationService();
     }
 
@@ -181,6 +184,17 @@ class OrderService {
         $this->applyLockIfExpired($order);
         $order = $this->orderRepo->findById($orderId);
         if ($order['status'] !== 'Processing') throw new Exception("Order must be in 'Processing' status. Current: {$order['status']}", 422);
+
+        // Deduct distributor batch stock via FEFO for each order item
+        $items = $this->orderRepo->getItemsByOrder($orderId);
+        foreach ($items as $item) {
+            $this->stockRepo->deductDistributorStock(
+                $distributorId,
+                (int)$item['product_id'],
+                (int)$item['quantity']
+            );
+        }
+
         $this->orderRepo->updateStatus($orderId, 'Approved');
         $this->deliveryRepo->create($orderId, (float)$order['total_amount']);
         $retailer = $this->retailerRepo->findById((int)$order['retailer_id']);

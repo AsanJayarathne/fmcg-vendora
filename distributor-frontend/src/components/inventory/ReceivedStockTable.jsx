@@ -7,6 +7,7 @@ export default function ReceivedStockTable({ receivedStocks = [], onViewRequest 
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Request ID</th>
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date Submitted</th>
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Total Items</th>
+            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Batch Numbers</th>
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Remarks / Notes</th>
             <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Action</th>
@@ -16,7 +17,7 @@ export default function ReceivedStockTable({ receivedStocks = [], onViewRequest 
         <tbody className="divide-y divide-gray-100 text-gray-700">
           {receivedStocks.length === 0 ? (
             <tr>
-              <td colSpan="6" className="px-6 py-8 text-center text-gray-400 text-sm">
+              <td colSpan="7" className="px-6 py-8 text-center text-gray-400 text-sm">
                 No received stock records found.
               </td>
             </tr>
@@ -36,6 +37,19 @@ export default function ReceivedStockTable({ receivedStocks = [], onViewRequest 
                   <td className="px-6 py-4 font-mono font-semibold text-gray-900">{code}</td>
                   <td className="px-6 py-4 text-gray-700">{formattedDate}</td>
                   <td className="px-6 py-4 text-center font-bold text-gray-800">{stock.item_count || 0}</td>
+                  <td className="px-6 py-4">
+                    {stock.batch_numbers && stock.batch_numbers.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {stock.batch_numbers.map((bn) => (
+                          <span key={bn} className="font-mono text-[11px] px-1.5 py-0.5 bg-sky-50 border border-sky-200 text-sky-700 rounded">
+                            {bn}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs italic">—</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4">
                     <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-emerald-100 text-emerald-800 border-emerald-200">
                       {stock.status}
