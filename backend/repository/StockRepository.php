@@ -63,6 +63,68 @@ class StockRepository {
         return $stmt->fetchAll();
     }
 
+    /** Get ALL batches for a product (Active + Exhausted + Expired) for drill-down. */
+    public function getWarehouseBatchesByProductAll(int $productId): array {
+        $stmt = $this->db->prepare(
+            "SELECT wb.*, p.product_name, p.unit FROM warehouse_batch wb
+             JOIN product p ON p.product_id = wb.product_id
+             WHERE wb.product_id = ?
+             ORDER BY wb.received_at DESC, wb.batch_id DESC"
+        );
+        $stmt->execute([$productId]);
+        return $stmt->fetchAll();
+    }
+
+    /** Get a single warehouse batch by batch_id. */
+    public function getWarehouseBatchById(int $batchId): ?array {
+        $stmt = $this->db->prepare(
+            "SELECT wb.*, p.product_name, p.unit FROM warehouse_batch wb
+             JOIN product p ON p.product_id = wb.product_id
+             WHERE wb.batch_id = ?"
+        );
+        $stmt->execute([$batchId]);
+        return $stmt->fetch() ?: null;
+    }
+
+    /** Update a warehouse batch — allows correcting quantity and/or expiry date. */
+    public function updateWarehouseBatch(int $batchId, ?int $qty, ?string $expiryDate): void {
+        $setParts = [];
+        $params   = [];
+
+        if ($qty !== null) {
+            $newStatus  = $qty <= 0 ? 'Exhausted' : 'Active';
+            $setParts[] = 'quantity = ?';
+            $params[]   = $qty;
+            $setParts[] = 'status = ?';
+            $params[]   = $newStatus;
+        }
+        if ($expiryDate !== 'SKIP') {
+            $setParts[] = 'expiry_date = ?';
+            $params[]   = $expiryDate;
+        }
+        if (empty($setParts)) return;
+        $params[] = $batchId;
+        $this->db->prepare('UPDATE warehouse_batch SET ' . implode(', ', $setParts) . ' WHERE batch_id = ?')
+                 ->execute($params);
+    }
+
+    /** Warehouse summary: total SKUs, units, low-stock products, expiring soon. */
+    public function getWarehouseSummary(): array {
+        $this->markExpiredBatches();
+        $row = $this->db->query(
+            "SELECT
+               COUNT(DISTINCT product_id)                                                  AS total_skus,
+               COALESCE(SUM(CASE WHEN status='Active' THEN quantity ELSE 0 END), 0)       AS total_units,
+               COUNT(DISTINCT CASE WHEN status='Active' AND quantity <= 50
+                                   THEN product_id END)                                   AS low_stock_count,
+               COUNT(DISTINCT CASE WHEN status='Active' AND expiry_date IS NOT NULL
+                                        AND expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+                                   THEN batch_id END)                                     AS expiring_soon_count
+             FROM warehouse_batch"
+        )->fetch(PDO::FETCH_ASSOC);
+        return $row ?: ['total_skus'=>0,'total_units'=>0,'low_stock_count'=>0,'expiring_soon_count'=>0];
+    }
+
     /** Total available quantity across all active warehouse batches for a product. */
     public function getWarehouseTotalQty(int $productId): int {
         $stmt = $this->db->prepare(
@@ -147,6 +209,24 @@ class StockRepository {
         return $stmt->fetchAll();
     }
 
+    /**
+     * Get individual distributor_batch rows for one product — for batch drill-down.
+     * Returns ALL statuses (Active/Exhausted/Expired) ordered newest-received first.
+     */
+    public function getDistributorBatchesFull(int $distributorId, int $productId): array {
+        $this->markExpiredDistributorBatches($distributorId);
+        $stmt = $this->db->prepare(
+            "SELECT db.*, p.product_name, p.unit, pc.category_name
+             FROM distributor_batch db
+             JOIN product p           ON p.product_id  = db.product_id
+             JOIN product_category pc ON pc.category_id = p.category_id
+             WHERE db.distributor_id = ? AND db.product_id = ?
+             ORDER BY db.received_at DESC, db.dist_batch_id DESC"
+        );
+        $stmt->execute([$distributorId, $productId]);
+        return $stmt->fetchAll();
+    }
+
     /** Get active batches for a product at a distributor (FEFO order). */
     public function getDistributorBatchesByProduct(int $distributorId, int $productId): array {
         $stmt = $this->db->prepare(
@@ -180,29 +260,41 @@ class StockRepository {
         return (float) ($stmt->fetchColumn() ?: 0.00);
     }
 
-    /** Create a new distributor batch (called when a transfer is received). */
+    /** Create a new distributor batch (called when a transfer is approved, initially inactive/exhausted). */
     public function addDistributorBatch(
         int $distributorId, int $productId, int $qty,
         float $costPrice, float $sellingPrice,
         ?string $mfgDate, ?string $expiryDate,
         ?int $sourceBatchId = null, ?int $transferId = null,
-        ?string $receivedAt = null
+        ?string $receivedAt = null,
+        int $initialQty = 0,
+        string $status = 'Exhausted'
     ): int {
         $batchNumber = $this->generateDistributorBatchNumber();
         $stmt = $this->db->prepare(
             "INSERT INTO distributor_batch
                (distributor_id, product_id, source_batch_id, transfer_id, batch_number,
                 received_qty, quantity, cost_price, selling_price,
-                mfg_date, expiry_date, received_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                mfg_date, expiry_date, status, received_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
         $stmt->execute([
             $distributorId, $productId, $sourceBatchId, $transferId, $batchNumber,
-            $qty, $qty, $costPrice, $sellingPrice,
-            $mfgDate, $expiryDate,
+            $qty, $initialQty, $costPrice, $sellingPrice,
+            $mfgDate, $expiryDate, $status,
             $receivedAt ?? date('Y-m-d')
         ]);
         return (int) $this->db->lastInsertId();
+    }
+
+    /** Activate distributor stock when request is received. */
+    public function activateDistributorStockForRequest(int $requestId): void {
+        $stmt = $this->db->prepare(
+            "UPDATE distributor_batch 
+             SET quantity = received_qty, status = 'Active'
+             WHERE transfer_id IN (SELECT transfer_id FROM stock_transfer WHERE request_id = ?)"
+        );
+        $stmt->execute([$requestId]);
     }
 
     /**

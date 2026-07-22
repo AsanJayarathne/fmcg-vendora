@@ -1,4 +1,10 @@
 export default function RequestedStockTable({ requests = [], onViewRequest }) {
+  const getStatusLabel = (status) => {
+    if (status === "Partially_Approved") return "Accepted";
+    if (status === "Received") return "Received";
+    return status.replace("_", " ");
+  };
+
   const getStatusStyle = (status) => {
     switch (status) {
       case "Pending":
@@ -54,7 +60,7 @@ export default function RequestedStockTable({ requests = [], onViewRequest }) {
                   <td className="px-6 py-4 text-center font-bold text-gray-800">{request.item_count || 0}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${getStatusStyle(request.status)}`}>
-                      {request.status.replace("_", " ")}
+                      {getStatusLabel(request.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-xs text-gray-500 italic max-w-xs truncate" title={request.remarks}>

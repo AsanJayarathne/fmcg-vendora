@@ -41,9 +41,8 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
 
                   <td className="px-6 py-4 font-mono">{code}</td>
 
-                  <td className="px-6 py-4 text-right">
-                    <span className="font-bold text-gray-800">{product.warehouse_stock}</span>{" "}
-                    <span className="text-xs text-gray-400">{product.unit || "units"}</span>
+                  <td className="px-6 py-4 text-right font-bold text-gray-800">
+                    {product.warehouse_stock}
                   </td>
 
                   <td className="px-6 py-4 text-right font-semibold text-gray-700">

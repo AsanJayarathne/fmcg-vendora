@@ -73,7 +73,7 @@ class SupplyService {
                         (float)$chunk['selling_price']
                     );
 
-                    // Create a corresponding distributor_batch for each warehouse batch chunk
+                    // Create a corresponding distributor_batch for each warehouse batch chunk (initially inactive with 0 qty)
                     $this->stockRepo->addDistributorBatch(
                         $distributorId,
                         $productId,
@@ -84,7 +84,9 @@ class SupplyService {
                         $chunk['expiry_date'] ?? null,
                         (int)$chunk['batch_id'],
                         $transferId,
-                        date('Y-m-d')
+                        date('Y-m-d'),
+                        0,
+                        'Exhausted'
                     );
                 }
 
@@ -120,6 +122,31 @@ class SupplyService {
                 "Your supply request #$requestId was rejected. Reason: $remarks"
             );
         }
+    }
+
+    /**
+     * Distributor marks a Partially_Approved request as Received.
+     * Updates supply_request status to 'Received' and notifies admin.
+     */
+    public function markReceived(int $requestId, int $distributorId): array {
+        $this->db->beginTransaction();
+        try {
+            $this->supplyRepo->updateStatus($requestId, 'Received');
+            // Activate the distributor stock batches
+            $this->stockRepo->activateDistributorStockForRequest($requestId);
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+
+        // Notify admin (user_id = 1 is the admin)
+        $this->notifService->send(
+            1,
+            "Stock Received Confirmation",
+            "Distributor ID $distributorId confirmed receipt of stock for request #$requestId."
+        );
+        return $this->getRequestWithItems($requestId);
     }
 
     public function getAll(string $status = ''): array          { return $this->supplyRepo->getAll($status); }

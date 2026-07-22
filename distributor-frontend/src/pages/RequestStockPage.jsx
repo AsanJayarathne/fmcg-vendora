@@ -9,6 +9,7 @@ import Pagination from "../components/Pagination";
 import CurrentRequestCard from "../components/inventory/CurrentRequestCard";
 import PageHeader from "../components/PageHeader";
 import RequestDetailsModal from "../components/inventory/RequestDetailsModal";
+import ReceiveStockModal from "../components/inventory/ReceiveStockModal";
 import { useAuth } from "../auth/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -33,6 +34,7 @@ export default function RequestStockPage() {
   // Detailed view request state
   const [viewRequest, setViewRequest] = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [receiveTarget, setReceiveTarget] = useState(null);  // request to mark as Received
 
   // Filters State
   const [search, setSearch] = useState("");
@@ -139,6 +141,14 @@ export default function RequestStockPage() {
 
     setSuccessMsg(`Added ${quantity} units of ${product.product_name} to your request draft.`);
     setTimeout(() => setSuccessMsg(""), 4000);
+  };
+
+  // Handle receiving confirmed
+  const handleReceiveConfirmed = (updatedRequest) => {
+    setRequests(prev => prev.map(r =>
+      r.request_id === updatedRequest.request_id ? { ...r, status: 'Received' } : r
+    ));
+    setReceiveTarget(null);
   };
 
   // Remove item from draft request
@@ -257,10 +267,11 @@ export default function RequestStockPage() {
     return filteredRequests.slice(start, start + itemsPerPage);
   }, [filteredRequests, requestedPage]);
 
-  // Received History (Tab 3) Filtering (only Delivered/Received)
+  // Received History (Tab 3): requests with Partially_Approved status (stock transferred by admin)
+  // Distributor can mark these as "Received" to acknowledge physical receipt.
   const filteredReceived = useMemo(() => {
     const historyReqs = requests.filter(
-      (r) => r.status === "Delivered" || r.status === "Received"
+      (r) => r.status === "Partially_Approved" || r.status === "Received"
     );
     return historyReqs.filter((item) => {
       const code = `REQ-${String(item.request_id).padStart(3, "0")}`;
@@ -410,6 +421,17 @@ export default function RequestStockPage() {
               <ReceivedStockTable
                 receivedStocks={paginatedReceived}
                 onViewRequest={handleViewRequestDetails}
+                onReceiveRequest={async (req) => {
+                  setLoadingDetails(true);
+                  try {
+                    const res  = await fetch(`${API_BASE}/distributor/supply-requests.php?id=${req.request_id}`, {
+                      headers: { Authorization: `Bearer ${auth?.token}` },
+                    });
+                    const json = await res.json();
+                    if (json.success) setReceiveTarget(json.data);
+                  } catch { /* silent */ }
+                  finally { setLoadingDetails(false); }
+                }}
               />
               
               <Pagination
@@ -429,6 +451,15 @@ export default function RequestStockPage() {
         <RequestDetailsModal
           request={viewRequest}
           onClose={() => setViewRequest(null)}
+        />
+      )}
+
+      {/* Receive Stock Confirmation Modal */}
+      {receiveTarget && (
+        <ReceiveStockModal
+          request={receiveTarget}
+          onClose={() => setReceiveTarget(null)}
+          onReceived={handleReceiveConfirmed}
         />
       )}
 

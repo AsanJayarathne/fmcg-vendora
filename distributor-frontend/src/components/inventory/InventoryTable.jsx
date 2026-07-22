@@ -91,9 +91,8 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
                     <span className="ml-1 text-xs font-normal text-gray-400">batches</span>
                   </td>
 
-                  <td className="px-6 py-4 text-sm">
-                    <span className="font-bold text-gray-800">{totalQty}</span>{" "}
-                    <span className="text-xs text-gray-400">{item.unit || "units"}</span>
+                  <td className="px-6 py-4 text-sm font-bold text-gray-800">
+                    {totalQty}
                   </td>
 
                   <td className="px-6 py-4 text-sm">

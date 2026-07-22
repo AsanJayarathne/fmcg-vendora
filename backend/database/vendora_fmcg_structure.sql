@@ -448,7 +448,7 @@ CREATE TABLE `supply_request` (
   `request_id`     int(11)                                    NOT NULL AUTO_INCREMENT,
   `distributor_id` int(11)                                    NOT NULL,
   `request_date`   date                                       NOT NULL,
-  `status`         enum('Pending','Partially_Approved','Rejected') DEFAULT 'Pending',
+  `status`         enum('Pending','Partially_Approved','Rejected','Received') DEFAULT 'Pending',
   `remarks`        varchar(500)                               DEFAULT NULL,
   `created_at`     timestamp                                  NOT NULL DEFAULT current_timestamp(),
   `updated_at`     timestamp                                  NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
