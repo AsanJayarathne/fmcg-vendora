@@ -16,9 +16,16 @@ export default function OutstandingTable({
         </thead>
 
         <tbody className="divide-y divide-gray-100">
-          {outstandings.map((item, index) => (
-            <tr
-              key={index}
+          {outstandings.length === 0 ? (
+            <tr>
+              <td colSpan="6" className="px-6 py-10 text-center text-gray-400 text-sm">
+                No outstanding credit accounts found.
+              </td>
+            </tr>
+          ) : (
+            outstandings.map((item, index) => (
+              <tr
+                key={index}
               className="hover:bg-gray-50/50 transition-colors"
             >
               <td className="px-6 py-4 font-mono font-semibold text-gray-900">
@@ -47,7 +54,8 @@ export default function OutstandingTable({
                 </button>
               </td>
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
     </div>

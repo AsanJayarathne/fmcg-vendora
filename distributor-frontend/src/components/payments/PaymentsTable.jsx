@@ -16,9 +16,16 @@ export default function PaymentsTable({ payments }) {
         </thead>
 
         <tbody className="divide-y divide-gray-100">
-          {payments.map((payment, index) => (
-            <tr
-              key={index}
+          {payments.length === 0 ? (
+            <tr>
+              <td colSpan="8" className="px-6 py-10 text-center text-gray-400 text-sm">
+                No payment history records found.
+              </td>
+            </tr>
+          ) : (
+            payments.map((payment, index) => (
+              <tr
+                key={index}
               className="hover:bg-gray-50/50 transition-colors"
             >
               <td className="px-6 py-4 font-mono font-semibold text-gray-900">
@@ -33,7 +40,7 @@ export default function PaymentsTable({ payments }) {
                 <div>
                   <p className="font-medium text-gray-800">{payment.orderDate}</p>
                   <p className="text-[10px] text-gray-400">
-                    10:45 AM
+                    {payment.orderTime || "—"}
                   </p>
                 </div>
               </td>
@@ -66,7 +73,8 @@ export default function PaymentsTable({ payments }) {
                 </button>
               </td>
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
     </div>
