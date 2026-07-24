@@ -173,7 +173,7 @@ function AddToCartModal({
                     <button
                       onClick={handleIncrement}
                       disabled={hasInsufficientStock}
-                      className="w-7 h-7 rounded-lg bg-slate-900 text-white hover:bg-slate-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold cursor-pointer transition text-sm"
+                      className="w-7 h-7 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold cursor-pointer transition text-sm"
                     >
                       +
                     </button>
@@ -183,7 +183,7 @@ function AddToCartModal({
                     <button
                       onClick={handleDecrement}
                       disabled={hasInsufficientStock}
-                      className="w-7 h-7 rounded-lg bg-slate-900 text-white hover:bg-slate-800 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold cursor-pointer transition text-sm"
+                      className="w-7 h-7 rounded-lg bg-blue-600 text-white hover:bg-blue-700 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center font-bold cursor-pointer transition text-sm"
                     >
                       -
                     </button>
@@ -200,7 +200,7 @@ function AddToCartModal({
                       Rs. {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   )}
-                  <span className="text-2xl font-black text-slate-800">
+                  <span className="text-2xl font-black text-blue-650">
                     Rs. {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -210,7 +210,7 @@ function AddToCartModal({
               <div className="flex gap-3 justify-end pt-2">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2.5 rounded-full border-2 border-slate-900 text-slate-900 hover:bg-slate-50 active:scale-98 font-extrabold text-sm transition cursor-pointer"
+                  className="px-6 py-2.5 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50/40 active:scale-98 font-extrabold text-sm transition cursor-pointer"
                 >
                   Close
                 </button>
@@ -222,7 +222,7 @@ function AddToCartModal({
                     }
                   }}
                   disabled={hasInsufficientStock}
-                  className="px-6 py-2.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed font-extrabold text-sm transition cursor-pointer"
+                  className="px-6 py-2.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed font-extrabold text-sm transition cursor-pointer"
                 >
                   Add to Cart
                 </button>

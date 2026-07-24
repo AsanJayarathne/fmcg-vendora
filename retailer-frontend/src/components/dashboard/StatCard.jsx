@@ -9,12 +9,12 @@ export default function StatCard({ title, value, color = "blue", subtitle, icon 
   }, []);
 
   const colorIconBg = {
-    blue:   "bg-slate-50 border border-slate-100 text-slate-800",
-    green:  "bg-green-50 border border-green-200/40 text-green-600",
-    orange: "bg-amber-50 border border-amber-200/40 text-amber-600",
-    purple: "bg-purple-50 border border-purple-200/40 text-purple-600",
-    red:    "bg-red-50 border border-red-200/40 text-red-600",
-    gray:   "bg-slate-150/50 border border-slate-200/50 text-slate-600",
+    blue:   "bg-blue-50 border border-blue-100 text-blue-600",
+    green:  "bg-green-50 border border-green-150/40 text-green-600",
+    orange: "bg-amber-50 border border-amber-150/40 text-amber-600",
+    purple: "bg-purple-50 border border-purple-150/40 text-purple-600",
+    red:    "bg-red-50 border border-red-150/40 text-red-650",
+    gray:   "bg-slate-50 border border-slate-150/50 text-slate-600",
   };
 
   return (

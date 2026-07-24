@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { FiTag, FiShoppingBag, FiTruck, FiBox, FiX } from "react-icons/fi";
+import { FiTag, FiTruck, FiBox, FiX } from "react-icons/fi";
 
 const CATEGORY_GRADIENTS = {
   Dairy:      { from: "#fef3c7", to: "#fcd34d", icon: "🥛" },
@@ -104,7 +104,7 @@ function ProductDetailsModal({ product, onClose }) {
             </h2>
             
             {unit && (
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">
+              <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider mt-1">
                 {unit}
               </p>
             )}
@@ -112,17 +112,17 @@ function ProductDetailsModal({ product, onClose }) {
 
           <div className="text-base font-black text-slate-900 border-y border-slate-100 py-3 flex justify-between items-center">
             <span className="text-xs font-bold text-slate-400">Unit Price</span>
-            <span>Rs. {fmt(price)}</span>
+            <span className="text-blue-650">Rs. {fmt(price)}</span>
           </div>
 
           {/* Detailed Info Grid */}
           <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-3.5">
-              <div className="flex items-center gap-1.5 text-slate-400 font-bold mb-1">
+            <div className="bg-blue-50/20 border border-blue-100/30 rounded-2xl p-3.5">
+              <div className="flex items-center gap-1.5 text-blue-405 font-bold mb-1">
                 <FiTag size={12} />
                 <span className="text-[10px] font-black uppercase tracking-wider">Category</span>
               </div>
-              <p className="font-extrabold text-slate-700">{category}</p>
+              <p className="font-extrabold text-blue-700">{category}</p>
             </div>
 
             <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-3.5">
@@ -169,7 +169,7 @@ function ProductDetailsModal({ product, onClose }) {
         {/* Modal Close CTA */}
         <button
           onClick={onClose}
-          className="mt-6 w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-full cursor-pointer transition shadow-xs"
+          className="mt-6 w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-full cursor-pointer transition shadow-xs"
         >
           Return to Catalog
         </button>

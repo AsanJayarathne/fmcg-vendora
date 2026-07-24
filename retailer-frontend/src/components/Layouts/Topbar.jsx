@@ -39,7 +39,7 @@ function Topbar() {
     <div className="h-16 w-full bg-white flex items-center justify-end px-6 gap-3.5 border-b border-slate-100 relative">
       
       {/* Language Selector */}
-      <button className="flex items-center gap-1.5 border border-slate-200 hover:border-slate-800 rounded-full px-3.5 py-1.5 text-[10px] font-black text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+      <button className="flex items-center gap-1.5 border border-blue-100 hover:border-blue-500 rounded-full px-3.5 py-1.5 text-[10px] font-black text-blue-600 hover:bg-blue-50/50 transition cursor-pointer">
         <FiGlobe size={13} />
         ENG
       </button>
@@ -48,7 +48,7 @@ function Topbar() {
       <div className="relative" ref={buttonRef}>
         <button
           type="button"
-          className="bg-slate-50 border border-slate-100 hover:bg-slate-100/70 text-slate-800 px-4 py-2.5 rounded-full flex items-center gap-2 text-xs font-bold transition cursor-pointer"
+          className="bg-blue-50/40 border border-blue-100/50 hover:bg-blue-50 text-blue-650 px-4 py-2.5 rounded-full flex items-center gap-2 text-xs font-bold transition cursor-pointer"
           onClick={() => setShowMessages((prev) => !prev)}
         >
           <FiMessageSquare size={13} />
@@ -61,12 +61,12 @@ function Topbar() {
             className="absolute right-0 top-full mt-2 w-[340px] bg-white border border-slate-100 rounded-[28px] shadow-lg z-50 overflow-hidden animate-fadeInUp"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-blue-50/20">
               <div>
-                <p className="text-[9px] text-slate-400 uppercase tracking-wider font-black">
+                <p className="text-[9px] text-blue-500 uppercase tracking-wider font-black">
                   Latest Messages
                 </p>
-                <p className="text-xs font-black text-slate-805 mt-0.5">
+                <p className="text-xs font-black text-slate-800 mt-0.5">
                   Recent Updates
                 </p>
               </div>
@@ -111,7 +111,7 @@ function Topbar() {
               >
                 <button
                   type="button"
-                  className="w-full rounded-full bg-slate-900 py-2.5 text-xs font-bold text-white hover:bg-slate-800 transition cursor-pointer shadow-xs"
+                  className="w-full rounded-full bg-blue-600 py-2.5 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer shadow-xs"
                 >
                   See All
                 </button>
@@ -123,7 +123,7 @@ function Topbar() {
 
       {/* Cart Icon */}
       <Link to="/cart" className="relative">
-        <button className="bg-slate-900 text-white p-2.5 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer shadow-xs">
+        <button className="bg-blue-600 text-white p-2.5 rounded-full hover:bg-blue-700 transition flex items-center justify-center cursor-pointer shadow-xs">
           <FiShoppingCart size={15} />
         </button>
 

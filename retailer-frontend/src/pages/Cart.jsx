@@ -66,7 +66,7 @@ function Cart() {
         {cartItems.length > 0 && (
           <button
             onClick={clearCart}
-            className="px-4.5 py-2 border border-red-100 text-red-600 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition"
+            className="px-4.5 py-2 border border-red-100 text-red-655 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition"
           >
             Clear Cart
           </button>
@@ -86,7 +86,7 @@ function Cart() {
                 className="bg-white border border-slate-100 rounded-[32px] overflow-hidden shadow-xs"
               >
                 {/* Header */}
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-slate-50/50 px-6 py-5 border-b border-slate-100">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-blue-50/30 px-6 py-5 border-b border-slate-100">
                   <div>
                     <h2 className="text-base font-black text-slate-800">
                       {order.distributor}
@@ -97,8 +97,8 @@ function Cart() {
                   </div>
 
                   <div className="text-left md:text-right">
-                    <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider">Order total</p>
-                    <p className="text-xl font-black text-slate-900">
+                    <p className="text-[10px] font-black text-slate-455 uppercase tracking-wider">Order total</p>
+                    <p className="text-xl font-black text-blue-600">
                       Rs. {fmt(order.total)}
                     </p>
                   </div>
@@ -136,7 +136,7 @@ function Cart() {
                                 updateQuantity(item.id, item.quantity - 8);
                               }
                             }}
-                            className="w-7 h-7 rounded-full bg-white hover:bg-slate-100 text-slate-800 text-sm font-black border border-slate-100 flex items-center justify-center cursor-pointer transition shadow-xs"
+                            className="w-7 h-7 rounded-full bg-white hover:bg-slate-100 text-slate-805 text-sm font-black border border-slate-100 flex items-center justify-center cursor-pointer transition shadow-xs"
                           >
                             -
                           </button>
@@ -147,7 +147,7 @@ function Cart() {
 
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 8)}
-                            className="w-7 h-7 rounded-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-black flex items-center justify-center cursor-pointer transition shadow-xs"
+                            className="w-7 h-7 rounded-full bg-blue-650 hover:bg-blue-700 text-white text-sm font-black flex items-center justify-center cursor-pointer transition shadow-xs"
                           >
                             +
                           </button>
@@ -160,7 +160,7 @@ function Cart() {
                               Rs. {fmt(item.subtotal)}
                             </p>
                           )}
-                          <p className="font-black text-sm text-slate-850">Rs. {fmt(item.total)}</p>
+                          <p className="font-black text-sm text-blue-600">Rs. {fmt(item.total)}</p>
                         </div>
 
                         {/* Remove */}
@@ -177,7 +177,7 @@ function Cart() {
 
                 {/* Footer section */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-5 bg-slate-50/30 border-t border-slate-100">
-                  <div className="text-xs font-bold text-slate-450">
+                  <div className="text-xs font-bold text-slate-455">
                     <span>Subtotal: Rs. {fmt(order.subtotal)}</span>
                     <span className="mx-2 text-slate-200">|</span>
                     <span className="text-green-600">Discount: Rs. {fmt(order.discount)}</span>
@@ -192,7 +192,7 @@ function Cart() {
                         }
                       )
                     }
-                    className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs"
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-755 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs"
                   >
                     Place Order With {order.distributor}
                   </button>
@@ -205,12 +205,12 @@ function Cart() {
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-5">Cart Summary</h2>
 
             <div className="space-y-3.5">
-              <div className="flex justify-between text-xs font-bold text-slate-450">
+              <div className="flex justify-between text-xs font-bold text-slate-455">
                 <span>Distributor orders</span>
                 <span className="text-slate-800 font-extrabold">{distributorOrders.length}</span>
               </div>
 
-              <div className="flex justify-between text-xs font-bold text-slate-450">
+              <div className="flex justify-between text-xs font-bold text-slate-455">
                 <span>Product lines</span>
                 <span className="text-slate-800 font-extrabold">{cartItems.length}</span>
               </div>
@@ -222,13 +222,13 @@ function Cart() {
                     className="flex justify-between text-[11px] font-semibold text-slate-500"
                   >
                     <span className="truncate pr-2">{order.distributor}</span>
-                    <span className="shrink-0 font-bold">Rs. {fmt(order.total)}</span>
+                    <span className="shrink-0 font-bold text-blue-600">Rs. {fmt(order.total)}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-2.5 pt-4 mt-4 border-t border-slate-100 text-xs font-bold text-slate-450">
+            <div className="space-y-2.5 pt-4 mt-4 border-t border-slate-100 text-xs font-bold text-slate-455">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="text-slate-800 font-extrabold">Rs. {fmt(cartSubtotal)}</span>
@@ -240,7 +240,7 @@ function Cart() {
               </div>
             </div>
 
-            <div className="flex justify-between text-lg font-black pt-4 mt-4 border-t border-slate-100 text-slate-900">
+            <div className="flex justify-between text-lg font-black pt-4 mt-4 border-t border-slate-100 text-blue-650">
               <span>Total</span>
               <span>Rs. {fmt(cartTotal)}</span>
             </div>

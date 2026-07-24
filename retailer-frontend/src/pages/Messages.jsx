@@ -35,10 +35,10 @@ function Messages() {
             <button
               key={message.id}
               type="button"
-              className="w-full text-left bg-white border border-slate-100 rounded-[28px] p-5 flex gap-4 cursor-pointer hover:shadow-xs transition duration-300 hover:border-slate-350"
+              className="w-full text-left bg-white border border-slate-100 rounded-[28px] p-5 flex gap-4 cursor-pointer hover:shadow-xs transition duration-300 hover:border-blue-300"
               onClick={() => setSelectedMessage(message)}
             >
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/50 text-blue-600 flex items-center justify-center shrink-0">
                 <FiMessageSquare size={20} />
               </div>
 
@@ -48,7 +48,7 @@ function Messages() {
                     {message.title}
                   </h2>
 
-                  <span className="text-[10px] font-black text-slate-400 flex items-center gap-1 shrink-0">
+                  <span className="text-[10px] font-black text-blue-500/80 flex items-center gap-1 shrink-0">
                     <FiClock size={11} /> {formatDate(message.createdAt)}
                   </span>
                 </div>
@@ -76,7 +76,7 @@ function Messages() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <div>
-                <p className="text-[9px] font-black text-slate-405 uppercase tracking-wider">
+                <p className="text-[9px] font-black text-blue-500 uppercase tracking-wider">
                   Message Details
                 </p>
                 <h2 className="text-lg font-black text-slate-800 leading-tight mt-1">
@@ -93,22 +93,22 @@ function Messages() {
 
             {/* Content Body */}
             <div className="p-6 space-y-6 flex-1 flex flex-col justify-between">
-              <div className="rounded-[28px] bg-slate-50/50 border border-slate-100 p-5 space-y-4">
-                <div className="flex items-center justify-between gap-4 text-[10px] font-black text-slate-400 uppercase tracking-wider pb-3 border-b border-slate-100">
+              <div className="rounded-[28px] bg-blue-50/20 border border-blue-100/30 p-5 space-y-4">
+                <div className="flex items-center justify-between gap-4 text-[10px] font-black text-blue-550 uppercase tracking-wider pb-3 border-b border-blue-100/30">
                   <span>Sent date</span>
                   <span className="flex items-center gap-1 font-bold lowercase normal-case">
                     <FiClock size={11} /> {formatDate(selectedMessage.createdAt)}
                   </span>
                 </div>
 
-                <p className="text-xs font-bold text-slate-500 leading-relaxed whitespace-pre-line">
+                <p className="text-xs font-bold text-slate-650 leading-relaxed whitespace-pre-line">
                   {selectedMessage.body}
                 </p>
               </div>
 
               <button
                 type="button"
-                className="w-full rounded-full bg-slate-900 py-3.5 text-xs font-black text-white hover:bg-slate-800 transition cursor-pointer shadow-xs"
+                className="w-full rounded-full bg-blue-600 hover:bg-blue-700 py-3.5 text-xs font-black text-white transition cursor-pointer shadow-xs"
                 onClick={() => setSelectedMessage(null)}
               >
                 Return to Inbox
