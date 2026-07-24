@@ -58,11 +58,11 @@ class OrderService {
             
             $qty = (int)$item['quantity'];
             $discountRate = 0;
-            if ($qty >= 50) {
+            if ($qty >= 56) {
                 $discountRate = 15;
-            } elseif ($qty >= 25) {
+            } elseif ($qty >= 32) {
                 $discountRate = 10;
-            } elseif ($qty >= 10) {
+            } elseif ($qty >= 8) {
                 $discountRate = 5;
             }
             
@@ -145,11 +145,11 @@ class OrderService {
             
             $qty = (int)$item['quantity'];
             $discountRate = 0;
-            if ($qty >= 50) {
+            if ($qty >= 56) {
                 $discountRate = 15;
-            } elseif ($qty >= 25) {
+            } elseif ($qty >= 32) {
                 $discountRate = 10;
-            } elseif ($qty >= 10) {
+            } elseif ($qty >= 8) {
                 $discountRate = 5;
             }
             

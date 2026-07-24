@@ -2,15 +2,15 @@ import { useMemo, useState } from "react";
 import { CartContext } from "./CartContextObject";
 
 function getDiscountRate(quantity) {
-  if (quantity >= 50) {
+  if (quantity >= 56) {
     return 15;
   }
 
-  if (quantity >= 25) {
+  if (quantity >= 32) {
     return 10;
   }
 
-  if (quantity >= 10) {
+  if (quantity >= 8) {
     return 5;
   }
 

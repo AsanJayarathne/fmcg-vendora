@@ -51,9 +51,9 @@ function normaliseOrder(raw) {
     const discount = Math.max(0, subtotal - total);
     
     let discountRate = 0;
-    if (qty >= 50) discountRate = 15;
-    else if (qty >= 25) discountRate = 10;
-    else if (qty >= 10) discountRate = 5;
+    if (qty >= 56) discountRate = 15;
+    else if (qty >= 32) discountRate = 10;
+    else if (qty >= 8) discountRate = 5;
 
     return {
       id:        item.order_item_id ?? item.product_id,

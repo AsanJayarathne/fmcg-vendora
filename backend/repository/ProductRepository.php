@@ -149,4 +149,14 @@ class ProductRepository {
             throw $e;
         }
     }
+
+    public function setDistributorPrice(int $distributorId, int $productId, float $price): void {
+        $stmt = $this->db->prepare(
+            "UPDATE distributor_batch 
+             SET selling_price = ? 
+             WHERE distributor_id = ? AND product_id = ? AND status IN ('Active', 'Exhausted')"
+        );
+        $stmt->execute([$price, $distributorId, $productId]);
+    }
 }
+

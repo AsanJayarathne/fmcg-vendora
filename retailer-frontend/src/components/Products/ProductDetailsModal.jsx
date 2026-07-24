@@ -36,9 +36,9 @@ function ProductDetailsModal({ product, onClose }) {
 
   // Bulk discount tiers (matches CartContext logic)
   function getDiscountRate(qty) {
-    if (qty >= 50) return 15;
-    if (qty >= 25) return 10;
-    if (qty >= 10) return 5;
+    if (qty >= 56) return 15;
+    if (qty >= 32) return 10;
+    if (qty >= 8) return 5;
     return 0;
   }
 
