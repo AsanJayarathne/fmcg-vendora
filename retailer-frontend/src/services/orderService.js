@@ -206,3 +206,33 @@ export async function confirmOrderNow(token, orderId) {
   });
   return normaliseOrder(result.data);
 }
+
+/**
+ * Fetch profile information for the retailer.
+ */
+export async function fetchProfile(token) {
+  const result = await apiFetch("/retailer/profile.php", token);
+  return result.data;
+}
+
+/**
+ * Update profile information for the retailer.
+ */
+export async function updateProfileData(token, data) {
+  const result = await apiFetch("/retailer/profile.php", token, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return result.data;
+}
+
+/**
+ * Update password for the retailer account.
+ */
+export async function updatePassword(token, data) {
+  const result = await apiFetch("/retailer/change-password.php", token, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return result.data;
+}
