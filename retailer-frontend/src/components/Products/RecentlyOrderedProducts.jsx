@@ -1,29 +1,30 @@
 export default function RecentlyOrderedProducts({ products = [] }) {
   return (
-    <div className="bg-white p-5 rounded-3xl shadow-sm ring-1 ring-slate-200">
+    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs h-full flex flex-col justify-between">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-bold text-lg">Recent Ordered Items</h2>
-          <p className="text-sm text-slate-500">Quick reorder options for top products</p>
+          <h2 className="font-black text-slate-800 text-base leading-tight">Recent Ordered Items</h2>
+          <p className="text-xs text-slate-400 font-bold mt-0.5">Quick lookup of recently purchased items</p>
         </div>
-        <button className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">
+        <button className="rounded-full bg-slate-50 border border-slate-100 px-4.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer transition">
           View all
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
         {products.map((product) => (
           <div
             key={product.id}
-            className="flex min-w-[140px] flex-1 items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+            className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-3"
           >
-            <div>
-              <p className="font-semibold text-slate-900">{product.name}</p>
-              <p className="text-sm text-slate-500">Qty {product.quantity}</p>
+            <div className="min-w-0 pr-2">
+              <p className="font-extrabold text-sm text-slate-800 truncate">{product.name}</p>
+              <p className="text-[11px] text-slate-450 font-semibold">{product.distributor}</p>
             </div>
-            <button className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700">
-              Reorder
-            </button>
+            <div className="text-right shrink-0">
+              <p className="font-black text-xs text-slate-900">{product.price}</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-0.5">Qty {product.quantity}</p>
+            </div>
           </div>
         ))}
       </div>

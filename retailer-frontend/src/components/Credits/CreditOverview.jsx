@@ -4,44 +4,50 @@ export default function CreditOverview({ data = {} }) {
   const available = Number(data.available ?? 0);
   const usedPercent = Number(data.usedPercent ?? (limit ? (used / limit) * 100 : 0));
 
+  const fmt = (val) => 
+    Number(val).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   return (
-    <div className="h-full w-full rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+    <div className="h-full w-full rounded-3xl bg-white p-6 border border-slate-100 shadow-xs flex flex-col justify-between">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Credit Overview</h2>
-          <p className="text-sm text-slate-500">Current balance and usage</p>
+          <h2 className="font-black text-slate-800 text-base leading-tight">Credit Overview</h2>
+          <p className="text-xs text-slate-400 font-bold mt-0.5">Current balance and usage</p>
         </div>
-        <div className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
+        <div className="rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-slate-800 text-xs font-black">
           {usedPercent.toFixed(0)}% used
         </div>
       </div>
 
-      <div className="mt-5 space-y-3">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm text-slate-500">Credit Limit</p>
-          <p className="mt-1 text-xl font-semibold text-slate-900">Rs. {limit.toLocaleString()}</p>
+      <div className="mt-5 space-y-3 flex-1 flex flex-col justify-center">
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Credit Limit</p>
+          <p className="text-xl font-black text-slate-800">Rs. {fmt(limit)}</p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-amber-50 p-4">
-            <p className="text-sm text-slate-500">Used</p>
-            <p className="mt-1 text-xl font-semibold text-amber-700">Rs. {used.toLocaleString()}</p>
+          <div className="rounded-2xl border border-slate-100 bg-amber-50/40 p-4">
+            <p className="text-[10px] font-black text-amber-600/70 uppercase tracking-wider mb-1">Used</p>
+            <p className="text-lg font-black text-amber-700">Rs. {fmt(used)}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-emerald-50 p-4">
-            <p className="text-sm text-slate-500">Available</p>
-            <p className="mt-1 text-xl font-semibold text-emerald-700">Rs. {available.toLocaleString()}</p>
+          <div className="rounded-2xl border border-slate-100 bg-green-50/40 p-4">
+            <p className="text-[10px] font-black text-green-600/70 uppercase tracking-wider mb-1">Available</p>
+            <p className="text-lg font-black text-green-700">Rs. {fmt(available)}</p>
           </div>
         </div>
       </div>
 
       <div className="mt-5">
-        <div className="mb-2 flex items-center justify-between text-sm text-slate-500">
+        <div className="mb-2 flex items-center justify-between text-xs text-slate-500 font-bold">
           <span>Usage progress</span>
           <span>{usedPercent.toFixed(0)}%</span>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+        <div className="h-3 overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-blue-600"
+            className="h-full rounded-full bg-slate-900"
             style={{ width: `${Math.min(100, Math.max(0, usedPercent))}%` }}
           />
         </div>

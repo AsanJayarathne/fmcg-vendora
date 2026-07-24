@@ -3,49 +3,25 @@ export default function MetricCard({
   value,
   subtitle,
   icon,
-  bgColor = "bg-slate-200",
-  iconBg = "bg-white",
+  bgColor = "bg-white",
+  iconBg = "bg-slate-50",
 }) {
   return (
-    <div
-      className={`
-        ${bgColor}
-        rounded-2xl
-        px-4
-        py-4
-        flex
-        items-center
-        gap-4
-        shadow-sm
-      `}
-    >
-      {/* Icon */}
-      <div
-        className={`
-          w-12
-          h-12
-          rounded-full
-          flex
-          items-center
-          justify-center
-          ${iconBg}
-          flex-shrink-0
-        `}
-      >
+    <div className="bg-white border border-slate-100 shadow-xs p-5 rounded-3xl flex items-center gap-4 transition-all duration-300 hover:shadow-md">
+      {/* Icon container */}
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`}>
         {icon}
       </div>
 
-      {/* Content */}
+      {/* Content details */}
       <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-semibold text-gray-700">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
           {title}
-        </h4>
-
-        <h2 className="text-2xl font-bold leading-tight text-gray-900">
+        </p>
+        <h2 className="text-2xl font-black text-slate-800 leading-tight">
           {value}
         </h2>
-
-        <p className="text-xs text-gray-500">
+        <p className="text-xs font-bold text-slate-500 mt-0.5 leading-none">
           {subtitle}
         </p>
       </div>

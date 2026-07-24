@@ -26,7 +26,7 @@ export default function Navbar() {
           />
         </button>
 
-        <button className="flex items-center justify-center w-10 h-10 text-lg font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700">
+        <button className="flex items-center justify-center w-10 h-10 text-sm font-bold text-white bg-slate-900 rounded-full hover:bg-slate-800 cursor-pointer transition">
           A
         </button>
 

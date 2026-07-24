@@ -6,30 +6,36 @@ export default function TodayStorefrontPayments({
 }) {
   const computedTotal = typeof total === "number" ? total : cashAmount + creditAmount;
 
+  const fmt = (val) => 
+    Number(val).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   return (
-    <div className="h-full bg-white p-5 rounded-xl shadow-sm">
+    <div className="h-full bg-white p-6 rounded-3xl border border-slate-100 shadow-xs flex flex-col justify-between">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="font-bold mb-2">Today Storefront Payments</h2>
-          <p className="text-sm text-gray-500">Payment breakdown collected today</p>
+          <h2 className="font-black text-slate-800 text-base leading-tight">Today Storefront Payments</h2>
+          <p className="text-xs text-slate-400 font-bold mt-0.5">Payment breakdown collected today</p>
         </div>
-        <div className="rounded-full bg-blue-50 px-4 py-2 text-blue-700 font-semibold">
+        <div className="rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-slate-800 text-xs font-black">
           {transactionCount} txns
         </div>
       </div>
 
-      <div className="mt-6 space-y-3">
-        <div className="rounded-lg bg-slate-50 p-3">
-          <p className="text-sm text-slate-500">Total</p>
-          <p className="text-xl font-bold text-green-600">Rs. {computedTotal.toLocaleString()}</p>
+      <div className="mt-6 space-y-3 flex-1 flex flex-col justify-center">
+        <div className="rounded-2xl bg-slate-50/50 border border-slate-100 p-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Total</p>
+          <p className="text-xl font-black text-slate-800">Rs. {fmt(computedTotal)}</p>
         </div>
-        <div className="rounded-lg bg-emerald-50 p-3">
-          <p className="text-sm text-slate-500">Cash</p>
-          <p className="text-lg font-semibold text-emerald-700">Rs. {cashAmount.toLocaleString()}</p>
+        <div className="rounded-2xl bg-green-50/40 border border-green-100/50 p-4">
+          <p className="text-[10px] font-black text-green-600/70 uppercase tracking-wider mb-1">Cash</p>
+          <p className="text-lg font-black text-green-700">Rs. {fmt(cashAmount)}</p>
         </div>
-        <div className="rounded-lg bg-amber-50 p-3">
-          <p className="text-sm text-slate-500">Credit</p>
-          <p className="text-lg font-semibold text-amber-700">Rs. {creditAmount.toLocaleString()}</p>
+        <div className="rounded-2xl bg-amber-50/40 border border-amber-100/50 p-4">
+          <p className="text-[10px] font-black text-amber-600/70 uppercase tracking-wider mb-1">Credit</p>
+          <p className="text-lg font-black text-amber-700">Rs. {fmt(creditAmount)}</p>
         </div>
       </div>
     </div>

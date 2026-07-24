@@ -4,6 +4,7 @@ import { CartContext } from "../context/CartContextObject";
 import { OrderContext } from "../context/OrderContextObject";
 import { useAuth } from "../context/AuthContext";
 import { placeOrder, fetchCreditInfo } from "../services/orderService";
+import { FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiLoader } from "react-icons/fi";
 
 function Payment() {
   const { state: order } = useLocation();
@@ -30,6 +31,12 @@ function Payment() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
+  const fmt = (val) => 
+    Number(val).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   // ── Fetch real credit info on mount ───────────────────────────
   useEffect(() => {
     if (!token) { setCreditLoading(false); return; }
@@ -49,17 +56,17 @@ function Payment() {
   // ── Guard: no order passed ─────────────────────────────────────
   if (!order) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white rounded-xl shadow p-6 text-center">
-          <h1 className="text-2xl font-bold">Payment details unavailable</h1>
-          <p className="mt-2 text-gray-500">
+      <div className="max-w-xl mx-auto p-6 mt-12">
+        <div className="bg-white border border-slate-100 rounded-[32px] p-8 text-center shadow-xs">
+          <h1 className="text-xl font-black text-slate-800">Payment details unavailable</h1>
+          <p className="mt-2 text-xs font-bold text-slate-400">
             Please return to your cart and choose a distributor order again.
           </p>
           <button
             onClick={() => navigate("/cart")}
-            className="mt-6 bg-blue-600 text-white px-5 py-3 rounded-lg"
+            className="mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs flex items-center justify-center gap-2 mx-auto"
           >
-            Back to Cart
+            <FiArrowLeft size={14} /> Back to Cart
           </button>
         </div>
       </div>
@@ -108,7 +115,7 @@ function Payment() {
     if (paymentType === "credit") {
       if (!creditInfo) { setSubmitError("No credit account found."); return; }
       if (creditBlocked) { setSubmitError("Your credit account is blocked."); return; }
-      if (payableTotal > availableCredit) { setSubmitError(`Order total Rs. ${payableTotal.toLocaleString()} exceeds available credit Rs. ${availableCredit.toLocaleString()}`); return; }
+      if (payableTotal > availableCredit) { setSubmitError(`Order total Rs. ${fmt(payableTotal)} exceeds available credit Rs. ${fmt(availableCredit)}`); return; }
     }
 
     if (paymentType === "cash_credit") {
@@ -116,7 +123,7 @@ function Payment() {
       if (creditBlocked) { setSubmitError("Your credit account is blocked."); return; }
       if (parsedCreditInput <= 0) { setSubmitError("Credit amount must be greater than 0 for split payment."); return; }
       if (finalCashAmount <= 0) { setSubmitError("Cash amount must be greater than 0 for split payment."); return; }
-      if (parsedCreditInput > availableCredit) { setSubmitError(`Credit amount exceeds available credit of Rs. ${availableCredit.toLocaleString()}`); return; }
+      if (parsedCreditInput > availableCredit) { setSubmitError(`Credit amount exceeds available credit of Rs. ${fmt(availableCredit)}`); return; }
       if (Math.abs((finalCashAmount + finalCreditAmount) - payableTotal) > 0.01) { setSubmitError("Cash + Credit must equal the order total."); return; }
     }
 
@@ -171,152 +178,196 @@ function Payment() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-6 min-h-screen">
+      
+      {/* Back button link */}
+      <button 
+        onClick={() => navigate("/cart")}
+        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-800 transition cursor-pointer mb-6"
+      >
+        <FiArrowLeft size={14} /> Back to Cart
+      </button>
+
       {/* ── Order Summary ──────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow p-6">
-        <h1 className="text-3xl font-bold">Payment</h1>
-        <p className="mt-2 text-gray-500">{order.distributor}</p>
+      <div className="bg-white border border-slate-100 rounded-[32px] p-6.5 shadow-xs">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-black text-slate-800">Review & Payment</h1>
+            <p className="text-xs font-bold text-slate-400 mt-0.5">{order.distributor}</p>
+          </div>
+        </div>
 
-        <hr className="my-6" />
+        <hr className="my-5 border-slate-100" />
 
-        <h2 className="font-bold text-lg mb-4">Order Summary</h2>
+        <h2 className="font-extrabold text-sm text-slate-800 mb-3">Order Details</h2>
 
-        <div className="divide-y">
+        <div className="divide-y divide-slate-100">
           {order.items.map((item) => (
             <div
               key={item.id ?? item.productId}
-              className="flex justify-between gap-4 py-3"
+              className="flex justify-between gap-4 py-3 text-xs"
             >
-              <span>
-                {item.name} × {item.quantity}
+              <span className="font-semibold text-slate-600">
+                {item.name} <span className="font-bold text-slate-800">× {String(item.quantity).padStart(2, '0')}</span>
               </span>
-              <span className="font-semibold">Rs. {item.total}</span>
+              <span className="font-black text-slate-800">Rs. {fmt(item.total)}</span>
             </div>
           ))}
         </div>
 
-        <hr className="my-4" />
+        <hr className="my-4 border-slate-100" />
 
-        <div className="space-y-2 text-gray-700">
-          <p>Subtotal: Rs. {order.subtotal}</p>
-          <p>Discount: Rs. {order.discount}</p>
-          <p>Urgent Charge: Rs. {urgentCharge}</p>
-          <p className="font-bold text-xl text-slate-900">
-            Total: Rs. {payableTotal.toLocaleString()}
-          </p>
+        <div className="space-y-2 text-xs font-bold text-slate-450">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span className="text-slate-800">Rs. {fmt(order.subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-green-600">
+            <span>Discount</span>
+            <span>- Rs. {fmt(order.discount)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Urgent Handling Fee</span>
+            <span className="text-slate-800">Rs. {fmt(urgentCharge)}</span>
+          </div>
+          <hr className="my-2 border-slate-100" />
+          <div className="flex justify-between text-base font-black text-slate-900 pt-1">
+            <span>Payable Total</span>
+            <span>Rs. {fmt(payableTotal)}</span>
+          </div>
         </div>
       </div>
 
       {/* ── Outstanding Credit Warning Banner ──────────────────────── */}
       {creditInfo && outstandingCredit > 0 && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 mt-6">
-          <p className="text-amber-800 font-semibold text-sm">
-            ⚠️ You have <span className="font-bold">Rs. {outstandingCredit.toLocaleString()}</span> outstanding credit from previous orders.
-          </p>
-          <p className="text-amber-700 text-xs mt-1">
-            This amount must be settled at delivery. The driver will collect this along with any cash payment for this order.
-          </p>
+        <div className="bg-amber-50/40 border border-amber-100/50 rounded-2xl p-4.5 mt-5 flex gap-3">
+          <FiAlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={16} />
+          <div>
+            <p className="text-amber-800 font-black text-xs">
+              Outstanding credit balance of Rs. {fmt(outstandingCredit)} must be settled at delivery
+            </p>
+            <p className="text-amber-600 font-bold text-[11px] mt-0.5 leading-normal">
+              The delivery driver will collect this pending amount in cash along with the cash payment for this order.
+            </p>
+          </div>
         </div>
       )}
 
       {/* ── Order Type ────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow p-6 mt-6">
-        <h2 className="font-bold text-lg">Order Type</h2>
+      <div className="bg-white border border-slate-100 rounded-[32px] p-6 mt-6 shadow-xs">
+        <h2 className="font-black text-slate-800 text-sm">Order Type</h2>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <label
-            className={`border rounded-xl p-4 cursor-pointer ${
+            onClick={() => setOrderType("Normal")}
+            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${
               orderType === "Normal"
-                ? "border-blue-600 bg-blue-50"
-                : "border-gray-200"
+                ? "border-slate-800 bg-slate-50/50"
+                : "border-slate-100 hover:bg-slate-50/30"
             }`}
           >
             <div className="flex items-center gap-2">
               <input
                 type="radio"
-                value="Normal"
+                name="orderType"
                 checked={orderType === "Normal"}
-                onChange={() => setOrderType("Normal")}
+                onChange={() => {}}
+                className="accent-slate-900"
               />
-              <span className="font-semibold">Normal Order</span>
+              <span className="font-black text-slate-800 text-xs">Normal Order</span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Standard distributor order with no extra charge.
+            <p className="text-[11px] font-bold text-slate-400 mt-2 leading-normal">
+              Standard order dispatch schedule with no extra priority charge.
             </p>
           </label>
 
           <label
-            className={`border rounded-xl p-4 cursor-pointer ${
+            onClick={() => setOrderType("Urgent")}
+            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${
               orderType === "Urgent"
-                ? "border-red-500 bg-red-50"
-                : "border-gray-200"
+                ? "border-red-200 bg-red-50/30"
+                : "border-slate-100 hover:bg-slate-50/30"
             }`}
           >
             <div className="flex items-center gap-2">
               <input
                 type="radio"
-                value="Urgent"
+                name="orderType"
                 checked={orderType === "Urgent"}
-                onChange={() => setOrderType("Urgent")}
+                onChange={() => {}}
+                className="accent-red-600"
               />
-              <span className="font-semibold">Urgent Order</span>
+              <span className="font-black text-red-700 text-xs">Urgent Order</span>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Priority handling charge: Rs. 500.
+            <p className="text-[11px] font-bold text-slate-400 mt-2 leading-normal">
+              Priority processing and faster shipping dispatch: extra charge of Rs. {fmt(500)}.
             </p>
           </label>
         </div>
       </div>
 
       {/* ── Payment Method ────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow p-6 mt-6">
-        <h2 className="font-bold text-lg">Payment Method</h2>
+      <div className="bg-white border border-slate-100 rounded-[32px] p-6 mt-6 shadow-xs">
+        <h2 className="font-black text-slate-800 text-sm">Payment Method</h2>
 
         <div className="mt-4 space-y-3">
           {/* Option 1: Full Cash */}
-          <label className="flex items-center gap-3 cursor-pointer border rounded-xl p-4 transition hover:bg-gray-50"
-            style={{ borderColor: paymentType === "cash" ? "#2563eb" : "#e5e7eb", backgroundColor: paymentType === "cash" ? "#eff6ff" : "" }}
+          <label className="flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition hover:bg-slate-50/50"
+            style={{ 
+              borderColor: paymentType === "cash" ? "#0f172a" : "#f1f5f9", 
+              backgroundColor: paymentType === "cash" ? "#f8fafc" : "" 
+            }}
           >
             <input
               type="radio"
-              value="cash"
+              name="paymentType"
               checked={paymentType === "cash"}
               onChange={() => setPaymentType("cash")}
+              className="accent-slate-900"
             />
             <div>
-              <span className="font-semibold">Full Cash</span>
-              <p className="text-xs text-gray-500 mt-0.5">Pay the entire order amount in cash at delivery.</p>
+              <span className="font-black text-slate-800 text-xs">Full Cash</span>
+              <p className="text-[11px] font-bold text-slate-400 mt-0.5">Pay the entire amount in cash upon delivery.</p>
             </div>
           </label>
 
           {/* Option 2: Full Credit */}
           {creditLoading ? (
-            <p className="text-sm text-gray-400 px-4">Checking credit account…</p>
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 px-4 py-2">
+              <FiLoader className="animate-spin text-slate-400" />
+              <span>Verifying credit account limits...</span>
+            </div>
           ) : creditInfo ? (
-            <label className={`flex items-center gap-3 cursor-pointer border rounded-xl p-4 transition ${
-              !canUseFullCredit ? "opacity-50 cursor-not-allowed" : "hover:bg-green-50"
+            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
+              !canUseFullCredit ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
             }`}
-              style={{ borderColor: paymentType === "credit" ? "#16a34a" : "#e5e7eb", backgroundColor: paymentType === "credit" ? "#f0fdf4" : "" }}
+              style={{ 
+                borderColor: paymentType === "credit" ? "#0f172a" : "#f1f5f9", 
+                backgroundColor: paymentType === "credit" ? "#f8fafc" : "" 
+              }}
             >
               <input
                 type="radio"
-                value="credit"
+                name="paymentType"
                 checked={paymentType === "credit"}
                 onChange={() => setPaymentType("credit")}
                 disabled={!canUseFullCredit}
+                className="accent-slate-900"
               />
-              <div>
-                <span className="font-semibold">Full Credit</span>
-                {creditBlocked && (
-                  <span className="text-xs text-red-600 ml-2">(Account blocked)</span>
-                )}
-                {!creditBlocked && !canUseFullCredit && (
-                  <span className="text-xs text-amber-600 ml-2">
-                    (Available credit Rs. {availableCredit.toLocaleString()} is less than order total)
-                  </span>
-                )}
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Charge the entire order to your credit account. No cash needed at delivery.
+              <div className="flex-1">
+                <div className="flex items-center flex-wrap gap-1.5">
+                  <span className="font-black text-slate-800 text-xs">Full Credit</span>
+                  {creditBlocked && (
+                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">Blocked</span>
+                  )}
+                  {!creditBlocked && !canUseFullCredit && (
+                    <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200/50 px-2 py-0.5 rounded-full">
+                      Insufficient credit (Avail: Rs. {fmt(availableCredit)})
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                  Charge the entire amount to your distributor credit account. No cash settlement required.
                 </p>
               </div>
             </label>
@@ -324,70 +375,77 @@ function Payment() {
 
           {/* Option 3: Cash + Credit */}
           {!creditLoading && creditInfo && (
-            <label className={`flex items-center gap-3 cursor-pointer border rounded-xl p-4 transition ${
-              creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-50"
+            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
+              creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
             }`}
-              style={{ borderColor: paymentType === "cash_credit" ? "#7c3aed" : "#e5e7eb", backgroundColor: paymentType === "cash_credit" ? "#faf5ff" : "" }}
+              style={{ 
+                borderColor: paymentType === "cash_credit" ? "#0f172a" : "#f1f5f9", 
+                backgroundColor: paymentType === "cash_credit" ? "#f8fafc" : "" 
+              }}
             >
               <input
                 type="radio"
-                value="cash_credit"
+                name="paymentType"
                 checked={paymentType === "cash_credit"}
                 onChange={() => setPaymentType("cash_credit")}
                 disabled={creditBlocked}
+                className="accent-slate-900"
               />
               <div>
-                <span className="font-semibold">Cash + Credit</span>
-                {creditBlocked && (
-                  <span className="text-xs text-red-600 ml-2">(Account blocked)</span>
-                )}
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Split the payment between cash and credit.
+                <div className="flex items-center gap-1.5">
+                  <span className="font-black text-slate-800 text-xs">Cash + Credit</span>
+                  {creditBlocked && (
+                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">Blocked</span>
+                  )}
+                </div>
+                <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                  Split the order cost between a custom credit amount and cash at delivery.
                 </p>
               </div>
             </label>
           )}
 
           {!creditLoading && !creditInfo && (
-            <p className="text-sm text-gray-400 px-4">
-              No credit account — only full cash payment available.
-              {creditError && <span className="text-red-500 ml-2">{creditError}</span>}
+            <p className="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl">
+              No credit account available with this distributor — payment limited to cash on delivery.
+              {creditError && <span className="text-red-500 ml-2 font-black">({creditError})</span>}
             </p>
           )}
         </div>
 
         {/* ── Credit Account Info Panel ──────────────────────────── */}
         {creditInfo && !creditBlocked && (paymentType === "credit" || paymentType === "cash_credit") && (
-          <div className="mt-6 bg-gray-50 border rounded-xl p-5 space-y-4">
-            <h3 className="font-semibold text-sm text-gray-700">Credit Account Summary</h3>
-            <div className="grid grid-cols-3 gap-3 text-sm">
-              <div className="bg-white border rounded-lg p-3">
-                <p className="text-xs text-gray-400">Credit Limit</p>
-                <p className="font-bold text-gray-800">Rs. {creditLimit.toLocaleString()}</p>
+          <div className="mt-6 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
+            <h3 className="font-black text-xs text-slate-700 tracking-wide uppercase">Credit Account Summary</h3>
+            
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Credit Limit</p>
+                <p className="font-black text-slate-800 text-sm">Rs. {fmt(creditLimit)}</p>
               </div>
-              <div className="bg-white border rounded-lg p-3">
-                <p className="text-xs text-gray-400">Outstanding</p>
-                <p className={`font-bold ${outstandingCredit > 0 ? "text-red-600" : "text-green-600"}`}>
-                  Rs. {outstandingCredit.toLocaleString()}
+              <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Outstanding</p>
+                <p className={`font-black text-sm ${outstandingCredit > 0 ? "text-red-655" : "text-green-600"}`}>
+                  Rs. {fmt(outstandingCredit)}
                 </p>
               </div>
-              <div className="bg-white border rounded-lg p-3">
-                <p className="text-xs text-gray-400">Available Credit</p>
-                <p className="font-bold text-blue-600">Rs. {availableCredit.toLocaleString()}</p>
+              <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Available</p>
+                <p className="font-black text-slate-800 text-sm">Rs. {fmt(availableCredit)}</p>
               </div>
             </div>
 
             {/* Full Credit summary */}
             {paymentType === "credit" && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-1">
-                <p className="text-sm text-green-800">
-                  <strong>Credit Used:</strong> Rs. {payableTotal.toLocaleString()}
+              <div className="bg-green-50/40 border border-green-100/50 rounded-2xl p-4 text-xs font-bold space-y-1">
+                <p className="text-green-800">
+                  Credit to Debit: Rs. {fmt(payableTotal)}
                 </p>
-                <p className="text-sm text-green-800">
-                  <strong>Remaining Credit After Order:</strong> Rs. {remainingCredit.toLocaleString()}
+                <p className="text-green-800">
+                  Remaining Account Balance: Rs. {fmt(remainingCredit)}
                 </p>
-                <p className="text-xs text-green-600 mt-2">
-                  No cash payment needed. Credit will be debited upon delivery.
+                <p className="text-[10px] text-green-600 mt-2 flex items-center gap-1">
+                  <FiCheckCircle /> Credit ledger entries will be updated when the dispatch delivery completes.
                 </p>
               </div>
             )}
@@ -396,8 +454,8 @@ function Payment() {
             {paymentType === "cash_credit" && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Credit Amount (max Rs. {Math.min(availableCredit, payableTotal).toLocaleString()})
+                  <label className="block text-xs font-bold text-slate-500 mb-1">
+                    Credit Amount (max Rs. {fmt(Math.min(availableCredit, payableTotal))})
                   </label>
                   <input
                     type="number"
@@ -405,27 +463,27 @@ function Payment() {
                     max={Math.min(availableCredit, payableTotal)}
                     value={creditInput}
                     onChange={(e) => setCreditInput(e.target.value)}
-                    className="w-full border p-3 rounded-lg outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-200"
+                    className="w-full border border-slate-200 p-3.5 rounded-full outline-none focus:border-slate-800 transition text-xs font-bold"
                     placeholder="Enter credit amount"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  <label className="block text-xs font-bold text-slate-500 mb-1">
                     Cash Amount (auto-calculated)
                   </label>
-                  <div className="w-full border p-3 rounded-lg bg-gray-100 text-gray-700 font-semibold">
-                    Rs. {finalCashAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  <div className="w-full border border-slate-100 p-3.5 rounded-full bg-slate-50 text-slate-800 font-extrabold text-xs">
+                    Rs. {fmt(finalCashAmount)}
                   </div>
                 </div>
 
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-1 text-sm">
-                  <p><strong>Credit Portion:</strong> Rs. {finalCreditAmount.toLocaleString()}</p>
-                  <p><strong>Cash Portion:</strong> Rs. {finalCashAmount.toLocaleString()}</p>
-                  <p><strong>Remaining Credit After Order:</strong> Rs. {remainingCredit.toLocaleString()}</p>
+                <div className="bg-slate-100/50 border border-slate-200/50 rounded-2xl p-4 text-xs font-bold space-y-1 text-slate-600">
+                  <p>Credit Portion: Rs. {fmt(finalCreditAmount)}</p>
+                  <p>Cash Portion: Rs. {fmt(finalCashAmount)}</p>
+                  <p>Remaining Account Balance: Rs. {fmt(remainingCredit)}</p>
                   {outstandingCredit > 0 && (
-                    <p className="text-amber-700 mt-2">
-                      <strong>+ Outstanding to Settle at Delivery:</strong> Rs. {outstandingCredit.toLocaleString()}
+                    <p className="text-amber-700 mt-2 font-black">
+                      + Settling Outstanding at Delivery: Rs. {fmt(outstandingCredit)}
                     </p>
                   )}
                 </div>
@@ -436,13 +494,14 @@ function Payment() {
 
         {/* ── Driver Collection Preview ─────────────────────────── */}
         {outstandingCredit > 0 && creditInfo && (
-          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm font-semibold text-blue-800">Driver Collection Preview (Cash at Delivery):</p>
-            <div className="text-sm text-blue-700 mt-1 space-y-0.5">
-              <p>Current Order Cash Portion: Rs. {finalCashAmount.toLocaleString()}</p>
-              <p>Previous Outstanding Credit Settlement: Rs. {outstandingCredit.toLocaleString()}</p>
-              <p className="font-bold text-blue-900 text-base mt-1">
-                Total Driver Will Collect: Rs. {(finalCashAmount + outstandingCredit).toLocaleString()}
+          <div className="mt-4 bg-slate-50/50 border border-slate-100 rounded-2xl p-4 text-xs font-bold text-slate-600">
+            <p className="font-black text-slate-850 mb-1.5">Driver Collection Details (Cash at Delivery):</p>
+            <div className="space-y-1">
+              <p>Current Order Cash Portion: Rs. {fmt(finalCashAmount)}</p>
+              <p>Settlement of Previous Outstanding: Rs. {fmt(outstandingCredit)}</p>
+              <hr className="my-1.5 border-slate-200" />
+              <p className="font-black text-slate-900 text-sm">
+                Total Driver Cash Collection: Rs. {fmt(finalCashAmount + outstandingCredit)}
               </p>
             </div>
           </div>
@@ -450,21 +509,21 @@ function Payment() {
 
         {/* Error banner */}
         {submitError && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm font-medium">
-            ⚠️ {submitError}
+          <div className="mt-4 bg-red-50/50 border border-red-100/50 text-red-700 rounded-2xl px-4.5 py-3 text-xs font-bold">
+            {submitError}
           </div>
         )}
 
         <button
           onClick={handleConfirmOrder}
           disabled={submitting}
-          className={`w-full py-3 rounded-lg mt-6 font-semibold text-white transition-colors ${
+          className={`w-full py-4 rounded-full mt-6 font-black text-xs text-white transition-all shadow-xs cursor-pointer ${
             submitting
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
+              ? "bg-slate-200 cursor-not-allowed"
+              : "bg-slate-900 hover:bg-slate-800"
           }`}
         >
-          {submitting ? "Placing Order…" : "Confirm Order"}
+          {submitting ? "Processing Order..." : "Confirm & Place Order"}
         </button>
       </div>
     </div>

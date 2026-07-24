@@ -8,7 +8,37 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const data = [
+export default function SpendingSummary({ data = defaultData }) {
+  return (
+    <div className="h-full w-full bg-white rounded-3xl border border-slate-100 shadow-xs p-6">
+
+      <h2 className="text-base font-black text-slate-800 mb-5">
+        Spending Summary
+      </h2>
+
+      <ResponsiveContainer width="100%" height={320}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 8 }}>
+          <CartesianGrid stroke="#f1f5f9" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }} />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
+            tickFormatter={(value) => `Rs.${value / 1000}k`}
+          />
+          <Tooltip
+            formatter={(value) => [`Rs. ${value.toLocaleString()}`, "Spending"]}
+            contentStyle={{ borderRadius: 16, borderColor: "#f1f5f9", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)" }}
+          />
+          <Bar dataKey="spending" fill="#0f172a" radius={[6, 6, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+
+    </div>
+  );
+}
+
+const defaultData = [
   { month: "W1", spending: 62000 },
   { month: "W2", spending: 78000 },
   { month: "W3", spending: 91000 },
@@ -22,33 +52,3 @@ const data = [
   { month: "W11", spending: 138000 },
   { month: "W12", spending: 145000 },
 ];
-
-export default function SpendingSummary() {
-  return (
-    <div className="h-full w-full bg-white rounded-2xl shadow-sm p-5">
-
-      <h2 className="text-xl font-semibold mb-5">
-        Spending Summary
-      </h2>
-
-      <ResponsiveContainer width="100%" height={320}>
-        <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 8 }}>
-          <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-          <YAxis
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: "#64748b", fontSize: 12 }}
-            tickFormatter={(value) => `Rs.${value / 1000}k`}
-          />
-          <Tooltip
-            formatter={(value) => [`Rs. ${value.toLocaleString()}`, "Spending"]}
-            contentStyle={{ borderRadius: 12, borderColor: "#e2e8f0" }}
-          />
-          <Bar dataKey="spending" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-        </BarChart>
-      </ResponsiveContainer>
-
-    </div>
-  );
-}
