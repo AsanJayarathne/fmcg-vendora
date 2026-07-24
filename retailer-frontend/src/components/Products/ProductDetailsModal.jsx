@@ -48,7 +48,7 @@ function ProductDetailsModal({ product, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-4">
-      <div className="bg-white border border-slate-100 p-7 rounded-[32px] w-[500px] max-w-full max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col justify-between animate-fadeIn">
+      <div className="bg-white border border-slate-100 p-7 rounded-[32px] w-[500px] max-w-full max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative flex flex-col justify-between animate-fadeIn">
         
         {/* Close icon in top right */}
         <button

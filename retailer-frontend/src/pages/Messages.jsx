@@ -13,7 +13,7 @@ function formatDate(date) {
 }
 
 function Messages() {
-  const { messages } = useContext(OrderContext);
+  const { messages, markMessageRead } = useContext(OrderContext);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   return (
@@ -36,10 +36,16 @@ function Messages() {
               key={message.id}
               type="button"
               className="w-full text-left bg-white border border-slate-100 rounded-[28px] p-5 flex gap-4 cursor-pointer hover:shadow-xs transition duration-300 hover:border-blue-300"
-              onClick={() => setSelectedMessage(message)}
+              onClick={() => {
+                setSelectedMessage(message);
+                markMessageRead(message.orderId);
+              }}
             >
-              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/50 text-blue-600 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/50 text-blue-600 flex items-center justify-center shrink-0 relative">
                 <FiMessageSquare size={20} />
+                {!message.read && (
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 border-2 border-white animate-pulse" />
+                )}
               </div>
 
               <div className="flex-1 min-w-0">

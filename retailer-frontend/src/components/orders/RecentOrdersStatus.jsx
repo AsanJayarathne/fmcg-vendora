@@ -1,5 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export default function RecentOrdersStatus({ orders = [] }) {
   const displayOrders = orders.slice(0, 3);
+  const navigate = useNavigate();
 
   const statusClass = (status) => {
     if (status === "Delivered") return "bg-green-50 text-green-600 border border-green-200/50";
@@ -13,7 +16,12 @@ export default function RecentOrdersStatus({ orders = [] }) {
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 px-1">
         <h2 className="font-black text-slate-800 text-xl leading-tight">Recent Orders</h2>
-        <button className="text-sm font-bold text-blue-650 hover:text-blue-800 cursor-pointer transition">See All</button>
+        <button
+          onClick={() => navigate("/orders")}
+          className="text-sm font-bold text-blue-650 hover:text-blue-800 cursor-pointer transition"
+        >
+          See All
+        </button>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 w-full">
