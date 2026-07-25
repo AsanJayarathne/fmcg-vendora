@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Store,
   Truck,
@@ -5,7 +6,11 @@ import {
   DollarSign,
   CreditCard,
   AlertTriangle,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
+import { fetchAnalyticsData } from "../services/analyticsApi";
 
 import PageHeader from "../components/PageHeader";
 import AnalyticsKpiCards from "../components/analytics/AnalyticsKpiCards";
@@ -15,36 +20,91 @@ import TopProductsTable from "../components/analytics/TopProductsTable";
 import OrderStatusBreakdown from "../components/analytics/OrderStatusBreakdown";
 import PaymentBreakdown from "../components/analytics/PaymentBreakdown";
 import OutstandingRetailers from "../components/analytics/OutstandingRetailers";
-import InventoryInsights from "../components/analytics/InventoryInsights";
 import DriverPerformance from "../components/analytics/DriverPerformance";
 import RetailerGrowth from "../components/analytics/RetailerGrowth";
+import InventoryInsights from "../components/analytics/InventoryInsights";
+
+function formatAmount(val) {
+  if (val >= 1_000_000) return `LKR ${(val / 1_000_000).toFixed(2)}M`;
+  if (val >= 1_000)     return `LKR ${(val / 1_000).toFixed(1)}K`;
+  return `LKR ${val.toLocaleString("en-LK", { minimumFractionDigits: 2 })}`;
+}
 
 export default function AnalyticsPage() {
-  const kpis = [
+  const { auth } = useAuth();
+  const [data, setData]       = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState("");
+
+  const load = async () => {
+    if (!auth?.token) return;
+    setLoading(true);
+    setError("");
+    try {
+      const result = await fetchAnalyticsData(auth.token);
+      setData(result);
+    } catch (e) {
+      setError(e.message || "Failed to load analytics");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [auth?.token]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[500px] gap-3">
+        <Loader2 size={36} className="animate-spin text-blue-600" />
+        <p className="text-sm text-gray-500 font-semibold">Loading analytics data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 px-4 py-3 rounded-xl">{error}</p>
+        <button
+          onClick={load}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-blue-600 border border-blue-300 rounded-xl hover:bg-blue-50 transition"
+        >
+          <RefreshCw size={14} /> Retry
+        </button>
+      </div>
+    );
+  }
+
+  const { kpis, salesData, territoryData, topProducts, orderStatusData, paymentData,
+          outstandingRetailers, driverPerformance, retailerGrowth, inventoryInsights } = data;
+
+  const kpiCards = [
     {
       title: "Total Retailers",
-      value: "125",
-      change: "↑ 8.2% from last week",
+      value: String(kpis.totalRetailers),
+      change: "Registered in your region",
       icon: <Store size={26} />,
       bg: "bg-[#EFEAFF]",
       iconBg: "bg-purple-200",
       iconColor: "text-purple-600",
-      changeColor: "text-green-600",
+      changeColor: "text-gray-500",
     },
     {
       title: "Active Drivers",
-      value: "12",
-      change: "↑ 9.1% from last week",
+      value: String(kpis.activeDrivers),
+      change: "Approved & operational",
       icon: <Truck size={26} />,
       bg: "bg-[#FFF8D6]",
       iconBg: "bg-yellow-200",
       iconColor: "text-yellow-600",
-      changeColor: "text-green-600",
+      changeColor: "text-gray-500",
     },
     {
       title: "Total Orders",
-      value: "1,508",
-      change: "↑ 12.5% from last week",
+      value: kpis.totalOrders.toLocaleString(),
+      change: "All time",
       icon: <Package size={26} />,
       bg: "bg-[#E8F3FF]",
       iconBg: "bg-blue-200",
@@ -53,8 +113,8 @@ export default function AnalyticsPage() {
     },
     {
       title: "Total Revenue",
-      value: "LKR 2.45M",
-      change: "↑ 15.3% from last week",
+      value: formatAmount(kpis.totalRevenue),
+      change: "From delivered orders",
       icon: <DollarSign size={26} />,
       bg: "bg-[#E9FBEF]",
       iconBg: "bg-green-200",
@@ -62,109 +122,46 @@ export default function AnalyticsPage() {
       changeColor: "text-green-600",
     },
     {
-      title: "Outstanding Amount",
-      value: "LKR 350K",
-      change: "↓ 3.6% from last week",
+      title: "Outstanding",
+      value: formatAmount(kpis.totalOutstanding),
+      change: "Credit balances owed",
       icon: <CreditCard size={26} />,
       bg: "bg-[#FFF0E6]",
       iconBg: "bg-orange-200",
       iconColor: "text-orange-600",
-      changeColor: "text-red-500",
+      changeColor: kpis.totalOutstanding > 0 ? "text-red-500" : "text-green-600",
     },
     {
       title: "Low Stock Products",
-      value: "18",
-      change: "↑ 5 from last week",
+      value: String(kpis.lowStockCount),
+      change: "Need replenishment",
       icon: <AlertTriangle size={26} />,
       bg: "bg-[#FFE8EC]",
       iconBg: "bg-red-200",
       iconColor: "text-red-600",
-      changeColor: "text-red-500",
+      changeColor: kpis.lowStockCount > 0 ? "text-red-500" : "text-green-600",
     },
   ];
 
-  const salesData = [
-    { label: "12 May", value: 8000 },
-    { label: "13 May", value: 21000 },
-    { label: "14 May", value: 15000 },
-    { label: "15 May", value: 40000 },
-    { label: "16 May", value: 21000 },
-    { label: "17 May", value: 30000 },
-    { label: "18 May", value: 35000 },
-  ];
-
-  const territoryData = [
-    { name: "Kegalle", value: 4.3, percentage: "24.23%" },
-    { name: "Colombo", value: 3.1, percentage: "17.42%" },
-    { name: "Galle", value: 2.8, percentage: "15.73%" },
-    { name: "Kandy", value: 2.3, percentage: "12.92%" },
-    { name: "Kurunegala", value: 2.1, percentage: "11.70%" },
-  ];
-
-  const topProducts = [
-    { name: "Coca Cola 1.5L", orders: 350, revenue: "450,000" },
-    { name: "Anchor Milk 1L", orders: 280, revenue: "320,000" },
-    { name: "Sunlight Soap 175g", orders: 210, revenue: "250,000" },
-    { name: "Maggi Noodles 70g", orders: 180, revenue: "180,000" },
-    { name: "Nestle Milo 400g", orders: 150, revenue: "165,000" },
-  ];
-
-  const orderStatus = [
-    { label: "Delivered", value: 65, color: "bg-green-500" },
-    { label: "Pending", value: 15, color: "bg-yellow-400" },
-    { label: "Processing", value: 12, color: "bg-blue-500" },
-    { label: "Cancelled", value: 8, color: "bg-red-500" },
-  ];
-
-  const paymentData = [
-    { label: "Cash", value: 55, color: "bg-green-500" },
-    { label: "Credit", value: 35, color: "bg-blue-500" },
-    { label: "Split Payment", value: 10, color: "bg-orange-500" },
-  ];
-
-  const outstandingRetailers = [
-    { name: "ABC Store", amount: "25,000" },
-    { name: "Happy Mart", amount: "15,000" },
-    { name: "Star Grocery Store", amount: "10,000" },
-    { name: "Green Super", amount: "8,500" },
-    { name: "Nimal Store", amount: "6,500" },
-  ];
-
-  const inventoryInsights = [
-    { title: "Products In Stock", value: 156, note: "↑ 12 this week", color: "green" },
-    { title: "Low Stock Products", value: 18, note: "↑ 5 this week", color: "yellow" },
-    { title: "Out of Stock Products", value: 5, note: "↓ 2 this week", color: "red" },
-    { title: "Expiring Soon", value: 12, note: "↑ 3 this week", color: "blue" },
-  ];
-
-  const driverPerformance = [
-    { name: "Kasun Perera", deliveries: 125 },
-    { name: "Nimal Fernando", deliveries: 110 },
-    { name: "Aruna Dissanayake", deliveries: 95 },
-    { name: "Sampath Jayasena", deliveries: 80 },
-    { name: "Dilan Madusanka", deliveries: 65 },
-  ];
-
-  const retailerGrowth = [
-    { month: "Jan", value: 5 },
-    { month: "Feb", value: 8 },
-    { month: "Mar", value: 12 },
-    { month: "Apr", value: 10 },
-    { month: "May", value: 14 },
-    { month: "Jun", value: 16 },
-    { month: "Jul", value: 18 },
-  ];
+  const totalOrdersLabel = kpis.totalOrders.toLocaleString();
+  const totalRevenueLabel = formatAmount(kpis.totalRevenue);
 
   return (
     <div className="space-y-6">
-      
-
+      <div className="flex items-start justify-between">
         <PageHeader
-              title="Analytics Overview"
-              subtitle=" Real-time insights into your business performance"
-            />
+          title="Analytics Overview"
+          subtitle="Real-time insights into your business performance"
+        />
+        <button
+          onClick={load}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-600 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 transition mt-1"
+        >
+          <RefreshCw size={13} /> Refresh
+        </button>
+      </div>
 
-      <AnalyticsKpiCards kpis={kpis} />
+      <AnalyticsKpiCards kpis={kpiCards} />
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <SalesOverview data={salesData} />
@@ -173,8 +170,8 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <TopProductsTable products={topProducts} />
-        <OrderStatusBreakdown data={orderStatus} totalOrders="1,508" />
-        <PaymentBreakdown data={paymentData} totalRevenue="LKR 2.45M" />
+        <OrderStatusBreakdown data={orderStatusData} totalOrders={totalOrdersLabel} />
+        <PaymentBreakdown data={paymentData} totalRevenue={totalRevenueLabel} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">

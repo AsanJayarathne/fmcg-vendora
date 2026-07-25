@@ -22,6 +22,8 @@ export default function OrderHistoryPage() {
   // Filters
   const [search, setSearch]             = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateFrom, setDateFrom]         = useState("");
+  const [dateTo, setDateTo]             = useState("");
 
   // Load deliveries — only DELIVERED and RETURNED
   useEffect(() => {
@@ -42,6 +44,8 @@ export default function OrderHistoryPage() {
   const resetFilters = () => {
     setSearch("");
     setStatusFilter("");
+    setDateFrom("");
+    setDateTo("");
     setCurrentPage(1);
   };
 
@@ -50,11 +54,16 @@ export default function OrderHistoryPage() {
     return deliveries.filter((d) => {
       const matchSearch = !search ||
         d.shop_name?.toLowerCase().includes(search.toLowerCase()) ||
-        String(d.order_id).includes(search);
+        String(d.order_id).includes(search) ||
+        String(d.delivery_id).includes(search);
       const matchStatus = !statusFilter || d.status === statusFilter;
-      return matchSearch && matchStatus;
+      // Date range filter
+      const deliveryDate = d.created_at ? new Date(d.created_at.split(" ")[0]) : null;
+      const matchFrom = !dateFrom || (deliveryDate && deliveryDate >= new Date(dateFrom));
+      const matchTo   = !dateTo   || (deliveryDate && deliveryDate <= new Date(dateTo));
+      return matchSearch && matchStatus && matchFrom && matchTo;
     });
-  }, [deliveries, search, statusFilter]);
+  }, [deliveries, search, statusFilter, dateFrom, dateTo]);
 
   const paginated = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -106,8 +115,10 @@ export default function OrderHistoryPage() {
 
       {/* Filters */}
       <OrderHistoryFilters
-        search={search}           setSearch={setSearch}
-        statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+        search={search}             setSearch={(v) => { setSearch(v);       setCurrentPage(1); }}
+        statusFilter={statusFilter} setStatusFilter={(v) => { setStatusFilter(v); setCurrentPage(1); }}
+        dateFrom={dateFrom}         setDateFrom={(v) => { setDateFrom(v);   setCurrentPage(1); }}
+        dateTo={dateTo}             setDateTo={(v) => { setDateTo(v);       setCurrentPage(1); }}
         onReset={resetFilters}
       />
 

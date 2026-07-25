@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import DriverTabs from "../components/drivers/DriverTabs";
 import DriversTable from "../components/drivers/DriversTable";
 import Pagination from "../components/Pagination";
+import { Search } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 const ITEMS_PER_PAGE = 8;
@@ -12,6 +13,7 @@ export default function DriversPage() {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchDrivers = useCallback(async () => {
     setLoading(true);
@@ -48,13 +50,34 @@ export default function DriversPage() {
           return driver.status === targetStatus;
         });
 
+  // Apply search on top of tab filter
+  const searchedDrivers = search.trim()
+    ? filteredDrivers.filter(
+        (d) =>
+          d.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+          `DR-${String(d.driver_id).padStart(4, "0")}`.toLowerCase().includes(search.toLowerCase())
+      )
+    : filteredDrivers;
+
   // Paginate
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedDrivers = filteredDrivers.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const paginatedDrivers = searchedDrivers.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-4">
-      <DriverTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <DriverTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setCurrentPage(1); setSearch(""); }} />
+        <div className="relative">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            placeholder="Search driver name or ID…"
+            className="pl-8 pr-3 py-2 text-xs font-medium border border-gray-200 bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-400 w-52"
+          />
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
@@ -71,7 +94,7 @@ export default function DriversPage() {
       {!loading && !error && (
         <Pagination
           currentPage={currentPage}
-          totalItems={filteredDrivers.length}
+          totalItems={searchedDrivers.length}
           itemsPerPage={ITEMS_PER_PAGE}
           label="Drivers"
           onPageChange={setCurrentPage}

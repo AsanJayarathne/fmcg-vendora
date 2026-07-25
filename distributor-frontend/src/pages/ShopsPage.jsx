@@ -3,6 +3,7 @@ import ShopTabs from "../components/shops/ShopTabs";
 import ShopsTable from "../components/shops/ShopsTable";
 import SetCreditTable from "../components/shops/SetCreditTable";
 import Pagination from "../components/Pagination";
+import { Search } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 const ITEMS_PER_PAGE = 8;
@@ -14,6 +15,7 @@ export default function ShopsPage() {
   const [creditAccounts, setCreditAccounts] = useState({}); // keyed by retailer_id
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -68,17 +70,46 @@ export default function ShopsPage() {
           return shop.status === targetStatus;
         });
 
-  // Approved shops for credit tab
+  // Apply search across all tab results
+  const searchedShops = search.trim()
+    ? filteredShops.filter(
+        (s) =>
+          s.shop_name?.toLowerCase().includes(search.toLowerCase()) ||
+          s.owner_name?.toLowerCase().includes(search.toLowerCase()) ||
+          `RET-${String(s.retailer_id).padStart(3, "0")}`.toLowerCase().includes(search.toLowerCase())
+      )
+    : filteredShops;
+
+  // Approved shops for credit tab (also searchable)
   const approvedShops = shops.filter((shop) => shop.status === "Approved");
+  const searchedApproved = search.trim()
+    ? approvedShops.filter(
+        (s) =>
+          s.shop_name?.toLowerCase().includes(search.toLowerCase()) ||
+          s.owner_name?.toLowerCase().includes(search.toLowerCase())
+      )
+    : approvedShops;
 
   // Paginate
   const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedShops = filteredShops.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-  const paginatedApproved = approvedShops.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const paginatedShops   = searchedShops.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+  const paginatedApproved = searchedApproved.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-4">
-      <ShopTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <ShopTabs activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setCurrentPage(1); setSearch(""); }} />
+        <div className="relative">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            placeholder="Search shop name or ID…"
+            className="pl-8 pr-3 py-2 text-xs font-medium border border-gray-200 bg-white rounded-xl focus:outline-none focus:ring-1 focus:ring-blue-400 w-52"
+          />
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
@@ -105,7 +136,7 @@ export default function ShopsPage() {
       {!loading && !error && (
         <Pagination
           currentPage={currentPage}
-          totalItems={activeTab === "Set Credit" ? approvedShops.length : filteredShops.length}
+          totalItems={activeTab === "Set Credit" ? searchedApproved.length : searchedShops.length}
           itemsPerPage={ITEMS_PER_PAGE}
           label="Shops"
           onPageChange={setCurrentPage}

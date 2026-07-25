@@ -4,8 +4,9 @@ import PaymentsTable from "../components/payments/PaymentsTable";
 import OutstandingTable from "../components/payments/OutstandingTable";
 import Pagination from "../components/Pagination";
 import PageHeader from "../components/PageHeader";
+import MetricCard from "../components/MetricCard";
 import { useAuth } from "../auth/AuthContext";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Banknote, CreditCard, Receipt, Users } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
@@ -132,12 +133,54 @@ export default function PaymentsPage() {
 
   const loading = activeTab === "payments" ? loadingOrders : loadingCredits;
 
+  // ── Summary metrics ──
+  const deliveredOrders = orders.filter((o) => o.status === "Delivered");
+  const totalRevenue    = deliveredOrders.reduce((s, o) => s + parseFloat(o.cash_amount || 0), 0);
+  const totalOutstanding = credits.reduce((s, c) => s + parseFloat(c.current_balance || 0), 0);
+  const creditAccountsCount = credits.length;
+  const totalTransactions   = deliveredOrders.length;
+
+  const fmtLKR = (val) =>
+    `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   return (
     <div className="space-y-4 font-sans">
       <PageHeader
         title="Payment & Credits"
         subtitle="Manage payments and track outstanding retailer credits"
       />
+
+      {/* Summary Metric Cards */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Total Revenue"
+          value={fmtLKR(totalRevenue)}
+          subtitle="Cash collected (Delivered)"
+          icon={<Banknote className="text-emerald-600" size={22} />}
+          iconBg="bg-emerald-100"
+        />
+        <MetricCard
+          title="Total Outstanding"
+          value={fmtLKR(totalOutstanding)}
+          subtitle="Unpaid credit balances"
+          icon={<CreditCard className="text-orange-500" size={22} />}
+          iconBg="bg-orange-100"
+        />
+        <MetricCard
+          title="Credit Accounts"
+          value={creditAccountsCount}
+          subtitle="Active credit accounts"
+          icon={<Users className="text-blue-600" size={22} />}
+          iconBg="bg-blue-100"
+        />
+        <MetricCard
+          title="Transactions"
+          value={totalTransactions}
+          subtitle="Delivered & paid orders"
+          icon={<Receipt className="text-purple-600" size={22} />}
+          iconBg="bg-purple-100"
+        />
+      </div>
 
       {error && (
         <div className="p-3 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl">

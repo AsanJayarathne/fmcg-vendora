@@ -22,5 +22,11 @@ class UserRepository {
     public function setActive(int $userId, bool $active): void {
         $this->db->prepare("UPDATE users SET is_active = ? WHERE user_id = ?")->execute([$active ? 1 : 0, $userId]);
     }
+    public function updateProfile(int $userId, string $fullName, string $phone): void {
+        $this->db->prepare("UPDATE users SET full_name = ?, phone = ? WHERE user_id = ?")->execute([$fullName, $phone, $userId]);
+    }
+    public function updatePassword(int $userId, string $passwordHash): void {
+        $this->db->prepare("UPDATE users SET password = ? WHERE user_id = ?")->execute([$passwordHash, $userId]);
+    }
 }
 

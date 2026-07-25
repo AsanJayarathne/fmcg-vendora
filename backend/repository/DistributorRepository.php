@@ -28,4 +28,8 @@ class DistributorRepository {
         $stmt->execute([$regionId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function updateProfile(int $distributorId, string $companyName, string $companyAddress): void {
+        $this->db->prepare("UPDATE distributor SET company_name = ?, company_address = ? WHERE distributor_id = ?")
+            ->execute([$companyName, $companyAddress, $distributorId]);
+    }
 }
