@@ -17,15 +17,15 @@ export default function CreditOverview({ data = {} }) {
           <h2 className="font-black text-slate-800 text-base leading-tight">Credit Overview</h2>
           <p className="text-xs text-slate-400 font-bold mt-0.5">Current balance and usage</p>
         </div>
-        <div className="rounded-full bg-slate-50 border border-slate-100 px-3 py-1 text-slate-800 text-xs font-black">
+        <div className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-700 text-xs font-black">
           {usedPercent.toFixed(0)}% used
         </div>
       </div>
 
       <div className="mt-5 space-y-3 flex-1 flex flex-col justify-center">
-        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Credit Limit</p>
-          <p className="text-xl font-black text-slate-800">Rs. {fmt(limit)}</p>
+        <div className="rounded-2xl border border-blue-100/50 bg-blue-50/40 p-4">
+          <p className="text-[10px] font-black text-blue-600/70 uppercase tracking-wider mb-1">Credit Limit</p>
+          <p className="text-xl font-black text-blue-700">Rs. {fmt(limit)}</p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -47,7 +47,7 @@ export default function CreditOverview({ data = {} }) {
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-slate-900"
+            className="h-full rounded-full bg-blue-600"
             style={{ width: `${Math.min(100, Math.max(0, usedPercent))}%` }}
           />
         </div>

@@ -64,7 +64,7 @@ function Payment() {
           </p>
           <button
             onClick={() => navigate("/cart")}
-            className="mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs flex items-center justify-center gap-2 mx-auto"
+            className="mt-6 bg-blue-650 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs flex items-center justify-center gap-2 mx-auto"
           >
             <FiArrowLeft size={14} /> Back to Cart
           </button>
@@ -183,7 +183,7 @@ function Payment() {
       {/* Back button link */}
       <button 
         onClick={() => navigate("/cart")}
-        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-slate-800 transition cursor-pointer mb-6"
+        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-650 transition cursor-pointer mb-6"
       >
         <FiArrowLeft size={14} /> Back to Cart
       </button>
@@ -210,17 +210,17 @@ function Payment() {
               <span className="font-semibold text-slate-600">
                 {item.name} <span className="font-bold text-slate-800">× {String(item.quantity).padStart(2, '0')}</span>
               </span>
-              <span className="font-black text-slate-800">Rs. {fmt(item.total)}</span>
+              <span className="font-black text-slate-805">Rs. {fmt(item.total)}</span>
             </div>
           ))}
         </div>
 
         <hr className="my-4 border-slate-100" />
 
-        <div className="space-y-2 text-xs font-bold text-slate-450">
+        <div className="space-y-2 text-xs font-bold text-slate-455">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="text-slate-800">Rs. {fmt(order.subtotal)}</span>
+            <span className="text-slate-850">Rs. {fmt(order.subtotal)}</span>
           </div>
           <div className="flex justify-between text-green-600">
             <span>Discount</span>
@@ -228,10 +228,10 @@ function Payment() {
           </div>
           <div className="flex justify-between">
             <span>Urgent Handling Fee</span>
-            <span className="text-slate-800">Rs. {fmt(urgentCharge)}</span>
+            <span className="text-slate-850">Rs. {fmt(urgentCharge)}</span>
           </div>
           <hr className="my-2 border-slate-100" />
-          <div className="flex justify-between text-base font-black text-slate-900 pt-1">
+          <div className="flex justify-between text-base font-black text-blue-600 pt-1">
             <span>Payable Total</span>
             <span>Rs. {fmt(payableTotal)}</span>
           </div>
@@ -246,7 +246,7 @@ function Payment() {
             <p className="text-amber-800 font-black text-xs">
               Outstanding credit balance of Rs. {fmt(outstandingCredit)} must be settled at delivery
             </p>
-            <p className="text-amber-600 font-bold text-[11px] mt-0.5 leading-normal">
+            <p className="text-amber-650 font-bold text-[11px] mt-0.5 leading-normal">
               The delivery driver will collect this pending amount in cash along with the cash payment for this order.
             </p>
           </div>
@@ -262,7 +262,7 @@ function Payment() {
             onClick={() => setOrderType("Normal")}
             className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${
               orderType === "Normal"
-                ? "border-slate-800 bg-slate-50/50"
+                ? "border-blue-650 bg-blue-50/30"
                 : "border-slate-100 hover:bg-slate-50/30"
             }`}
           >
@@ -272,7 +272,7 @@ function Payment() {
                 name="orderType"
                 checked={orderType === "Normal"}
                 onChange={() => {}}
-                className="accent-slate-900"
+                className="accent-blue-600"
               />
               <span className="font-black text-slate-800 text-xs">Normal Order</span>
             </div>
@@ -295,7 +295,7 @@ function Payment() {
                 name="orderType"
                 checked={orderType === "Urgent"}
                 onChange={() => {}}
-                className="accent-red-600"
+                className="accent-red-650"
               />
               <span className="font-black text-red-700 text-xs">Urgent Order</span>
             </div>
@@ -314,8 +314,8 @@ function Payment() {
           {/* Option 1: Full Cash */}
           <label className="flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition hover:bg-slate-50/50"
             style={{ 
-              borderColor: paymentType === "cash" ? "#0f172a" : "#f1f5f9", 
-              backgroundColor: paymentType === "cash" ? "#f8fafc" : "" 
+              borderColor: paymentType === "cash" ? "#2563eb" : "#f1f5f9", 
+              backgroundColor: paymentType === "cash" ? "#f0f9ff" : "" 
             }}
           >
             <input
@@ -323,7 +323,7 @@ function Payment() {
               name="paymentType"
               checked={paymentType === "cash"}
               onChange={() => setPaymentType("cash")}
-              className="accent-slate-900"
+              className="accent-blue-600"
             />
             <div>
               <span className="font-black text-slate-800 text-xs">Full Cash</span>
@@ -334,7 +334,7 @@ function Payment() {
           {/* Option 2: Full Credit */}
           {creditLoading ? (
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 px-4 py-2">
-              <FiLoader className="animate-spin text-slate-400" />
+              <FiLoader className="animate-spin text-slate-450" />
               <span>Verifying credit account limits...</span>
             </div>
           ) : creditInfo ? (
@@ -342,8 +342,8 @@ function Payment() {
               !canUseFullCredit ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
             }`}
               style={{ 
-                borderColor: paymentType === "credit" ? "#0f172a" : "#f1f5f9", 
-                backgroundColor: paymentType === "credit" ? "#f8fafc" : "" 
+                borderColor: paymentType === "credit" ? "#2563eb" : "#f1f5f9", 
+                backgroundColor: paymentType === "credit" ? "#f0f9ff" : "" 
               }}
             >
               <input
@@ -352,7 +352,7 @@ function Payment() {
                 checked={paymentType === "credit"}
                 onChange={() => setPaymentType("credit")}
                 disabled={!canUseFullCredit}
-                className="accent-slate-900"
+                className="accent-blue-600"
               />
               <div className="flex-1">
                 <div className="flex items-center flex-wrap gap-1.5">
@@ -379,8 +379,8 @@ function Payment() {
               creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
             }`}
               style={{ 
-                borderColor: paymentType === "cash_credit" ? "#0f172a" : "#f1f5f9", 
-                backgroundColor: paymentType === "cash_credit" ? "#f8fafc" : "" 
+                borderColor: paymentType === "cash_credit" ? "#2563eb" : "#f1f5f9", 
+                backgroundColor: paymentType === "cash_credit" ? "#f0f9ff" : "" 
               }}
             >
               <input
@@ -389,7 +389,7 @@ function Payment() {
                 checked={paymentType === "cash_credit"}
                 onChange={() => setPaymentType("cash_credit")}
                 disabled={creditBlocked}
-                className="accent-slate-900"
+                className="accent-blue-600"
               />
               <div>
                 <div className="flex items-center gap-1.5">
@@ -425,26 +425,26 @@ function Payment() {
               </div>
               <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Outstanding</p>
-                <p className={`font-black text-sm ${outstandingCredit > 0 ? "text-red-655" : "text-green-600"}`}>
+                <p className={`font-black text-sm ${outstandingCredit > 0 ? "text-red-655" : "text-green-605"}`}>
                   Rs. {fmt(outstandingCredit)}
                 </p>
               </div>
-              <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Available</p>
-                <p className="font-black text-slate-800 text-sm">Rs. {fmt(availableCredit)}</p>
+              <div className="bg-white border border-blue-100/70 rounded-2xl p-3.5 shadow-xs">
+                <p className="text-[9px] font-black text-blue-600/70 uppercase tracking-wider mb-1">Available</p>
+                <p className="font-black text-blue-700 text-sm">Rs. {fmt(availableCredit)}</p>
               </div>
             </div>
 
             {/* Full Credit summary */}
             {paymentType === "credit" && (
-              <div className="bg-green-50/40 border border-green-100/50 rounded-2xl p-4 text-xs font-bold space-y-1">
-                <p className="text-green-800">
+              <div className="bg-blue-50/40 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold space-y-1">
+                <p className="text-blue-800">
                   Credit to Debit: Rs. {fmt(payableTotal)}
                 </p>
-                <p className="text-green-800">
+                <p className="text-blue-805">
                   Remaining Account Balance: Rs. {fmt(remainingCredit)}
                 </p>
-                <p className="text-[10px] text-green-600 mt-2 flex items-center gap-1">
+                <p className="text-[10px] text-blue-600 mt-2 flex items-center gap-1">
                   <FiCheckCircle /> Credit ledger entries will be updated when the dispatch delivery completes.
                 </p>
               </div>
@@ -463,7 +463,7 @@ function Payment() {
                     max={Math.min(availableCredit, payableTotal)}
                     value={creditInput}
                     onChange={(e) => setCreditInput(e.target.value)}
-                    className="w-full border border-slate-200 p-3.5 rounded-full outline-none focus:border-slate-800 transition text-xs font-bold"
+                    className="w-full border border-slate-200 p-3.5 rounded-full outline-none focus:border-blue-600 transition text-xs font-bold"
                     placeholder="Enter credit amount"
                   />
                 </div>
@@ -477,12 +477,12 @@ function Payment() {
                   </div>
                 </div>
 
-                <div className="bg-slate-100/50 border border-slate-200/50 rounded-2xl p-4 text-xs font-bold space-y-1 text-slate-600">
+                <div className="bg-blue-50/30 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold space-y-1 text-blue-700">
                   <p>Credit Portion: Rs. {fmt(finalCreditAmount)}</p>
                   <p>Cash Portion: Rs. {fmt(finalCashAmount)}</p>
                   <p>Remaining Account Balance: Rs. {fmt(remainingCredit)}</p>
                   {outstandingCredit > 0 && (
-                    <p className="text-amber-700 mt-2 font-black">
+                    <p className="text-amber-705 mt-2 font-black">
                       + Settling Outstanding at Delivery: Rs. {fmt(outstandingCredit)}
                     </p>
                   )}
@@ -494,13 +494,13 @@ function Payment() {
 
         {/* ── Driver Collection Preview ─────────────────────────── */}
         {outstandingCredit > 0 && creditInfo && (
-          <div className="mt-4 bg-slate-50/50 border border-slate-100 rounded-2xl p-4 text-xs font-bold text-slate-600">
-            <p className="font-black text-slate-850 mb-1.5">Driver Collection Details (Cash at Delivery):</p>
+          <div className="mt-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold text-blue-700">
+            <p className="font-black text-blue-900 mb-1.5">Driver Collection Details (Cash at Delivery):</p>
             <div className="space-y-1">
               <p>Current Order Cash Portion: Rs. {fmt(finalCashAmount)}</p>
               <p>Settlement of Previous Outstanding: Rs. {fmt(outstandingCredit)}</p>
-              <hr className="my-1.5 border-slate-200" />
-              <p className="font-black text-slate-900 text-sm">
+              <hr className="my-1.5 border-blue-200" />
+              <p className="font-black text-blue-900 text-sm">
                 Total Driver Cash Collection: Rs. {fmt(finalCashAmount + outstandingCredit)}
               </p>
             </div>
@@ -519,8 +519,8 @@ function Payment() {
           disabled={submitting}
           className={`w-full py-4 rounded-full mt-6 font-black text-xs text-white transition-all shadow-xs cursor-pointer ${
             submitting
-              ? "bg-slate-200 cursor-not-allowed"
-              : "bg-slate-900 hover:bg-slate-800"
+              ? "bg-slate-205 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-755"
           }`}
         >
           {submitting ? "Processing Order..." : "Confirm & Place Order"}

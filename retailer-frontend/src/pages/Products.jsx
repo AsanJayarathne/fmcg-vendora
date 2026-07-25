@@ -147,7 +147,7 @@ function Products() {
             placeholder="Search products..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-bold transition duration-300 shadow-2xs placeholder-slate-400 text-slate-700"
           />
         </div>
         {!loading && distributors.length > 0 && (
@@ -155,11 +155,11 @@ function Products() {
             <select
               value={selectedDistributorId}
               onChange={(e) => setSelectedDistributorId(e.target.value)}
-              className="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-slate-700 appearance-none cursor-pointer"
+              className="w-full border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-bold transition duration-300 shadow-2xs appearance-none cursor-pointer text-slate-500"
               style={{
                 backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
-                backgroundPosition: 'right 0.75rem center',
-                backgroundSize: '1.5em 1.5em',
+                backgroundPosition: 'right 1.25rem center',
+                backgroundSize: '1.25em 1.25em',
                 backgroundRepeat: 'no-repeat',
               }}
             >

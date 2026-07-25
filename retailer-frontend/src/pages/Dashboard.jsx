@@ -202,7 +202,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-55/10 gap-3">
-        <FiLoader size={36} className="animate-spin text-slate-900" />
+        <FiLoader size={36} className="animate-spin text-blue-600" />
         <p className="text-slate-500 font-bold text-sm">Syncing dashboard details...</p>
       </div>
     );

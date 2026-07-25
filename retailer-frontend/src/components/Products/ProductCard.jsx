@@ -67,7 +67,7 @@ function ProductCard({ product, onView, onCart }) {
         </h3>
 
         {unit && (
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">{unit}</p>
+          <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider mt-1">{unit}</p>
         )}
 
         {product.distributor_name && (
@@ -104,7 +104,7 @@ function ProductCard({ product, onView, onCart }) {
           <button
             id={`product-view-${id}`}
             onClick={() => onView(product)}
-            className="flex-1 border border-slate-200 hover:border-slate-850 hover:bg-slate-50 text-slate-600 hover:text-slate-850 font-bold text-xs py-2 rounded-full cursor-pointer transition flex items-center justify-center shadow-2xs"
+            className="flex-1 border border-blue-200 hover:border-blue-600 hover:bg-blue-50/40 text-blue-650 font-bold text-xs py-2 rounded-full cursor-pointer transition flex items-center justify-center shadow-2xs"
           >
             Details
           </button>
@@ -116,7 +116,7 @@ function ProductCard({ product, onView, onCart }) {
             className={`flex-[2] text-center font-bold text-xs py-2 rounded-full cursor-pointer transition shadow-2xs ${
               isOutOfStock
                 ? "bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed"
-                : "bg-slate-900 hover:bg-slate-800 text-white"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
           >
             Add To Cart

@@ -30,7 +30,7 @@ export default function SpendingSummary({ data = defaultData }) {
             formatter={(value) => [`Rs. ${value.toLocaleString()}`, "Spending"]}
             contentStyle={{ borderRadius: 16, borderColor: "#f1f5f9", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)" }}
           />
-          <Bar dataKey="spending" fill="#0f172a" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="spending" fill="#2563eb" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
 
