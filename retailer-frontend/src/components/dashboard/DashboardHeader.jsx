@@ -17,7 +17,7 @@ export default function DashboardHeader({
           </h1>
 
           <p className="text-slate-400 text-sm mt-1 font-normal">
-            Welcome back 👋 &nbsp;|&nbsp; Here is your store performance overview
+            Welcome back Here is your store performance overview
           </p>
         </div>
 
@@ -25,11 +25,10 @@ export default function DashboardHeader({
           {/* Filter Button */}
           <button
             onClick={onOpenFilter}
-            className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl shadow-xs transition cursor-pointer border ${
-              activeFilterCount > 0
+            className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl shadow-xs transition cursor-pointer border ${activeFilterCount > 0
                 ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
                 : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300"
-            }`}
+              }`}
           >
             <FiFilter className={activeFilterCount > 0 ? "text-white" : "text-slate-500"} />
             <span>Filters</span>
