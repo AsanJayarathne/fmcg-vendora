@@ -15,10 +15,10 @@ export default function RecentOrdersStatus({ orders = [] }) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 px-1">
-        <h2 className="font-black text-slate-800 text-xl leading-tight">Recent Orders</h2>
+        <h2 className="font-bold text-slate-800 text-xl leading-tight">Recent Orders</h2>
         <button
           onClick={() => navigate("/orders")}
-          className="text-sm font-bold text-blue-650 hover:text-blue-800 cursor-pointer transition"
+          className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer transition"
         >
           See All
         </button>
@@ -34,25 +34,25 @@ export default function RecentOrdersStatus({ orders = [] }) {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className={`text-[10px] font-black uppercase tracking-wider ${idx === 0 ? "text-white/70" : "text-slate-400"}`}>Price</p>
-                <div className={`mt-2 text-2xl font-black ${idx === 0 ? "text-white" : "text-slate-900"}`}>{order.total}</div>
-                <div className={`mt-2 text-xs font-semibold ${idx === 0 ? "text-white/90" : "text-slate-500"}`}>{order.distributor ?? "No distributor"}</div>
+                <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Price</p>
+                <div className={`mt-2 text-2xl font-bold ${idx === 0 ? "text-white" : "text-slate-900"}`}>{order.total}</div>
+                <div className={`mt-2 text-xs font-medium ${idx === 0 ? "text-white/80" : "text-slate-500"}`}>{order.distributor ?? "No distributor"}</div>
               </div>
 
-              <span className={`rounded-full px-3 py-1 text-[10px] font-black border ${idx === 0 ? "bg-white text-blue-600 border-white" : statusClass(order.status)}`}>
+              <span className={`rounded-full px-3 py-1 text-[10px] font-semibold border ${idx === 0 ? "bg-white text-blue-600 border-white" : statusClass(order.status)}`}>
                 {order.status}
               </span>
             </div>
 
-            <div className="mt-6 grid gap-4 text-xs font-semibold">
+            <div className="mt-6 grid gap-4 text-xs font-medium">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${idx === 0 ? "text-white/70" : "text-slate-400"}`}>Payment</p>
-                  <p className={`mt-2 ${idx === 0 ? "text-white" : "text-slate-950 font-black"}`}>{order.payment ?? "N/A"}</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Payment</p>
+                  <p className={`mt-2 font-semibold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.payment ?? "N/A"}</p>
                 </div>
                 <div className="text-right">
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${idx === 0 ? "text-white/70" : "text-slate-400"}`}>Order Placed</p>
-                  <p className={`mt-2 ${idx === 0 ? "text-white" : "text-slate-950 font-black"}`}>{order.date ?? "Unknown"}</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Order Placed</p>
+                  <p className={`mt-2 font-semibold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.date ?? "Unknown"}</p>
                 </div>
               </div>
             </div>
@@ -60,13 +60,13 @@ export default function RecentOrdersStatus({ orders = [] }) {
             <div className={`mt-6 rounded-[24px] p-4 ${idx === 0 ? "bg-white/10" : "bg-slate-50/50 border border-slate-100"}`}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${idx === 0 ? "text-white/70" : "text-slate-400"}`}>Order ID</p>
-                  <p className={`mt-2 text-base font-black ${idx === 0 ? "text-white" : "text-slate-805"}`}>{order.id}</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Order ID</p>
+                  <p className={`mt-2 text-base font-bold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.id}</p>
                 </div>
                 {order.itemCount > 0 && (
                   <div className="text-right">
-                    <p className={`text-[10px] font-black uppercase tracking-wider ${idx === 0 ? "text-white/70" : "text-slate-400"}`}>Items Count</p>
-                    <p className={`mt-2 text-base font-black ${idx === 0 ? "text-white" : "text-slate-805"}`}>{order.itemCount}</p>
+                    <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Items Count</p>
+                    <p className={`mt-2 text-base font-bold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.itemCount}</p>
                   </div>
                 )}
               </div>

@@ -26,14 +26,14 @@ export default function StatCard({ title, value, color = "blue", subtitle, icon 
       <div className="flex items-center justify-between gap-4">
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
             {title}
           </p>
-          <div className="text-2xl font-black text-slate-800 leading-tight">
+          <div className="text-2xl font-bold text-slate-800 leading-tight">
             {value}
           </div>
           {subtitle && (
-            <p className="text-xs font-bold text-slate-500 mt-1 leading-none">
+            <p className="text-xs font-medium text-slate-400 mt-1 leading-none">
               {subtitle}
             </p>
           )}

@@ -50,7 +50,15 @@ export default function CreditUsageChart({ data = defaultData }) {
 
   return (
     <div className="h-full w-full bg-white p-6 rounded-3xl border border-slate-100 shadow-xs">
-      <h2 className="font-black text-slate-800 text-base mb-5">Credit Usage</h2>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="font-semibold text-slate-800 text-base leading-tight">Credit Usage</h2>
+          <p className="text-xs text-slate-400 font-normal mt-0.5">Historical credit utilization pattern</p>
+        </div>
+        <span className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-600 text-xs font-medium">
+          Credit Trend
+        </span>
+      </div>
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 8 }}>
