@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
+import DashboardFilterModal from "../components/dashboard/DashboardFilterModal";
 import StatCard from "../components/dashboard/StatCard";
 import { FiCreditCard, FiFileText, FiTag, FiTrendingUp, FiLoader } from "react-icons/fi";
 
@@ -21,6 +22,14 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ── Filter States ──────────────────────────────────────────────────
+  const [timeframe, setTimeframe] = useState("This Month");
+  const [filterDistributor, setFilterDistributor] = useState("");
+  const [filterPayment, setFilterPayment] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  // Load backend data
   useEffect(() => {
     if (!token) return;
     setLoading(true);
@@ -42,44 +51,156 @@ export default function Dashboard() {
       });
   }, [token]);
 
-  // Spending metric: aggregate sum of completed (non-rejected) orders
+  // Unique list of distributors for filter dropdown
+  const uniqueDistributors = useMemo(() => {
+    const set = new Set();
+    orders.forEach(o => {
+      if (o.distributor && o.distributor !== "Unknown") {
+        set.add(o.distributor);
+      }
+    });
+    return Array.from(set);
+  }, [orders]);
+
+  // ── Filter Orders Logic ──────────────────────────────────────────
+  const filteredOrders = useMemo(() => {
+    if (!orders.length) return [];
+    const now = new Date();
+
+    return orders.filter((o) => {
+      // 1. Timeframe filter
+      if (timeframe !== "All Time") {
+        const orderDate = new Date(o.createdAt);
+        if (!isNaN(orderDate.getTime())) {
+          if (timeframe === "This Month") {
+            if (
+              orderDate.getMonth() !== now.getMonth() ||
+              orderDate.getFullYear() !== now.getFullYear()
+            ) {
+              return false;
+            }
+          } else if (timeframe === "Last Month") {
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            if (
+              orderDate.getMonth() !== lastMonth.getMonth() ||
+              orderDate.getFullYear() !== lastMonth.getFullYear()
+            ) {
+              return false;
+            }
+          } else if (timeframe === "This Week") {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 7);
+            if (orderDate < sevenDaysAgo) return false;
+          } else if (timeframe === "This Quarter") {
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(now.getMonth() - 3);
+            if (orderDate < threeMonthsAgo) return false;
+          } else if (timeframe === "This Year") {
+            if (orderDate.getFullYear() !== now.getFullYear()) return false;
+          }
+        }
+      }
+
+      // 2. Distributor filter
+      if (filterDistributor && o.distributor !== filterDistributor) {
+        return false;
+      }
+
+      // 3. Payment Method filter
+      if (filterPayment) {
+        if (o.paymentMethod !== filterPayment && o.paymentType !== filterPayment) {
+          return false;
+        }
+      }
+
+      // 4. Order Status filter
+      if (filterStatus) {
+        if (
+          o.status !== filterStatus &&
+          o.backendStatus !== filterStatus &&
+          o.deliveryStatus !== filterStatus
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [orders, timeframe, filterDistributor, filterPayment, filterStatus]);
+
+  // Active filter count and badges computation
+  const activeFilterBadges = useMemo(() => {
+    const badges = [];
+    if (timeframe !== "This Month" && timeframe !== "All Time") {
+      badges.push({ key: "timeframe", label: `Period: ${timeframe}` });
+    }
+    if (filterDistributor) {
+      badges.push({ key: "distributor", label: `Distributor: ${filterDistributor}` });
+    }
+    if (filterPayment) {
+      const labelMap = { Cash: "Cash", Credit: "Credit", Cash_Credit: "Cash + Credit" };
+      badges.push({ key: "payment", label: `Payment: ${labelMap[filterPayment] || filterPayment}` });
+    }
+    if (filterStatus) {
+      badges.push({ key: "status", label: `Status: ${filterStatus}` });
+    }
+    return badges;
+  }, [timeframe, filterDistributor, filterPayment, filterStatus]);
+
+  const activeFilterCount = activeFilterBadges.length;
+
+  const handleRemoveFilter = useCallback((key) => {
+    if (key === "timeframe") setTimeframe("This Month");
+    if (key === "distributor") setFilterDistributor("");
+    if (key === "payment") setFilterPayment("");
+    if (key === "status") setFilterStatus("");
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setTimeframe("This Month");
+    setFilterDistributor("");
+    setFilterPayment("");
+    setFilterStatus("");
+  }, []);
+
+  // Spending metric: aggregate sum of completed (non-rejected) filtered orders
   const spendingVal = useMemo(() => {
-    const total = orders
+    const total = filteredOrders
       .filter(o => o.backendStatus !== "Rejected")
       .reduce((sum, o) => sum + Number(o.total || 0), 0);
     return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [orders]);
+  }, [filteredOrders]);
 
   // Total incoming orders count
   const totalOrdersVal = useMemo(() => {
-    return String(orders.length);
-  }, [orders]);
+    return String(filteredOrders.length);
+  }, [filteredOrders]);
 
   // Unique products purchased
   const productsVal = useMemo(() => {
     const unique = new Set();
-    orders.forEach(o => {
+    filteredOrders.forEach(o => {
       (o.items ?? []).forEach(item => {
         unique.add(item.productId);
       });
     });
     return String(unique.size);
-  }, [orders]);
+  }, [filteredOrders]);
 
   // Bulk discounts savings sum
   const savingsVal = useMemo(() => {
-    const total = orders
+    const total = filteredOrders
       .reduce((sum, o) => sum + Number(o.discount || 0), 0);
     return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [orders]);
+  }, [filteredOrders]);
 
   // Stats Card dataset mapping
   const stats = useMemo(() => [
-    { title: "Spending", value: spendingVal, color: "green", icon: <FiCreditCard size={18} />, subtitle: "Aggregate orders value" },
-    { title: "Total Order", value: totalOrdersVal, color: "blue", icon: <FiFileText size={18} />, subtitle: "All placed orders count" },
+    { title: "Spending", value: spendingVal, color: "green", icon: <FiCreditCard size={18} />, subtitle: `Filtered spending (${timeframe})` },
+    { title: "Total Order", value: totalOrdersVal, color: "blue", icon: <FiFileText size={18} />, subtitle: `Filtered orders count` },
     { title: "No of Products", value: productsVal, color: "orange", icon: <FiTag size={18} />, subtitle: "Distinct products purchased" },
     { title: "Savings", value: savingsVal, color: "purple", icon: <FiTrendingUp size={18} />, subtitle: "Bulk promotions savings" },
-  ], [spendingVal, totalOrdersVal, productsVal, savingsVal]);
+  ], [spendingVal, totalOrdersVal, productsVal, savingsVal, timeframe]);
 
   // Credit details computation
   const creditData = useMemo(() => {
@@ -116,9 +237,9 @@ export default function Dashboard() {
     });
   }, [creditInfo]);
 
-  // Mapped list components data
+  // Mapped list components data based on filteredOrders
   const recentOrdersMapped = useMemo(() => {
-    return orders.slice(0, 3).map(o => ({
+    return filteredOrders.slice(0, 3).map(o => ({
       id: o.orderId,
       distributor: o.distributor,
       date: new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
@@ -127,11 +248,11 @@ export default function Dashboard() {
       payment: o.paymentLabel,
       itemCount: (o.items ?? []).reduce((sum, i) => sum + Number(i.quantity || 0), 0)
     }));
-  }, [orders]);
+  }, [filteredOrders]);
 
   const recentProductsMapped = useMemo(() => {
     const list = [];
-    orders.forEach(o => {
+    filteredOrders.forEach(o => {
       (o.items ?? []).forEach(item => {
         if (list.length < 3 && !list.some(p => p.id === item.productId)) {
           list.push({
@@ -144,21 +265,20 @@ export default function Dashboard() {
         }
       });
     });
-    // Fallback if empty to preserve alignment
     if (list.length === 0) {
       return [
-        { id: 1, name: "No products purchased yet", distributor: "—", quantity: 0, price: "Rs. 0.00" }
+        { id: 1, name: "No products in filtered results", distributor: "—", quantity: 0, price: "Rs. 0.00" }
       ];
     }
     return list;
-  }, [orders]);
+  }, [filteredOrders]);
 
   const paymentsToday = useMemo(() => {
     let cash = 0;
     let credit = 0;
     let count = 0;
     const todayStr = new Date().toISOString().split('T')[0];
-    orders.forEach(o => {
+    filteredOrders.forEach(o => {
       const oDate = o.createdAt ? o.createdAt.split(' ')[0] : "";
       if (oDate === todayStr && o.backendStatus !== "Rejected") {
         cash += Number(o.cashAmount ?? 0);
@@ -167,7 +287,7 @@ export default function Dashboard() {
       }
     });
     return { cash, credit, count };
-  }, [orders]);
+  }, [filteredOrders]);
 
   const spendingChartData = useMemo(() => {
     const weeks = {};
@@ -178,7 +298,7 @@ export default function Dashboard() {
       weeks[key] = { month: key, spending: 0 };
     }
     
-    orders.forEach(o => {
+    filteredOrders.forEach(o => {
       if (o.backendStatus !== "Rejected") {
         const oDate = new Date(o.createdAt);
         const key = `W${getWeekNumber(oDate)}`;
@@ -189,7 +309,7 @@ export default function Dashboard() {
     });
     
     return Object.values(weeks);
-  }, [orders]);
+  }, [filteredOrders]);
 
   function getWeekNumber(d) {
     const date = new Date(d.getTime());
@@ -210,7 +330,13 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 bg-slate-50 min-h-screen font-sans">
-      <DashboardHeader />
+      <DashboardHeader
+        onOpenFilter={() => setIsFilterOpen(true)}
+        activeFilterCount={activeFilterCount}
+        activeFilterBadges={activeFilterBadges}
+        onRemoveFilter={handleRemoveFilter}
+        onResetFilters={handleResetFilters}
+      />
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-sm font-semibold mb-6">
@@ -263,6 +389,22 @@ export default function Dashboard() {
           <SpendingSummary data={spendingChartData} />
         </div>
       </div>
+
+      {/* Filter Modal */}
+      <DashboardFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        timeframe={timeframe}
+        setTimeframe={setTimeframe}
+        distributors={uniqueDistributors}
+        selectedDistributor={filterDistributor}
+        setSelectedDistributor={setFilterDistributor}
+        selectedPayment={filterPayment}
+        setSelectedPayment={setFilterPayment}
+        selectedStatus={filterStatus}
+        setSelectedStatus={setFilterStatus}
+        onReset={handleResetFilters}
+      />
     </div>
   );
 }

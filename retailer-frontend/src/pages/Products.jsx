@@ -90,6 +90,16 @@ function Products() {
     setSearchTerm(""); // clear search when switching category
   }
 
+  // ── Smooth scroll to All Products section ──────────────────────
+  function handleViewAll() {
+    setSelectedCategoryId(null);
+    setSearchTerm("");
+    const el = document.getElementById("all-products-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
   // Heading text
   const headingText = selectedCategoryId
     ? (categories.find((c) => c.category_id === selectedCategoryId)?.category_name ?? "Products")
@@ -101,8 +111,8 @@ function Products() {
     <div className="min-w-0 overflow-x-hidden">
 
       {/* Page header — original style */}
-      <h1 className="text-3xl font-bold mb-6">
-        <FiShoppingBag className="inline mr-2" />
+      <h1 className="text-3xl font-bold mb-6 flex items-center">
+        <FiShoppingBag className="inline mr-2 text-blue-600" />
         Products
         {!loading && (
           <span className="ml-3 text-base font-normal text-gray-500">
@@ -125,17 +135,19 @@ function Products() {
             products={products.filter(p => !selectedDistributorId || p.distributor_id === Number(selectedDistributorId))}
             onView={setSelectedProduct}
             onCart={setCartProduct}
+            onViewAll={handleViewAll}
           />
           <RecommendedProducts
             products={products.filter(p => !selectedDistributorId || p.distributor_id === Number(selectedDistributorId))}
             onView={setSelectedProduct}
             onCart={setCartProduct}
+            onViewAll={handleViewAll}
           />
         </>
       )}
 
       {/* Section heading */}
-      <h2 className="text-xl font-bold mb-6">
+      <h2 id="all-products-section" className="text-xl font-bold mb-6 text-slate-800 scroll-mt-6">
         {headingText}
       </h2>
 
