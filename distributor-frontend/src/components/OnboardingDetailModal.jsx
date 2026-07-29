@@ -1,23 +1,9 @@
-import { X, Check, XCircle, ShieldOff } from "lucide-react";
+import { X, Check, XCircle, ShieldOff, User } from "lucide-react";
 
-/**
- * Reusable detail + action modal for onboarding entities (shops, drivers, etc.)
- *
- * Props:
- *  - title        {string}   Primary name shown in header
- *  - idLabel      {string}   Formatted ID shown below the name (e.g. "SHOP-0001")
- *  - avatarColor  {string}   Tailwind classes for avatar text + bg (e.g. "text-blue-600 bg-blue-100")
- *  - status       {string}   Current status of the entity
- *  - fields       {Array}    [{ icon: <JSX />, label: string, value: string }]
- *  - onClose      {fn}       Called when the modal should close
- *  - onAction     {fn}       Called with (status: string) when an action button is clicked
- *  - actionLoading {string}  Which status is currently loading ("Approved" | "Rejected" | "Blocked" | "")
- *  - actionError  {string}   Error message to display inside the modal
- */
 export default function OnboardingDetailModal({
   title,
   idLabel,
-  avatarColor = "text-blue-600 bg-blue-100",
+  avatarColor = "text-blue-600 bg-blue-50 border border-blue-100",
   status,
   fields = [],
   onClose,
@@ -34,48 +20,48 @@ export default function OnboardingDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100 transform transition-all scale-100 animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
             <div
-              className={`flex items-center justify-center text-sm font-bold rounded-full w-11 h-11 shrink-0 ${avatarColor}`}
+              className={`flex items-center justify-center text-xs font-black rounded-full w-10 h-10 shrink-0 ${avatarColor}`}
             >
               {initials}
             </div>
             <div>
-              <h2 className="font-bold text-gray-800">{title}</h2>
-              <p className="text-xs text-gray-500">{idLabel}</p>
+              <h2 className="font-bold text-slate-800 text-base leading-tight">{title}</h2>
+              <p className="text-xs font-semibold text-slate-400 mt-0.5">{idLabel}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition cursor-pointer"
             aria-label="Close modal"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-4">
+        <div className="p-6 space-y-5">
           {/* Status badge */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Status
+          <div className="flex items-center justify-between p-4 bg-slate-50/70 rounded-2xl border border-slate-100">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Account Status
             </span>
             <span
-              className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusStyle(status)}`}
+              className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full ${getStatusStyle(status)}`}
             >
               {status}
             </span>
           </div>
 
           {/* Detail fields grid */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
             {fields.map((field, i) => (
               <DetailRow key={i} icon={field.icon} label={field.label} value={field.value} />
             ))}
@@ -83,41 +69,43 @@ export default function OnboardingDetailModal({
 
           {/* Error message */}
           {actionError && (
-            <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-              {actionError}
+            <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
+              ⚠️ {actionError}
             </p>
           )}
 
           {/* Action buttons */}
-          {status !== "Approved" && (
-            <ActionButton
-              label="Approve"
-              icon={<Check size={14} />}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
-              loading={actionLoading === "Approved"}
-              onClick={() => onAction("Approved")}
-            />
-          )}
+          <div className="space-y-3 pt-2">
+            {status !== "Approved" && (
+              <ActionButton
+                label="Approve Account"
+                icon={<Check size={16} />}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs"
+                loading={actionLoading === "Approved"}
+                onClick={() => onAction("Approved")}
+              />
+            )}
 
-          <div className="flex gap-3">
-            {status !== "Rejected" && (
-              <ActionButton
-                label="Reject"
-                icon={<XCircle size={14} />}
-                className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
-                loading={actionLoading === "Rejected"}
-                onClick={() => onAction("Rejected")}
-              />
-            )}
-            {status !== "Blocked" && (
-              <ActionButton
-                label="Block"
-                icon={<ShieldOff size={14} />}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
-                loading={actionLoading === "Blocked"}
-                onClick={() => onAction("Blocked")}
-              />
-            )}
+            <div className="flex gap-3">
+              {status !== "Rejected" && (
+                <ActionButton
+                  label="Reject"
+                  icon={<XCircle size={15} />}
+                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 shadow-2xs"
+                  loading={actionLoading === "Rejected"}
+                  onClick={() => onAction("Rejected")}
+                />
+              )}
+              {status !== "Blocked" && (
+                <ActionButton
+                  label="Block"
+                  icon={<ShieldOff size={15} />}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-2xs"
+                  loading={actionLoading === "Blocked"}
+                  onClick={() => onAction("Blocked")}
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -130,10 +118,10 @@ export default function OnboardingDetailModal({
 function DetailRow({ icon, label, value }) {
   return (
     <div className="flex items-start gap-2">
-      <span className="text-gray-400 mt-0.5 shrink-0">{icon}</span>
-      <div>
-        <p className="text-[10px] text-gray-400 uppercase font-semibold">{label}</p>
-        <p className="text-gray-700 font-medium text-xs">{value || "—"}</p>
+      {icon ? <span className="text-blue-600 mt-0.5 shrink-0">{icon}</span> : <User size={14} className="text-blue-600 mt-0.5 shrink-0" />}
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{label}</p>
+        <p className="text-slate-800 font-bold text-xs truncate mt-0.5">{value || "—"}</p>
       </div>
     </div>
   );
@@ -144,7 +132,7 @@ function ActionButton({ label, icon, className, loading, onClick }) {
     <button
       onClick={onClick}
       disabled={loading}
-      className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 ${className}`}
+      className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all disabled:opacity-50 cursor-pointer ${className}`}
     >
       {loading ? (
         <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -159,8 +147,8 @@ function ActionButton({ label, icon, className, loading, onClick }) {
 /* ── Shared helpers ──────────────────────────────────────────────────────── */
 
 export function getStatusStyle(status) {
-  if (status === "Approved") return "text-green-600 bg-green-100";
-  if (status === "Pending Approval" || status === "Pending") return "text-yellow-600 bg-yellow-100";
-  if (status === "Blocked") return "text-orange-600 bg-orange-100";
-  return "text-red-600 bg-red-100";
+  if (status === "Approved") return "text-emerald-700 bg-emerald-50 border border-emerald-200/60";
+  if (status === "Pending Approval" || status === "Pending") return "text-amber-700 bg-amber-50 border border-amber-200/60";
+  if (status === "Blocked") return "text-orange-700 bg-orange-50 border border-orange-200/60";
+  return "text-rose-700 bg-rose-50 border border-rose-200/60";
 }

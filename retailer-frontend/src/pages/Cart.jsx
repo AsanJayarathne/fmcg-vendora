@@ -1,6 +1,61 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { CartContext } from "../context/CartContextObject";
 import { useNavigate } from "react-router-dom";
+import { FiTrash2, FiAlertTriangle, FiX } from "react-icons/fi";
+
+// ── Confirmation Modal ──────────────────────────────────────────────────────
+function RemoveConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 overflow-hidden transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+              <FiTrash2 size={18} />
+            </div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">{title}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+          >
+            <FiX size={16} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="flex items-start gap-3 p-4 bg-rose-50/60 border border-rose-100 rounded-2xl text-xs text-rose-700 leading-relaxed font-semibold">
+            <FiAlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+            <div>{message}</div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4.5 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs transition cursor-pointer"
+          >
+            Yes, Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Cart() {
   const {
@@ -15,9 +70,17 @@ function Cart() {
 
   const navigate = useNavigate();
 
+  // Confirmation state: null | { type: 'single', item } | { type: 'all' }
+  const [removeTarget, setRemoveTarget] = useState(null);
+
+  const fmt = (val) =>
+    Number(val).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   const distributorOrders = useMemo(() => {
     const orders = cartItems.reduce((groups, item) => {
-      // distributor name is already normalised inside the cart item
       const distributorName = item.distributor || "Unknown Distributor";
 
       if (!groups[distributorName]) {
@@ -48,118 +111,131 @@ function Cart() {
     return Object.values(orders);
   }, [cartItems]);
 
+  const handleConfirmRemoval = () => {
+    if (!removeTarget) return;
+    if (removeTarget.type === "single" && removeTarget.item) {
+      removeFromCart(removeTarget.item.id);
+    } else if (removeTarget.type === "all") {
+      clearCart();
+    }
+    setRemoveTarget(null);
+  };
+
   return (
-    <div className="p-6">
+    <div className="p-6 bg-slate-50/50 min-h-screen">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Shopping Cart</h1>
-
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-3xl font-black text-slate-800">Shopping Cart</h1>
+          <p className="text-xs font-bold text-slate-400 mt-1">
             Review each distributor order separately.
           </p>
         </div>
 
         {cartItems.length > 0 && (
           <button
-            onClick={clearCart}
-            className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+            onClick={() => setRemoveTarget({ type: "all" })}
+            className="px-4.5 py-2 border border-red-100 text-red-655 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition flex items-center gap-1.5"
           >
+            <FiTrash2 size={13} />
             Clear Cart
           </button>
         )}
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="bg-white border rounded-xl p-8 text-center text-gray-500">
+        <div className="bg-white border border-slate-100 rounded-[32px] p-12 text-center text-slate-400 font-bold shadow-xs">
           Your cart is empty.
         </div>
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-5">
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px] items-start">
+          <div className="space-y-6">
             {distributorOrders.map((order) => (
               <section
                 key={order.distributor}
-                className="bg-white border rounded-xl overflow-hidden"
+                className="bg-white border border-slate-100 rounded-[32px] overflow-hidden shadow-xs"
               >
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-blue-50 px-5 py-4 border-b">
+                {/* Header */}
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between bg-blue-50/30 px-6 py-5 border-b border-slate-100">
                   <div>
-                    <h2 className="text-lg font-bold text-slate-900">
+                    <h2 className="text-base font-black text-slate-800">
                       {order.distributor}
                     </h2>
-
-                    <p className="text-sm text-gray-600">
-                      {order.items.length} product lines - {order.totalQuantity}{" "}
-                      units
+                    <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                      {order.items.length} product lines — {order.totalQuantity} units
                     </p>
                   </div>
 
                   <div className="text-left md:text-right">
-                    <p className="text-sm text-gray-500">Order total</p>
-
-                    <p className="text-xl font-bold text-blue-700">
-                      Rs. {order.total}
+                    <p className="text-[10px] font-black text-slate-455 uppercase tracking-wider">Order total</p>
+                    <p className="text-xl font-black text-blue-600">
+                      Rs. {fmt(order.total)}
                     </p>
                   </div>
                 </div>
 
-                <div className="divide-y">
+                {/* Items */}
+                <div className="divide-y divide-slate-100">
                   {order.items.map((item) => (
                     <div
                       key={item.id}
-                      className="p-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-center"
+                      className="p-5 flex flex-col gap-4 md:flex-row md:justify-between md:items-center"
                     >
-                      <div>
-                        <h3 className="font-semibold text-slate-900">
+                      <div className="min-w-0 flex-1 pr-4">
+                        <h3 className="font-extrabold text-slate-800 text-sm truncate">
                           {item.name}
                         </h3>
-
-                        <p className="text-sm text-gray-500">
-                          Rs. {item.price} each
+                        <p className="text-xs font-semibold text-slate-450 mt-0.5">
+                          Rs. {fmt(item.price)} each
                         </p>
-
                         {item.discountRate > 0 && (
-                          <p className="text-sm text-green-600">
+                          <p className="text-[11px] font-bold text-green-600 mt-1">
                             {item.discountRate}% discount applied
                           </p>
                         )}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-3">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          className="w-9 h-9 rounded-lg bg-gray-100 text-lg"
-                        >
-                          -
-                        </button>
+                      <div className="flex flex-wrap items-center gap-4 shrink-0">
+                        {/* Quantity controls */}
+                        <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 rounded-full px-2 py-1">
+                          <button
+                            onClick={() => {
+                              if (item.quantity <= 8) {
+                                setRemoveTarget({ type: "single", item });
+                              } else {
+                                updateQuantity(item.id, item.quantity - 8);
+                              }
+                            }}
+                            className="w-7 h-7 rounded-full bg-white hover:bg-slate-100 text-slate-805 text-sm font-black border border-slate-100 flex items-center justify-center cursor-pointer transition shadow-xs"
+                          >
+                            -
+                          </button>
 
-                        <span className="w-10 text-center font-semibold">
-                          {item.quantity}
-                        </span>
+                          <span className="w-8 text-center font-black text-slate-800 text-xs">
+                            {String(item.quantity).padStart(2, '0')}
+                          </span>
 
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          className="w-9 h-9 rounded-lg bg-blue-600 text-white text-lg"
-                        >
-                          +
-                        </button>
-
-                        <div className="w-32 text-right">
-                          {item.discount > 0 && (
-                            <p className="text-xs text-gray-500 line-through">
-                              Rs. {item.subtotal}
-                            </p>
-                          )}
-
-                          <p className="font-bold">Rs. {item.total}</p>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 8)}
+                            className="w-7 h-7 rounded-full bg-blue-650 hover:bg-blue-700 text-white text-sm font-black flex items-center justify-center cursor-pointer transition shadow-xs"
+                          >
+                            +
+                          </button>
                         </div>
 
+                        {/* Subtotal */}
+                        <div className="w-28 text-right min-w-[70px]">
+                          {item.discount > 0 && (
+                            <p className="text-[10px] text-slate-400 line-through font-bold">
+                              Rs. {fmt(item.subtotal)}
+                            </p>
+                          )}
+                          <p className="font-black text-sm text-blue-600">Rs. {fmt(item.total)}</p>
+                        </div>
+
+                        {/* Remove button */}
                         <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="px-3 py-2 bg-red-500 text-white rounded-lg"
+                          onClick={() => setRemoveTarget({ type: "single", item })}
+                          className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100/70 text-red-600 font-black text-[10px] rounded-full cursor-pointer transition"
                         >
                           Remove
                         </button>
@@ -168,11 +244,12 @@ function Cart() {
                   ))}
                 </div>
 
-                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between p-4 bg-gray-50 border-t">
-                  <div className="text-sm text-gray-600">
-                    <span>Subtotal: Rs. {order.subtotal}</span>
-                    <span className="mx-2">|</span>
-                    <span>Discount: Rs. {order.discount}</span>
+                {/* Footer section */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between p-5 bg-slate-50/30 border-t border-slate-100">
+                  <div className="text-xs font-bold text-slate-455">
+                    <span>Subtotal: Rs. {fmt(order.subtotal)}</span>
+                    <span className="mx-2 text-slate-200">|</span>
+                    <span className="text-green-600">Discount: Rs. {fmt(order.discount)}</span>
                   </div>
 
                   <button
@@ -184,7 +261,7 @@ function Cart() {
                         }
                       )
                     }
-                    className="w-full md:w-auto bg-blue-600 text-white px-4 py-3 rounded-lg"
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-755 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs"
                   >
                     Place Order With {order.distributor}
                   </button>
@@ -193,50 +270,65 @@ function Cart() {
             ))}
           </div>
 
-          <aside className="bg-white border rounded-xl p-5 h-fit">
-            <h2 className="text-lg font-bold mb-4">Cart Summary</h2>
+          <aside className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xs h-fit">
+            <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-5">Cart Summary</h2>
 
-            <div className="space-y-3">
-              <div className="flex justify-between text-gray-600">
+            <div className="space-y-3.5">
+              <div className="flex justify-between text-xs font-bold text-slate-455">
                 <span>Distributor orders</span>
-                <span>{distributorOrders.length}</span>
+                <span className="text-slate-800 font-extrabold">{distributorOrders.length}</span>
               </div>
 
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-xs font-bold text-slate-455">
                 <span>Product lines</span>
-                <span>{cartItems.length}</span>
+                <span className="text-slate-800 font-extrabold">{cartItems.length}</span>
               </div>
 
-              {distributorOrders.map((order) => (
-                <div
-                  key={order.distributor}
-                  className="flex justify-between text-sm text-gray-600"
-                >
-                  <span>{order.distributor}</span>
-                  <span>Rs. {order.total}</span>
-                </div>
-              ))}
+              <div className="border-t border-slate-100 pt-3 space-y-2">
+                {distributorOrders.map((order) => (
+                  <div
+                    key={order.distributor}
+                    className="flex justify-between text-[11px] font-semibold text-slate-500"
+                  >
+                    <span className="truncate pr-2">{order.distributor}</span>
+                    <span className="shrink-0 font-bold text-blue-600">Rs. {fmt(order.total)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-2 pt-4 mt-4 border-t text-gray-600">
+            <div className="space-y-2.5 pt-4 mt-4 border-t border-slate-100 text-xs font-bold text-slate-455">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>Rs. {cartSubtotal}</span>
+                <span className="text-slate-800 font-extrabold">Rs. {fmt(cartSubtotal)}</span>
               </div>
 
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>
-                <span>- Rs. {cartDiscount}</span>
+                <span className="font-extrabold">- Rs. {fmt(cartDiscount)}</span>
               </div>
             </div>
 
-            <div className="flex justify-between text-xl font-bold pt-4 mt-4 border-t">
+            <div className="flex justify-between text-lg font-black pt-4 mt-4 border-t border-slate-100 text-blue-650">
               <span>Total</span>
-              <span>Rs. {cartTotal}</span>
+              <span>Rs. {fmt(cartTotal)}</span>
             </div>
           </aside>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <RemoveConfirmModal
+        isOpen={Boolean(removeTarget)}
+        onClose={() => setRemoveTarget(null)}
+        onConfirm={handleConfirmRemoval}
+        title={removeTarget?.type === "all" ? "Clear Shopping Cart" : "Remove Item"}
+        message={
+          removeTarget?.type === "all"
+            ? "Are you sure you want to remove all items from your shopping cart?"
+            : `Are you sure you want to remove "${removeTarget?.item?.name}" from your cart?`
+        }
+      />
     </div>
   );
 }

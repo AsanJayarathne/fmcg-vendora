@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
+import CategoryFilter from "../components/product/CategoryFilter";
 import ProductFilters from "../components/product/ProductFilters";
+import ProductGrid from "../components/product/ProductGrid";
 import ProductTable from "../components/product/ProductTable";
 import Pagination from "../components/Pagination";
 import MetricCard from "../components/MetricCard";
 import ProductDetailModal from "../components/product/ProductDetailModal";
 import { useAuth } from "../auth/AuthContext";
-import { ShoppingCart, ChartColumnBig, CreditCard, TriangleAlert, Loader2 } from "lucide-react";
+import { Package, ShoppingCart, ChartColumnBig, CreditCard, TriangleAlert, Loader2 } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
@@ -15,6 +17,9 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // UI & View State
+  const [viewMode, setViewMode] = useState("grid"); // "grid" (retailer card style) or "table"
 
   // Filters State
   const [search, setSearch] = useState("");
@@ -130,65 +135,75 @@ export default function ProductsPage() {
     };
   }, [products, categories]);
 
-  // Render loading state
-  if (loading && products.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 text-slate-500">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="text-sm font-semibold">Fetching products catalog...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 overflow-x-hidden space-y-6">
+
+      {/* Page Header — styled like Retailer Products Page */}
+      <h1 className="text-3xl font-bold flex items-center text-slate-800">
+        <Package className="inline mr-3 text-blue-600 w-8 h-8" />
+        Products
+        {!loading && (
+          <span className="ml-3 text-base font-normal text-slate-500">
+            ({filteredProducts.length} items)
+          </span>
+        )}
+      </h1>
+
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <MetricCard
           title="Total Products"
           value={products.length}
           subtitle="In Database"
-          icon={<ShoppingCart className="text-[#0228e3]" size={24} />}
-          bgColor="bg-[#DCE1F0]"
-          iconBg="bg-[#5BDAF2]"
+          icon={<ShoppingCart size={20} />}
+          color="blue"
         />
 
         <MetricCard
           title="Total Categories"
           value={metrics.categoriesCount}
           subtitle="Active Categories"
-          icon={<ChartColumnBig color="#FFC107" size={24} />}
-          bgColor="bg-[#FFFCD6]"
-          iconBg="bg-[#FFE365]"
+          icon={<ChartColumnBig size={20} />}
+          color="amber"
         />
 
         <MetricCard
           title="Low Stock Alerts"
           value={metrics.lowStock}
           subtitle="Products Need Restock"
-          icon={<TriangleAlert className="text-[#e30202]" size={24} />}
-          bgColor="bg-[#FFE4E4]"
-          iconBg="bg-[#FFB4B4]"
+          icon={<TriangleAlert size={20} />}
+          color="red"
         />
 
         <MetricCard
           title="Total Credits"
           value="10,000"
           subtitle="This Month"
-          icon={<CreditCard className="text-[#5349e4]" size={24} />}
-          bgColor="bg-[#EBDDFF]"
-          iconBg="bg-[#F372F3]"
+          icon={<CreditCard size={20} />}
+          color="purple"
         />
       </div>
 
+      {/* Error banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-medium flex justify-between">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-xs font-semibold flex justify-between items-center shadow-2xs">
           <span>⚠️ {error}</span>
-          <button onClick={fetchProducts} className="underline text-red-800">Retry</button>
+          <button onClick={fetchProducts} className="underline text-red-800 cursor-pointer font-bold">Retry</button>
         </div>
       )}
 
-      {/* Filter Component */}
+      {/* Category filter horizontal pills — styled like Retailer */}
+      <CategoryFilter
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelect={(catName) => {
+          setSelectedCategory(catName);
+          setCurrentPage(1);
+        }}
+        isLoading={loading && categories.length === 0}
+      />
+
+      {/* Filter & View Switcher Bar */}
       <ProductFilters
         search={search}
         setSearch={(val) => { setSearch(val); setCurrentPage(1); }}
@@ -198,16 +213,26 @@ export default function ProductsPage() {
         selectedStatus={selectedStatus}
         setSelectedStatus={(val) => { setSelectedStatus(val); setCurrentPage(1); }}
         onReset={handleResetFilters}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
 
-      {/* Products Table */}
-      <ProductTable
-        products={paginatedProducts}
-        onViewProduct={setSelectedProduct}
-      />
+      {/* Main Content View: Grid (Card style like Retailer) vs Table */}
+      {viewMode === "grid" ? (
+        <ProductGrid
+          products={paginatedProducts}
+          onViewProduct={setSelectedProduct}
+          isLoading={loading}
+        />
+      ) : (
+        <ProductTable
+          products={paginatedProducts}
+          onViewProduct={setSelectedProduct}
+        />
+      )}
 
       {/* Pagination */}
-      {filteredProducts.length > 0 && (
+      {!loading && filteredProducts.length > 0 && (
         <Pagination
           currentPage={currentPage}
           totalItems={filteredProducts.length}
@@ -217,7 +242,7 @@ export default function ProductsPage() {
         />
       )}
 
-      {/* Product Detail Modal */}
+      {/* Product Detail & Edit Price Modal */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}

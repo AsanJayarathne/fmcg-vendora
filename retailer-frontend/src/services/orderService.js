@@ -43,18 +43,36 @@ function normaliseOrder(raw) {
   const creditUsed = Number(raw.credit_amount ?? 0);
   const cashAmount = Number(raw.cash_amount ?? 0);
 
-  const items = (raw.items ?? []).map((item) => ({
-    id:        item.order_item_id ?? item.product_id,
-    productId: item.product_id,
-    name:      item.product_name ?? `Product #${item.product_id}`,
-    unit:      item.unit ?? "",
-    quantity:  Number(item.quantity),
-    price:     Number(item.unit_price),
-    total:     Number(item.total_price ?? item.unit_price * item.quantity),
-    subtotal:  Number(item.unit_price) * Number(item.quantity),
-    discount:  0,
-    discountRate: 0,
-  }));
+  const items = (raw.items ?? []).map((item) => {
+    const qty = Number(item.quantity);
+    const price = Number(item.unit_price);
+    const subtotal = price * qty;
+    const total = Number(item.total_price ?? subtotal);
+    const discount = Math.max(0, subtotal - total);
+    
+    let discountRate = 0;
+    if (qty >= 56) discountRate = 15;
+    else if (qty >= 32) discountRate = 10;
+    else if (qty >= 8) discountRate = 5;
+
+    return {
+      id:        item.order_item_id ?? item.product_id,
+      productId: item.product_id,
+      name:      item.product_name ?? `Product #${item.product_id}`,
+      unit:      item.unit ?? "",
+      quantity:  qty,
+      price,
+      total,
+      subtotal,
+      discount,
+      discountRate,
+    };
+  });
+
+  const orderSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const orderDiscount = items.reduce((sum, item) => sum + item.discount, 0);
+  const isUrgent = raw.order_type === "Urgent";
+  const urgentCharge = isUrgent ? 500 : 0;
 
   return {
     // IDs
@@ -72,9 +90,9 @@ function normaliseOrder(raw) {
 
     // Financials
     total:        Number(raw.total_amount),
-    subtotal:     Number(raw.total_amount),
-    discount:     0,
-    urgentCharge: 0,
+    subtotal:     orderSubtotal,
+    discount:     orderDiscount,
+    urgentCharge,
     cashAmount,
     creditUsed,
 
@@ -164,9 +182,12 @@ export async function cancelOrder(token, orderId) {
  * @returns {Promise<object|null>}
  *   { credit_limit, available_credit, current_balance, status, transactions[] }
  */
-export async function fetchCreditInfo(token) {
+export async function fetchCreditInfo(token, distributorId = null) {
   try {
-    const result = await apiFetch("/retailer/credit.php", token);
+    const url = distributorId
+      ? `/retailer/credit.php?distributor_id=${distributorId}`
+      : "/retailer/credit.php";
+    const result = await apiFetch(url, token);
     return result.data ?? null;
   } catch (err) {
     // 404 = no credit account — treat as null (not an error for the UI)
@@ -187,4 +208,34 @@ export async function confirmOrderNow(token, orderId) {
     method: "PUT",
   });
   return normaliseOrder(result.data);
+}
+
+/**
+ * Fetch profile information for the retailer.
+ */
+export async function fetchProfile(token) {
+  const result = await apiFetch("/retailer/profile.php", token);
+  return result.data;
+}
+
+/**
+ * Update profile information for the retailer.
+ */
+export async function updateProfileData(token, data) {
+  const result = await apiFetch("/retailer/profile.php", token, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return result.data;
+}
+
+/**
+ * Update password for the retailer account.
+ */
+export async function updatePassword(token, data) {
+  const result = await apiFetch("/retailer/change-password.php", token, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  return result.data;
 }

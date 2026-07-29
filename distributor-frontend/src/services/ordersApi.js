@@ -43,12 +43,5 @@ export async function rejectOrder(token, orderId) {
   return json;
 }
 
-/** Fetch all deliveries for the distributor */
-export async function fetchDeliveries(token) {
-  const res = await fetch(`${API_BASE}/distributor/deliveries.php`, {
-    headers: authHeaders(token),
-  });
-  const json = await res.json();
-  if (!json.success) throw new Error(json.message || "Failed to load deliveries");
-  return json.data;
-}
+/** Fetch all deliveries for the distributor — re-exported from deliveryApi for backward compatibility */
+export { fetchDeliveries } from "./deliveryApi";

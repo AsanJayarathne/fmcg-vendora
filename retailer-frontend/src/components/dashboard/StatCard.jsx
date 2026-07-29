@@ -8,42 +8,41 @@ export default function StatCard({ title, value, color = "blue", subtitle, icon 
     return () => clearTimeout(t);
   }, []);
 
-  const colorMap = {
-    blue: "bg-blue-50 text-blue-600 border-blue-200",
-    green: "bg-green-50 text-green-600 border-green-200",
-    orange: "bg-orange-50 text-orange-600 border-orange-200",
-    red: "bg-red-50 text-red-600 border-red-200",
-    purple: "bg-purple-50 text-purple-600 border-purple-200",
-    gray: "bg-gray-50 text-gray-600 border-gray-200",
-  };
-
-  const iconBg = {
-    blue: "bg-white/80 text-blue-600",
-    green: "bg-white/80 text-green-600",
-    orange: "bg-white/80 text-orange-600",
-    red: "bg-white/80 text-red-600",
-    purple: "bg-white/80 text-purple-600",
-    gray: "bg-white/80 text-gray-600",
+  const colorIconBg = {
+    blue:   "bg-blue-50 border border-blue-100 text-blue-600",
+    green:  "bg-green-50 border border-green-150/40 text-green-600",
+    orange: "bg-amber-50 border border-amber-150/40 text-amber-600",
+    purple: "bg-purple-50 border border-purple-150/40 text-purple-600",
+    red:    "bg-red-50 border border-red-150/40 text-red-650",
+    gray:   "bg-slate-50 border border-slate-150/50 text-slate-600",
   };
 
   return (
     <div
-      className={`p-4 rounded-xl border shadow-sm transform transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-1 hover:scale-105 ${
-        mounted ? "opacity-100 scale-100 -translate-y-0" : "opacity-0 scale-95 translate-y-2"
-      } ${colorMap[color]}`}
+      className={`p-5 bg-white border border-slate-100 shadow-xs rounded-3xl transform transition-all duration-300 ease-out hover:shadow-md hover:-translate-y-0.5 ${
+        mounted ? "opacity-100 scale-100" : "opacity-0 scale-95"
+      }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">{value}</div>
-          <h3 className="text-sm font-medium text-gray-600 mt-1">{title}</h3>
+      <div className="flex items-center justify-between gap-4">
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+            {title}
+          </p>
+          <div className="text-2xl font-bold text-slate-800 leading-tight">
+            {value}
+          </div>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
+            <p className="text-xs font-medium text-slate-400 mt-1 leading-none">
+              {subtitle}
+            </p>
           )}
         </div>
 
+        {/* Icon */}
         {icon && (
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconBg[color]} shadow-sm`}> 
-            <div className="text-xl opacity-90">{icon}</div>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${colorIconBg[color] || colorIconBg.blue}`}>
+            {icon}
           </div>
         )}
       </div>

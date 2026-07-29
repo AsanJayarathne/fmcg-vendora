@@ -5,6 +5,7 @@ require_once __DIR__ . '/../repository/CreditRepository.php';
 require_once __DIR__ . '/../repository/DeliveryRepository.php';
 require_once __DIR__ . '/../repository/RetailerRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
+require_once __DIR__ . '/../repository/StockRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
 require_once __DIR__ . '/../util/Database.php';
 
@@ -15,6 +16,7 @@ class OrderService {
     private DeliveryRepository    $deliveryRepo;
     private RetailerRepository    $retailerRepo;
     private DistributorRepository $distributorRepo;
+    private StockRepository       $stockRepo;
     private NotificationService   $notifService;
 
     public function __construct() {
@@ -24,6 +26,7 @@ class OrderService {
         $this->deliveryRepo    = new DeliveryRepository();
         $this->retailerRepo    = new RetailerRepository();
         $this->distributorRepo = new DistributorRepository();
+        $this->stockRepo       = new StockRepository();
         $this->notifService    = new NotificationService();
     }
 
@@ -52,9 +55,28 @@ class OrderService {
             }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
             if ($product['available_qty'] < $item['quantity']) throw new Exception("Insufficient stock for: {$product['product_name']}", 422);
-            $lineTotal       = round($product['unit_price'] * $item['quantity'], 2);
-            $totalAmount    += $lineTotal;
-            $enrichedItems[] = ['product_id' => $item['product_id'], 'quantity' => $item['quantity'], 'unit_price' => $product['unit_price']];
+            
+            $qty = (int)$item['quantity'];
+            $discountRate = 0;
+            if ($qty >= 56) {
+                $discountRate = 15;
+            } elseif ($qty >= 32) {
+                $discountRate = 10;
+            } elseif ($qty >= 8) {
+                $discountRate = 5;
+            }
+            
+            $subtotal = $product['unit_price'] * $qty;
+            $discount = $subtotal * $discountRate / 100;
+            $lineTotal = round($subtotal - $discount, 2);
+            $totalAmount += $lineTotal;
+            
+            $enrichedItems[] = [
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $product['unit_price'],
+                'total_price' => $lineTotal
+            ];
         }
 
         // Fetch credit account to find previous outstanding balance (if any)
@@ -113,14 +135,35 @@ class OrderService {
         if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
         if (!$this->isEditable($order)) throw new Exception("Order lock window has expired.", 403);
         $distributorId = (int)$order['distributor_id'];
-        $enrichedItems = []; $totalAmount = 0.0;
+        $enrichedItems = [];
+        $totalAmount = 0.0;
         foreach ($items as $item) {
             $catalog = $this->productRepo->getCatalogForDistributor($distributorId, 0);
             $product = null;
             foreach ($catalog as $p) { if ((int)$p['product_id'] === (int)$item['product_id']) { $product = $p; break; } }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
-            $totalAmount    += round($product['unit_price'] * $item['quantity'], 2);
-            $enrichedItems[] = ['product_id' => $item['product_id'], 'quantity' => $item['quantity'], 'unit_price' => $product['unit_price']];
+            
+            $qty = (int)$item['quantity'];
+            $discountRate = 0;
+            if ($qty >= 56) {
+                $discountRate = 15;
+            } elseif ($qty >= 32) {
+                $discountRate = 10;
+            } elseif ($qty >= 8) {
+                $discountRate = 5;
+            }
+            
+            $subtotal = $product['unit_price'] * $qty;
+            $discount = $subtotal * $discountRate / 100;
+            $lineTotal = round($subtotal - $discount, 2);
+            $totalAmount += $lineTotal;
+            
+            $enrichedItems[] = [
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $product['unit_price'],
+                'total_price' => $lineTotal
+            ];
         }
         $this->orderRepo->deleteItems($orderId);
         $this->orderRepo->createItems($orderId, $enrichedItems);
@@ -141,6 +184,17 @@ class OrderService {
         $this->applyLockIfExpired($order);
         $order = $this->orderRepo->findById($orderId);
         if ($order['status'] !== 'Processing') throw new Exception("Order must be in 'Processing' status. Current: {$order['status']}", 422);
+
+        // Deduct distributor batch stock via FEFO for each order item
+        $items = $this->orderRepo->getItemsByOrder($orderId);
+        foreach ($items as $item) {
+            $this->stockRepo->deductDistributorStock(
+                $distributorId,
+                (int)$item['product_id'],
+                (int)$item['quantity']
+            );
+        }
+
         $this->orderRepo->updateStatus($orderId, 'Approved');
         $this->deliveryRepo->create($orderId, (float)$order['total_amount']);
         $retailer = $this->retailerRepo->findById((int)$order['retailer_id']);

@@ -49,12 +49,20 @@ export default function CreditUsageChart({ data = defaultData }) {
   const chartData = normalizeChartData(data);
 
   return (
-    <div className="h-full w-full bg-white p-5 rounded-xl shadow-sm">
-      <h2 className="font-bold text-lg mb-4">Credit Usage</h2>
+    <div className="h-full w-full bg-white p-6 rounded-3xl border border-slate-100 shadow-xs">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="font-semibold text-slate-800 text-base leading-tight">Credit Usage</h2>
+          <p className="text-xs text-slate-400 font-normal mt-0.5">Historical credit utilization pattern</p>
+        </div>
+        <span className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-600 text-xs font-medium">
+          Credit Trend
+        </span>
+      </div>
 
       <ResponsiveContainer width="100%" height={320}>
-        <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 24 }}>
-          <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
+        <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 8 }}>
+          <CartesianGrid stroke="#f1f5f9" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="week"
             tick={({ x, y, payload }) => {
@@ -62,11 +70,11 @@ export default function CreditUsageChart({ data = defaultData }) {
               const monthLabel = item?.month ? item.month : "";
               return (
                 <g transform={`translate(${x},${y})`}>
-                  <text x={0} y={0} dy={16} textAnchor="middle" fill="#475569" fontSize={12}>
+                  <text x={0} y={0} dy={16} textAnchor="middle" fill="#64748b" fontSize={11} fontWeight={600}>
                     {payload.value}
                   </text>
                   {monthLabel ? (
-                    <text x={0} y={20} dy={16} textAnchor="middle" fill="#94a3b8" fontSize={11}>
+                    <text x={0} y={20} dy={16} textAnchor="middle" fill="#94a3b8" fontSize={10} fontWeight={600}>
                       {monthLabel}
                     </text>
                   ) : null}
@@ -79,12 +87,12 @@ export default function CreditUsageChart({ data = defaultData }) {
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#64748b", fontSize: 12 }}
+            tick={{ fill: "#64748b", fontSize: 11, fontWeight: 600 }}
             tickFormatter={(value) => `Rs.${value / 1000}k`}
           />
           <Tooltip
             formatter={(value) => [`Rs. ${value.toLocaleString()}`, "Credit"]}
-            contentStyle={{ borderRadius: 12, borderColor: "#e2e8f0" }}
+            contentStyle={{ borderRadius: 16, borderColor: "#f1f5f9", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)" }}
           />
           <Line
             type="monotone"

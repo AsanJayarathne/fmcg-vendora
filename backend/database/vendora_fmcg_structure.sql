@@ -129,20 +129,29 @@ CREATE TABLE `product_pricing` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 8. WAREHOUSE STOCK
+-- 8. WAREHOUSE BATCH (replaces warehouse_stock)
 -- ============================================================
-CREATE TABLE `warehouse_stock` (
-  `stock_id`    int(11)   NOT NULL AUTO_INCREMENT,
-  `product_id`  int(11)   NOT NULL,
-  `quantity`    int(11)   NOT NULL DEFAULT 0,
-  `expiry_date` date      DEFAULT NULL,
-  `created_at`  timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at`  timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`stock_id`),
-  UNIQUE KEY `uq_stock_product`   (`product_id`),
-  KEY          `idx_stock_quantity` (`quantity`),
-  CONSTRAINT `fk_stock_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `warehouse_batch` (
+  `batch_id`      int(11)                              NOT NULL AUTO_INCREMENT,
+  `product_id`    int(11)                              NOT NULL,
+  `batch_number`  varchar(50)                          NOT NULL,
+  `received_qty`  int(11)                              NOT NULL,
+  `quantity`      int(11)                              NOT NULL DEFAULT 0,
+  `cost_price`    decimal(10,2)                        NOT NULL,
+  `selling_price` decimal(10,2)                        NOT NULL,
+  `mfg_date`      date                                 DEFAULT NULL,
+  `expiry_date`   date                                 DEFAULT NULL,
+  `status`        enum('Active','Exhausted','Expired')  NOT NULL DEFAULT 'Active',
+  `received_at`   date                                 NOT NULL,
+  `created_at`    timestamp                            NOT NULL DEFAULT current_timestamp(),
+  `updated_at`    timestamp                            NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`batch_id`),
+  UNIQUE KEY `uq_wh_batch_number`  (`batch_number`),
+  KEY `idx_whbatch_product`        (`product_id`),
+  KEY `idx_whbatch_status`         (`status`),
+  KEY `idx_whbatch_expiry`         (`expiry_date`),
+  CONSTRAINT `fk_whbatch_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 9. DISTRIBUTOR
@@ -219,41 +228,58 @@ CREATE TABLE `driver` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 12. DISTRIBUTOR STOCK
+-- 12. DISTRIBUTOR BATCH (replaces distributor_stock)
 -- ============================================================
-CREATE TABLE `distributor_stock` (
-  `distributor_stock_id` int(11)       NOT NULL AUTO_INCREMENT,
-  `distributor_id`       int(11)       NOT NULL,
-  `product_id`           int(11)       NOT NULL,
-  `quantity`             int(11)       NOT NULL DEFAULT 0,
-  `unit_cost`            decimal(10,2) DEFAULT NULL,
-  `last_updated_at`      timestamp     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `updated_at`           timestamp     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`distributor_stock_id`),
-  UNIQUE KEY `uq_dist_stock`          (`distributor_id`,`product_id`),
-  KEY        `idx_dist_stock_product` (`product_id`),
-  CONSTRAINT `fk_dist_stock_distributor` FOREIGN KEY (`distributor_id`) REFERENCES `distributor` (`distributor_id`),
-  CONSTRAINT `fk_dist_stock_product`     FOREIGN KEY (`product_id`)     REFERENCES `product` (`product_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `distributor_batch` (
+  `dist_batch_id`   int(11)                              NOT NULL AUTO_INCREMENT,
+  `distributor_id`  int(11)                              NOT NULL,
+  `product_id`      int(11)                              NOT NULL,
+  `source_batch_id` int(11)                              DEFAULT NULL,
+  `transfer_id`     int(11)                              DEFAULT NULL,
+  `batch_number`    varchar(50)                          NOT NULL,
+  `received_qty`    int(11)                              NOT NULL,
+  `quantity`        int(11)                              NOT NULL DEFAULT 0,
+  `cost_price`      decimal(10,2)                        NOT NULL,
+  `selling_price`   decimal(10,2)                        NOT NULL,
+  `mfg_date`        date                                 DEFAULT NULL,
+  `expiry_date`     date                                 DEFAULT NULL,
+  `status`          enum('Active','Exhausted','Expired')  NOT NULL DEFAULT 'Active',
+  `received_at`     date                                 NOT NULL,
+  `created_at`      timestamp                            NOT NULL DEFAULT current_timestamp(),
+  `updated_at`      timestamp                            NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`dist_batch_id`),
+  UNIQUE KEY `uq_dist_batch_number`       (`batch_number`),
+  KEY `idx_distbatch_distributor`         (`distributor_id`),
+  KEY `idx_distbatch_product`             (`product_id`),
+  KEY `idx_distbatch_source`              (`source_batch_id`),
+  KEY `idx_distbatch_transfer`            (`transfer_id`),
+  KEY `idx_distbatch_status`              (`status`),
+  KEY `idx_distbatch_expiry`              (`expiry_date`),
+  CONSTRAINT `fk_distbatch_distributor`   FOREIGN KEY (`distributor_id`)  REFERENCES `distributor` (`distributor_id`),
+  CONSTRAINT `fk_distbatch_product`       FOREIGN KEY (`product_id`)      REFERENCES `product` (`product_id`),
+  CONSTRAINT `fk_distbatch_source_batch`  FOREIGN KEY (`source_batch_id`) REFERENCES `warehouse_batch` (`batch_id`),
+  CONSTRAINT `fk_distbatch_transfer`      FOREIGN KEY (`transfer_id`)     REFERENCES `stock_transfer` (`transfer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- 13. DISTRIBUTOR PRICING
+-- 13. STOCK TRANSFER ITEMS
 -- ============================================================
-CREATE TABLE `distributor_pricing` (
-  `dist_price_id`  int(11)       NOT NULL AUTO_INCREMENT,
-  `distributor_id` int(11)       NOT NULL,
-  `product_id`     int(11)       NOT NULL,
-  `price`          decimal(10,2) NOT NULL,
-  `effective_from` date          NOT NULL,
-  `effective_to`   date          DEFAULT NULL,
-  `created_at`     timestamp     NOT NULL DEFAULT current_timestamp(),
-  `updated_at`     timestamp     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`dist_price_id`),
-  KEY `idx_distprice_distributor` (`distributor_id`),
-  KEY `idx_distprice_product`     (`product_id`),
-  KEY `idx_distprice_from`        (`effective_from`),
-  CONSTRAINT `fk_distprice_distributor` FOREIGN KEY (`distributor_id`) REFERENCES `distributor` (`distributor_id`),
-  CONSTRAINT `fk_distprice_product`     FOREIGN KEY (`product_id`)     REFERENCES `product` (`product_id`)
+CREATE TABLE `stock_transfer_items` (
+  `transfer_item_id`   int(11)       NOT NULL AUTO_INCREMENT,
+  `transfer_id`        int(11)       NOT NULL,
+  `warehouse_batch_id` int(11)       NOT NULL,
+  `product_id`         int(11)       NOT NULL,
+  `dispatched_qty`     int(11)       NOT NULL,
+  `cost_price`         decimal(10,2) NOT NULL,
+  `selling_price`      decimal(10,2) NOT NULL,
+  `created_at`         timestamp     NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`transfer_item_id`),
+  KEY `idx_sti_transfer`        (`transfer_id`),
+  KEY `idx_sti_warehouse_batch` (`warehouse_batch_id`),
+  KEY `idx_sti_product`         (`product_id`),
+  CONSTRAINT `fk_sti_transfer`        FOREIGN KEY (`transfer_id`)        REFERENCES `stock_transfer` (`transfer_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_sti_warehouse_batch` FOREIGN KEY (`warehouse_batch_id`) REFERENCES `warehouse_batch` (`batch_id`),
+  CONSTRAINT `fk_sti_product`         FOREIGN KEY (`product_id`)         REFERENCES `product` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -281,14 +307,17 @@ CREATE TABLE `credit_account` (
 -- 15. ORDERS
 -- ============================================================
 CREATE TABLE `orders` (
-  `order_id`       int(11)                                                  NOT NULL AUTO_INCREMENT,
-  `retailer_id`    int(11)                                                  NOT NULL,
-  `distributor_id` int(11)                                                  NOT NULL,
-  `status`         enum('Pending','Approved','Processing','Delivered','Rejected') DEFAULT 'Pending',
-  `total_amount`   decimal(12,2)                                            DEFAULT NULL,
-  `payment_method` enum('Cash','Bank','Credit')                             DEFAULT 'Cash',
-  `created_at`     timestamp                                                NOT NULL DEFAULT current_timestamp(),
-  `updated_at`     timestamp                                                NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `order_id`           int(11)                                                       NOT NULL AUTO_INCREMENT,
+  `retailer_id`        int(11)                                                       NOT NULL,
+  `distributor_id`     int(11)                                                       NOT NULL,
+  `status`             enum('Pending','Approved','Processing','Delivered','Rejected') DEFAULT 'Pending',
+  `total_amount`       decimal(12,2)                                                 DEFAULT NULL,
+  `payment_method`     enum('Cash','Credit','Cash_Credit')                           DEFAULT 'Cash',
+  `credit_amount`      decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
+  `cash_amount`        decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
+  `outstanding_credit` decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
+  `created_at`         timestamp                                                     NOT NULL DEFAULT current_timestamp(),
+  `updated_at`         timestamp                                                     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`order_id`),
   KEY `idx_orders_retailer`    (`retailer_id`),
   KEY `idx_orders_distributor` (`distributor_id`),
@@ -296,7 +325,7 @@ CREATE TABLE `orders` (
   KEY `idx_orders_created`     (`created_at`),
   CONSTRAINT `fk_orders_distributor` FOREIGN KEY (`distributor_id`) REFERENCES `distributor` (`distributor_id`),
   CONSTRAINT `fk_orders_retailer`    FOREIGN KEY (`retailer_id`)    REFERENCES `retailer` (`retailer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 16. ORDER ITEMS
@@ -419,7 +448,7 @@ CREATE TABLE `supply_request` (
   `request_id`     int(11)                                    NOT NULL AUTO_INCREMENT,
   `distributor_id` int(11)                                    NOT NULL,
   `request_date`   date                                       NOT NULL,
-  `status`         enum('Pending','Partially_Approved','Rejected') DEFAULT 'Pending',
+  `status`         enum('Pending','Partially_Approved','Rejected','Received') DEFAULT 'Pending',
   `remarks`        varchar(500)                               DEFAULT NULL,
   `created_at`     timestamp                                  NOT NULL DEFAULT current_timestamp(),
   `updated_at`     timestamp                                  NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),

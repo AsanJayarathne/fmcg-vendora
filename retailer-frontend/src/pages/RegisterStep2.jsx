@@ -1,9 +1,10 @@
 import { useNavigate, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
+import { apiFetch } from "../utils/api";
 
 export default function RegisterStep2() {
   const navigate = useNavigate();
@@ -11,6 +12,15 @@ export default function RegisterStep2() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [regions, setRegions] = useState([]);
+
+  useEffect(() => {
+    apiFetch("/auth/regions.php")
+      .then((json) => {
+        setRegions(json.data || []);
+      })
+      .catch((err) => console.error("Failed to load regions:", err));
+  }, []);
 
   const handleChange = (field, val) => {
     setRegForm((prev) => ({ ...prev, [field]: val }));
@@ -64,19 +74,10 @@ export default function RegisterStep2() {
         nic_number: nic.trim(),
       };
 
-      const res = await fetch("http://localhost/fmcg-vendora/backend/api/auth/register-retailer.php", {
+      const json = await apiFetch("/auth/register-retailer.php", null, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      const json = await res.json();
-
-      if (!json.success) {
-        setError(json.message || "Registration failed. Please try again.");
-        setLoading(false);
-        return;
-      }
 
       setSuccess("Registration submitted successfully! Awaiting distributor approval. Redirecting to login...");
       resetRegForm();
@@ -84,7 +85,7 @@ export default function RegisterStep2() {
         navigate("/login");
       }, 3000);
     } catch (err) {
-      setError("Network error — make sure the backend is running.");
+      setError(err.message || "Network error — make sure the backend is running.");
       setLoading(false);
     }
   };
@@ -168,24 +169,15 @@ export default function RegisterStep2() {
               <label className="text-gray-500 text-base mb-1.5 font-medium">Region</label>
               <select
                 className="bg-[#EEF2F6] rounded-2xl px-5 py-3.5 text-base font-semibold outline-none focus:ring-2 focus:ring-blue-500"
-                value={
-                  regForm.regionId === 4 ? "Western" :
-                  regForm.regionId === 2 ? "Southern" :
-                  regForm.regionId === 3 ? "Central" : ""
-                }
-                onChange={(e) => {
-                  const regionMap = {
-                    "Western": 4,
-                    "Southern": 2,
-                    "Central": 3
-                  };
-                  handleChange("regionId", regionMap[e.target.value] || "");
-                }}
+                value={regForm.regionId}
+                onChange={(e) => handleChange("regionId", e.target.value)}
               >
                 <option value="">Select Region</option>
-                <option value="Western">Western</option>
-                <option value="Southern">Southern</option>
-                <option value="Central">Central</option>
+                {regions.map((r) => (
+                  <option key={r.region_id} value={r.region_id}>
+                    {r.region_name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

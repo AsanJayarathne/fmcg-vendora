@@ -6,11 +6,12 @@ import RequestStockTable from "../components/inventory/RequestStockTable";
 import RequestedStockTable from "../components/inventory/RequestedStockTable";
 import ReceivedStockTable from "../components/inventory/ReceivedStockTable";
 import Pagination from "../components/Pagination";
+import MetricCard from "../components/MetricCard";
 import CurrentRequestCard from "../components/inventory/CurrentRequestCard";
-import PageHeader from "../components/PageHeader";
 import RequestDetailsModal from "../components/inventory/RequestDetailsModal";
+import ReceiveStockModal from "../components/inventory/ReceiveStockModal";
 import { useAuth } from "../auth/AuthContext";
-import { Loader2 } from "lucide-react";
+import { PackagePlus, Clock, CheckCircle2, PackageCheck, Loader2 } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
@@ -21,28 +22,29 @@ export default function RequestStockPage() {
   // Data State
   const [products, setProducts] = useState([]);
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
 
   // Current request draft (cart) state
   const [currentRequest, setCurrentRequest] = useState({ items: [] });
-  const [remarks, setRemarks] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
+  const [remarks, setRemarks]               = useState("");
+  const [submitting, setSubmitting]         = useState(false);
+  const [successMsg, setSuccessMsg]         = useState("");
 
   // Detailed view request state
-  const [viewRequest, setViewRequest] = useState(null);
+  const [viewRequest, setViewRequest]       = useState(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [receiveTarget, setReceiveTarget]   = useState(null);
 
   // Filters State
-  const [search, setSearch] = useState("");
+  const [search, setSearch]                 = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedStatus, setSelectedStatus]     = useState("");
 
   // Pagination State
-  const [requestPage, setRequestPage] = useState(1);
+  const [requestPage, setRequestPage]     = useState(1);
   const [requestedPage, setRequestedPage] = useState(1);
-  const [receivedPage, setReceivedPage] = useState(1);
+  const [receivedPage, setReceivedPage]   = useState(1);
   const itemsPerPage = 8;
 
   // Fetch initial data
@@ -57,7 +59,7 @@ export default function RequestStockPage() {
       ]);
 
       const prodJson = await prodRes.json();
-      const reqJson = await reqRes.json();
+      const reqJson  = await reqRes.json();
 
       if (prodJson.success && reqJson.success) {
         setProducts(prodJson.data.products || []);
@@ -90,6 +92,15 @@ export default function RequestStockPage() {
     const list = products.map((p) => p.category_name).filter(Boolean);
     return [...new Set(list)].sort();
   }, [products]);
+
+  // Metrics
+  const metrics = useMemo(() => {
+    const totalCatalog = products.length;
+    const activeReqs   = requests.filter(r => r.status !== 'Delivered' && r.status !== 'Received').length;
+    const pendingReqs  = requests.filter(r => r.status === 'Pending').length;
+    const receivedReqs = requests.filter(r => r.status === 'Partially_Approved' || r.status === 'Received').length;
+    return { totalCatalog, activeReqs, pendingReqs, receivedReqs };
+  }, [products, requests]);
 
   // Fetch single request details (items)
   const handleViewRequestDetails = async (request) => {
@@ -141,6 +152,14 @@ export default function RequestStockPage() {
     setTimeout(() => setSuccessMsg(""), 4000);
   };
 
+  // Handle receiving confirmed
+  const handleReceiveConfirmed = (updatedRequest) => {
+    setRequests(prev => prev.map(r =>
+      r.request_id === updatedRequest.request_id ? { ...r, status: 'Received' } : r
+    ));
+    setReceiveTarget(null);
+  };
+
   // Remove item from draft request
   const handleRemoveItem = (productId) => {
     setCurrentRequest((prev) => ({
@@ -162,7 +181,6 @@ export default function RequestStockPage() {
     if (currentRequest.items.length === 0) return;
     setSubmitting(true);
     try {
-      // Map frontend items to API format (product_id, quantity)
       const mappedItems = currentRequest.items.map((item) => ({
         product_id: item.product_id,
         quantity: item.quantity,
@@ -185,14 +203,14 @@ export default function RequestStockPage() {
         alert("Supply request submitted successfully!");
         setCurrentRequest({ items: [] });
         setRemarks("");
-        // Re-fetch requests
+        
         const reqRes = await fetch(`${API_BASE}/distributor/supply-requests.php`, {
           headers: { Authorization: `Bearer ${auth?.token}` },
         });
         const reqJson = await reqRes.json();
         if (reqJson.success) setRequests(reqJson.data || []);
 
-        setActiveTab("Requested Stock"); // Navigate to requests list
+        setActiveTab("Requested Stock");
       } else {
         alert(json.message || "Failed to submit request.");
       }
@@ -203,9 +221,7 @@ export default function RequestStockPage() {
     }
   };
 
-  // ─── Filter Logics ────────────────────────────────────────────────────────
-
-  // Products Tab Filtering
+  // Filter Logics
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
       const code = `PRD-${String(item.product_id).padStart(3, "0")}`;
@@ -229,13 +245,11 @@ export default function RequestStockPage() {
     });
   }, [products, search, selectedCategory, selectedStatus]);
 
-  // Sliced Products
   const paginatedProducts = useMemo(() => {
     const start = (requestPage - 1) * itemsPerPage;
     return filteredProducts.slice(start, start + itemsPerPage);
   }, [filteredProducts, requestPage]);
 
-  // Supply Requests (Tab 2) Filtering (exclude Delivered/Received)
   const filteredRequests = useMemo(() => {
     const activeReqs = requests.filter(
       (r) => r.status !== "Delivered" && r.status !== "Received"
@@ -257,10 +271,9 @@ export default function RequestStockPage() {
     return filteredRequests.slice(start, start + itemsPerPage);
   }, [filteredRequests, requestedPage]);
 
-  // Received History (Tab 3) Filtering (only Delivered/Received)
   const filteredReceived = useMemo(() => {
     const historyReqs = requests.filter(
-      (r) => r.status === "Delivered" || r.status === "Received"
+      (r) => r.status === "Partially_Approved" || r.status === "Received"
     );
     return historyReqs.filter((item) => {
       const code = `REQ-${String(item.request_id).padStart(3, "0")}`;
@@ -277,27 +290,70 @@ export default function RequestStockPage() {
   }, [filteredReceived, receivedPage]);
 
   return (
-    <div className="space-y-4 font-sans pb-10">
-      <PageHeader
-        title="Request Stock"
-        subtitle="View and manage your supply requests from the manufacturer"
-      />
-      
+    <div className="min-w-0 overflow-x-hidden space-y-6 font-sans pb-10">
+
+      {/* Page Header */}
+      <h1 className="text-3xl font-bold flex items-center text-slate-800">
+        <PackagePlus className="inline mr-3 text-blue-600 w-8 h-8" />
+        Request Stock
+        {!loading && (
+          <span className="ml-3 text-base font-normal text-slate-500">
+            ({filteredProducts.length} products)
+          </span>
+        )}
+      </h1>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Manufacturer Catalog"
+          value={metrics.totalCatalog}
+          subtitle="Available Products"
+          icon={<PackagePlus size={20} />}
+          color="blue"
+        />
+        <MetricCard
+          title="Active Requests"
+          value={metrics.activeReqs}
+          subtitle="In Progress"
+          icon={<Clock size={20} />}
+          color="purple"
+        />
+        <MetricCard
+          title="Pending Approval"
+          value={metrics.pendingReqs}
+          subtitle="Awaiting Admin"
+          icon={<Clock size={20} />}
+          color="amber"
+        />
+        <MetricCard
+          title="Transferred Stock"
+          value={metrics.receivedReqs}
+          subtitle="Ready / Received"
+          icon={<CheckCircle2 size={20} />}
+          color="emerald"
+        />
+      </div>
+
+      {/* Navigation Pills */}
       <RequestStockTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {successMsg && (
-        <div className="p-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg animate-fade-in font-semibold">
+        <div className="p-4 bg-emerald-50/80 border border-emerald-200/60 text-emerald-800 text-xs font-bold rounded-2xl shadow-2xs animate-fade-in flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-emerald-600" />
           {successMsg}
         </div>
       )}
 
-      {loading ? (
-        <div className="flex items-center justify-center p-12 bg-white border border-gray-200 rounded-lg">
-          <Loader2 className="animate-spin text-blue-600" size={32} />
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-xs font-semibold shadow-2xs">
+          ⚠️ {error}
         </div>
-      ) : error ? (
-        <div className="p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
-          {error}
+      )}
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20 bg-white border border-slate-100 rounded-[32px] shadow-xs">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
         </div>
       ) : (
         <>
@@ -410,6 +466,17 @@ export default function RequestStockPage() {
               <ReceivedStockTable
                 receivedStocks={paginatedReceived}
                 onViewRequest={handleViewRequestDetails}
+                onReceiveRequest={async (req) => {
+                  setLoadingDetails(true);
+                  try {
+                    const res  = await fetch(`${API_BASE}/distributor/supply-requests.php?id=${req.request_id}`, {
+                      headers: { Authorization: `Bearer ${auth?.token}` },
+                    });
+                    const json = await res.json();
+                    if (json.success) setReceiveTarget(json.data);
+                  } catch { /* silent */ }
+                  finally { setLoadingDetails(false); }
+                }}
               />
               
               <Pagination
@@ -429,6 +496,15 @@ export default function RequestStockPage() {
         <RequestDetailsModal
           request={viewRequest}
           onClose={() => setViewRequest(null)}
+        />
+      )}
+
+      {/* Receive Stock Confirmation Modal */}
+      {receiveTarget && (
+        <ReceiveStockModal
+          request={receiveTarget}
+          onClose={() => setReceiveTarget(null)}
+          onReceived={handleReceiveConfirmed}
         />
       )}
 

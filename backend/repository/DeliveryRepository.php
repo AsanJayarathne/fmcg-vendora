@@ -21,7 +21,38 @@ class DeliveryRepository {
         $stmt->execute([$retailerId]); return $stmt->fetchAll();
     }
     public function getByDistributor(int $distributorId): array {
-        $stmt = $this->db->prepare("SELECT dl.*, u.full_name AS driver_name, r.shop_name, o.total_amount AS order_amount FROM delivery dl JOIN orders o ON o.order_id = dl.order_id JOIN retailer r ON r.retailer_id = o.retailer_id LEFT JOIN driver dr ON dr.driver_id = dl.driver_id LEFT JOIN users u ON u.user_id = dr.user_id WHERE o.distributor_id = ? ORDER BY dl.created_at DESC");
+        $stmt = $this->db->prepare(
+            "SELECT
+                dl.delivery_id,
+                dl.order_id,
+                dl.driver_id,
+                dl.status,
+                dl.total_amount,
+                dl.collected_amount,
+                dl.remarks,
+                dl.claimed_at,
+                dl.delivery_date,
+                dl.created_at,
+                dl.updated_at,
+                u.full_name  AS driver_name,
+                dr.vehicle_number,
+                dr.license_number,
+                r.shop_name,
+                r.shop_address,
+                r.owner_name,
+                o.total_amount      AS order_amount,
+                o.payment_method,
+                o.credit_amount,
+                o.cash_amount,
+                o.outstanding_credit
+             FROM delivery dl
+             JOIN orders o  ON o.order_id  = dl.order_id
+             JOIN retailer r ON r.retailer_id = o.retailer_id
+             LEFT JOIN driver dr ON dr.driver_id = dl.driver_id
+             LEFT JOIN users u   ON u.user_id    = dr.user_id
+             WHERE o.distributor_id = ?
+             ORDER BY dl.created_at DESC"
+        );
         $stmt->execute([$distributorId]); return $stmt->fetchAll();
     }
     public function create(int $orderId, float $totalAmount): int {

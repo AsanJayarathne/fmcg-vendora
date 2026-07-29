@@ -31,7 +31,8 @@ class OrderRepository {
     public function createItems(int $orderId, array $items): void {
         $stmt = $this->db->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (?, ?, ?, ?, ?)");
         foreach ($items as $item) {
-            $stmt->execute([$orderId, $item['product_id'], $item['quantity'], $item['unit_price'], $item['quantity'] * $item['unit_price']]);
+            $totalPrice = isset($item['total_price']) ? $item['total_price'] : ($item['quantity'] * $item['unit_price']);
+            $stmt->execute([$orderId, $item['product_id'], $item['quantity'], $item['unit_price'], $totalPrice]);
         }
     }
     public function deleteItems(int $orderId): void {

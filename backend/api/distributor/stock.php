@@ -11,6 +11,13 @@ $stockRepo     = new StockRepository();
 $distributorId = (int)$distributor['distributor_id'];
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') sendError('Method not allowed', 405);
-    $data = isset($_GET['low_stock']) ? $stockRepo->getLowStock($distributorId) : $stockRepo->getDistributorStock($distributorId);
-    sendSuccess($data);
+    if (isset($_GET['product_id'])) {
+        // Return individual batch rows for a specific product (real drill-down)
+        $productId = (int)$_GET['product_id'];
+        sendSuccess($stockRepo->getDistributorBatchesFull($distributorId, $productId));
+    } elseif (isset($_GET['low_stock'])) {
+        sendSuccess($stockRepo->getLowStock($distributorId));
+    } else {
+        sendSuccess($stockRepo->getDistributorStock($distributorId));
+    }
 } catch (Exception $e) { sendError($e->getMessage(), $e->getCode() ?: 400); }

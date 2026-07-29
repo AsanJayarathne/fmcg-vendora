@@ -5,8 +5,12 @@ class CreditRepository {
     public function __construct() { $this->db = Database::getConnection(); }
 
     public function findByRetailerAndDistributor(int $retailerId, int $distributorId): ?array {
-        $stmt = $this->db->prepare("SELECT * FROM credit_account WHERE retailer_id = ? AND distributor_id = ?");
-        $stmt->execute([$retailerId, $distributorId]); return $stmt->fetch() ?: null;
+        $stmt = $this->db->prepare("SELECT ca.*, d.company_name AS distributor_name FROM credit_account ca JOIN distributor d ON d.distributor_id = ca.distributor_id WHERE ca.retailer_id = ? AND ca.distributor_id = ?");
+        $stmt->execute([$retailerId, $distributorId]); return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    public function getAllByRetailer(int $retailerId): array {
+        $stmt = $this->db->prepare("SELECT ca.*, d.company_name AS distributor_name FROM credit_account ca JOIN distributor d ON d.distributor_id = ca.distributor_id WHERE ca.retailer_id = ? ORDER BY d.company_name");
+        $stmt->execute([$retailerId]); return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function findById(int $creditId): ?array {
         $stmt = $this->db->prepare("SELECT * FROM credit_account WHERE credit_id = ?");
@@ -21,7 +25,7 @@ class CreditRepository {
         $stmt->execute([$retailerId, $distributorId, $creditLimit, $creditLimit]); return (int)$this->db->lastInsertId();
     }
     public function updateLimit(int $creditId, float $limit): void {
-        $this->db->prepare("UPDATE credit_account SET credit_limit = ?, available_credit = credit_limit - current_balance WHERE credit_id = ?")->execute([$limit, $creditId]);
+        $this->db->prepare("UPDATE credit_account SET credit_limit = ?, available_credit = GREATEST(0, ? - current_balance) WHERE credit_id = ?")->execute([$limit, $limit, $creditId]);
     }
     public function setStatus(int $creditId, string $status): void {
         $this->db->prepare("UPDATE credit_account SET status = ? WHERE credit_id = ?")->execute([$status, $creditId]);

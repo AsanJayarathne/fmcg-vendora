@@ -2,14 +2,16 @@ import { FiTruck } from "react-icons/fi";
 
 function OrdersHeader() {
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-900">
-        <FiTruck className="w-8 h-8" />
-        <span>My Orders</span>
-      </h1>
-      <p className="text-gray-500 text-sm">
-        Track distributor orders, payment details, and delivery status.
-      </p>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
+          <FiTruck className="text-blue-500" />
+          My Orders
+        </h1>
+        <p className="text-slate-400 text-sm mt-1 font-normal">
+          Track distributor orders, payment details, and live delivery status
+        </p>
+      </div>
     </div>
   );
 }
