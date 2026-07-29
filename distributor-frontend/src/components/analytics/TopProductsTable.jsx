@@ -1,31 +1,49 @@
 import AnalyticsCard from "./AnalyticsCard";
+import { PackageSearch } from "lucide-react";
 
 export default function TopProductsTable({ products }) {
+  const list = products || [];
+
   return (
-    <AnalyticsCard title="Top Performing Products">
-      <table className="w-full text-sm text-left border-collapse">
-        <thead className="border-b border-gray-200 bg-gray-50/50">
-          <tr>
-            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product Name</th>
-            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Orders</th>
-            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Revenue (LKR)</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-gray-100">
-          {products.map((item) => (
-            <tr key={item.name} className="hover:bg-gray-50/50 transition-colors">
-              <td className="px-4 py-2.5 font-medium text-gray-900">{item.name}</td>
-              <td className="px-4 py-2.5 text-right text-gray-700">{item.orders}</td>
-              <td className="px-4 py-2.5 text-right font-semibold text-green-600">{item.revenue}</td>
+    <AnalyticsCard
+      title="Top Performing Products"
+      subtitle="Highest revenue generating product lines"
+      icon={PackageSearch}
+    >
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-100 bg-slate-50/80 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+              <th className="px-3 py-2.5 rounded-l-xl">#</th>
+              <th className="px-3 py-2.5">Product</th>
+              <th className="px-3 py-2.5 text-right">Orders</th>
+              <th className="px-3 py-2.5 text-right rounded-r-xl">Revenue</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button className="mt-4 text-sm font-semibold text-blue-600">
-        View all products →
-      </button>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {list.map((item, idx) => (
+              <tr key={item.name} className="hover:bg-slate-50/60 transition-colors">
+                <td className="px-3 py-3 font-bold text-slate-400">
+                  <span className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">
+                    {idx + 1}
+                  </span>
+                </td>
+                <td className="px-3 py-3 font-semibold text-slate-800 line-clamp-1 max-w-[160px]">
+                  {item.name}
+                </td>
+                <td className="px-3 py-3 text-right font-medium text-slate-600">
+                  {item.orders}
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <span className="bg-emerald-50 text-emerald-700 font-bold text-xs px-2 py-0.5 rounded-lg inline-block">
+                    LKR {item.revenue}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </AnalyticsCard>
   );
 }

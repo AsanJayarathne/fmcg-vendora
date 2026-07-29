@@ -1,18 +1,21 @@
-export default function AnalyticsCard({ title, children, action }) {
+export default function AnalyticsCard({ title, subtitle, children, action, icon: Icon }) {
   return (
-    <div className="p-5 bg-white border border-gray-200 shadow-sm rounded-2xl">
+    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between h-full">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-base font-bold text-gray-900">{title}</h2>
-
-        {action || (
-          <select className="px-3 py-1 text-xs border rounded-md">
-            <option>This Week</option>
-            <option>This Month</option>
-          </select>
-        )}
+        <div>
+          <h2 className="font-semibold text-slate-800 text-base leading-tight flex items-center gap-2">
+            {Icon && <Icon className="text-blue-600 size-4 shrink-0" />}
+            <span>{title}</span>
+          </h2>
+          {subtitle && (
+            <p className="text-xs text-slate-400 font-normal mt-0.5">
+              {subtitle}
+            </p>
+          )}
+        </div>
+        {action}
       </div>
-
-      {children}
+      <div className="flex-1 flex flex-col justify-between">{children}</div>
     </div>
   );
 }
