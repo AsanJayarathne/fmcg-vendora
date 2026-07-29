@@ -75,22 +75,31 @@ class ProductRepository {
                     pc.category_id,
                     pp.base_price,
                     pp.mrp_max_retail_price AS mrp,
-                    COALESCE(MIN(db.selling_price), pp.base_price) AS selling_price,
-                    COALESCE(SUM(db.quantity), 0) AS stock,
-                    COALESCE(SUM(wb.quantity), 0) AS warehouse_stock
+                    COALESCE(
+                        (SELECT MIN(db.selling_price) 
+                         FROM distributor_batch db 
+                         WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'),
+                        pp.base_price
+                    ) AS selling_price,
+                    COALESCE(
+                        (SELECT SUM(db.quantity) 
+                         FROM distributor_batch db 
+                         WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'),
+                        0
+                    ) AS stock,
+                    COALESCE(
+                        (SELECT SUM(wb.quantity) 
+                         FROM warehouse_batch wb 
+                         WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
+                        0
+                    ) AS warehouse_stock
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
                 LEFT JOIN product_pricing pp ON pp.product_id = p.product_id
                     AND pp.effective_to IS NULL
-                LEFT JOIN distributor_batch db ON db.product_id = p.product_id
-                    AND db.distributor_id = ? AND db.status = 'Active'
-                LEFT JOIN warehouse_batch wb ON wb.product_id = p.product_id
-                    AND wb.status = 'Active'
-                GROUP BY p.product_id, pc.category_name, pc.category_id,
-                         pp.base_price, pp.mrp_max_retail_price
                 ORDER BY p.product_name";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$distributorId]);
+        $stmt->execute([$distributorId, $distributorId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
