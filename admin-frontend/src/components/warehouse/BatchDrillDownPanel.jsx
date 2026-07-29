@@ -39,7 +39,7 @@ const BatchDrillDownPanel = ({ product, batches, loading, onClose }) => {
         </div>
 
         {/* Table */}
-        <div className="overflow-auto flex-1">
+        <div className="overflow-auto no-scrollbar flex-1">
           {loading ? (
             <div className="flex items-center justify-center p-16">
               <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />

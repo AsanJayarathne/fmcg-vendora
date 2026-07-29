@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit2, Package } from "lucide-react";
+import { Edit2 } from "lucide-react";
 
 const UPLOADS_BASE = "http://localhost/fmcg-vendora/backend/uploads/products/";
 
@@ -31,7 +31,7 @@ const ProductThumb = ({ imageUrl, name }) => {
       <img
         src={`${UPLOADS_BASE}${imageUrl}`}
         alt={name}
-        className="w-10 h-10 rounded-2xl object-cover border border-slate-100 shrink-0"
+        className="w-11 h-11 rounded-2xl object-cover border border-slate-100 shrink-0 shadow-2xs"
         onError={(e) => {
           e.target.style.display = "none";
           if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
@@ -40,7 +40,7 @@ const ProductThumb = ({ imageUrl, name }) => {
     );
   }
   return (
-    <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-xs font-bold">
+    <div className="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-xs font-bold shadow-2xs">
       {initials}
     </div>
   );
@@ -97,36 +97,36 @@ export default function ProductTable({ products = [], loading = false, error = "
                 const code = `PRD-${String(p.product_id).padStart(3, "0")}`;
                 return (
                   <tr key={p.product_id} className="hover:bg-slate-50/60 transition duration-150">
-                    <td className="px-6 py-3.5">
+                    <td className="px-6 py-4">
                       <ProductThumb imageUrl={p.image_url} name={p.product_name} />
                     </td>
 
-                    <td className="px-6 py-3.5">
-                      <p className="font-bold text-slate-800 text-xs">{p.product_name}</p>
-                      <p className="text-[10px] font-bold text-blue-600 mt-0.5">{code}</p>
+                    <td className="px-6 py-4">
+                      <p className="font-bold text-slate-800 text-sm leading-tight">{p.product_name}</p>
+                      <p className="text-[11px] font-bold text-blue-600 mt-0.5">{code}</p>
                     </td>
 
-                    <td className="px-6 py-3.5 font-bold text-slate-600">
+                    <td className="px-6 py-4 font-bold text-slate-600 text-xs">
                       {p.category_name}
                     </td>
 
-                    <td className="px-6 py-3.5 font-semibold text-slate-500">
+                    <td className="px-6 py-4 font-semibold text-slate-500 text-xs">
                       {p.unit || "—"}
                     </td>
 
-                    <td className="px-6 py-3.5 text-right font-bold text-slate-900 text-sm">
+                    <td className="px-6 py-4 text-right font-bold text-slate-900 text-sm">
                       {formatPrice(p.base_price)}
                     </td>
 
-                    <td className="px-6 py-3.5 text-right font-semibold text-slate-500">
+                    <td className="px-6 py-4 text-right font-semibold text-slate-500 text-xs">
                       {formatPrice(p.mrp_max_retail_price)}
                     </td>
 
-                    <td className="px-6 py-3.5">
+                    <td className="px-6 py-4">
                       <StatusBadge status={p.status} />
                     </td>
 
-                    <td className="px-6 py-3.5">
+                    <td className="px-6 py-4">
                       <div className="flex items-center justify-center">
                         <button
                           type="button"

@@ -1,62 +1,71 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../../auth/AuthContext';
-import Pagination from '../Pagination';
-import ApproveRequestModal from '../supply/ApproveRequestModal';
-import RejectRequestModal from '../supply/RejectRequestModal';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../../auth/AuthContext";
+import Pagination from "../Pagination";
+import ApproveRequestModal from "../supply/ApproveRequestModal";
+import RejectRequestModal from "../supply/RejectRequestModal";
+import { Search, Loader2, CheckCircle, XCircle } from "lucide-react";
 
-const API = 'http://localhost/fmcg-vendora/backend/api/admin/supply-requests.php';
+const API = "http://localhost/fmcg-vendora/backend/api/admin/supply-requests.php";
+const TABS = ["All", "Pending", "Partially_Approved", "Rejected", "Received"];
 
-const TABS = ['All', 'Pending', 'Partially_Approved', 'Rejected', 'Received'];
+const StatusBadge = ({ status }) => {
+  const isApproved = status === "Partially_Approved" || status === "Received";
+  const isPending  = status === "Pending";
+  const isRejected = status === "Rejected";
 
-const statusStyle = {
-  Pending:             { badge: 'text-amber-700 bg-amber-50 border-amber-200',   dot: 'bg-amber-500'   },
-  Partially_Approved:  { badge: 'text-blue-700  bg-blue-50  border-blue-200',    dot: 'bg-blue-500'    },
-  Rejected:            { badge: 'text-rose-700  bg-rose-50  border-rose-200',    dot: 'bg-rose-500'    },
-  Received:            { badge: 'text-emerald-700 bg-emerald-50 border-emerald-200', dot: 'bg-emerald-500' },
+  const displayLabel = status === "Partially_Approved" ? "Approved" : status;
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+        isApproved
+          ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
+          : isPending
+          ? "bg-amber-50 text-amber-700 border border-amber-200/50"
+          : isRejected
+          ? "bg-rose-50 text-rose-700 border border-rose-200/50"
+          : "bg-slate-100 text-slate-600 border border-slate-200"
+      }`}
+    >
+      {displayLabel}
+    </span>
+  );
 };
 
-const SkeletonRow = () => (
-  <tr className="animate-pulse">
-    {[...Array(7)].map((_, i) => (
-      <td key={i} className="px-5 py-4 border-b border-slate-100">
-        <div className="h-4 bg-slate-200 rounded w-3/4" />
-      </td>
-    ))}
-  </tr>
-);
-
-const OrderRequestTable = () => {
+export default function OrderRequestTable() {
   const { auth } = useAuth();
   const [requests, setRequests]     = useState([]);
   const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
-  const [activeTab, setActiveTab]   = useState('All');
-  const [search, setSearch]         = useState('');
+  const [error, setError]           = useState("");
+  const [activeTab, setActiveTab]   = useState("All");
+  const [search, setSearch]         = useState("");
   const [currentPage, setPage]      = useState(1);
   const itemsPerPage = 8;
 
   // Modal states
-  const [viewRequest, setViewRequest]       = useState(null);  // full request for modals
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [approveTarget, setApproveTarget]   = useState(null);
   const [rejectTarget, setRejectTarget]     = useState(null);
 
   const fetchRequests = async () => {
-    setLoading(true); setError('');
+    setLoading(true);
+    setError("");
     try {
       const res  = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
       const json = await res.json();
-      if (!json.success) throw new Error(json.message || 'Failed to load supply requests');
+      if (!json.success) throw new Error(json.message || "Failed to load supply requests");
       setRequests(json.data || []);
     } catch (err) {
-      setError(err.message || 'Network error');
-    } finally { setLoading(false); }
+      setError(err.message || "Network error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { if (auth?.token) fetchRequests(); }, [auth?.token]);
+  useEffect(() => {
+    if (auth?.token) fetchRequests();
+  }, [auth?.token]);
 
-  // Load full request details (with items)
   const loadDetails = async (requestId, mode) => {
     setLoadingDetails(true);
     try {
@@ -64,20 +73,22 @@ const OrderRequestTable = () => {
         headers: { Authorization: `Bearer ${auth?.token}` },
       });
       const json = await res.json();
-      if (!json.success) throw new Error(json.message || 'Failed to load details');
-      if (mode === 'approve') setApproveTarget(json.data);
-      if (mode === 'reject')  setRejectTarget(json.data);
+      if (!json.success) throw new Error(json.message || "Failed to load details");
+      if (mode === "approve") setApproveTarget(json.data);
+      if (mode === "reject")  setRejectTarget(json.data);
     } catch (err) {
       alert(err.message);
-    } finally { setLoadingDetails(false); }
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
-  // Filters
   const filtered = useMemo(() => {
-    return requests.filter(r => {
-      const matchTab    = activeTab === 'All' || r.status === activeTab;
-      const code        = `REQ-${String(r.request_id).padStart(3, '0')}`;
-      const matchSearch = !search ||
+    return requests.filter((r) => {
+      const matchTab = activeTab === "All" || r.status === activeTab;
+      const code     = `REQ-${String(r.request_id).padStart(3, "0")}`;
+      const matchSearch =
+        !search ||
         code.toLowerCase().includes(search.toLowerCase()) ||
         r.distributor_name?.toLowerCase().includes(search.toLowerCase()) ||
         r.region_name?.toLowerCase().includes(search.toLowerCase());
@@ -85,134 +96,179 @@ const OrderRequestTable = () => {
     });
   }, [requests, activeTab, search]);
 
-  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginated  = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-  // Count per tab
   const counts = useMemo(() => {
     const c = { All: requests.length };
-    TABS.slice(1).forEach(t => { c[t] = requests.filter(r => r.status === t).length; });
+    TABS.slice(1).forEach((t) => {
+      c[t] = requests.filter((r) => r.status === t).length;
+    });
     return c;
   }, [requests]);
 
   const handleApproved = (updatedRequest) => {
-    setRequests(prev => prev.map(r => r.request_id === updatedRequest.request_id ? { ...r, status: updatedRequest.status } : r));
+    setRequests((prev) =>
+      prev.map((r) => (r.request_id === updatedRequest.request_id ? { ...r, status: updatedRequest.status } : r))
+    );
     setApproveTarget(null);
   };
 
   const handleRejected = (requestId) => {
-    setRequests(prev => prev.map(r => r.request_id === requestId ? { ...r, status: 'Rejected' } : r));
+    setRequests((prev) =>
+      prev.map((r) => (r.request_id === requestId ? { ...r, status: "Rejected" } : r))
+    );
     setRejectTarget(null);
   };
 
   return (
-    <div className="w-full font-sans">
-      {/* Tabs */}
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl mb-5 w-fit">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            onClick={() => { setActiveTab(tab); setPage(1); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5
-              ${activeTab === tab ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-          >
-            {tab === 'Partially_Approved' ? 'Approved' : tab}
-            {counts[tab] > 0 && (
-              <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[9px] font-black
-                ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-slate-300 text-slate-600'}`}>
-                {counts[tab]}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+    <div className="space-y-4 font-sans">
+      {/* Pill Navigation & Search Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Status Pills */}
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar w-full md:w-auto">
+          {TABS.map((tab) => {
+            const label = tab === "Partially_Approved" ? "Approved" : tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setPage(1);
+                }}
+                className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 ${
+                  activeTab === tab
+                    ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
+                    : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
+                }`}
+              >
+                {label}
+                {counts[tab] > 0 && (
+                  <span
+                    className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[9px] font-black ${
+                      activeTab === tab ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {counts[tab]}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Search */}
-      <div className="relative mb-5 w-72">
-        <input
-          type="text" value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
-          placeholder="Search by REQ ID or distributor..."
-          className="pl-9 pr-4 py-2 w-full bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition placeholder-slate-400"
-        />
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
+        {/* Search Bar */}
+        <div className="relative flex-1 w-full md:w-auto md:max-w-xs">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search REQ ID or distributor..."
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
+          />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        </div>
       </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-sm">{error}</div>
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-2xl">
+          ⚠️ {error}
+        </div>
       )}
 
-      {/* Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead className="bg-slate-50/60 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wide">
+      {/* Table Container */}
+      <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] shadow-xs">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
               <tr>
-                <th className="px-5 py-4">Request ID</th>
-                <th className="px-5 py-4">Distributor</th>
-                <th className="px-5 py-4">Region</th>
-                <th className="px-5 py-4">Date</th>
-                <th className="px-5 py-4 text-center">Items</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4 text-center">Actions</th>
+                <th className="px-6 py-4">Request ID</th>
+                <th className="px-6 py-4">Distributor</th>
+                <th className="px-6 py-4">Region</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4 text-center">Items</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
-                [...Array(5)].map((_, i) => <SkeletonRow key={i} />)
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan="7" className="px-6 py-4">
+                      <div className="h-6 bg-slate-100 rounded-full w-full" />
+                    </td>
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="py-14 text-center text-slate-400 font-medium">
-                    No supply requests found.
+                  <td colSpan="7" className="px-6 py-16 text-center text-slate-400">
+                    <p className="text-4xl mb-2">🚚</p>
+                    <p className="font-bold text-slate-800 text-sm">No supply requests found</p>
+                    <p className="text-xs text-slate-400">Try adjusting your search criteria or filter status.</p>
                   </td>
                 </tr>
               ) : (
-                paginated.map(r => {
-                  const code  = `REQ-${String(r.request_id).padStart(3, '0')}`;
-                  const style = statusStyle[r.status] || statusStyle.Pending;
-                  const isPending  = r.status === 'Pending';
-                  const isApproved = r.status === 'Partially_Approved';
+                paginated.map((r) => {
+                  const code      = `REQ-${String(r.request_id).padStart(3, "0")}`;
+                  const isPending = r.status === "Pending";
                   return (
-                    <tr key={r.request_id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-5 py-3.5 font-mono text-xs font-bold text-slate-700">{code}</td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">{r.distributor_name}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{r.region_name || '—'}</td>
-                      <td className="px-5 py-3.5 text-slate-500 text-xs">
-                        {r.request_date ? new Date(r.request_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                    <tr key={r.request_id} className="hover:bg-slate-50/60 transition duration-150">
+                      <td className="px-6 py-4 font-bold text-blue-600">
+                        {code}
                       </td>
-                      <td className="px-5 py-3.5 text-center">
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold">
-                          {r.item_count ?? '—'}
+
+                      <td className="px-6 py-4 font-bold text-slate-800 text-sm">
+                        {r.distributor_name}
+                      </td>
+
+                      <td className="px-6 py-4 font-bold text-slate-600 text-xs">
+                        {r.region_name || "—"}
+                      </td>
+
+                      <td className="px-6 py-4 font-semibold text-slate-500 text-xs">
+                        {r.request_date
+                          ? new Date(r.request_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+                          : "—"}
+                      </td>
+
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold shadow-2xs">
+                          {r.item_count ?? "—"} items
                         </span>
                       </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${style.badge}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                          {r.status === 'Partially_Approved' ? 'Approved' : r.status}
-                        </span>
+
+                      <td className="px-6 py-4">
+                        <StatusBadge status={r.status} />
                       </td>
-                      <td className="px-5 py-3.5">
+
+                      <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-2">
-                          {isPending && (
+                          {isPending ? (
                             <>
                               <button
-                                onClick={() => loadDetails(r.request_id, 'approve')}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer"
+                                onClick={() => loadDetails(r.request_id, "approve")}
+                                className="px-4 py-1.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center gap-1"
                               >
+                                <CheckCircle size={13} />
                                 Approve
                               </button>
+
                               <button
-                                onClick={() => loadDetails(r.request_id, 'reject')}
-                                className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-lg transition active:scale-95 cursor-pointer"
+                                onClick={() => loadDetails(r.request_id, "reject")}
+                                className="px-4 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center gap-1"
                               >
+                                <XCircle size={13} />
                                 Reject
                               </button>
                             </>
-                          )}
-                          {!isPending && (
-                            <span className="text-xs text-slate-400 font-medium">
-                              {r.status === 'Rejected' ? 'Rejected' : r.status === 'Received' ? 'Received ✓' : 'Transferred'}
+                          ) : (
+                            <span className="text-xs text-slate-400 font-semibold italic">
+                              {r.status === "Rejected" ? "Rejected" : r.status === "Received" ? "Received ✓" : "Transferred"}
                             </span>
                           )}
                         </div>
@@ -224,16 +280,20 @@ const OrderRequestTable = () => {
             </tbody>
           </table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalItems={filtered.length}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setPage}
-          label="requests"
-        />
+
+        {/* Pagination */}
+        {!loading && filtered.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filtered.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setPage}
+            label="requests"
+          />
+        )}
       </div>
 
-      {/* Loading overlay for detail fetch */}
+      {/* Loading overlay for details */}
       {loadingDetails && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
           <Loader2 className="animate-spin text-white" size={36} />
@@ -248,6 +308,7 @@ const OrderRequestTable = () => {
           onApproved={handleApproved}
         />
       )}
+
       {rejectTarget && (
         <RejectRequestModal
           request={rejectTarget}
@@ -257,6 +318,4 @@ const OrderRequestTable = () => {
       )}
     </div>
   );
-};
-
-export default OrderRequestTable;
+}

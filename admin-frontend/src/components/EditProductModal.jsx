@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { X, Edit2, Upload, Trash2, Loader2, Save, Tag, DollarSign, Image } from "lucide-react";
+import { X, Edit2, Upload, Trash2, Loader2, Save, Image } from "lucide-react";
 
 const API          = "http://localhost/fmcg-vendora/backend/api/admin/products.php";
 const UPLOADS_BASE = "http://localhost/fmcg-vendora/backend/uploads/products/";
 
 const Field = ({ label, required, children }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">
       {label}{required && <span className="text-rose-500 ml-0.5">*</span>}
     </label>
     {children}
@@ -15,10 +15,10 @@ const Field = ({ label, required, children }) => (
 );
 
 const inputClass =
-  "w-full border border-slate-200 focus:border-blue-500 rounded-full px-4 py-3 text-xs font-bold outline-none bg-white text-slate-800 transition placeholder-slate-400 focus:ring-4 focus:ring-blue-500/10";
+  "w-full border border-slate-200 focus:border-blue-500 rounded-full px-4 py-3 text-sm font-semibold outline-none bg-white text-slate-800 transition placeholder-slate-400 focus:ring-4 focus:ring-blue-500/10";
 
 const selectClass =
-  "w-full border border-slate-200 focus:border-blue-500 rounded-full px-4 py-3 text-xs font-bold outline-none bg-white text-slate-800 transition cursor-pointer shadow-2xs focus:ring-4 focus:ring-blue-500/10";
+  "w-full border border-slate-200 focus:border-blue-500 rounded-full px-4 py-3 text-sm font-semibold outline-none bg-white text-slate-800 transition cursor-pointer shadow-2xs focus:ring-4 focus:ring-blue-500/10";
 
 export default function EditProductModal({ product, onClose, onProductUpdated }) {
   const { auth } = useAuth();
@@ -178,35 +178,35 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
-              <Edit2 size={20} />
+            <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
+              <Edit2 size={22} />
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider font-bold text-blue-600">Product Modification</span>
-              <h2 className="text-base font-bold text-slate-800 leading-tight mt-0.5">Edit Product Details</h2>
-              <p className="text-xs font-semibold text-slate-400 mt-0.5">
+              <span className="text-xs uppercase tracking-wider font-bold text-blue-600">Product Modification</span>
+              <h2 className="text-xl font-black text-slate-800 leading-tight mt-0.5">Edit Product Details</h2>
+              <p className="text-sm font-bold text-slate-600 mt-1">
                 {product.product_name} <span className="font-bold text-blue-600 ml-1">({productCode})</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition cursor-pointer"
+            className="p-2.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition cursor-pointer"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl">
+            <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl">
               ⚠️ {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-2xl">
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-2xl">
               ✓ {success}
             </div>
           )}
@@ -222,7 +222,7 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
                     onClick={() => fileInputRef.current?.click()}
                     className="px-4 py-2 rounded-full text-xs font-bold bg-white text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
                   >
-                    <Upload size={13} />
+                    <Upload size={14} />
                     Change Image
                   </button>
                   <button
@@ -230,7 +230,7 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
                     onClick={removeImage}
                     className="px-4 py-2 rounded-full text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={14} />
                     Remove
                   </button>
                 </div>
@@ -248,12 +248,12 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
                 }`}
               >
                 <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
-                  <Image size={20} />
+                  <Image size={22} />
                 </div>
-                <p className="text-xs font-semibold text-slate-600">
-                  <span className="text-blue-600 font-bold">Click to upload</span> or drag and drop
+                <p className="text-sm font-bold text-slate-700">
+                  <span className="text-blue-600 font-extrabold">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-[10px] font-bold text-slate-400">JPG, PNG, WEBP • Max 2 MB</p>
+                <p className="text-xs font-bold text-slate-400">JPG, PNG, WEBP • Max 2 MB</p>
               </div>
             )}
             <input
@@ -318,8 +318,8 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
           </div>
 
           {/* Pricing Section Card */}
-          <div className="bg-slate-50/70 rounded-2xl p-4.5 space-y-3 border border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pricing Configuration</p>
+          <div className="bg-slate-50/70 rounded-2xl p-5 space-y-3.5 border border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Pricing Configuration</p>
             <div className="grid grid-cols-2 gap-4">
               <Field label="Base Price (LKR)">
                 <input
@@ -354,31 +354,31 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
               type="button"
               onClick={handleDelete}
               disabled={submitting}
-              className="mr-auto px-5 py-2.5 rounded-full text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="mr-auto px-6 py-3 rounded-full text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-100 transition shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
-              <Trash2 size={14} />
+              <Trash2 size={15} />
               Delete Product
             </button>
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-5 py-2.5 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+              className="px-6 py-3 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer shadow-2xs flex items-center gap-1.5"
+              className="px-7 py-3 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition cursor-pointer shadow-2xs flex items-center gap-1.5"
             >
               {submitting ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" /> Saving…
+                  <Loader2 size={15} className="animate-spin" /> Saving…
                 </>
               ) : (
                 <>
-                  <Save size={14} /> Save Changes
+                  <Save size={15} /> Save Changes
                 </>
               )}
             </button>
