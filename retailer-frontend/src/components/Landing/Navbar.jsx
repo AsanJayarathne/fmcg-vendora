@@ -34,23 +34,15 @@ function Navbar() {
           </a>
 
           <a
-            href="#pricing"
+            href="#analytics"
             className="text-slate-700 hover:text-blue-600 font-medium transition"
           >
-            Pricing
+            Analytics
           </a>
 
-          <button className="flex items-center gap-1 text-slate-700 hover:text-blue-600 font-medium transition">
-            Resources
-            <FiChevronDown />
-          </button>
-
-          <a
-            href="#about"
-            className="text-slate-700 hover:text-blue-600 font-medium transition"
-          >
-            About Us
-          </a>
+           <a href="#testimonials" className="flex items-center gap-1 text-slate-700 hover:text-blue-600 font-medium transition">
+            Reviews
+           </a>
 
         </nav>
 
