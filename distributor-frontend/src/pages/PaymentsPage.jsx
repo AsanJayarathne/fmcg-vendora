@@ -3,10 +3,11 @@ import PaymentTabs from "../components/payments/PaymentTabs";
 import PaymentsTable from "../components/payments/PaymentsTable";
 import OutstandingTable from "../components/payments/OutstandingTable";
 import Pagination from "../components/Pagination";
-import PageHeader from "../components/PageHeader";
 import MetricCard from "../components/MetricCard";
+import OrderDetailModal from "../components/orders/OrderDetailModal";
+import OnboardingDetailModal from "../components/OnboardingDetailModal";
 import { useAuth } from "../auth/AuthContext";
-import { Loader2, Search, Banknote, CreditCard, Receipt, Users } from "lucide-react";
+import { Loader2, Search, Banknote, CreditCard, Receipt, Users, Phone, MapPin, DollarSign } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
@@ -27,6 +28,10 @@ export default function PaymentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
 
+  // Selected items for modal view
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+
   const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
@@ -35,7 +40,6 @@ export default function PaymentsPage() {
       });
       const json = await res.json();
       if (json.success) {
-        // Filter to only include orders that have payment activity (Delivered/Completed)
         setOrders(json.data || []);
       }
     } catch {
@@ -74,17 +78,18 @@ export default function PaymentsPage() {
     return orders
       .filter((o) => o.status === "Delivered")
       .map((o) => ({
+        rawOrderId: o.order_id,
         orderId: `ORD-${String(o.order_id).padStart(3, "0")}`,
         retailer: o.shop_name || "Unknown Retailer",
         orderDate: o.created_at
-          ? new Date(o.created_at).toLocaleDateString(undefined, {
+          ? new Date(o.created_at).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "short",
               year: "numeric",
             })
           : "—",
         orderTime: o.created_at
-          ? new Date(o.created_at).toLocaleTimeString(undefined, {
+          ? new Date(o.created_at).toLocaleTimeString("en-GB", {
               hour: "2-digit",
               minute: "2-digit",
             })
@@ -105,11 +110,15 @@ export default function PaymentsPage() {
   const filteredOutstandings = useMemo(() => {
     return credits
       .map((c) => ({
+        rawRetailerId: c.retailer_id,
         retailerId: `RET-${String(c.retailer_id).padStart(3, "0")}`,
         retailer: c.shop_name || "Unknown Retailer",
+        ownerName: c.owner_name || "—",
+        phone: c.phone || "—",
         creditLimit: parseFloat(c.credit_limit || 0).toFixed(2),
         outstanding: parseFloat(c.current_balance || 0).toFixed(2),
         availableCredit: parseFloat(c.available_credit || 0).toFixed(2),
+        status: "Approved",
       }))
       .filter(
         (o) =>
@@ -133,7 +142,7 @@ export default function PaymentsPage() {
 
   const loading = activeTab === "payments" ? loadingOrders : loadingCredits;
 
-  // ── Summary metrics ──
+  // Summary metrics
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
   const totalRevenue    = deliveredOrders.reduce((s, o) => s + parseFloat(o.cash_amount || 0), 0);
   const totalOutstanding = credits.reduce((s, c) => s + parseFloat(c.current_balance || 0), 0);
@@ -143,57 +152,73 @@ export default function PaymentsPage() {
   const fmtLKR = (val) =>
     `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  return (
-    <div className="space-y-4 font-sans">
-      <PageHeader
-        title="Payment & Credits"
-        subtitle="Manage payments and track outstanding retailer credits"
-      />
+  // Fields for selected credit account modal
+  const accountFields = selectedAccount
+    ? [
+        { icon: <DollarSign size={14} />, label: "Credit Limit", value: `LKR ${Number(selectedAccount.creditLimit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+        { icon: <DollarSign size={14} />, label: "Outstanding Balance", value: `LKR ${Number(selectedAccount.outstanding).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+        { icon: <DollarSign size={14} />, label: "Available Credit", value: `LKR ${Number(selectedAccount.availableCredit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+        { icon: <Phone size={14} />, label: "Contact Phone", value: selectedAccount.phone },
+      ]
+    : [];
 
-      {/* Summary Metric Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  return (
+    <div className="min-w-0 overflow-x-hidden space-y-6 font-sans">
+
+      {/* Page Header */}
+      <h1 className="text-3xl font-bold flex items-center text-slate-800">
+        <Banknote className="inline mr-3 text-blue-600 w-8 h-8" />
+        Payment & Credits
+        {!loading && (
+          <span className="ml-3 text-base font-normal text-slate-500">
+            ({activeItems.length} records)
+          </span>
+        )}
+      </h1>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total Revenue"
           value={fmtLKR(totalRevenue)}
           subtitle="Cash collected (Delivered)"
-          icon={<Banknote className="text-emerald-600" size={22} />}
-          iconBg="bg-emerald-100"
+          icon={<Banknote size={20} />}
+          color="emerald"
         />
         <MetricCard
           title="Total Outstanding"
           value={fmtLKR(totalOutstanding)}
           subtitle="Unpaid credit balances"
-          icon={<CreditCard className="text-orange-500" size={22} />}
-          iconBg="bg-orange-100"
+          icon={<CreditCard size={20} />}
+          color="red"
         />
         <MetricCard
           title="Credit Accounts"
           value={creditAccountsCount}
           subtitle="Active credit accounts"
-          icon={<Users className="text-blue-600" size={22} />}
-          iconBg="bg-blue-100"
+          icon={<Users size={20} />}
+          color="blue"
         />
         <MetricCard
           title="Transactions"
           value={totalTransactions}
           subtitle="Delivered & paid orders"
-          icon={<Receipt className="text-purple-600" size={22} />}
-          iconBg="bg-purple-100"
+          icon={<Receipt size={20} />}
+          color="purple"
         />
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-100 text-rose-700 text-sm rounded-xl">
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-xs font-semibold shadow-2xs">
+          ⚠️ {error}
         </div>
       )}
 
-      {/* Tabs and Search Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Navigation Pills & Search Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         <PaymentTabs activeTab={activeTab} setActiveTab={handleTabChange} />
 
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+        <div className="relative flex-1 w-full md:w-auto md:max-w-xs">
           <input
             type="text"
             value={searchQuery}
@@ -203,23 +228,30 @@ export default function PaymentsPage() {
             }}
             placeholder={
               activeTab === "payments"
-                ? "Search by Order ID or retailer..."
-                : "Search by Retailer ID or name..."
+                ? "Search Order ID or retailer..."
+                : "Search Retailer ID or name..."
             }
-            className="pl-9 pr-4 py-2 w-full bg-white border border-gray-200 rounded-xl text-sm text-gray-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition placeholder-gray-400"
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
           />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         </div>
       </div>
 
       {/* Tables display */}
       {loading ? (
-        <div className="flex items-center justify-center p-12 bg-white border border-gray-200 rounded-xl">
-          <Loader2 className="animate-spin text-blue-600" size={32} />
+        <div className="flex items-center justify-center py-20 bg-white border border-slate-100 rounded-[32px] shadow-xs">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
         </div>
       ) : activeTab === "payments" ? (
-        <PaymentsTable payments={paginatedItems} />
+        <PaymentsTable
+          payments={paginatedItems}
+          onViewOrder={(rawOrderId) => setSelectedOrderId(rawOrderId)}
+        />
       ) : (
-        <OutstandingTable outstandings={paginatedItems} />
+        <OutstandingTable
+          outstandings={paginatedItems}
+          onViewAccount={(acc) => setSelectedAccount(acc)}
+        />
       )}
 
       {/* Pagination */}
@@ -230,6 +262,27 @@ export default function PaymentsPage() {
           itemsPerPage={itemsPerPage}
           label={activeTab === "payments" ? "Payments" : "Accounts"}
           onPageChange={setCurrentPage}
+        />
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
+      )}
+
+      {/* Account Credit Detail Modal */}
+      {selectedAccount && (
+        <OnboardingDetailModal
+          title={selectedAccount.retailer}
+          idLabel={selectedAccount.retailerId}
+          avatarColor="text-blue-600 bg-blue-50 border border-blue-100"
+          status={selectedAccount.status}
+          fields={accountFields}
+          onClose={() => setSelectedAccount(null)}
+          onAction={() => {}}
         />
       )}
     </div>

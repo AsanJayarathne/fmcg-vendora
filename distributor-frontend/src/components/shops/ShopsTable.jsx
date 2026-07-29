@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, MapPin, Calendar, CreditCard, User } from "lucide-react";
+import { Phone, MapPin, Calendar, CreditCard, User, Eye } from "lucide-react";
 import OnboardingDetailModal, { getStatusStyle } from "../OnboardingDetailModal";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
@@ -35,9 +35,10 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
 
   if (shops.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-gray-200 rounded-lg text-gray-400">
-        <div className="text-4xl mb-2">🏪</div>
-        <p className="text-sm font-medium">No shops found</p>
+      <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] p-16 text-center text-slate-400 shadow-xs">
+        <p className="text-4xl mb-2">🏪</p>
+        <p className="font-bold text-slate-800 text-sm">No shops found</p>
+        <p className="text-xs text-slate-400">There are no retailer shops matching your criteria.</p>
       </div>
     );
   }
@@ -56,7 +57,7 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
           value: selected.created_at
             ? new Date(selected.created_at).toLocaleDateString("en-GB", {
                 day: "numeric",
-                month: "long",
+                month: "short",
                 year: "numeric",
               })
             : "—",
@@ -66,89 +67,96 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
 
   return (
     <>
-      <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-        <table className="w-full text-sm text-left border-collapse">
-          <thead className="border-b border-gray-200 bg-gray-50/75">
-            <tr>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Shop</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Shop Details</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Credit Limit</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Registered On</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-100">
-            {shops.map((shop) => (
-              <tr key={shop.retailer_id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-6 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center text-xs font-bold text-blue-600 bg-blue-100 rounded-full w-9 h-9 shrink-0">
-                      {(shop.shop_name || shop.full_name || "?")
-                        .split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{shop.shop_name || shop.full_name}</p>
-                      <p className="text-[10px] text-gray-400">
-                        SHOP-{String(shop.retailer_id).padStart(4, "0")}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-6 py-3.5 text-gray-700">
-                  <div className="flex items-center gap-2">
-                    <Phone size={13} className="text-gray-400" />
-                    {shop.phone || shop.contact || "—"}
-                  </div>
-                </td>
-
-                <td className="px-6 py-3.5 text-gray-700">
-                  <p className="font-medium text-gray-800">{shop.shop_address || "—"}</p>
-                  <p className="text-[10px] text-gray-500">{shop.city || "—"}</p>
-                </td>
-
-                <td className="px-6 py-3.5 text-gray-700 font-semibold">
-                  {creditAccounts[shop.retailer_id]
-                    ? `${Number(creditAccounts[shop.retailer_id].credit_limit).toLocaleString()}.00`
-                    : <span className="text-gray-400 italic text-[10px]">Not Set</span>}
-                </td>
-
-                <td className="px-6 py-3.5">
-                  <span className={`px-4 py-1 text-[10px] font-semibold rounded ${getStatusStyle(shop.status)}`}>
-                    {shop.status}
-                  </span>
-                </td>
-
-                <td className="px-6 py-3.5 text-gray-700">
-                  {shop.created_at
-                    ? new Date(shop.created_at).toLocaleDateString("en-GB", {
-                        day: "numeric", month: "long", year: "numeric",
-                      })
-                    : "—"}
-                </td>
-
-                <td className="px-6 py-3.5">
-                  <button
-                    onClick={() => { setSelected(shop); setActionError(""); }}
-                    className="px-5 py-1 text-[10px] font-semibold text-sky-500 border border-gray-300 rounded-md hover:bg-sky-50 transition-colors"
-                  >
-                    View Details
-                  </button>
-                </td>
+      <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] shadow-xs">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+              <tr>
+                <th className="px-6 py-4">Shop Name</th>
+                <th className="px-6 py-4">Contact</th>
+                <th className="px-6 py-4">Shop Location</th>
+                <th className="px-6 py-4">Credit Limit</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Registered Date</th>
+                <th className="px-6 py-4 text-center">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {shops.map((shop) => (
+                <tr key={shop.retailer_id} className="hover:bg-slate-50/60 transition duration-150">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-full w-9 h-9 shrink-0">
+                        {(shop.shop_name || shop.full_name || "?")
+                          .split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{shop.shop_name || shop.full_name}</p>
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          SHOP-{String(shop.retailer_id).padStart(4, "0")}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-700">
+                    <div className="flex items-center gap-2 font-medium">
+                      <Phone size={13} className="text-slate-400" />
+                      {shop.phone || shop.contact || "—"}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-700">
+                    <p className="font-semibold text-slate-800">{shop.shop_address || "—"}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{shop.city || "—"}</p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {creditAccounts[shop.retailer_id] ? (
+                      <span className="font-bold text-slate-900">
+                        LKR {Number(creditAccounts[shop.retailer_id].credit_limit).toLocaleString()}.00
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 italic text-[10px]">Not Set</span>
+                    )}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${getStatusStyle(shop.status)}`}>
+                      {shop.status}
+                    </span>
+                  </td>
+
+                  <td className="px-6 py-4 text-slate-600 font-medium">
+                    {shop.created_at
+                      ? new Date(shop.created_at).toLocaleDateString("en-GB", {
+                          day: "numeric", month: "short", year: "numeric",
+                        })
+                      : "—"}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => { setSelected(shop); setActionError(""); }}
+                      className="px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center justify-center gap-1 mx-auto"
+                    >
+                      <Eye size={13} />
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {selected && (
         <OnboardingDetailModal
           title={selected.shop_name || selected.full_name}
           idLabel={`SHOP-${String(selected.retailer_id).padStart(4, "0")}`}
-          avatarColor="text-blue-600 bg-blue-100"
+          avatarColor="text-blue-600 bg-blue-50 border border-blue-100"
           status={selected.status}
           fields={modalFields}
           onClose={() => setSelected(null)}

@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
-import { Save, Loader } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
 export default function SetCreditTable({ shops, creditAccounts: initialAccounts = {}, onRefresh }) {
   const [creditInputs, setCreditInputs] = useState({});
-  // Keep a local copy that can be updated immediately after save without waiting for page-level refetch
   const [localAccounts, setLocalAccounts] = useState(initialAccounts);
   const [loadingId, setLoadingId] = useState(null);
   const [messages, setMessages] = useState({});
 
-  // Sync when the parent refreshes (onRefresh triggers new props)
   useEffect(() => {
     setLocalAccounts(initialAccounts);
   }, [initialAccounts]);
@@ -31,7 +29,6 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
 
       let res;
       if (account) {
-        // Update existing credit limit
         res = await fetch(`${API_BASE}/distributor/credit.php?id=${account.credit_id}`, {
           method: "PUT",
           headers: {
@@ -41,7 +38,6 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
           body: JSON.stringify({ credit_limit: newLimit }),
         });
       } else {
-        // Create new credit account
         res = await fetch(`${API_BASE}/distributor/credit.php`, {
           method: "POST",
           headers: {
@@ -58,7 +54,6 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
       setMessages((prev) => ({ ...prev, [shop.retailer_id]: { type: "success", text: "Credit limit saved!" } }));
       setCreditInputs((prev) => ({ ...prev, [shop.retailer_id]: "" }));
 
-      // Refresh the page-level data so All Shop tab and this table both update
       onRefresh();
     } catch (err) {
       setMessages((prev) => ({ ...prev, [shop.retailer_id]: { type: "error", text: err.message } }));
@@ -69,97 +64,100 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
 
   if (shops.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white border border-gray-200 rounded-lg text-gray-400">
-        <div className="text-4xl mb-2">💳</div>
-        <p className="text-sm font-medium">No approved shops to set credit for</p>
+      <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] p-16 text-center text-slate-400 shadow-xs">
+        <p className="text-4xl mb-2">💳</p>
+        <p className="font-bold text-slate-800 text-sm">No approved shops to set credit for</p>
+        <p className="text-xs text-slate-400">Approved shops will appear here for credit limit assignment.</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-      <table className="w-full text-sm text-left border-collapse">
-        <thead className="border-b border-gray-200 bg-gray-50/75">
-          <tr>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer ID</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Current Credit Limit</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">New Credit Limit</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Outstanding</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Available Credit</th>
-            <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
-          </tr>
-        </thead>
+    <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] shadow-xs">
+      <div className="overflow-x-auto no-scrollbar">
+        <table className="w-full text-xs text-left border-collapse">
+          <thead className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+            <tr>
+              <th className="px-6 py-4">Retailer ID</th>
+              <th className="px-6 py-4">Retailer Shop</th>
+              <th className="px-6 py-4">Current Credit Limit</th>
+              <th className="px-6 py-4">New Credit Limit (LKR)</th>
+              <th className="px-6 py-4">Outstanding Balance</th>
+              <th className="px-6 py-4">Available Credit</th>
+              <th className="px-6 py-4 text-center">Action</th>
+            </tr>
+          </thead>
 
-        <tbody className="divide-y divide-gray-100">
-          {shops.map((shop) => {
-            const acct = localAccounts[shop.retailer_id];
-            const isLoading = loadingId === shop.retailer_id;
-            const msg = messages[shop.retailer_id];
-            return (
-              <tr key={shop.retailer_id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-6 py-3.5 font-mono text-gray-700">
-                  SHOP-{String(shop.retailer_id).padStart(4, "0")}
-                </td>
-                <td className="px-6 py-3.5 font-medium text-gray-900">{shop.shop_name || shop.full_name}</td>
+          <tbody className="divide-y divide-slate-100">
+            {shops.map((shop) => {
+              const acct = localAccounts[shop.retailer_id];
+              const isLoading = loadingId === shop.retailer_id;
+              const msg = messages[shop.retailer_id];
+              return (
+                <tr key={shop.retailer_id} className="hover:bg-slate-50/60 transition duration-150">
+                  <td className="px-6 py-4 font-bold text-blue-600">
+                    SHOP-{String(shop.retailer_id).padStart(4, "0")}
+                  </td>
+                  <td className="px-6 py-4 font-bold text-slate-800">{shop.shop_name || shop.full_name}</td>
 
-                <td className="px-6 py-3.5 text-gray-700">
-                  {acct ? (
-                    <span className="font-semibold text-gray-700">
-                      {Number(acct.credit_limit).toLocaleString()}.00
-                    </span>
-                  ) : (
-                    <span className="text-gray-400 italic">Not Set</span>
-                  )}
-                </td>
-
-                <td className="px-6 py-3.5">
-                  <div className="flex flex-col gap-1">
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Enter amount"
-                      value={creditInputs[shop.retailer_id] || ""}
-                      onChange={(e) =>
-                        setCreditInputs((prev) => ({ ...prev, [shop.retailer_id]: e.target.value }))
-                      }
-                      className="w-32 px-3 py-2 text-xs border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    />
-                    {msg && (
-                      <span className={`text-[10px] font-medium ${msg.type === "success" ? "text-green-600" : "text-red-500"}`}>
-                        {msg.text}
+                  <td className="px-6 py-4">
+                    {acct ? (
+                      <span className="font-bold text-slate-900">
+                        LKR {Number(acct.credit_limit).toLocaleString()}.00
                       </span>
-                    )}
-                  </div>
-                </td>
-
-                <td className="px-6 py-3.5 font-semibold text-red-500">
-                  {acct ? `${Number(acct.current_balance).toLocaleString()}.00` : "—"}
-                </td>
-
-                <td className="px-6 py-3.5 font-semibold text-green-500">
-                  {acct ? `${Number(acct.available_credit).toLocaleString()}.00` : "—"}
-                </td>
-
-                <td className="px-6 py-3.5">
-                  <button
-                    onClick={() => handleSave(shop)}
-                    disabled={isLoading}
-                    className="flex items-center gap-1.5 px-4 py-1.5 text-[10px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <Loader size={12} className="animate-spin" />
                     ) : (
-                      <Save size={12} />
+                      <span className="text-slate-400 italic text-[10px]">Not Set</span>
                     )}
-                    Save Credit
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Enter limit amount"
+                        value={creditInputs[shop.retailer_id] || ""}
+                        onChange={(e) =>
+                          setCreditInputs((prev) => ({ ...prev, [shop.retailer_id]: e.target.value }))
+                        }
+                        className="w-36 border border-slate-200 focus:border-blue-500 rounded-full px-4 py-2 text-xs font-bold outline-none bg-white text-slate-700 placeholder-slate-400 transition shadow-2xs focus:ring-4 focus:ring-blue-500/10"
+                      />
+                      {msg && (
+                        <span className={`text-[10px] font-bold ${msg.type === "success" ? "text-emerald-600" : "text-rose-500"}`}>
+                          {msg.text}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 font-bold text-rose-600">
+                    {acct ? `LKR ${Number(acct.current_balance).toLocaleString()}.00` : "—"}
+                  </td>
+
+                  <td className="px-6 py-4 font-bold text-emerald-600">
+                    {acct ? `LKR ${Number(acct.available_credit).toLocaleString()}.00` : "—"}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => handleSave(shop)}
+                      disabled={isLoading}
+                      className="flex items-center justify-center gap-1.5 px-5 py-2 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer shadow-2xs disabled:opacity-50 mx-auto"
+                    >
+                      {isLoading ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Save size={13} />
+                      )}
+                      Save Credit
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

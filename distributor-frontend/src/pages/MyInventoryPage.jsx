@@ -2,10 +2,10 @@ import { useState, useEffect, useMemo } from "react";
 import InventoryFilters from "../components/inventory/InventoryFilters";
 import InventoryTable from "../components/inventory/InventoryTable";
 import Pagination from "../components/Pagination";
+import MetricCard from "../components/MetricCard";
 import DistributorBatchDrillDownModal from "../components/inventory/DistributorBatchDrillDownModal";
-import PageHeader from "../components/PageHeader";
 import { useAuth } from "../auth/AuthContext";
-import { Loader2, AlertTriangle, X } from "lucide-react";
+import { Package, AlertTriangle, X, CheckCircle2, AlertCircle, Layers, Loader2 } from "lucide-react";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 
@@ -126,6 +126,15 @@ export default function MyInventoryPage() {
     });
   }, [aggregatedStock, search, selectedCategory, selectedStatus]);
 
+  // Metrics
+  const metrics = useMemo(() => {
+    const totalItems = aggregatedStock.length;
+    const totalQty   = aggregatedStock.reduce((acc, item) => acc + parseInt(item.quantity || 0), 0);
+    const lowCount   = aggregatedStock.filter(item => parseInt(item.quantity || 0) <= 20 && parseInt(item.quantity || 0) > 0).length;
+    const outCount   = aggregatedStock.filter(item => parseInt(item.quantity || 0) <= 0).length;
+    return { totalItems, totalQty, lowCount, outCount };
+  }, [aggregatedStock]);
+
   const handleResetFilters = () => {
     setSearch(""); setSelectedCategory(""); setSelectedStatus(""); setCurrentPage(1);
   };
@@ -136,29 +145,79 @@ export default function MyInventoryPage() {
   }, [filteredStock, currentPage]);
 
   return (
-    <div className="space-y-4 font-sans">
-      <PageHeader title="Manage My Stock" subtitle="View and manage your current stock" />
+    <div className="min-w-0 overflow-x-hidden space-y-6 font-sans">
+
+      {/* Page Header */}
+      <h1 className="text-3xl font-bold flex items-center text-slate-800">
+        <Package className="inline mr-3 text-blue-600 w-8 h-8" />
+        Inventory Stock
+        {!loading && (
+          <span className="ml-3 text-base font-normal text-slate-500">
+            ({filteredStock.length} items)
+          </span>
+        )}
+      </h1>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Total Products"
+          value={metrics.totalItems}
+          subtitle="Inventory Catalog"
+          icon={<Package size={20} />}
+          color="blue"
+        />
+        <MetricCard
+          title="Active Stock Units"
+          value={metrics.totalQty.toLocaleString()}
+          subtitle="Available Units"
+          icon={<Layers size={20} />}
+          color="emerald"
+        />
+        <MetricCard
+          title="Low Stock Alert"
+          value={metrics.lowCount}
+          subtitle="Needs Reorder"
+          icon={<AlertTriangle size={20} />}
+          color="amber"
+        />
+        <MetricCard
+          title="Out of Stock"
+          value={metrics.outCount}
+          subtitle="Zero Stock"
+          icon={<AlertCircle size={20} />}
+          color="red"
+        />
+      </div>
 
       {/* Low Stock Alert Banner */}
       {!alertDismissed && lowStockProducts.length > 0 && (
-        <div className="flex items-start gap-3 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
-          <AlertTriangle size={16} className="text-amber-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 text-sm text-amber-800">
-            <span className="font-bold">{lowStockProducts.length} product{lowStockProducts.length !== 1 ? "s" : ""} low on stock:</span>
-            {" "}
-            <span className="font-medium">
+        <div className="flex items-center justify-between p-4 bg-amber-50/80 border border-amber-200/60 rounded-2xl shadow-2xs">
+          <div className="flex items-center gap-3">
+            <AlertTriangle size={18} className="text-amber-600 shrink-0" />
+            <p className="text-xs text-amber-900 font-semibold">
+              <span className="font-bold">{lowStockProducts.length} product{lowStockProducts.length !== 1 ? "s" : ""} low on stock:</span>{" "}
               {lowStockProducts.slice(0, 5).map(p => p.product_name).join(", ")}
               {lowStockProducts.length > 5 && ` + ${lowStockProducts.length - 5} more`}
-            </span>
-            {" "}— Consider requesting stock soon.
+            </p>
           </div>
-          <button onClick={() => setAlertDismissed(true)}
-            className="text-amber-500 hover:text-amber-700 transition cursor-pointer flex-shrink-0">
-            <X size={14} />
+          <button
+            onClick={() => setAlertDismissed(true)}
+            className="p-1 rounded-full text-amber-500 hover:text-amber-700 transition cursor-pointer"
+          >
+            <X size={16} />
           </button>
         </div>
       )}
 
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-xs font-semibold shadow-2xs">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Filter Controls */}
       <InventoryFilters
         search={search}
         onSearchChange={val => { setSearch(val); setCurrentPage(1); }}
@@ -171,11 +230,9 @@ export default function MyInventoryPage() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center p-12 bg-white border border-gray-200 rounded-lg">
-          <Loader2 className="animate-spin text-blue-600" size={32} />
+        <div className="flex items-center justify-center py-20 bg-white border border-slate-100 rounded-[32px] shadow-xs">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
         </div>
-      ) : error ? (
-        <div className="p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">{error}</div>
       ) : (
         <>
           <InventoryTable
