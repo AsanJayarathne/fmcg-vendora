@@ -1,26 +1,32 @@
 import AnalyticsCard from "./AnalyticsCard";
+import { Truck } from "lucide-react";
 
 export default function DriverPerformance({ drivers }) {
-  const max = Math.max(...drivers.map((d) => d.deliveries));
+  const list = drivers || [];
+  const max = Math.max(...list.map((d) => d.deliveries), 1);
 
   return (
     <AnalyticsCard
       title="Driver Performance"
-      action={<button className="text-xs font-semibold text-blue-600">View All</button>}
+      subtitle="Completed order deliveries by driver"
+      icon={Truck}
     >
-      <div className="space-y-4">
-        {drivers.map((driver) => (
-          <div key={driver.name} className="grid items-center grid-cols-4 gap-3">
-            <p className="text-sm">{driver.name}</p>
+      <div className="space-y-4 py-1">
+        {list.map((driver) => (
+          <div key={driver.name} className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700">{driver.name}</span>
+              <span className="bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-lg">
+                {driver.deliveries} deliveries
+              </span>
+            </div>
 
-            <div className="h-2 col-span-2 bg-gray-100 rounded-full">
+            <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-2 bg-green-500 rounded-full"
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${(driver.deliveries / max) * 100}%` }}
               ></div>
             </div>
-
-            <p className="text-sm font-semibold">{driver.deliveries}</p>
           </div>
         ))}
       </div>

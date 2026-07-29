@@ -1,32 +1,40 @@
 import AnalyticsCard from "./AnalyticsCard";
+import { AlertCircle } from "lucide-react";
 
 export default function OutstandingRetailers({ retailers }) {
+  const list = retailers || [];
+
   return (
     <AnalyticsCard
       title="Outstanding by Retailer"
-      action={<button className="text-xs font-semibold text-blue-600">View All</button>}
+      subtitle="Highest unpaid retailer credit balances"
+      icon={AlertCircle}
     >
-      <table className="w-full text-sm text-left border-collapse">
-        <thead className="border-b border-gray-200 bg-gray-50/50">
-          <tr>
-            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Retailer Name</th>
-            <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Outstanding (LKR)</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-gray-100">
-          {retailers.map((item) => (
-            <tr key={item.name} className="hover:bg-gray-50/50 transition-colors">
-              <td className="px-4 py-2.5 font-medium text-gray-900">{item.name}</td>
-              <td className="px-4 py-2.5 text-right font-semibold text-red-500">{item.amount}</td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr className="border-b border-slate-100 bg-slate-50/80 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+              <th className="px-3 py-2.5 rounded-l-xl">Retailer Name</th>
+              <th className="px-3 py-2.5 text-right rounded-r-xl">Outstanding</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button className="mt-4 text-sm font-semibold text-blue-600">
-        View all outstanding →
-      </button>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {list.map((item) => (
+              <tr key={item.name} className="hover:bg-slate-50/60 transition-colors">
+                <td className="px-3 py-3 font-semibold text-slate-800 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                  <span>{item.name}</span>
+                </td>
+                <td className="px-3 py-3 text-right">
+                  <span className="bg-rose-50 text-rose-600 font-bold text-xs px-2.5 py-0.5 rounded-lg inline-block">
+                    LKR {item.amount}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </AnalyticsCard>
   );
 }
