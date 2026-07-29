@@ -76,8 +76,8 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
               <Tag className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider font-black text-blue-600">Edit Price & Details</span>
-              <h2 className="text-base font-extrabold text-slate-800 leading-tight mt-0.5">{product.name}</h2>
+              <span className="text-[10px] uppercase tracking-wider font-bold text-blue-600">Edit Price & Details</span>
+              <h2 className="text-base font-bold text-slate-800 leading-tight mt-0.5">{product.name}</h2>
             </div>
           </div>
           <button
@@ -105,8 +105,8 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
                 <Package className="w-5 h-5" />
               </span>
               <div>
-                <p className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">Available Stock</p>
-                <p className="text-sm font-extrabold text-slate-800">{product.stock} units</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Available Stock</p>
+                <p className="text-sm font-bold text-slate-800">{product.stock} units</p>
               </div>
             </div>
             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold uppercase tracking-wider ${statusConfig.color}`}>
@@ -117,18 +117,18 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
 
           {/* Pricing Grid */}
           <div className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">Pricing Information</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pricing Information</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3.5 bg-slate-50/70 border border-slate-100 rounded-2xl">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Base Price</p>
-                <div className="flex items-baseline gap-1 font-extrabold text-slate-700">
+                <div className="flex items-baseline gap-1 font-bold text-slate-700">
                   <span className="text-xs">LKR</span>
                   <span className="text-base">{Number(product.base || product.base_price || 0).toFixed(2)}</span>
                 </div>
               </div>
               <div className="p-3.5 bg-slate-50/70 border border-slate-100 rounded-2xl">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">MRP</p>
-                <div className="flex items-baseline gap-1 font-extrabold text-slate-700">
+                <div className="flex items-baseline gap-1 font-bold text-slate-700">
                   <span className="text-xs">LKR</span>
                   <span className="text-base">{Number(product.mrp || 0).toFixed(2)}</span>
                 </div>
@@ -137,7 +137,7 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
 
             {/* Editable Selling Price Field */}
             <div className="p-4 bg-blue-50/40 border border-blue-100 rounded-2xl space-y-2">
-              <label className="block text-xs font-black text-blue-600 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-blue-600 uppercase tracking-wider">
                 My Selling Price (LKR)
               </label>
               <div className="relative">
@@ -150,7 +150,7 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
                   value={sellingPrice}
                   onChange={(e) => setSellingPrice(e.target.value)}
                   disabled={saving}
-                  className="block w-full pl-14 pr-4 py-2.5 text-base font-black text-blue-700 border border-blue-200 rounded-xl bg-white outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition disabled:opacity-50 shadow-2xs"
+                  className="block w-full pl-14 pr-4 py-2.5 text-base font-bold text-blue-700 border border-blue-200 rounded-xl bg-white outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition disabled:opacity-50 shadow-2xs"
                   placeholder="0.00"
                 />
               </div>
@@ -159,23 +159,23 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
 
           {/* General Details */}
           <div className="space-y-3">
-            <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">General Information</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">General Information</h3>
             <div className="divide-y divide-slate-100 border border-slate-100 rounded-2xl overflow-hidden bg-white">
               <div className="flex justify-between px-4 py-3 text-xs">
-                <span className="text-slate-500 font-bold">Product Code</span>
-                <span className="text-slate-800 font-extrabold">{product.id}</span>
+                <span className="text-slate-500 font-medium">Product Code</span>
+                <span className="text-slate-800 font-bold">{product.id}</span>
               </div>
               <div className="flex justify-between px-4 py-3 text-xs">
-                <span className="text-slate-500 font-bold">Category</span>
+                <span className="text-slate-500 font-medium">Category</span>
                 <span className="text-slate-800 font-bold">{product.category}</span>
               </div>
               <div className="flex justify-between px-4 py-3 text-xs">
-                <span className="text-slate-500 font-bold">Measurement Unit</span>
+                <span className="text-slate-500 font-medium">Measurement Unit</span>
                 <span className="text-slate-800 font-bold">{product.unit || "N/A"}</span>
               </div>
               <div className="flex justify-between px-4 py-3 text-xs">
-                <span className="text-slate-500 font-bold">Calculated Profit Margin</span>
-                <span className={`font-black ${parseFloat(profitMarginPercentage) >= 0 ? "text-green-600" : "text-red-500"}`}>
+                <span className="text-slate-500 font-medium">Calculated Profit Margin</span>
+                <span className={`font-bold ${parseFloat(profitMarginPercentage) >= 0 ? "text-green-600" : "text-red-500"}`}>
                   {profitMarginPercentage}%
                 </span>
               </div>
@@ -185,8 +185,8 @@ export default function ProductDetailModal({ product, onClose, onSavePrice }) {
           {/* Description Section */}
           {product.description && (
             <div className="space-y-2 bg-slate-50/70 border border-slate-100 rounded-2xl p-4">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-400">Product Description</h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-semibold">{product.description}</p>
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Product Description</h3>
+              <p className="text-xs text-slate-600 leading-relaxed font-normal">{product.description}</p>
             </div>
           )}
         </div>

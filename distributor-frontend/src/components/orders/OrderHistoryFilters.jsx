@@ -1,4 +1,4 @@
-import { RotateCcw, Search, Calendar } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 
 export default function OrderHistoryFilters({
   search, setSearch,
@@ -8,26 +8,33 @@ export default function OrderHistoryFilters({
   onReset,
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white border border-gray-200 rounded-xl">
-      <div className="flex flex-wrap gap-3 items-center">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-3 w-full md:w-auto flex-1">
 
         {/* Search */}
-        <div className="relative">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="relative flex-1 min-w-[200px] sm:min-w-[260px]">
           <input
             type="text"
-            placeholder="Search by retailer or order ID…"
+            placeholder="Search by retailer name or order ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 pr-3 py-2 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400 w-52"
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
           />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         </div>
 
-        {/* Status */}
+        {/* Status Dropdown */}
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 text-xs font-semibold border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-semibold transition duration-300 shadow-2xs appearance-none cursor-pointer text-slate-600"
+          style={{
+            backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
+            backgroundPosition: 'right 1.25rem center',
+            backgroundSize: '1.25em 1.25em',
+            backgroundRepeat: 'no-repeat',
+            paddingRight: '2.5rem'
+          }}
         >
           <option value="">All Statuses</option>
           <option value="DELIVERED">Delivered</option>
@@ -35,34 +42,39 @@ export default function OrderHistoryFilters({
         </select>
 
         {/* Date From */}
-        <div className="flex items-center gap-1.5">
-          <Calendar size={13} className="text-gray-400 shrink-0" />
+        <div className="relative flex items-center">
           <input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
-            className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400"
+            className="border border-slate-200 focus:border-blue-500 rounded-full px-4 py-2.5 text-xs font-semibold outline-none bg-white text-slate-600 transition shadow-2xs cursor-pointer focus:ring-4 focus:ring-blue-500/10"
           />
         </div>
 
+        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">to</span>
+
         {/* Date To */}
-        <span className="text-xs text-gray-400 font-medium">to</span>
-        <input
-          type="date"
-          value={dateTo}
-          onChange={(e) => setDateTo(e.target.value)}
-          className="px-3 py-2 text-xs font-medium border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
+        <div className="relative flex items-center">
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="border border-slate-200 focus:border-blue-500 rounded-full px-4 py-2.5 text-xs font-semibold outline-none bg-white text-slate-600 transition shadow-2xs cursor-pointer focus:ring-4 focus:ring-blue-500/10"
+          />
+        </div>
 
       </div>
 
-      <button
-        onClick={onReset}
-        className="flex items-center gap-2 px-4 py-2 text-xs font-semibold border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-      >
-        <RotateCcw size={13} />
-        Reset
-      </button>
+      {/* Reset */}
+      {(search || statusFilter || dateFrom || dateTo) && (
+        <button
+          onClick={onReset}
+          className="flex items-center gap-1.5 px-5 py-3 text-xs font-semibold border border-slate-200 rounded-full text-slate-500 bg-white hover:border-blue-500 hover:text-blue-600 transition cursor-pointer shadow-2xs"
+        >
+          <RotateCcw size={14} />
+          Reset
+        </button>
+      )}
     </div>
   );
 }

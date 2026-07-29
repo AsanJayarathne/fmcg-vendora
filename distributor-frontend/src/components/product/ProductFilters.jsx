@@ -21,7 +21,7 @@ export default function ProductFilters({
           placeholder="Search products by name or code (PRD-XXX)..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-bold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
+          className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
         />
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
       </div>
@@ -31,7 +31,7 @@ export default function ProductFilters({
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="w-full sm:w-auto border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-bold transition duration-300 shadow-2xs appearance-none cursor-pointer text-slate-600"
+          className="w-full sm:w-auto border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-semibold transition duration-300 shadow-2xs appearance-none cursor-pointer text-slate-600"
           style={{
             backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`,
             backgroundPosition: 'right 1.25rem center',
@@ -78,7 +78,7 @@ export default function ProductFilters({
         {(search || selectedCategory || selectedStatus) && (
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 px-4 py-3 text-xs font-bold border border-slate-200 rounded-full text-slate-500 bg-white hover:border-blue-500 hover:text-blue-600 transition cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-4 py-3 text-xs font-semibold border border-slate-200 rounded-full text-slate-500 bg-white hover:border-blue-500 hover:text-blue-600 transition cursor-pointer shadow-2xs"
           >
             <RotateCcw size={14} />
             Reset

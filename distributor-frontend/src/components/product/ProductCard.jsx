@@ -84,21 +84,21 @@ export default function ProductCard({ product, onView }) {
 
         {/* Title and Product Code */}
         <div className="flex items-start justify-between gap-2 mt-3.5">
-          <h3 className="font-extrabold text-slate-800 text-sm line-clamp-2 leading-tight flex-1">
+          <h3 className="font-bold text-slate-800 text-sm line-clamp-2 leading-tight flex-1">
             {name}
           </h3>
-          <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
+          <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
             {code}
           </span>
         </div>
 
         {unit && (
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">{unit}</p>
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-1">{unit}</p>
         )}
 
         {/* Stock Status Pill Badge */}
         <div className="mt-2.5 flex items-center justify-between">
-          <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full border ${
+          <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border ${
             isOutOfStock 
               ? "text-red-600 bg-red-50 border-red-200/40" 
               : isLowStock 
@@ -111,7 +111,7 @@ export default function ProductCard({ product, onView }) {
                 ? `Low Stock (${stockQty})`
                 : `In Stock (${stockQty})`}
           </span>
-          <span className="text-[10px] font-bold text-slate-400">
+          <span className="text-[10px] font-medium text-slate-400">
             Cat: {category}
           </span>
         </div>
@@ -121,14 +121,14 @@ export default function ProductCard({ product, onView }) {
       <div className="mt-4 pt-3 border-t border-slate-100">
         <div className="flex items-baseline justify-between">
           <div>
-            <span className="text-[10px] uppercase font-extrabold text-slate-400 block">Selling Price</span>
-            <p className="font-black text-slate-900 text-base">
+            <span className="text-[10px] uppercase font-bold text-slate-400 block">Selling Price</span>
+            <p className="font-bold text-slate-900 text-base">
               LKR {fmt(sellingPrice)}
             </p>
           </div>
           <div className="text-right">
-            <span className="text-[10px] font-bold text-slate-400 block">MRP: LKR {fmt(mrp)}</span>
-            <span className="text-[10px] font-bold text-slate-400 block">Base: LKR {fmt(basePrice)}</span>
+            <span className="text-[10px] font-medium text-slate-400 block">MRP: LKR {fmt(mrp)}</span>
+            <span className="text-[10px] font-medium text-slate-400 block">Base: LKR {fmt(basePrice)}</span>
           </div>
         </div>
 

@@ -23,7 +23,7 @@ export default function ProductGrid({ products = [], onViewProduct, isLoading })
     return (
       <div className="bg-white border border-slate-100 rounded-[32px] text-center py-16 px-4 shadow-xs">
         <p className="text-5xl mb-3">🔍</p>
-        <p className="font-extrabold text-slate-800 text-lg">No products found</p>
+        <p className="font-bold text-slate-800 text-lg">No products found</p>
         <p className="text-slate-400 text-xs mt-1">Try selecting a different category or adjusting your search term</p>
       </div>
     );

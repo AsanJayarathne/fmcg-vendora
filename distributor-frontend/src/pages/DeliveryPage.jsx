@@ -28,7 +28,7 @@ export default function DeliveryPage() {
   // Modal
   const [selectedDelivery, setSelectedDelivery] = useState(null);
 
-  // ── Load data ────────────────────────────────────────────────────────────
+  // Load data
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -45,14 +45,14 @@ export default function DeliveryPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // ── Metrics ───────────────────────────────────────────────────────────────
-  const total     = allDeliveries.length;
-  const openCount = allDeliveries.filter((d) => d.status === "OPEN").length;
-  const claimedCount = allDeliveries.filter((d) => d.status === "CLAIMED").length;
+  // Metrics
+  const total          = allDeliveries.length;
+  const openCount      = allDeliveries.filter((d) => d.status === "OPEN").length;
+  const claimedCount   = allDeliveries.filter((d) => d.status === "CLAIMED").length;
   const deliveredCount = allDeliveries.filter((d) => d.status === "DELIVERED").length;
   const returnedCount  = allDeliveries.filter((d) => d.status === "RETURNED").length;
 
-  // ── Filter logic ──────────────────────────────────────────────────────────
+  // Filter logic
   const filtered = useMemo(() => {
     let list = allDeliveries;
 
@@ -61,12 +61,12 @@ export default function DeliveryPage() {
       list = list.filter((d) => d.status === activeTab);
     }
 
-    // Status dropdown (secondary filter — works on tab result)
+    // Status dropdown
     if (statusFilter !== "All") {
       list = list.filter((d) => d.status === statusFilter);
     }
 
-    // Search: delivery_id, order_id, shop_name, driver_name, owner_name
+    // Search
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -96,67 +96,78 @@ export default function DeliveryPage() {
 
   function handleTabChange(tab) {
     setActiveTab(tab);
-    setStatusFilter("All"); // reset dropdown when tab changes
+    setStatusFilter("All");
     setCurrentPage(1);
   }
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 overflow-x-hidden space-y-6 font-sans">
 
-      {/* ── Metric Cards ── */}
+      {/* Page Header — styled like Retailer */}
+      <h1 className="text-3xl font-bold flex items-center text-slate-800">
+        <Truck className="inline mr-3 text-blue-600 w-8 h-8" />
+        Deliveries
+        {!loading && (
+          <span className="ml-3 text-base font-normal text-slate-500">
+            ({filtered.length} deliveries)
+          </span>
+        )}
+      </h1>
+
+      {/* Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard
           title="Total Deliveries"
           value={total}
           subtitle="All time"
-          icon={<ClipboardList className="text-[#0228e3]" size={34} />}
-          iconBg="bg-[#5BDAF2]"
+          icon={<ClipboardList size={20} />}
+          color="blue"
         />
         <MetricCard
           title="Open"
           value={openCount}
           subtitle="Awaiting driver"
-          icon={<PackageOpen className="text-amber-600" size={34} />}
-          iconBg="bg-amber-100"
+          icon={<PackageOpen size={20} />}
+          color="amber"
         />
         <MetricCard
           title="Claimed"
           value={claimedCount}
           subtitle="Driver assigned"
-          icon={<Truck className="text-blue-600" size={34} />}
-          iconBg="bg-blue-100"
+          icon={<Truck size={20} />}
+          color="blue"
         />
         <MetricCard
           title="Delivered"
           value={deliveredCount}
           subtitle="Successfully delivered"
-          icon={<CheckCircle2 className="text-emerald-600" size={34} />}
-          iconBg="bg-emerald-100"
+          icon={<CheckCircle2 size={20} />}
+          color="emerald"
         />
         <MetricCard
           title="Returned"
           value={returnedCount}
           subtitle="Could not deliver"
-          icon={<RotateCcw className="text-red-500" size={34} />}
-          iconBg="bg-red-100"
+          icon={<RotateCcw size={20} />}
+          color="red"
         />
       </div>
 
-      {/* ── Error Banner ── */}
+      {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 text-xs font-semibold shadow-2xs">
+          ⚠️ {error}
         </div>
       )}
 
-      {/* ── Tabs ── */}
+      {/* Tabs */}
       <OrderTabs
         tabs={TABS}
         activeTab={activeTab}
         setActiveTab={handleTabChange}
       />
 
-      {/* ── Filters ── */}
+      {/* Filters */}
       <DeliveryFilters
         search={search}
         onSearchChange={(v) => { setSearch(v); setCurrentPage(1); }}
@@ -165,10 +176,10 @@ export default function DeliveryPage() {
         onReset={handleReset}
       />
 
-      {/* ── Table ── */}
+      {/* Table */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 bg-white border border-gray-200 rounded-lg">
-          <Loader2 size={32} className="animate-spin text-blue-500" />
+        <div className="flex items-center justify-center py-20 bg-white border border-slate-100 rounded-[32px] shadow-xs">
+          <Loader2 size={32} className="animate-spin text-blue-600" />
         </div>
       ) : (
         <DeliveryTable
@@ -177,16 +188,18 @@ export default function DeliveryPage() {
         />
       )}
 
-      {/* ── Pagination ── */}
-      <Pagination
-        currentPage={currentPage}
-        totalItems={filtered.length}
-        itemsPerPage={ITEMS_PER_PAGE}
-        label="Deliveries"
-        onPageChange={setCurrentPage}
-      />
+      {/* Pagination */}
+      {!loading && filtered.length > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filtered.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          label="Deliveries"
+          onPageChange={setCurrentPage}
+        />
+      )}
 
-      {/* ── Detail Modal ── */}
+      {/* Detail Modal */}
       {selectedDelivery && (
         <DeliveryDetailModal
           delivery={selectedDelivery}
