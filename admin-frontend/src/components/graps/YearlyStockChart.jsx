@@ -1,52 +1,109 @@
-import React from 'react';
+import React from "react";
+import { TrendingUp } from "lucide-react";
 
 const YearlyStockChart = () => {
   return (
-    <div className="flex flex-col">
-      <h2 className="text-xl font-bold text-slate-700 mb-4">Yearly Total Stock</h2>
-      <div className="bg-[#f2f4fa] rounded-2xl p-6 flex-1 relative h-[250px] flex items-center justify-center">
-        {/* Simple SVG Line Chart */}
-        <div className="absolute left-6 top-6 bottom-10 flex flex-col justify-between text-xs font-medium text-blue-300">
-          <span>$40,000</span>
-          <span>$30,000</span>
-          <span>$20,000</span>
-          <span>$10,000</span>
+    <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xs flex flex-col justify-between h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100">
+            <TrendingUp size={18} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">Yearly Stock Growth</h2>
+            <p className="text-[10px] font-semibold text-slate-400">Inventory valuation over time</p>
+          </div>
+        </div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">
+          +24.5% YoY
+        </span>
+      </div>
+
+      {/* Line Chart Area */}
+      <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-5 relative h-[220px] flex items-center justify-center">
+        {/* Y Axis Labels */}
+        <div className="absolute left-4 top-5 bottom-8 flex flex-col justify-between text-[10px] font-bold text-slate-400">
+          <span>$40k</span>
+          <span>$30k</span>
+          <span>$20k</span>
+          <span>$10k</span>
           <span>$0</span>
         </div>
+
         {/* Grid lines */}
-        <div className="absolute left-16 right-6 top-8 bottom-12 flex flex-col justify-between border-l border-b border-transparent">
-           <div className="w-full border-b border-dashed border-blue-100"></div>
-           <div className="w-full border-b border-dashed border-blue-100"></div>
-           <div className="w-full border-b border-dashed border-blue-100"></div>
-           <div className="w-full border-b border-dashed border-blue-100"></div>
-           <div className="w-full border-b border-dashed border-blue-100"></div>
+        <div className="absolute left-14 right-5 top-6 bottom-10 flex flex-col justify-between">
+          <div className="w-full border-b border-dashed border-slate-200" />
+          <div className="w-full border-b border-dashed border-slate-200" />
+          <div className="w-full border-b border-dashed border-slate-200" />
+          <div className="w-full border-b border-dashed border-slate-200" />
+          <div className="w-full border-b border-slate-200" />
         </div>
-        
-        <svg className="absolute left-16 right-6 top-8 bottom-12 h-[calc(100%-80px)] w-[calc(100%-88px)] overflow-visible" preserveAspectRatio="none">
-           <path d="M0,100 L50,40 L100,70 L150,0 L200,50 L250,20" 
-                 fill="none" 
-                 stroke="#2563eb" 
-                 strokeWidth="2"
-                 vectorEffect="non-scaling-stroke"
-                 transform="scale(1, 0.9) translate(0, 5)"
-           />
-           <g transform="scale(1, 0.9) translate(0, 5)">
-             <circle cx="0" cy="100" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-             <circle cx="50" cy="40" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-             <circle cx="100" cy="70" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-             <circle cx="150" cy="0" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-             <circle cx="200" cy="50" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-             <circle cx="250" cy="20" r="4" fill="white" stroke="#2563eb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-           </g>
+
+        {/* SVG Curve */}
+        <svg
+          className="absolute left-14 right-5 top-6 bottom-10 h-[calc(100%-64px)] w-[calc(100%-76px)] overflow-visible"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2563eb" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+
+          {/* Gradient Fill under path */}
+          <path
+            d="M0,100 L50,40 L100,70 L150,0 L200,50 L250,20 L250,120 L0,120 Z"
+            fill="url(#blueGradient)"
+            transform="scale(1, 0.85) translate(0, 8)"
+          />
+
+          {/* Stroke Line */}
+          <path
+            d="M0,100 L50,40 L100,70 L150,0 L200,50 L250,20"
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="3"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+            transform="scale(1, 0.85) translate(0, 8)"
+          />
+
+          {/* Data Circles */}
+          <g transform="scale(1, 0.85) translate(0, 8)">
+            {[
+              { cx: 0, cy: 100 },
+              { cx: 50, cy: 40 },
+              { cx: 100, cy: 70 },
+              { cx: 150, cy: 0 },
+              { cx: 200, cy: 50 },
+              { cx: 250, cy: 20 },
+            ].map((pt, i) => (
+              <g key={i}>
+                <circle
+                  cx={pt.cx}
+                  cy={pt.cy}
+                  r="5"
+                  fill="#ffffff"
+                  stroke="#2563eb"
+                  strokeWidth="3"
+                  vectorEffect="non-scaling-stroke"
+                  className="transition-transform duration-200 hover:scale-150 cursor-pointer"
+                />
+              </g>
+            ))}
+          </g>
         </svg>
 
-        <div className="absolute left-16 right-6 bottom-4 flex justify-between text-xs font-semibold text-blue-400">
-          <span className="-ml-3">2016</span>
-          <span>2017</span>
-          <span>2018</span>
-          <span>2019</span>
+        {/* X Axis Labels */}
+        <div className="absolute left-14 right-5 bottom-3 flex justify-between text-[10px] font-bold text-slate-400">
           <span>2020</span>
-          <span className="-mr-3">2021</span>
+          <span>2021</span>
+          <span>2022</span>
+          <span>2023</span>
+          <span>2024</span>
+          <span>2025</span>
         </div>
       </div>
     </div>
