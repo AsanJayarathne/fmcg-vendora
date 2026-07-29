@@ -182,9 +182,12 @@ export async function cancelOrder(token, orderId) {
  * @returns {Promise<object|null>}
  *   { credit_limit, available_credit, current_balance, status, transactions[] }
  */
-export async function fetchCreditInfo(token) {
+export async function fetchCreditInfo(token, distributorId = null) {
   try {
-    const result = await apiFetch("/retailer/credit.php", token);
+    const url = distributorId
+      ? `/retailer/credit.php?distributor_id=${distributorId}`
+      : "/retailer/credit.php";
+    const result = await apiFetch(url, token);
     return result.data ?? null;
   } catch (err) {
     // 404 = no credit account — treat as null (not an error for the UI)

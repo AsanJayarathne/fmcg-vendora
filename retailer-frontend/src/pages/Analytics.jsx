@@ -209,7 +209,15 @@ export default function Analytics() {
     const available = creditInfo ? Number(creditInfo.available_credit ?? 0) : 15000;
     const usedPercent = limit ? (used / limit) * 100 : 40;
 
-    return { limit, used, available, usedPercent };
+    return {
+      limit,
+      used,
+      available,
+      usedPercent,
+      distributorName: creditInfo?.distributor_name || "",
+      accounts: creditInfo?.accounts || [],
+      status: creditInfo?.status || "Active",
+    };
   }, [creditInfo]);
 
   // Formatted Credit Chart Data

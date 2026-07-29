@@ -214,6 +214,9 @@ export default function Dashboard() {
       used,
       available,
       usedPercent,
+      distributorName: creditInfo?.distributor_name || "",
+      accounts: creditInfo?.accounts || [],
+      status: creditInfo?.status || "Active",
     };
   }, [creditInfo]);
 

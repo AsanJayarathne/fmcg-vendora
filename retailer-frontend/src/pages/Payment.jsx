@@ -37,11 +37,13 @@ function Payment() {
       maximumFractionDigits: 2,
     });
 
-  // ── Fetch real credit info on mount ───────────────────────────
+  // ── Fetch real credit info on mount for active distributor ───
   useEffect(() => {
     if (!token) { setCreditLoading(false); return; }
 
-    fetchCreditInfo(token)
+    const distributorId = order?.distributor_id ?? order?.distributorId ?? null;
+
+    fetchCreditInfo(token, distributorId)
       .then((data) => {
         setCreditInfo(data ?? false);   // false = no credit account
       })
@@ -51,7 +53,7 @@ function Payment() {
         setCreditInfo(false);
       })
       .finally(() => setCreditLoading(false));
-  }, [token]);
+  }, [token, order]);
 
   // ── Guard: no order passed ─────────────────────────────────────
   if (!order) {
