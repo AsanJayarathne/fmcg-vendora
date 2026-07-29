@@ -25,7 +25,7 @@ class CreditRepository {
         $stmt->execute([$retailerId, $distributorId, $creditLimit, $creditLimit]); return (int)$this->db->lastInsertId();
     }
     public function updateLimit(int $creditId, float $limit): void {
-        $this->db->prepare("UPDATE credit_account SET credit_limit = ?, available_credit = credit_limit - current_balance WHERE credit_id = ?")->execute([$limit, $creditId]);
+        $this->db->prepare("UPDATE credit_account SET credit_limit = ?, available_credit = GREATEST(0, ? - current_balance) WHERE credit_id = ?")->execute([$limit, $limit, $creditId]);
     }
     public function setStatus(int $creditId, string $status): void {
         $this->db->prepare("UPDATE credit_account SET status = ? WHERE credit_id = ?")->execute([$status, $creditId]);
