@@ -1,6 +1,61 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { CartContext } from "../context/CartContextObject";
 import { useNavigate } from "react-router-dom";
+import { FiTrash2, FiAlertTriangle, FiX } from "react-icons/fi";
+
+// ── Confirmation Modal ──────────────────────────────────────────────────────
+function RemoveConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 overflow-hidden transform transition-all"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
+              <FiTrash2 size={18} />
+            </div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">{title}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition cursor-pointer"
+          >
+            <FiX size={16} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="flex items-start gap-3 p-4 bg-rose-50/60 border border-rose-100 rounded-2xl text-xs text-rose-700 leading-relaxed font-semibold">
+            <FiAlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+            <div>{message}</div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4.5 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs transition cursor-pointer"
+          >
+            Yes, Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Cart() {
   const {
@@ -15,7 +70,10 @@ function Cart() {
 
   const navigate = useNavigate();
 
-  const fmt = (val) => 
+  // Confirmation state: null | { type: 'single', item } | { type: 'all' }
+  const [removeTarget, setRemoveTarget] = useState(null);
+
+  const fmt = (val) =>
     Number(val).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -53,6 +111,16 @@ function Cart() {
     return Object.values(orders);
   }, [cartItems]);
 
+  const handleConfirmRemoval = () => {
+    if (!removeTarget) return;
+    if (removeTarget.type === "single" && removeTarget.item) {
+      removeFromCart(removeTarget.item.id);
+    } else if (removeTarget.type === "all") {
+      clearCart();
+    }
+    setRemoveTarget(null);
+  };
+
   return (
     <div className="p-6 bg-slate-50/50 min-h-screen">
       <div className="flex items-center justify-between mb-6">
@@ -65,16 +133,17 @@ function Cart() {
 
         {cartItems.length > 0 && (
           <button
-            onClick={clearCart}
-            className="px-4.5 py-2 border border-red-100 text-red-655 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition"
+            onClick={() => setRemoveTarget({ type: "all" })}
+            className="px-4.5 py-2 border border-red-100 text-red-655 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition flex items-center gap-1.5"
           >
+            <FiTrash2 size={13} />
             Clear Cart
           </button>
         )}
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-[32px] p-12 text-center text-slate-400 font-bold">
+        <div className="bg-white border border-slate-100 rounded-[32px] p-12 text-center text-slate-400 font-bold shadow-xs">
           Your cart is empty.
         </div>
       ) : (
@@ -131,7 +200,7 @@ function Cart() {
                           <button
                             onClick={() => {
                               if (item.quantity <= 8) {
-                                removeFromCart(item.id);
+                                setRemoveTarget({ type: "single", item });
                               } else {
                                 updateQuantity(item.id, item.quantity - 8);
                               }
@@ -163,9 +232,9 @@ function Cart() {
                           <p className="font-black text-sm text-blue-600">Rs. {fmt(item.total)}</p>
                         </div>
 
-                        {/* Remove */}
+                        {/* Remove button */}
                         <button
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => setRemoveTarget({ type: "single", item })}
                           className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100/70 text-red-600 font-black text-[10px] rounded-full cursor-pointer transition"
                         >
                           Remove
@@ -247,6 +316,19 @@ function Cart() {
           </aside>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <RemoveConfirmModal
+        isOpen={Boolean(removeTarget)}
+        onClose={() => setRemoveTarget(null)}
+        onConfirm={handleConfirmRemoval}
+        title={removeTarget?.type === "all" ? "Clear Shopping Cart" : "Remove Item"}
+        message={
+          removeTarget?.type === "all"
+            ? "Are you sure you want to remove all items from your shopping cart?"
+            : `Are you sure you want to remove "${removeTarget?.item?.name}" from your cart?`
+        }
+      />
     </div>
   );
 }

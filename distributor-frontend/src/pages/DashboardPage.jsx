@@ -25,14 +25,14 @@ function fmtDate(str) {
 // ─── Status badge ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const styles = {
-    Pending:    "bg-amber-50 text-amber-700 border border-amber-200",
-    Processing: "bg-blue-50 text-blue-700 border border-blue-200",
-    Approved:   "bg-indigo-50 text-indigo-700 border border-indigo-200",
-    Delivered:  "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    Rejected:   "bg-red-50 text-red-700 border border-red-200",
+    Pending:    "bg-amber-50 text-amber-700 border border-amber-200/60",
+    Processing: "bg-sky-50 text-sky-700 border border-sky-200/60",
+    Approved:   "bg-blue-50 text-blue-700 border border-blue-200/60",
+    Delivered:  "bg-emerald-50 text-emerald-700 border border-emerald-200/60",
+    Rejected:   "bg-red-50 text-red-700 border border-red-200/60",
   };
   return (
-    <span className={`inline-block px-2.5 py-0.5 text-[10px] font-bold rounded-full ${styles[status] ?? "bg-gray-100 text-gray-600"}`}>
+    <span className={`inline-block px-3 py-1 text-[11px] font-semibold rounded-full ${styles[status] ?? "bg-slate-100 text-slate-600 border border-slate-200"}`}>
       {status}
     </span>
   );
@@ -93,20 +93,20 @@ function DashMetricCard({ title, value, subtitle, icon, iconBg, sparkData, spark
   return (
     <button
       onClick={onClick}
-      className="group bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left w-full cursor-pointer"
+      className="group bg-white border border-slate-100 rounded-3xl p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 text-left w-full cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg}`}>
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
         {sparkData && <Sparkline data={sparkData} color={sparkColor} />}
       </div>
-      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{title}</p>
-      <h3 className="text-2xl font-black text-gray-900 leading-tight">{value}</h3>
+      <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{title}</p>
+      <h3 className="text-2xl font-bold text-slate-800 leading-tight">{value}</h3>
       <div className="flex items-center justify-between mt-2">
-        <p className="text-xs text-gray-500 font-medium">{subtitle}</p>
+        <p className="text-xs text-slate-400 font-medium">{subtitle}</p>
         {trendLabel && (
-          <span className={`flex items-center gap-0.5 text-[10px] font-bold ${up ? "text-emerald-600" : "text-red-500"}`}>
+          <span className={`flex items-center gap-0.5 text-[10px] font-bold ${up ? "text-emerald-600" : "text-rose-500"}`}>
             {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
             {trendLabel}
           </span>
@@ -337,13 +337,13 @@ export default function Dashboard() {
       {/* ── Revenue + Quick Actions ── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Revenue highlight */}
-        <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-6 text-white relative overflow-hidden shadow-lg shadow-blue-200">
+        <div className="lg:col-span-2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg shadow-blue-200">
           {/* Decorative circles */}
           <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full" />
           <div className="absolute -right-4 -bottom-12 w-56 h-56 bg-white/5 rounded-full" />
 
           <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-1">Total Revenue</p>
-          <h2 className="text-4xl font-black text-white mb-1">{fmtLKR(totalRevenue)}</h2>
+          <h2 className="text-4xl font-bold text-white mb-1">{fmtLKR(totalRevenue)}</h2>
           <p className="text-sm text-blue-200">From {deliveredCount} delivered orders</p>
 
           <div className="mt-5 grid grid-cols-3 gap-3">
@@ -352,9 +352,9 @@ export default function Dashboard() {
               { label: "Drivers", val: activeDrivers, icon: Truck  },
               { label: "SKUs",    val: aggregatedStock.length, icon: Package },
             ].map(({ label, val, icon: Icon }) => (
-              <div key={label} className="bg-white/10 rounded-xl px-4 py-3">
+              <div key={label} className="bg-white/10 rounded-2xl px-4 py-3">
                 <Icon size={16} className="text-blue-200 mb-1" />
-                <p className="text-xl font-black text-white">{val}</p>
+                <p className="text-xl font-bold text-white">{val}</p>
                 <p className="text-xs text-blue-200">{label}</p>
               </div>
             ))}
@@ -362,22 +362,24 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-black text-gray-800 mb-4">Quick Actions</h3>
-          <div className="space-y-2.5">
-            {quickActions.map(({ label, icon: Icon, path, color }) => (
-              <button
-                key={label}
-                onClick={() => navigate(path)}
-                className={`flex items-center justify-between w-full px-4 py-3 rounded-xl font-semibold text-sm transition ${color}`}
-              >
-                <span className="flex items-center gap-3">
-                  <Icon size={16} />
-                  {label}
-                </span>
-                <ArrowRight size={14} />
-              </button>
-            ))}
+        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 mb-4">Quick Actions</h3>
+            <div className="space-y-2.5">
+              {quickActions.map(({ label, icon: Icon, path, color }) => (
+                <button
+                  key={label}
+                  onClick={() => navigate(path)}
+                  className={`flex items-center justify-between w-full px-4 py-3 rounded-2xl font-semibold text-xs transition cursor-pointer ${color}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon size={16} />
+                    {label}
+                  </span>
+                  <ArrowRight size={14} />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -385,18 +387,18 @@ export default function Dashboard() {
       {/* ── Sales Chart + Order Status ── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         {/* Area Chart */}
-        <div className="xl:col-span-2 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <div className="xl:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-black text-gray-800">Sales Trend</h3>
-              <p className="text-xs text-gray-400 mt-0.5">Last 7 days revenue (LKR)</p>
+              <h3 className="text-sm font-bold text-slate-800">Sales Trend</h3>
+              <p className="text-xs text-slate-400 mt-0.5 font-normal">Last 7 days revenue (LKR)</p>
             </div>
-            <span className="px-2.5 py-1 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-full">7 Days</span>
+            <span className="px-3 py-1 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-full border border-blue-100">7 Days</span>
           </div>
 
           {/* Y-axis labels + chart */}
           <div className="flex gap-2">
-            <div className="flex flex-col justify-between text-[9px] text-gray-400 font-bold pb-5 shrink-0 w-10 text-right">
+            <div className="flex flex-col justify-between text-[9px] text-slate-400 font-bold pb-5 shrink-0 w-10 text-right">
               {[...Array(4)].map((_, i) => {
                 const max = Math.max(...salesData.map(d => d.value), 1);
                 const val = max - (max / 3) * i;
@@ -410,7 +412,7 @@ export default function Dashboard() {
               {/* X labels */}
               <div className="flex justify-between mt-1 px-1">
                 {salesData.map((d, i) => (
-                  <span key={i} className="text-[9px] text-gray-400 font-medium">{d.label}</span>
+                  <span key={i} className="text-[9px] text-slate-400 font-medium">{d.label}</span>
                 ))}
               </div>
             </div>
@@ -418,9 +420,9 @@ export default function Dashboard() {
         </div>
 
         {/* Order Status Breakdown */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-black text-gray-800 mb-1">Order Status</h3>
-          <p className="text-xs text-gray-400 mb-4">{totalOrders} orders total</p>
+        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-xs">
+          <h3 className="text-sm font-bold text-slate-800 mb-0.5">Order Status</h3>
+          <p className="text-xs text-slate-400 mb-4 font-normal">{totalOrders} orders total</p>
 
           {orderStatusDist.length === 0 ? (
             <p className="text-sm text-gray-400 text-center py-8">No order data yet</p>

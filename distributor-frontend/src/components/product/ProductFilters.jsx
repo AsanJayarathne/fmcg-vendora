@@ -11,25 +11,25 @@ export default function ProductFilters({
   onReset
 }) {
   return (
-    <div className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
-      <div className="flex gap-6">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white border border-slate-100 rounded-3xl shadow-xs">
+      <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
         {/* Search Input */}
-        <div className="flex items-center w-48 px-3 py-1.5 border border-gray-200 rounded-lg bg-gray-50/50 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition">
+        <div className="relative flex-1 sm:w-64">
           <input
             type="text"
             placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full text-xs outline-none bg-transparent placeholder-gray-400 text-slate-700"
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-9 pr-4 py-2.5 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition"
           />
-          <Search size={14} className="text-gray-400 ml-1.5 shrink-0" />
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
         </div>
 
         {/* Categories Dropdown */}
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-3 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+          className="px-4 py-2.5 text-xs font-semibold border border-slate-200 rounded-full bg-white text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -43,7 +43,7 @@ export default function ProductFilters({
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value)}
-          className="px-3 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+          className="px-4 py-2.5 text-xs font-semibold border border-slate-200 rounded-full bg-white text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer shadow-2xs"
         >
           <option value="">All Statuses</option>
           <option value="In Stock">In Stock</option>
@@ -55,7 +55,7 @@ export default function ProductFilters({
       {/* Reset Button */}
       <button
         onClick={onReset}
-        className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold border border-gray-200 rounded-lg text-slate-600 hover:bg-slate-50 active:bg-slate-100 transition"
+        className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold border border-slate-200 rounded-full text-slate-600 bg-white hover:bg-slate-50 transition cursor-pointer shadow-2xs"
       >
         <RotateCcw size={13} />
         Reset Filters

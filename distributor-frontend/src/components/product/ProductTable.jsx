@@ -1,8 +1,7 @@
-import { Eye, Edit2 } from "lucide-react";
+import { Edit2 } from "lucide-react";
 
-export default function ProductTable({ products = [], onViewProduct, onEditPrice }) {
+export default function ProductTable({ products = [], onViewProduct }) {
   
-  // Status check helper
   const getStatus = (stock) => {
     if (stock <= 0) return "Out Of Stock";
     if (stock <= 50) return "Low Stock";
@@ -12,47 +11,33 @@ export default function ProductTable({ products = [], onViewProduct, onEditPrice
   const getStatusClass = (status) => {
     switch (status) {
       case "In Stock":
-        return "text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs font-semibold border border-green-100";
+        return "text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full text-[11px] font-semibold border border-emerald-200/60";
       case "Low Stock":
-        return "text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full text-xs font-semibold border border-orange-100";
+        return "text-amber-700 bg-amber-50 px-3 py-1 rounded-full text-[11px] font-semibold border border-amber-200/60";
       default:
-        return "text-red-600 bg-red-50 px-2 py-0.5 rounded-full text-xs font-semibold border border-red-100";
+        return "text-rose-700 bg-rose-50 px-3 py-1 rounded-full text-[11px] font-semibold border border-rose-200/60";
     }
   };
 
   return (
-    <div className="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
-      <table className="w-full text-sm text-left border-collapse">
-        <thead className="border-b border-gray-200 bg-gray-50/75">
+    <div className="overflow-hidden bg-white border border-slate-100 rounded-3xl shadow-xs">
+      <table className="w-full text-xs text-left border-collapse">
+        <thead className="bg-slate-50 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-100">
           <tr>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Product
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Category
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Base Price (LKR)
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              MRP (LKR)
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              My Selling Price (LKR)
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Stock
-            </th>
-            <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500 text-center">
-              Action
-            </th>
+            <th className="px-6 py-3.5">Product</th>
+            <th className="px-6 py-3.5">Category</th>
+            <th className="px-6 py-3.5">Base Price (LKR)</th>
+            <th className="px-6 py-3.5">MRP (LKR)</th>
+            <th className="px-6 py-3.5">My Selling Price (LKR)</th>
+            <th className="px-6 py-3.5">Stock</th>
+            <th className="px-6 py-3.5 text-center">Action</th>
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-gray-200">
+        <tbody className="divide-y divide-slate-100">
           {products.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+              <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-semibold">
                 No products found.
               </td>
             </tr>
@@ -62,32 +47,32 @@ export default function ProductTable({ products = [], onViewProduct, onEditPrice
               const pId = `PRD-${item.product_id}`;
               
               return (
-                <tr key={item.product_id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={item.product_id} className="hover:bg-slate-50/50 transition">
                   <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-slate-800">
+                    <p className="font-semibold text-slate-800">
                       {item.product_name}
                     </p>
                     <p className="text-[10px] font-bold text-slate-400">{pId}</p>
                   </td>
 
-                  <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                  <td className="px-6 py-4 font-semibold text-slate-600">
                     {item.category_name}
                   </td>
 
-                  <td className="px-6 py-4 text-sm font-bold text-slate-700">
+                  <td className="px-6 py-4 font-bold text-slate-700">
                     {Number(item.base_price || 0).toFixed(2)}
                   </td>
 
-                  <td className="px-6 py-4 text-sm font-bold text-slate-700">
+                  <td className="px-6 py-4 font-bold text-slate-700">
                     {Number(item.mrp || 0).toFixed(2)}
                   </td>
 
-                  <td className="px-6 py-4 text-sm font-bold text-green-600">
+                  <td className="px-6 py-4 font-bold text-emerald-600">
                     {Number(item.selling_price || 0).toFixed(2)}
                   </td>
 
                   <td className="px-6 py-4">
-                    <p className="text-sm font-bold text-slate-800 mb-0.5">
+                    <p className="font-bold text-slate-800 mb-1">
                       {item.stock}
                     </p>
                     <span className={getStatusClass(status)}>
@@ -112,7 +97,7 @@ export default function ProductTable({ products = [], onViewProduct, onEditPrice
                           unit: item.unit,
                           image_url: item.image_url
                         })}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold border border-sky-200 text-sky-500 rounded-lg hover:bg-sky-50 transition"
+                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition cursor-pointer"
                       >
                         <Edit2 size={12} />
                         Edit Price

@@ -143,41 +143,37 @@ export default function ProductsPage() {
   return (
     <div className="space-y-4">
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <MetricCard
           title="Total Products"
           value={products.length}
           subtitle="In Database"
-          icon={<ShoppingCart className="text-[#0228e3]" size={24} />}
-          bgColor="bg-[#DCE1F0]"
-          iconBg="bg-[#5BDAF2]"
+          icon={<ShoppingCart size={20} />}
+          color="blue"
         />
 
         <MetricCard
           title="Total Categories"
           value={metrics.categoriesCount}
           subtitle="Active Categories"
-          icon={<ChartColumnBig color="#FFC107" size={24} />}
-          bgColor="bg-[#FFFCD6]"
-          iconBg="bg-[#FFE365]"
+          icon={<ChartColumnBig size={20} />}
+          color="amber"
         />
 
         <MetricCard
           title="Low Stock Alerts"
           value={metrics.lowStock}
           subtitle="Products Need Restock"
-          icon={<TriangleAlert className="text-[#e30202]" size={24} />}
-          bgColor="bg-[#FFE4E4]"
-          iconBg="bg-[#FFB4B4]"
+          icon={<TriangleAlert size={20} />}
+          color="red"
         />
 
         <MetricCard
           title="Total Credits"
           value="10,000"
           subtitle="This Month"
-          icon={<CreditCard className="text-[#5349e4]" size={24} />}
-          bgColor="bg-[#EBDDFF]"
-          iconBg="bg-[#F372F3]"
+          icon={<CreditCard size={20} />}
+          color="purple"
         />
       </div>
 
