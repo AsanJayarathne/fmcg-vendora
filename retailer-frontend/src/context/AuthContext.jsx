@@ -17,6 +17,8 @@ const INITIAL_REG_FORM = {
   city: "",
   shopPhone: "",
   regionId: "",
+  latitude: "",
+  longitude: "",
 };
 
 export function AuthProvider({ children }) {
