@@ -1,71 +1,56 @@
-import React from 'react';
+import React from "react";
+import { MapPin } from "lucide-react";
 
 const SalesTerritoryChart = () => {
+  const territories = [
+    { name: "Kegalle", amount: "4.0 M", pct: 80, share: "34.2%" },
+    { name: "Colombo", amount: "3.0 M", pct: 60, share: "24.2%" },
+    { name: "Kandy", amount: "2.7 M", pct: 55, share: "14.2%" },
+    { name: "Galle", amount: "2.3 M", pct: 45, share: "12.3%" },
+    { name: "Jaffna", amount: "2.0 M", pct: 40, share: "9.0%" },
+  ];
+
   return (
-    <div className="bg-[#f2f4fa] rounded-2xl p-6 relative">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-bold text-slate-900">Sales by Territory</h2>
-        <select className="bg-[#e4e7f4] text-xs font-semibold text-slate-700 px-3 py-1.5 rounded outline-none border-none cursor-pointer">
-          <option>This week</option>
-          <option>This month</option>
-          <option>This year</option>
+    <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xs flex flex-col justify-between h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
+            <MapPin size={18} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">Sales by Territory</h2>
+            <p className="text-[10px] font-semibold text-slate-400">Regional sales distribution</p>
+          </div>
+        </div>
+        <select className="bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-600 px-3 py-1.5 rounded-full outline-none focus:border-blue-500 cursor-pointer shadow-2xs">
+          <option>This Month</option>
+          <option>This Week</option>
+          <option>This Year</option>
         </select>
       </div>
-      
-      <div className="flex flex-col gap-5 pr-4 pb-6">
-        {/* Kegalle */}
-        <div className="flex items-center justify-between">
-          <span className="w-24 text-sm font-semibold text-slate-800">Kegalle</span>
-          <div className="flex-1 mx-4 h-4 bg-transparent relative">
-             <div className="absolute top-0 left-0 h-full bg-blue-600 rounded-sm" style={{ width: '80%' }}></div>
-          </div>
-          <span className="w-24 text-right text-xs font-semibold text-slate-600">4 M(34.23%)</span>
-        </div>
-        
-        {/* Galle */}
-        <div className="flex items-center justify-between">
-          <span className="w-24 text-sm font-semibold text-slate-800">Galle</span>
-          <div className="flex-1 mx-4 h-4 bg-transparent relative">
-             <div className="absolute top-0 left-0 h-full bg-blue-600 rounded-sm" style={{ width: '45%' }}></div>
-          </div>
-          <span className="w-24 text-right text-xs font-semibold text-slate-600">2.3 M(12.28%)</span>
-        </div>
-        
-        {/* Kandy */}
-        <div className="flex items-center justify-between">
-          <span className="w-24 text-sm font-semibold text-slate-800">Kandy</span>
-          <div className="flex-1 mx-4 h-4 bg-transparent relative">
-             <div className="absolute top-0 left-0 h-full bg-blue-600 rounded-sm" style={{ width: '55%' }}></div>
-          </div>
-          <span className="w-24 text-right text-xs font-semibold text-slate-600">2.7 M(14.23%)</span>
-        </div>
-        
-        {/* Jaffna */}
-        <div className="flex items-center justify-between">
-          <span className="w-24 text-sm font-semibold text-slate-800">Jaffna</span>
-          <div className="flex-1 mx-4 h-4 bg-transparent relative">
-             <div className="absolute top-0 left-0 h-full bg-blue-600 rounded-sm" style={{ width: '40%' }}></div>
-          </div>
-          <span className="w-24 text-right text-xs font-semibold text-slate-600">2 M(9.02%)</span>
-        </div>
-        
-        {/* Colombo */}
-        <div className="flex items-center justify-between">
-          <span className="w-24 text-sm font-semibold text-slate-800">Colombo</span>
-          <div className="flex-1 mx-4 h-4 bg-transparent relative">
-             <div className="absolute top-0 left-0 h-full bg-blue-600 rounded-sm" style={{ width: '60%' }}></div>
-          </div>
-          <span className="w-24 text-right text-xs font-semibold text-slate-600">3 M(24.23%)</span>
-        </div>
-      </div>
 
-      {/* X Axis scale */}
-      <div className="flex justify-between items-center ml-[100px] mr-[100px] text-xs font-semibold text-slate-500 absolute bottom-4 left-6 right-6">
-        <span>0</span>
-        <span>1M</span>
-        <span>2M</span>
-        <span>3M</span>
-        <span>4M</span>
+      {/* Progress Bars Container */}
+      <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-5 space-y-4">
+        {territories.map((t, idx) => (
+          <div key={idx} className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-slate-800">{t.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-700">LKR {t.amount}</span>
+                <span className="text-[10px] font-extrabold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                  {t.share}
+                </span>
+              </div>
+            </div>
+            <div className="w-full bg-slate-200/70 h-3 rounded-full overflow-hidden p-0.5">
+              <div
+                className="bg-gradient-to-r from-blue-600 to-sky-400 h-full rounded-full transition-all duration-500"
+                style={{ width: `${t.pct}%` }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

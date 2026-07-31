@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
-import { useAuth } from '../../auth/AuthContext';
+import React, { useState, useEffect } from "react";
+import { X, Loader2, CheckCircle, AlertTriangle, Truck } from "lucide-react";
+import { useAuth } from "../../auth/AuthContext";
 
-const API_BASE = 'http://localhost/fmcg-vendora/backend/api/admin';
+const API_BASE = "http://localhost/fmcg-vendora/backend/api/admin";
 
 const ApproveRequestModal = ({ request, onClose, onApproved }) => {
   const { auth } = useAuth();
@@ -10,18 +10,16 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
   const [loadingStock, setLoadingStock]     = useState(true);
   const [approvals, setApprovals]           = useState({});
   const [submitting, setSubmitting]         = useState(false);
-  const [error, setError]                   = useState('');
+  const [error, setError]                   = useState("");
 
-  // Build initial approvals map and fetch warehouse stock per product
   useEffect(() => {
     if (!request?.items) return;
     const initial = {};
-    request.items.forEach(item => {
+    request.items.forEach((item) => {
       initial[item.request_item_id] = item.requested_qty;
     });
     setApprovals(initial);
 
-    // Fetch warehouse totals for each product
     const fetchStocks = async () => {
       setLoadingStock(true);
       try {
@@ -30,29 +28,29 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
         });
         const json = await res.json();
         if (json.success) {
-          // Aggregate active qty per product_id from batch list
           const stockMap = {};
-          (json.data || []).forEach(b => {
-            if (b.status === 'Active') {
+          (json.data || []).forEach((b) => {
+            if (b.status === "Active") {
               stockMap[b.product_id] = (stockMap[b.product_id] || 0) + parseInt(b.quantity || 0);
             }
           });
           setWarehouseStock(stockMap);
         }
       } catch { /* silent */ }
-      finally { setLoadingStock(false); }
+      finally {
+        setLoadingStock(false);
+      }
     };
     fetchStocks();
   }, [request, auth?.token]);
 
   const handleQtyChange = (requestItemId, value) => {
-    setApprovals(prev => ({ ...prev, [requestItemId]: Math.max(0, parseInt(value) || 0) }));
-    setError('');
+    setApprovals((prev) => ({ ...prev, [requestItemId]: Math.max(0, parseInt(value) || 0) }));
+    setError("");
   };
 
   const handleSubmit = async () => {
-    // Validate: approved qty must not exceed warehouse stock
-    for (const item of (request?.items || [])) {
+    for (const item of request?.items || []) {
       const approved  = approvals[item.request_item_id] || 0;
       const available = warehouseStock[item.product_id] || 0;
       if (approved > available) {
@@ -61,140 +59,172 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
       }
     }
 
-    const payload = Object.entries(approvals).map(([request_item_id, approved_qty]) => ({
-      request_item_id: parseInt(request_item_id),
-      approved_qty,
-    })).filter(a => a.approved_qty > 0);
+    setSubmitting(true);
+    setError("");
 
-    if (payload.length === 0) {
-      setError('Please approve at least one item with a quantity > 0.');
-      return;
-    }
-
-    setSubmitting(true); setError('');
     try {
+      const itemsPayload = (request?.items || []).map((item) => ({
+        request_item_id: item.request_item_id,
+        approved_qty:    approvals[item.request_item_id] ?? 0,
+      }));
+
       const res = await fetch(`${API_BASE}/supply-requests.php?id=${request.request_id}&action=approve`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${auth?.token}` },
-        body: JSON.stringify({ approvals: payload }),
+        method:  "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth?.token}` },
+        body:    JSON.stringify({ items: itemsPayload }),
       });
       const json = await res.json();
-      if (!json.success) throw new Error(json.message || 'Failed to approve request');
+      if (!json.success) throw new Error(json.message || "Failed to approve request");
+
       onApproved(json.data);
-      onClose();
     } catch (err) {
-      setError(err.message || 'Network error occurred.');
-    } finally { setSubmitting(false); }
+      setError(err.message || "Network error occurred.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!request) return null;
-
-  const reqCode = `REQ-${String(request.request_id).padStart(3, '0')}`;
+  const reqCode = `REQ-${String(request.request_id).padStart(3, "0")}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm font-sans"
+      onClick={onClose}
+    >
       <div
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[88vh] flex flex-col"
-        onClick={e => e.stopPropagation()}
+        className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto no-scrollbar border border-slate-100 transform transition-all scale-100 animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-              <CheckCircle size={18} />
+            <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100">
+              <CheckCircle size={22} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Approve Supply Request</h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {reqCode} — {request.distributor_name}
+              <span className="text-xs uppercase tracking-wider font-bold text-emerald-600">Stock Transfer Approval</span>
+              <h2 className="text-xl font-black text-slate-800 leading-tight mt-0.5">Approve Supply Request</h2>
+              <p className="text-sm font-bold text-slate-600 mt-1">
+                {request.distributor_name} <span className="font-bold text-blue-600 ml-1">({reqCode})</span>
               </p>
             </div>
           </div>
-          <button onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 cursor-pointer">
-            <X size={18} />
+          <button
+            onClick={onClose}
+            className="p-2.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition cursor-pointer"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+        {/* Content Body */}
+        <div className="p-6 space-y-5">
           {error && (
-            <div className="flex items-start gap-2 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
-              <AlertTriangle size={14} className="flex-shrink-0 mt-0.5" />
-              {error}
+            <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-2xl">
+              ⚠️ {error}
             </div>
           )}
 
-          <p className="text-xs text-slate-500 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
-            Set the <strong>approved quantity</strong> for each item. Quantities must not exceed available warehouse stock.
-            Items set to <strong>0</strong> will be skipped.
-          </p>
+          {/* Transfer Info */}
+          <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div>
+              <p className="font-bold text-slate-800 text-sm">{request.distributor_name}</p>
+              <p className="text-slate-400 font-semibold mt-0.5">Region: {request.region_name || "—"}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Request Date</p>
+              <p className="text-sm font-bold text-slate-700 mt-0.5">{request.request_date || "—"}</p>
+            </div>
+          </div>
 
-          <div className="space-y-3">
-            {(request.items || []).map(item => {
-              const available = warehouseStock[item.product_id] ?? null;
-              const approved  = approvals[item.request_item_id] || 0;
-              const isOver    = available !== null && approved > available;
+          {/* Item Allocation Table */}
+          <div className="overflow-hidden border border-slate-100 rounded-2xl shadow-2xs bg-white">
+            <table className="w-full text-xs text-left border-collapse">
+              <thead className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                <tr>
+                  <th className="px-4 py-3">Requested Product</th>
+                  <th className="px-4 py-3 text-right">Requested</th>
+                  <th className="px-4 py-3 text-right">Warehouse Stock</th>
+                  <th className="px-4 py-3 text-right">Approved Qty</th>
+                </tr>
+              </thead>
 
-              return (
-                <div key={item.request_item_id}
-                  className={`border rounded-xl p-4 ${isOver ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-white'}`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-slate-900 text-sm">{item.product_name}</div>
-                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-500">
-                        <span>Requested: <strong className="text-slate-700">{item.requested_qty} {item.unit || 'units'}</strong></span>
-                        {loadingStock ? (
-                          <span className="animate-pulse bg-slate-200 rounded w-20 h-4 inline-block" />
-                        ) : (
-                          <span className={available !== null && available < item.requested_qty ? 'text-amber-600 font-semibold' : ''}>
-                            Available: <strong className={isOver ? 'text-rose-600' : 'text-emerald-600'}>
-                              {available !== null ? available.toLocaleString() : '—'} {item.unit || 'units'}
-                            </strong>
+              <tbody className="divide-y divide-slate-100">
+                {loadingStock ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-8 text-center text-slate-400 font-semibold">
+                      Loading available stock levels...
+                    </td>
+                  </tr>
+                ) : (
+                  (request?.items || []).map((item) => {
+                    const available = warehouseStock[item.product_id] ?? 0;
+                    const approved  = approvals[item.request_item_id] ?? 0;
+                    const isExceeded = approved > available;
+
+                    return (
+                      <tr key={item.request_item_id} className="hover:bg-slate-50/50 transition">
+                        <td className="px-4 py-3">
+                          <p className="font-bold text-slate-800 text-xs">{item.product_name}</p>
+                          <p className="text-[10px] text-slate-400 font-semibold">{item.unit || "units"}</p>
+                        </td>
+
+                        <td className="px-4 py-3 text-right font-bold text-slate-700">
+                          {item.requested_qty}
+                        </td>
+
+                        <td className="px-4 py-3 text-right font-bold">
+                          <span className={available < item.requested_qty ? "text-amber-600 font-bold" : "text-emerald-600 font-bold"}>
+                            {available} units
                           </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-1 items-end flex-shrink-0">
-                      <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Approve Qty</label>
-                      <input
-                        type="number"
-                        value={approved}
-                        min="0"
-                        max={available ?? undefined}
-                        onChange={e => handleQtyChange(item.request_item_id, e.target.value)}
-                        className={`w-28 text-right border rounded-lg px-2.5 py-1.5 text-sm font-semibold outline-none transition
-                          ${isOver
-                            ? 'border-rose-300 bg-rose-50 text-rose-700 focus:ring-2 focus:ring-rose-200'
-                            : 'border-slate-200 bg-slate-50 text-slate-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-                          }`}
-                      />
-                      {isOver && (
-                        <span className="text-[10px] text-rose-600 font-semibold">Exceeds stock</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                        </td>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-100 flex-shrink-0">
-          <div className="text-xs text-slate-400">
-            {request.items?.length} product{request.items?.length !== 1 ? 's' : ''} requested
+                        <td className="px-4 py-3 text-right">
+                          <input
+                            type="number"
+                            min="0"
+                            max={available}
+                            value={approved}
+                            onChange={(e) => handleQtyChange(item.request_item_id, e.target.value)}
+                            className={`w-28 text-right border ${
+                              isExceeded ? "border-rose-500 focus:ring-rose-500/10" : "border-slate-200 focus:border-blue-500"
+                            } rounded-full px-3 py-2 text-xs font-bold outline-none bg-white text-slate-800 transition shadow-2xs`}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
-          <div className="flex gap-3">
-            <button type="button" onClick={onClose}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer">
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-end pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="px-6 py-3 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+            >
               Cancel
             </button>
-            <button onClick={handleSubmit} disabled={submitting}
-              className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2 transition cursor-pointer">
-              {submitting ? <><Loader2 size={14} className="animate-spin" /> Approving...</> : 'Approve & Transfer'}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="px-7 py-3 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer shadow-2xs flex items-center gap-1.5"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" /> Transferring...
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={15} /> Confirm &amp; Transfer Stock
+                </>
+              )}
             </button>
           </div>
         </div>

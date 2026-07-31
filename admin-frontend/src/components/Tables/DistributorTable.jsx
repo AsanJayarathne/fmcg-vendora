@@ -1,370 +1,399 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import Pagination from "../Pagination";
+import { Search, RotateCcw, Building2, Eye, X, Check, Ban, FileText, User, MapPin } from "lucide-react";
 
-/* ─── Helpers ─────────────────────────────────────────────── */
-function getInitials(name = '') {
+function getInitials(name = "") {
   return name
-    .split(' ')
+    .split(" ")
     .slice(0, 2)
-    .map(w => w[0])
-    .join('')
+    .map((w) => w[0])
+    .join("")
     .toUpperCase();
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return '—';
+  if (!dateStr) return "—";
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-const STATUS_STYLES = {
-  Pending:  { dot: 'bg-amber-400',  text: 'text-amber-700',  bg: 'bg-amber-50 border-amber-200',  label: 'Pending'  },
-  Approved: { dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', label: 'Approved' },
-  Rejected: { dot: 'bg-red-500',    text: 'text-red-700',    bg: 'bg-red-50 border-red-200',    label: 'Rejected' },
-  Blocked:  { dot: 'bg-slate-400',  text: 'text-slate-600',  bg: 'bg-slate-100 border-slate-200', label: 'Blocked'  },
-};
-
-const AVATAR_COLORS = [
-  'bg-blue-100 text-blue-600',
-  'bg-violet-100 text-violet-600',
-  'bg-emerald-100 text-emerald-600',
-  'bg-amber-100 text-amber-600',
-  'bg-rose-100 text-rose-600',
-  'bg-cyan-100 text-cyan-600',
-];
-
-/* ─── Status Badge ────────────────────────────────────────── */
 const StatusBadge = ({ status }) => {
-  const s = STATUS_STYLES[status] || STATUS_STYLES.Pending;
+  const isApproved = status === "Approved";
+  const isPending  = status === "Pending";
+  const isRejected = status === "Rejected";
+
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${s.bg} ${s.text}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-      {s.label}
+    <span
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+        isApproved
+          ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
+          : isPending
+          ? "bg-amber-50 text-amber-700 border border-amber-200/50"
+          : isRejected
+          ? "bg-rose-50 text-rose-700 border border-rose-200/50"
+          : "bg-slate-100 text-slate-600 border border-slate-200"
+      }`}
+    >
+      {status}
     </span>
   );
 };
 
-/* ─── Review Modal ────────────────────────────────────────── */
+/* Review Application Modal */
 const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
   if (!d) return null;
 
-  const isPending  = d.status === 'Pending';
-  const isApproved = d.status === 'Approved';
+  const isPending  = d.status === "Pending";
+  const isApproved = d.status === "Approved";
+  const code       = `DST-${String(d.distributor_id).padStart(3, "0")}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm font-sans"
+      onClick={onClose}
+    >
       <div
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
+        className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-xl max-h-[92vh] overflow-y-auto no-scrollbar border border-slate-100 transform transition-all scale-100 animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-slate-100">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">Distributor Application</h2>
-            <p className="text-xs text-slate-400 mt-0.5">ID #{d.distributor_id}</p>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100">
+              <Building2 size={22} />
+            </div>
+            <div>
+              <span className="text-xs uppercase tracking-wider font-bold text-blue-600">Application Review</span>
+              <h2 className="text-xl font-black text-slate-800 leading-tight mt-0.5">Distributor Details</h2>
+              <p className="text-sm font-bold text-slate-600 mt-1">
+                {d.company_name} <span className="font-bold text-blue-600 ml-1">({code})</span>
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <button
+            onClick={onClose}
+            className="p-2.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition cursor-pointer"
+          >
+            <X size={20} />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="px-6 py-5 space-y-5">
+        {/* Content Details */}
+        <div className="p-6 space-y-5">
           {/* Owner Info */}
-          <Section title="Owner Information">
-            <Field label="Full Name"   value={d.full_name} />
-            <Field label="Email"       value={d.email} />
-            <Field label="Phone"       value={d.phone || '—'} />
-          </Section>
-
-          {/* Company Info */}
-          <Section title="Company Details">
-            <Field label="Company Name"    value={d.company_name} />
-            <Field label="Company Address" value={d.company_address} />
-            <Field label="Region"          value={d.region_name} />
-            <Field label="Applied On"      value={formatDate(d.created_at)} />
-          </Section>
-
-          {/* Registration */}
-          <Section title="Registration Documents">
-            <Field label="Business Reg. No."  value={d.reg_number} />
-            <Field label="License No."         value={d.lic_number} />
-            {d.doc_url ? (
+          <div className="bg-slate-50/70 rounded-2xl p-4.5 space-y-3 border border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <User size={14} className="text-blue-600" /> Owner Information
+            </p>
+            <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Document</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.full_name || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5 truncate">{d.email || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone Number</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.phone || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Applied Date</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{formatDate(d.created_at)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Company Details */}
+          <div className="bg-slate-50/70 rounded-2xl p-4.5 space-y-3 border border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <MapPin size={14} className="text-blue-600" /> Company & Region
+            </p>
+            <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Name</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_name || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Region</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.region_name || "—"}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Address</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_address || "—"}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Business Documents */}
+          <div className="bg-slate-50/70 rounded-2xl p-4.5 space-y-3 border border-slate-100">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <FileText size={14} className="text-blue-600" /> Business Registration
+            </p>
+            <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Business Reg. No.</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.reg_number || "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">License No.</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.lic_number || "—"}</p>
+              </div>
+            </div>
+
+            {d.doc_url && (
+              <div className="pt-2 border-t border-slate-200/60">
                 <a
                   href={d.doc_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium underline underline-offset-2"
+                  className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 underline"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  View Document
+                  <FileText size={14} /> View Submitted Registration Document
                 </a>
               </div>
-            ) : (
-              <Field label="Document" value="Not submitted" />
             )}
-          </Section>
+          </div>
 
           {/* Current Status */}
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-            <span className="text-sm font-semibold text-slate-600">Current Status</span>
+          <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Current Account Status</span>
             <StatusBadge status={d.status} />
           </div>
-        </div>
 
-        {/* Actions Footer */}
-        <div className="px-6 pb-6 flex flex-wrap gap-3 justify-end">
-          {isPending && (
-            <>
-              <ActionButton
-                label="Approve Application"
-                icon="check"
-                color="emerald"
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-3 justify-end pt-2">
+            {isPending && (
+              <>
+                <button
+                  onClick={() => {
+                    onStatusUpdate(d.distributor_id, "Approved");
+                    onClose();
+                  }}
+                  disabled={updating === d.distributor_id}
+                  className="px-6 py-3 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check size={15} /> Approve Application
+                </button>
+
+                <button
+                  onClick={() => {
+                    onStatusUpdate(d.distributor_id, "Rejected");
+                    onClose();
+                  }}
+                  disabled={updating === d.distributor_id}
+                  className="px-6 py-3 rounded-full text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
+                >
+                  <X size={15} /> Reject Application
+                </button>
+              </>
+            )}
+
+            {isApproved && (
+              <button
+                onClick={() => {
+                  onStatusUpdate(d.distributor_id, "Blocked");
+                  onClose();
+                }}
                 disabled={updating === d.distributor_id}
-                loading={updating === d.distributor_id}
-                onClick={() => { onStatusUpdate(d.distributor_id, 'Approved'); onClose(); }}
-              />
-              <ActionButton
-                label="Reject Application"
-                icon="x"
-                color="red"
+                className="px-6 py-3 rounded-full text-xs font-bold text-white bg-slate-700 hover:bg-slate-800 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
+              >
+                <Ban size={15} /> Block Account
+              </button>
+            )}
+
+            {(d.status === "Blocked" || d.status === "Rejected") && (
+              <button
+                onClick={() => {
+                  onStatusUpdate(d.distributor_id, "Approved");
+                  onClose();
+                }}
                 disabled={updating === d.distributor_id}
-                loading={updating === d.distributor_id}
-                onClick={() => { onStatusUpdate(d.distributor_id, 'Rejected'); onClose(); }}
-              />
-            </>
-          )}
-          {isApproved && (
-            <ActionButton
-              label="Block Account"
-              icon="ban"
-              color="slate"
-              disabled={updating === d.distributor_id}
-              loading={updating === d.distributor_id}
-              onClick={() => { onStatusUpdate(d.distributor_id, 'Blocked'); onClose(); }}
-            />
-          )}
-          {(d.status === 'Blocked' || d.status === 'Rejected') && (
-            <ActionButton
-              label="Reactivate Account"
-              icon="check"
-              color="blue"
-              disabled={updating === d.distributor_id}
-              loading={updating === d.distributor_id}
-              onClick={() => { onStatusUpdate(d.distributor_id, 'Approved'); onClose(); }}
-            />
-          )}
-          <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors">
-            Close
-          </button>
+                className="px-6 py-3 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition shadow-2xs cursor-pointer flex items-center gap-1.5"
+              >
+                <Check size={15} /> Reactivate Account
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              className="px-6 py-3 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const Section = ({ title, children }) => (
-  <div>
-    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{title}</h3>
-    <div className="grid grid-cols-2 gap-x-6 gap-y-3">{children}</div>
-  </div>
-);
-
-const Field = ({ label, value }) => (
-  <div className="col-span-1">
-    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-slate-800 break-words">{value || '—'}</p>
-  </div>
-);
-
-const BTN_COLORS = {
-  emerald: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-  red:     'bg-red-600 hover:bg-red-700 text-white',
-  slate:   'bg-slate-700 hover:bg-slate-800 text-white',
-  blue:    'bg-blue-600 hover:bg-blue-700 text-white',
-};
-
-const ActionButton = ({ label, color, loading, disabled, onClick }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 ${BTN_COLORS[color]}`}
-  >
-    {loading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-    {label}
-  </button>
-);
-
-/* ─── Skeleton Row ────────────────────────────────────────── */
-const SkeletonRow = () => (
-  <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1.2fr_1fr] px-6 py-4 bg-white border border-slate-200 rounded-xl items-center animate-pulse">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 bg-slate-200 rounded-full" />
-      <div className="flex flex-col gap-1"><div className="h-3 w-28 bg-slate-200 rounded" /><div className="h-2 w-20 bg-slate-100 rounded" /></div>
-    </div>
-    <div className="h-3 w-24 bg-slate-200 rounded" />
-    <div className="h-3 w-20 bg-slate-200 rounded" />
-    <div className="h-3 w-24 bg-slate-200 rounded" />
-    <div className="h-5 w-20 bg-slate-200 rounded-full" />
-    <div className="h-8 w-24 bg-slate-200 rounded-lg mx-auto" />
-  </div>
-);
-
-/* ─── Main Table ──────────────────────────────────────────── */
-const PAGE_SIZE = 8;
-
-const DistributorTable = ({ distributors = [], loading, updating, onStatusUpdate }) => {
+export default function DistributorTable({ distributors = [], loading, updating, onStatusUpdate }) {
   const [selectedDistributor, setSelectedDistributor] = useState(null);
-  const [search, setSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All');
-  const [page, setPage] = useState(1);
+  const [search, setSearch]             = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [currentPage, setCurrentPage]   = useState(1);
+  const itemsPerPage = 8;
 
-  const filtered = distributors.filter(d => {
-    const matchSearch =
-      !search ||
-      d.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      d.company_name?.toLowerCase().includes(search.toLowerCase()) ||
-      d.email?.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === 'All' || d.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const filtered = React.useMemo(() => {
+    return distributors.filter((d) => {
+      const code = `DST-${String(d.distributor_id).padStart(3, "0")}`;
+      const matchSearch =
+        !search ||
+        d.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+        d.company_name?.toLowerCase().includes(search.toLowerCase()) ||
+        d.email?.toLowerCase().includes(search.toLowerCase()) ||
+        code.toLowerCase().includes(search.toLowerCase());
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+      const matchStatus = filterStatus === "All" || d.status === filterStatus;
+      return matchSearch && matchStatus;
+    });
+  }, [distributors, search, filterStatus]);
 
-  const handleFilterChange = (val) => { setFilterStatus(val); setPage(1); };
-  const handleSearch = (val)  => { setSearch(val); setPage(1); };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginated  = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  const filterTabs = ["All", "Pending", "Approved", "Rejected", "Blocked"];
 
   return (
-    <>
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-        <div className="relative flex-1 w-full">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search by name, company or email..."
-            value={search}
-            onChange={e => handleSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {['All', 'Pending', 'Approved', 'Rejected', 'Blocked'].map(s => (
+    <div className="space-y-4 font-sans">
+      {/* Pill Navigation & Search Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Status Pills */}
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar w-full md:w-auto">
+          {filterTabs.map((tab) => (
             <button
-              key={s}
-              onClick={() => handleFilterChange(s)}
-              className={`px-3 py-2 text-xs font-bold rounded-xl transition-colors border ${
-                filterStatus === s
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+              key={tab}
+              onClick={() => {
+                setFilterStatus(tab);
+                setCurrentPage(1);
+              }}
+              className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${
+                filterStatus === tab
+                  ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
+                  : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
               }`}
             >
-              {s}
+              {tab}
             </button>
           ))}
         </div>
+
+        {/* Search Bar */}
+        <div className="relative flex-1 w-full md:w-auto md:max-w-xs">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search by name, company, ID..."
+            className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"
+          />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="flex flex-col gap-2">
-        {/* Header */}
-        <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1.2fr_1fr] px-6 py-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <div>Distributor</div>
-          <div>Contact</div>
-          <div>Company</div>
-          <div>Region</div>
-          <div>Status</div>
-          <div className="text-center">Action</div>
+      {/* Distributors Table Container */}
+      <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] shadow-xs">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-xs text-left border-collapse">
+            <thead className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+              <tr>
+                <th className="px-6 py-4">Distributor</th>
+                <th className="px-6 py-4">Contact Info</th>
+                <th className="px-6 py-4">Company Details</th>
+                <th className="px-6 py-4">Region</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-center">Action</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {loading ? (
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan="6" className="px-6 py-4">
+                      <div className="h-6 bg-slate-100 rounded-full w-full" />
+                    </td>
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-16 text-center text-slate-400">
+                    <p className="text-4xl mb-2">🏢</p>
+                    <p className="font-bold text-slate-800 text-sm">No distributor accounts found</p>
+                    <p className="text-xs text-slate-400">Try adjusting your search criteria or filter status.</p>
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((d) => {
+                  const code = `DST-${String(d.distributor_id).padStart(3, "0")}`;
+                  return (
+                    <tr key={d.distributor_id} className="hover:bg-slate-50/60 transition duration-150">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-xs font-bold shadow-2xs">
+                            {getInitials(d.full_name)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-800 text-sm leading-tight">{d.full_name}</p>
+                            <p className="text-[11px] font-bold text-blue-600 mt-0.5">{code}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-slate-700 text-xs">{d.email}</p>
+                        <p className="text-slate-400 font-semibold text-xs mt-0.5">{d.phone || "—"}</p>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-slate-800 text-xs">{d.company_name}</p>
+                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Reg: {d.reg_number}</p>
+                      </td>
+
+                      <td className="px-6 py-4 font-bold text-slate-600 text-xs">
+                        {d.region_name}
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <StatusBadge status={d.status} />
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDistributor(d)}
+                            className="px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center gap-1.5"
+                          >
+                            <Eye size={13} />
+                            View Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {loading ? (
-          Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-        ) : paginated.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 bg-white border border-slate-200 rounded-xl text-slate-400">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            <p className="mt-3 text-sm font-medium">No distributors found</p>
-          </div>
-        ) : (
-          paginated.map((d, index) => {
-            const avatarColor = AVATAR_COLORS[d.distributor_id % AVATAR_COLORS.length];
-            return (
-              <div
-                key={d.distributor_id}
-                className="grid grid-cols-[2fr_1.5fr_1.5fr_1.2fr_1.2fr_1fr] px-6 py-3.5 bg-white border border-slate-200 rounded-xl items-center hover:shadow-sm hover:border-blue-200 transition-all"
-              >
-                {/* Distributor */}
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 ${avatarColor}`}>
-                    {getInitials(d.full_name)}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-bold text-slate-900 text-sm truncate">{d.full_name}</span>
-                    <span className="text-xs text-slate-400 font-medium mt-0.5 truncate">{d.email}</span>
-                  </div>
-                </div>
-
-                {/* Contact */}
-                <div className="text-sm text-slate-600 font-medium">{d.phone || '—'}</div>
-
-                {/* Company */}
-                <div className="flex flex-col min-w-0">
-                  <span className="font-semibold text-slate-800 text-sm truncate">{d.company_name}</span>
-                  <span className="text-xs text-slate-400 mt-0.5">Reg: {d.reg_number}</span>
-                </div>
-
-                {/* Region */}
-                <div className="text-sm font-medium text-slate-600">{d.region_name}</div>
-
-                {/* Status */}
-                <div><StatusBadge status={d.status} /></div>
-
-                {/* Action */}
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setSelectedDistributor(d)}
-                    className="px-3 py-1.5 border border-blue-200 text-blue-600 rounded-lg font-bold text-xs hover:bg-blue-50 hover:border-blue-400 transition-colors"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            );
-          })
+        {/* Pagination */}
+        {!loading && filtered.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filtered.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            label="distributors"
+          />
         )}
       </div>
-
-      {/* Pagination */}
-      {!loading && filtered.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-3 mt-4 bg-white border border-slate-200 rounded-xl">
-          <p className="text-xs font-semibold text-slate-500">
-            Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} records
-          </p>
-          <div className="flex items-center gap-1.5">
-            <PagBtn onClick={() => setPage(1)}       disabled={page === 1}          icon="first" />
-            <PagBtn onClick={() => setPage(p => p - 1)} disabled={page === 1}       icon="prev" />
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter(p => Math.abs(p - page) <= 2)
-              .map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-lg text-sm font-bold transition-colors ${
-                    p === page ? 'bg-blue-600 text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-            <PagBtn onClick={() => setPage(p => p + 1)} disabled={page === totalPages} icon="next" />
-            <PagBtn onClick={() => setPage(totalPages)} disabled={page === totalPages} icon="last" />
-          </div>
-        </div>
-      )}
 
       {/* Review Modal */}
       {selectedDistributor && (
@@ -374,32 +403,10 @@ const DistributorTable = ({ distributors = [], loading, updating, onStatusUpdate
           onClose={() => setSelectedDistributor(null)}
           onStatusUpdate={(id, status) => {
             onStatusUpdate(id, status);
-            setSelectedDistributor(prev => prev && prev.distributor_id === id ? { ...prev, status } : prev);
+            setSelectedDistributor((prev) => (prev && prev.distributor_id === id ? { ...prev, status } : prev));
           }}
         />
       )}
-    </>
+    </div>
   );
-};
-
-const PagBtn = ({ onClick, disabled, icon }) => {
-  const paths = {
-    first: 'M11 17l-5-5 5-5M18 17l-5-5 5-5',
-    prev:  'M15 18l-6-6 6-6',
-    next:  'M9 18l6-6-6-6',
-    last:  'M13 17l5-5-5-5M6 17l5-5-5-5',
-  };
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-    >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d={paths[icon]} />
-      </svg>
-    </button>
-  );
-};
-
-export default DistributorTable;
+}

@@ -11,7 +11,7 @@ const AdminLayout = () => {
       <div className="flex-1 flex flex-col ml-[260px] min-h-screen">
         <Topbar />
 
-        <div className="flex-1 overflow-y-auto px-8 pt-[110px] pb-6">
+        <div className="flex-1 overflow-y-auto no-scrollbar px-8 pt-[110px] pb-6">
           <Outlet />
         </div>
       </div>
