@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, Map, Wallet, User, LogOut, Package } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Map, User, LogOut, Package } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
+import logo from '../assets/logo.png';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -13,30 +14,22 @@ const navItems = [
 function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const displayName = auth?.fullName ? auth.fullName.split(' ')[0] : 'Driver';
-
   return (
     <aside className="w-64 h-screen bg-white flex flex-col p-4 border-r border-slate-100 flex-shrink-0 z-20">
-      {/* Brand & Driver Header */}
-      <div className="flex items-center gap-3 px-3 py-3 mb-6 bg-orange-50/60 rounded-2xl border border-orange-100/70">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm shadow-sm select-none">
-          {displayName[0]?.toUpperCase()}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-xs text-slate-500 truncate">Welcome back,</div>
-          <div className="text-sm font-bold text-slate-800 truncate">{auth?.fullName || 'Driver'}</div>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[11px] font-semibold text-orange-600">On Duty</span>
-          </div>
-        </div>
+      {/* Brand Logo Header */}
+      <div className="px-1 mb-6 pt-1 flex items-center">
+        <img
+          src={logo}
+          alt="Vendora Logo"
+          className="w-full max-w-[190px] h-auto object-contain"
+        />
       </div>
 
       {/* Navigation */}
