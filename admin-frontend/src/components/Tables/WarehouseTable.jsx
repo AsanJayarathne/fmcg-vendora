@@ -347,14 +347,12 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
                         {fmt(item.mrp_max_retail_price)}
                       </td>
 
-                      <td className="px-6 py-3.5">
-                        <div className="flex flex-col gap-1">
+                      <td className="px-6 py-3.5 whitespace-nowrap">
+                        <div className="flex items-center gap-2.5">
                           <span className="font-bold text-slate-900 text-xs">
                             {item.quantity.toLocaleString()} units
                           </span>
-                          <div>
-                            <StatusBadge status={status} />
-                          </div>
+                          <StatusBadge status={status} />
                         </div>
                       </td>
 

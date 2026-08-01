@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import RouteCard from '../components/RouteCard';
 import { useAuth } from '../auth/AuthContext';
+import { RefreshCw, PackageCheck, AlertCircle } from 'lucide-react';
 
 function MyRoute() {
   const { auth } = useAuth();
@@ -30,10 +31,8 @@ function MyRoute() {
         const creditAmt   = parseFloat(item.credit_amount) || 0;
         const outstanding = parseFloat(item.outstanding_credit) || 0;
 
-        // Total the driver needs to collect = cash portion of this order + any outstanding credit
         const totalCollectible = cashAmt + outstanding;
 
-        // Determine payment label
         let paymentLabel = 'Cash Payment';
         if (item.payment_method === 'Credit') paymentLabel = 'Full Credit';
         else if (item.payment_method === 'Cash_Credit') paymentLabel = 'Cash + Credit';
@@ -75,8 +74,6 @@ function MyRoute() {
   const handleAction = async (id, action, routeItem) => {
     setUpdatingId(id);
     try {
-      // When marking as delivered, collect the total collectible amount
-      // (order cash portion + outstanding credit settlement)
       const body = action === 'deliver' 
         ? { collected_amount: routeItem.totalCollectible ?? routeItem.numericAmount, remarks: "Delivered successfully" }
         : { remarks: "Returned by customer" };
@@ -94,7 +91,6 @@ function MyRoute() {
         throw new Error(json.message || `Failed to mark delivery as ${action}ed`);
       }
       
-      // Update UI state
       setRoutes(routes.map(r => 
         r.id === id ? { ...r, status: action === 'deliver' ? 'Delivered' : 'Returned' } : r
       ));
@@ -113,60 +109,82 @@ function MyRoute() {
   });
 
   return (
-    <div className="bg-white min-h-screen p-6 font-sans">
-
-      {/* Title */}
-      <div className="mb-8 flex items-center justify-between">
-        <h2 className="text-4xl font-bold text-orange-500">My Orders</h2>
+    <div className="space-y-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">My Orders & Deliveries</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">Manage active route orders and mark delivery completions</p>
+        </div>
         <button
           onClick={fetchRoutes}
-          className="text-xs px-4 py-2 rounded-full border border-orange-500 text-orange-500 hover:bg-orange-50 transition-all font-medium cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-sm self-start sm:self-auto"
         >
-          Refresh
+          <RefreshCw size={14} className={loading ? 'animate-spin text-orange-500' : 'text-slate-500'} />
+          <span>Refresh List</span>
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-orange-50/50 p-1.5 rounded-2xl border border-orange-100/50 max-w-md">
+      {/* Modern Segmented Tabs */}
+      <div className="bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/50 flex gap-1 max-w-md">
         {['Picked Up', 'Delivered', 'Returned'].map((tab) => {
           const isActive = activeTab === tab;
+          const count = routes.filter(r => {
+            if (tab === 'Picked Up') return r.status === 'Pending';
+            if (tab === 'Delivered') return r.status === 'Delivered';
+            if (tab === 'Returned') return r.status === 'Returned';
+            return false;
+          }).length;
+
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 text-center py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex-1 py-2 text-center rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 isActive
-                  ? 'bg-orange-500 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-orange-500 hover:bg-orange-50'
+                  ? 'bg-white text-orange-600 shadow-sm font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {tab}
+              <span>{tab}</span>
+              <span className={`px-1.5 py-0.5 text-[10px] rounded-md ${
+                isActive ? 'bg-orange-50 text-orange-600 font-extrabold' : 'bg-slate-200/60 text-slate-500'
+              }`}>
+                {count}
+              </span>
             </button>
           );
         })}
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-sm">
-          {error}
+        <div className="p-4 bg-rose-50 border border-rose-200/70 text-rose-700 rounded-2xl text-xs font-semibold flex items-center gap-2">
+          <AlertCircle size={16} />
+          <span>{error}</span>
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500 font-medium">Loading your route...</div>
+        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400 font-medium text-xs">
+          Loading assigned delivery routes...
+        </div>
       ) : filteredRoutes.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 font-medium bg-gray-50 rounded-2xl border border-gray-100">
-          {activeTab === 'Picked Up' ? (
-            <>No picked up deliveries in your route. Go to "Open Job Pool" to take orders!</>
-          ) : activeTab === 'Delivered' ? (
-            <>No delivered orders found in your route.</>
-          ) : (
-            <>No returned orders found in your route.</>
-          )}
+        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-500 shadow-sm">
+          <PackageCheck size={36} className="mx-auto text-slate-300 mb-3" />
+          <h3 className="text-base font-bold text-slate-800">No Orders Found</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+            {activeTab === 'Picked Up' ? (
+              <>No picked up deliveries in your route. Head over to "Open Job Pool" to claim orders!</>
+            ) : activeTab === 'Delivered' ? (
+              <>No delivered orders recorded for this filter.</>
+            ) : (
+              <>No returned orders recorded for this filter.</>
+            )}
+          </p>
         </div>
       ) : (
-        /* Route Cards */
-        <div className="flex flex-col gap-3">
+        /* Route Cards List */
+        <div className="flex flex-col gap-4">
           {filteredRoutes.map((route) => (
             <RouteCard
               key={route.id}
@@ -186,7 +204,6 @@ function MyRoute() {
           ))}
         </div>
       )}
-
     </div>
   );
 }

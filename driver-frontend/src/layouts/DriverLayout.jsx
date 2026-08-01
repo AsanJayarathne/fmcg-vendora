@@ -4,13 +4,13 @@ import TopBar from '../components/TopBar';
 
 function DriverLayout() {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen bg-slate-50/60 font-sans overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-auto">
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <TopBar />
-        <div className="p-6">
+        <main className="flex-1 p-6 md:p-8 animate-fadeIn">
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   );

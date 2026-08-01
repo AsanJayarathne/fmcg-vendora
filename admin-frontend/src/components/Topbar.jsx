@@ -1,31 +1,86 @@
+import React, { useState } from "react";
+import { Bell, ChevronDown, Settings, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
-import React from 'react';
+export default function Topbar() {
+  const { auth, logout } = useAuth();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-const Topbar = () => {
+  const handleSignOut = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const fullName = auth?.fullName || "Company Admin";
+  const initials = fullName
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+
   return (
-    <div className="absolute top-0 right-8 h-[70px] z-[90] flex items-center justify-end">
-      <div className="flex items-center gap-1.5 bg-[#0A21C0] px-2 py-1.5 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
-        <button className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center border-none cursor-pointer transition-transform hover:scale-105">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
+    <header className="sticky top-0 z-40 flex items-center justify-end h-16 px-8 bg-white border-b border-slate-100 shadow-2xs font-sans">
+      {/* Right Section: Messages + User Profile Dropdown */}
+      <div className="flex items-center gap-3">
+        {/* Notifications / Messages */}
+        <button
+          type="button"
+          className="flex items-center gap-2 px-4 h-9 text-xs font-bold text-white bg-slate-900 rounded-full hover:bg-slate-800 transition cursor-pointer shadow-2xs"
+        >
+          <span className="hidden sm:inline">Messages</span>
+          <Bell size={15} className="text-white" />
         </button>
 
-        <button className="h-11 bg-[#0b1120] text-white rounded-full flex items-center pl-6 pr-5 gap-2.5 border-none cursor-pointer transition-transform hover:scale-105">
-          <span className="text-base font-medium tracking-wide">Messages</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-        </button>
+        {/* User Avatar + Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-full hover:bg-slate-100 transition cursor-pointer border border-slate-100 shadow-2xs"
+          >
+            <div className="flex items-center justify-center w-8 h-8 text-xs font-bold text-white bg-blue-600 rounded-full shadow-2xs">
+              {initials}
+            </div>
+            <span className="text-xs font-bold text-slate-800 hidden md:inline">{fullName}</span>
+            <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
+          </button>
 
-        <div className="w-11 h-11 rounded-full overflow-hidden cursor-pointer" title="Profile">
-          <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-full h-full object-cover" />
+          {menuOpen && (
+            <>
+              {/* Backdrop */}
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              {/* Dropdown Panel */}
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-slide-up">
+                {/* Header */}
+                <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50">
+                  <p className="text-xs font-bold text-slate-800 truncate">{fullName}</p>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Admin Account</p>
+                </div>
+                {/* Menu Items */}
+                <div className="p-1 text-xs font-bold">
+                  <Link
+                    to="/products"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    <Settings size={14} className="text-slate-400" />
+                    Catalog Settings
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 transition w-full text-left cursor-pointer"
+                  >
+                    <LogOut size={14} className="text-rose-400" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
+    </header>
   );
-};
-
-export default Topbar;
+}

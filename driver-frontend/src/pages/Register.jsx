@@ -193,7 +193,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     padding: "24px",
-    fontFamily: "'Inter', 'Segoe UI', sans-serif",
+    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
   },
   card: {
     display: "flex",
