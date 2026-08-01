@@ -1,5 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { MapPin, Map as MapIcon } from "lucide-react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
 import MapPickerModal from "../components/RegisterPage/MapPickerModal";
@@ -202,18 +203,20 @@ export default function RegisterStep2() {
                   type="button"
                   onClick={handleGetLocation}
                   disabled={gettingLocation}
-                  className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-3.5 py-3.5 rounded-2xl transition disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1 cursor-pointer"
+                  className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-3.5 rounded-2xl transition shadow-xs active:scale-[0.98] disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
                   title="Auto-detect current location"
                 >
-                  {gettingLocation ? "Locating..." : "📍 GPS"}
+                  <MapPin size={16} />
+                  <span>{gettingLocation ? "Locating..." : "GPS"}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowMapModal(true)}
-                  className="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-3.5 py-3.5 rounded-2xl transition text-xs sm:text-sm whitespace-nowrap flex items-center gap-1 cursor-pointer"
+                  className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold px-4 py-3.5 rounded-2xl transition active:scale-[0.98] text-xs sm:text-sm whitespace-nowrap flex items-center gap-1.5 cursor-pointer"
                   title="Pick on interactive map"
                 >
-                  🗺️ Map
+                  <MapIcon size={16} />
+                  <span>Map</span>
                 </button>
               </div>
             </div>

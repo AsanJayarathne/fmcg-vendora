@@ -1,13 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import L from "leaflet";
+import { Crosshair } from "lucide-react";
 
-// Fix default marker icon issue with Leaflet in bundlers
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+const loadLeaflet = () => {
+  return new Promise((resolve) => {
+    if (window.L) {
+      resolve(window.L);
+      return;
+    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.onload = () => resolve(window.L);
+    document.head.appendChild(script);
+  });
+};
 
 export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat, initialLng }) {
   const mapContainerRef = useRef(null);
@@ -24,53 +34,59 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
   useEffect(() => {
     if (!isOpen) return;
 
+    let isMounted = true;
     const startLat = parseFloat(initialLat) || 6.9271;
     const startLng = parseFloat(initialLng) || 79.8612;
 
     setSelectedLat(startLat);
     setSelectedLng(startLng);
 
-    // Give DOM time to render container
-    const timer = setTimeout(() => {
-      if (!mapContainerRef.current) return;
+    loadLeaflet().then((L) => {
+      if (!isMounted) return;
 
-      // Clean up previous map instance if exists
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
+      const timer = setTimeout(() => {
+        if (!mapContainerRef.current) return;
 
-      const map = L.map(mapContainerRef.current).setView([startLat, startLng], 14);
-      mapInstanceRef.current = map;
+        // Clean up previous map instance if exists
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
+        }
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
+        const map = L.map(mapContainerRef.current).setView([startLat, startLng], 14);
+        mapInstanceRef.current = map;
 
-      const marker = L.marker([startLat, startLng], { draggable: true }).addTo(map);
-      markerRef.current = marker;
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
 
-      // Update position on marker drag
-      marker.on("dragend", () => {
-        const pos = marker.getLatLng();
-        setSelectedLat(pos.lat);
-        setSelectedLng(pos.lng);
-      });
+        const marker = L.marker([startLat, startLng], { draggable: true }).addTo(map);
+        markerRef.current = marker;
 
-      // Update position on map click
-      map.on("click", (e) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        setSelectedLat(lat);
-        setSelectedLng(lng);
-      });
+        // Update position on marker drag
+        marker.on("dragend", () => {
+          const pos = marker.getLatLng();
+          setSelectedLat(pos.lat);
+          setSelectedLng(pos.lng);
+        });
 
-      map.invalidateSize();
-    }, 100);
+        // Update position on map click
+        map.on("click", (e) => {
+          const { lat, lng } = e.latlng;
+          marker.setLatLng([lat, lng]);
+          setSelectedLat(lat);
+          setSelectedLng(lng);
+        });
+
+        map.invalidateSize();
+      }, 100);
+
+      return () => clearTimeout(timer);
+    });
 
     return () => {
-      clearTimeout(timer);
+      isMounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -111,34 +127,36 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        {/* Retailer Style Header */}
+        <div className="px-6 py-4.5 bg-blue-700 text-white flex items-center justify-between shadow-xs">
           <div>
-            <h2 className="text-xl font-bold">Pick Shop Location</h2>
-            <p className="text-xs text-slate-300">
-              Click on the map or drag the pin to set your exact shop location
+            <h2 className="text-xl font-bold tracking-tight">Pick Shop Location</h2>
+            <p className="text-xs text-blue-100 mt-0.5">
+              Click on the map or drag the marker pin to set your exact shop location
             </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-800 cursor-pointer"
+            className="text-white/80 hover:text-white text-2xl font-bold w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-800 transition cursor-pointer"
           >
             &times;
           </button>
         </div>
 
         {/* Toolbar */}
-        <div className="px-6 py-3 bg-slate-100 flex items-center justify-between border-b border-slate-200">
-          <div className="text-sm font-semibold text-slate-700">
-            Selected: <span className="text-blue-700">{selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}</span>
+        <div className="px-6 py-3.5 bg-[#EEF2F6] flex items-center justify-between border-b border-slate-200">
+          <div className="text-xs sm:text-sm font-medium text-slate-600 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
+            Coordinates: <span className="text-blue-700 font-bold">{selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}</span>
           </div>
           <button
             type="button"
             onClick={handleLocateMe}
             disabled={locating}
-            className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer"
+            className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-2xl text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
           >
-            {locating ? "Locating..." : "🎯 Center on My Location"}
+            <Crosshair size={15} />
+            <span>{locating ? "Locating..." : "Center on My Location"}</span>
           </button>
         </div>
 
@@ -147,19 +165,19 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
           <div ref={mapContainerRef} className="w-full h-full min-h-[380px]" />
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3">
+        {/* Retailer Style Footer */}
+        <div className="px-6 py-4 bg-white border-t border-slate-200 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-full border border-slate-300 text-slate-600 text-sm font-semibold hover:bg-slate-100 cursor-pointer"
+            className="px-6 py-2.5 rounded-full border border-blue-700 text-blue-700 text-sm font-semibold hover:bg-blue-50 transition cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-6 py-2.5 rounded-full bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold shadow-md transition cursor-pointer"
+            className="px-8 py-2.5 rounded-full bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold shadow-md transition cursor-pointer active:scale-[0.98]"
           >
             Confirm Location
           </button>
