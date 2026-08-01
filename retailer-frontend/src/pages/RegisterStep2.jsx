@@ -2,6 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
+import MapPickerModal from "../components/RegisterPage/MapPickerModal";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../utils/api";
@@ -12,6 +13,8 @@ export default function RegisterStep2() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
   const [regions, setRegions] = useState([]);
 
   useEffect(() => {
@@ -25,6 +28,40 @@ export default function RegisterStep2() {
   const handleChange = (field, val) => {
     setRegForm((prev) => ({ ...prev, [field]: val }));
     setError("");
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setGettingLocation(true);
+    setError("");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude.toFixed(6);
+        const lng = position.coords.longitude.toFixed(6);
+        setRegForm((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+        }));
+        setGettingLocation(false);
+      },
+      (err) => {
+        setGettingLocation(false);
+        setError("Unable to retrieve your location. Please allow location permissions in your browser.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleMapConfirm = (lat, lng) => {
+    setRegForm((prev) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng,
+    }));
   };
 
   const handleSubmit = async () => {
@@ -72,6 +109,8 @@ export default function RegisterStep2() {
           : shopAddress.trim(),
         city: city.trim(),
         nic_number: nic.trim(),
+        latitude: regForm.latitude ? parseFloat(regForm.latitude) : null,
+        longitude: regForm.longitude ? parseFloat(regForm.longitude) : null,
       };
 
       const json = await apiFetch("/auth/register-retailer.php", null, {
@@ -145,11 +184,39 @@ export default function RegisterStep2() {
               onChange={(e) => handleChange("addressLine2", e.target.value)}
             />
 
-            <FormInput
-              label="Location"
-              placeholder="Pick Up your Shop Location"
-              disabled
-            />
+            <div className="flex flex-col">
+              <label className="text-gray-500 text-base mb-1.5 font-medium">GPS Location</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  placeholder="Pick GPS location"
+                  value={
+                    regForm.latitude && regForm.longitude
+                      ? `${regForm.latitude}, ${regForm.longitude}`
+                      : ""
+                  }
+                  className="flex-1 min-w-0 bg-[#EEF2F6] rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none text-gray-700 cursor-default"
+                />
+                <button
+                  type="button"
+                  onClick={handleGetLocation}
+                  disabled={gettingLocation}
+                  className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-3.5 py-3.5 rounded-2xl transition disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap flex items-center gap-1 cursor-pointer"
+                  title="Auto-detect current location"
+                >
+                  {gettingLocation ? "Locating..." : "📍 GPS"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMapModal(true)}
+                  className="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-3.5 py-3.5 rounded-2xl transition text-xs sm:text-sm whitespace-nowrap flex items-center gap-1 cursor-pointer"
+                  title="Pick on interactive map"
+                >
+                  🗺️ Map
+                </button>
+              </div>
+            </div>
 
             <FormInput
               label="City"
@@ -188,7 +255,7 @@ export default function RegisterStep2() {
                 type="button"
                 onClick={() => navigate("/register")}
                 disabled={loading}
-                className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50"
+                className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50 cursor-pointer"
               >
                 Back
               </button>
@@ -197,7 +264,7 @@ export default function RegisterStep2() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50"
+                className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Registering..." : "Register"}
               </button>
@@ -212,6 +279,16 @@ export default function RegisterStep2() {
           </div>
         </div>
       </div>
+
+      {/* Map Picker Modal */}
+      <MapPickerModal
+        isOpen={showMapModal}
+        onClose={() => setShowMapModal(false)}
+        onConfirm={handleMapConfirm}
+        initialLat={regForm.latitude}
+        initialLng={regForm.longitude}
+      />
     </div>
   );
 }
+

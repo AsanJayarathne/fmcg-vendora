@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import deliveryImg from "../assets/delivery.png";
 
@@ -14,9 +14,21 @@ export default function Register() {
     vehicleNumber: "",
   });
 
+  const [distributors, setDistributors] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost/fmcg-vendora/backend/api/auth/distributors.php")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          setDistributors(json.data || []);
+        }
+      })
+      .catch((err) => console.error("Failed to load distributors:", err));
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -154,15 +166,20 @@ export default function Register() {
             </div>
 
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Distributor ID</label>
-              <input
-                type="number"
+              <label style={styles.label}>Distributor</label>
+              <select
                 name="distributorId"
-                min="1"
                 value={form.distributorId}
                 onChange={handleChange}
-                style={styles.input}
-              />
+                style={styles.select}
+              >
+                <option value="">Select Distributor</option>
+                {distributors.map((d) => (
+                  <option key={d.distributor_id} value={d.distributor_id}>
+                    {d.company_name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -275,6 +292,18 @@ const styles = {
     color: "#111",
     backgroundColor: "transparent",
     boxSizing: "border-box",
+  },
+  select: {
+    width: "100%",
+    border: "none",
+    borderBottom: "1.5px solid #333",
+    outline: "none",
+    fontSize: "15px",
+    padding: "6px 0",
+    color: "#111",
+    backgroundColor: "transparent",
+    boxSizing: "border-box",
+    cursor: "pointer",
   },
   registerBtn: {
     width: "100%",
