@@ -312,7 +312,8 @@ CREATE TABLE `orders` (
   `distributor_id`     int(11)                                                       NOT NULL,
   `status`             enum('Pending','Approved','Processing','Delivered','Rejected') DEFAULT 'Pending',
   `total_amount`       decimal(12,2)                                                 DEFAULT NULL,
-  `payment_method`     enum('Cash','Credit','Cash_Credit')                           DEFAULT 'Cash',
+  `payment_method`     enum('Cash','Credit','Cash_Credit','Online','Online_Credit') DEFAULT 'Cash',
+  `payment_status`     enum('Unpaid','Pending_Gateway','Paid','Failed','Refunded')   DEFAULT 'Unpaid',
   `credit_amount`      decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
   `cash_amount`        decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
   `outstanding_credit` decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
@@ -322,6 +323,7 @@ CREATE TABLE `orders` (
   KEY `idx_orders_retailer`    (`retailer_id`),
   KEY `idx_orders_distributor` (`distributor_id`),
   KEY `idx_orders_status`      (`status`),
+  KEY `idx_orders_payment_st`  (`payment_status`),
   KEY `idx_orders_created`     (`created_at`),
   CONSTRAINT `fk_orders_distributor` FOREIGN KEY (`distributor_id`) REFERENCES `distributor` (`distributor_id`),
   CONSTRAINT `fk_orders_retailer`    FOREIGN KEY (`retailer_id`)    REFERENCES `retailer` (`retailer_id`)
@@ -378,7 +380,7 @@ CREATE TABLE `payment` (
   `order_id`       int(11)                      DEFAULT NULL,
   `payment_date`   date                         NOT NULL,
   `amount`         decimal(12,2)                NOT NULL,
-  `payment_method` enum('Cash','Bank','Other')  NOT NULL,
+  `payment_method` enum('Cash','Bank','Online','Other')  NOT NULL,
   `reference_no`   varchar(100)                 DEFAULT NULL,
   `received_by`    int(11)                      NOT NULL,
   `updated_at`     timestamp                    NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -561,6 +563,29 @@ CREATE TABLE `system_announcement` (
   KEY `fk_announce_created_by` (`created_by`),
   CONSTRAINT `fk_announce_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 27. GATEWAY PAYMENTS
+-- ============================================================
+CREATE TABLE `gateway_payments` (
+  `id`                int(11)                                                               NOT NULL AUTO_INCREMENT,
+  `order_id`          int(11)                                                               NOT NULL,
+  `retailer_id`       int(11)                                                               NOT NULL,
+  `distributor_id`    int(11)                                                               NOT NULL,
+  `amount`            decimal(12,2)                                                         NOT NULL,
+  `currency`          varchar(10)                                                           DEFAULT 'LKR',
+  `gateway_name`      varchar(50)                                                           DEFAULT 'MockGateway',
+  `transaction_token` varchar(255)                                                          DEFAULT NULL,
+  `gateway_ref`       varchar(100)                                                          DEFAULT NULL,
+  `status`            enum('INITIATED','PENDING','SUCCESS','FAILED','CANCELLED')           DEFAULT 'INITIATED',
+  `signature`         varchar(255)                                                          DEFAULT NULL,
+  `response_payload`  text                                                                  DEFAULT NULL,
+  `created_at`        timestamp                                                             NOT NULL DEFAULT current_timestamp(),
+  `updated_at`        timestamp                                                             NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_gw_order` (`order_id`),
+  CONSTRAINT `fk_gw_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 SET FOREIGN_KEY_CHECKS = 1;

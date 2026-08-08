@@ -24,8 +24,17 @@ class OrderRepository {
         $stmt = $this->db->prepare($sql); $stmt->execute($params); return $stmt->fetchAll();
     }
     public function create(array $data): int {
-        $stmt = $this->db->prepare("INSERT INTO orders (retailer_id, distributor_id, total_amount, payment_method, credit_amount, cash_amount, outstanding_credit) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$data['retailer_id'], $data['distributor_id'], $data['total_amount'], $data['payment_method'] ?? 'Cash', $data['credit_amount'] ?? 0, $data['cash_amount'] ?? 0, $data['outstanding_credit'] ?? 0]);
+        $paymentStatus = $data['payment_status'] ?? 'Unpaid';
+        $stmt = $this->db->prepare("INSERT INTO orders (retailer_id, distributor_id, total_amount, payment_method, payment_status, credit_amount, cash_amount, outstanding_credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$data['retailer_id'], $data['distributor_id'], $data['total_amount'], $data['payment_method'] ?? 'Cash', $paymentStatus, $data['credit_amount'] ?? 0, $data['cash_amount'] ?? 0, $data['outstanding_credit'] ?? 0]);
+        return (int)$this->db->lastInsertId();
+    }
+    public function updatePaymentStatus(int $orderId, string $paymentStatus): void {
+        $this->db->prepare("UPDATE orders SET payment_status = ? WHERE order_id = ?")->execute([$paymentStatus, $orderId]);
+    }
+    public function recordPayment(int $retailerId, int $distributorId, int $orderId, float $amount, string $paymentMethod, string $referenceNo, int $receivedBy): int {
+        $stmt = $this->db->prepare("INSERT INTO payment (retailer_id, distributor_id, order_id, payment_date, amount, payment_method, reference_no, received_by) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?)");
+        $stmt->execute([$retailerId, $distributorId, $orderId, $amount, $paymentMethod, $referenceNo, $receivedBy]);
         return (int)$this->db->lastInsertId();
     }
     public function createItems(int $orderId, array $items): void {

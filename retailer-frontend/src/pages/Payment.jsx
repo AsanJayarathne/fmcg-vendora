@@ -3,8 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContextObject";
 import { OrderContext } from "../context/OrderContextObject";
 import { useAuth } from "../context/AuthContext";
-import { placeOrder, fetchCreditInfo } from "../services/orderService";
-import { FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiLoader } from "react-icons/fi";
+import { placeOrder, fetchCreditInfo, initiateOnlinePayment } from "../services/orderService";
+import PaymentGatewayModal from "../components/PaymentGatewayModal";
+import { FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiLoader, FiGlobe } from "react-icons/fi";
 
 function Payment() {
   const { state: order } = useLocation();
@@ -16,8 +17,9 @@ function Payment() {
   const { addOrder }         = useContext(OrderContext);
 
   // ── Payment form state ─────────────────────────────────────────
-  const [paymentType, setPaymentType] = useState("cash");       // "cash" | "credit" | "cash_credit"
+  const [paymentType, setPaymentType] = useState("cash");       // "cash" | "credit" | "cash_credit" | "online" | "online_credit"
   const [orderType,   setOrderType]   = useState("Normal");
+  const [gatewaySession, setGatewaySession] = useState(null);
 
   // ── Credit account state ───────────────────────────────────────
   const [creditInfo,    setCreditInfo]    = useState(null);   // null = loading | false = no account
@@ -105,6 +107,12 @@ function Payment() {
   } else if (paymentType === "cash_credit") {
     finalCreditAmount = parsedCreditInput;
     finalCashAmount   = Math.max(0, payableTotal - parsedCreditInput);
+  } else if (paymentType === "online") {
+    finalCreditAmount = 0;
+    finalCashAmount   = 0;
+  } else if (paymentType === "online_credit") {
+    finalCreditAmount = parsedCreditInput;
+    finalCashAmount   = 0;
   }
 
   const remainingCredit = availableCredit - finalCreditAmount;
@@ -120,13 +128,12 @@ function Payment() {
       if (payableTotal > availableCredit) { setSubmitError(`Order total Rs. ${fmt(payableTotal)} exceeds available credit Rs. ${fmt(availableCredit)}`); return; }
     }
 
-    if (paymentType === "cash_credit") {
+    if (paymentType === "cash_credit" || paymentType === "online_credit") {
       if (!creditInfo) { setSubmitError("No credit account found."); return; }
       if (creditBlocked) { setSubmitError("Your credit account is blocked."); return; }
       if (parsedCreditInput <= 0) { setSubmitError("Credit amount must be greater than 0 for split payment."); return; }
-      if (finalCashAmount <= 0) { setSubmitError("Cash amount must be greater than 0 for split payment."); return; }
       if (parsedCreditInput > availableCredit) { setSubmitError(`Credit amount exceeds available credit of Rs. ${fmt(availableCredit)}`); return; }
-      if (Math.abs((finalCashAmount + finalCreditAmount) - payableTotal) > 0.01) { setSubmitError("Cash + Credit must equal the order total."); return; }
+      if (paymentType === "cash_credit" && finalCashAmount <= 0) { setSubmitError("Cash amount must be greater than 0 for split payment."); return; }
     }
 
     // Build items payload for backend
@@ -139,6 +146,8 @@ function Payment() {
     let backendPaymentMethod = "Cash";
     if (paymentType === "credit") backendPaymentMethod = "Credit";
     else if (paymentType === "cash_credit") backendPaymentMethod = "Cash_Credit";
+    else if (paymentType === "online") backendPaymentMethod = "Online";
+    else if (paymentType === "online_credit") backendPaymentMethod = "Online_Credit";
 
     setSubmitting(true);
     try {
@@ -160,7 +169,7 @@ function Payment() {
         cashAmount:  finalCashAmount,
         creditUsed:  finalCreditAmount,
         paymentType,
-        paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : "Cash + Credit",
+        paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : paymentType === "online" ? "Online Gateway" : paymentType === "online_credit" ? "Online + Credit" : "Cash + Credit",
       };
 
       addOrder(confirmedOrder);
@@ -170,7 +179,16 @@ function Payment() {
         removeFromCart(item.id ?? item.productId ?? item.product_id);
       });
 
-      navigate("/orders");
+      if (paymentType === "online" || paymentType === "online_credit") {
+        const targetOrderId = Number(placed.order_id ?? placed.id ?? placed.backendId);
+        if (!targetOrderId) {
+          throw new Error("Order created but Order ID could not be determined.");
+        }
+        const session = await initiateOnlinePayment(token, targetOrderId);
+        setGatewaySession(session);
+      } else {
+        navigate("/orders");
+      }
     } catch (err) {
       console.error("Place order error:", err);
       setSubmitError(err.message || "Failed to place order. Please try again.");
@@ -407,6 +425,65 @@ function Payment() {
             </label>
           )}
 
+          {/* Option 4: Full Online Gateway */}
+          <label className="flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition hover:bg-slate-50/50"
+            style={{ 
+              borderColor: paymentType === "online" ? "#2563eb" : "#f1f5f9", 
+              backgroundColor: paymentType === "online" ? "#f0f9ff" : "" 
+            }}
+          >
+            <input
+              type="radio"
+              name="paymentType"
+              checked={paymentType === "online"}
+              onChange={() => setPaymentType("online")}
+              className="accent-blue-600"
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-800 text-xs">Online Payment Gateway</span>
+                <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-200/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <FiGlobe size={11} /> Cards / Wallets
+                </span>
+              </div>
+              <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                Pay 100% online now via Credit/Debit Card or Mobile Wallet.
+              </p>
+            </div>
+          </label>
+
+          {/* Option 5: Online + Credit */}
+          {!creditLoading && creditInfo && (
+            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
+              creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
+            }`}
+              style={{ 
+                borderColor: paymentType === "online_credit" ? "#2563eb" : "#f1f5f9", 
+                backgroundColor: paymentType === "online_credit" ? "#f0f9ff" : "" 
+              }}
+            >
+              <input
+                type="radio"
+                name="paymentType"
+                checked={paymentType === "online_credit"}
+                onChange={() => setPaymentType("online_credit")}
+                disabled={creditBlocked}
+                className="accent-blue-600"
+              />
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-black text-slate-800 text-xs">Online + Credit</span>
+                  {creditBlocked && (
+                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">Blocked</span>
+                  )}
+                </div>
+                <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+                  Use credit line for partial amount and pay remaining balance via Online Gateway.
+                </p>
+              </div>
+            </label>
+          )}
+
           {!creditLoading && !creditInfo && (
             <p className="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl">
               No credit account available with this distributor — payment limited to cash on delivery.
@@ -453,7 +530,7 @@ function Payment() {
             )}
 
             {/* Cash + Credit split inputs */}
-            {paymentType === "cash_credit" && (
+            {(paymentType === "cash_credit" || paymentType === "online_credit") && (
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">
@@ -472,18 +549,18 @@ function Payment() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">
-                    Cash Amount (auto-calculated)
+                    {paymentType === "online_credit" ? "Online Gateway Amount (auto-calculated)" : "Cash Amount (auto-calculated)"}
                   </label>
                   <div className="w-full border border-slate-100 p-3.5 rounded-full bg-slate-50 text-slate-800 font-extrabold text-xs">
-                    Rs. {fmt(finalCashAmount)}
+                    Rs. {fmt(payableTotal - parsedCreditInput)}
                   </div>
                 </div>
 
                 <div className="bg-blue-50/30 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold space-y-1 text-blue-700">
-                  <p>Credit Portion: Rs. {fmt(finalCreditAmount)}</p>
-                  <p>Cash Portion: Rs. {fmt(finalCashAmount)}</p>
-                  <p>Remaining Account Balance: Rs. {fmt(remainingCredit)}</p>
-                  {outstandingCredit > 0 && (
+                  <p>Credit Portion: Rs. {fmt(parsedCreditInput)}</p>
+                  <p>{paymentType === "online_credit" ? "Online Gateway Portion" : "Cash Portion"}: Rs. {fmt(payableTotal - parsedCreditInput)}</p>
+                  <p>Remaining Account Balance: Rs. {fmt(availableCredit - parsedCreditInput)}</p>
+                  {outstandingCredit > 0 && paymentType === "cash_credit" && (
                     <p className="text-amber-705 mt-2 font-black">
                       + Settling Outstanding at Delivery: Rs. {fmt(outstandingCredit)}
                     </p>
@@ -495,7 +572,7 @@ function Payment() {
         )}
 
         {/* ── Driver Collection Preview ─────────────────────────── */}
-        {outstandingCredit > 0 && creditInfo && (
+        {outstandingCredit > 0 && creditInfo && (paymentType === "cash" || paymentType === "cash_credit") && (
           <div className="mt-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold text-blue-700">
             <p className="font-black text-blue-900 mb-1.5">Driver Collection Details (Cash at Delivery):</p>
             <div className="space-y-1">
@@ -525,8 +602,30 @@ function Payment() {
               : "bg-blue-600 hover:bg-blue-755"
           }`}
         >
-          {submitting ? "Processing Order..." : "Confirm & Place Order"}
+          {submitting
+            ? "Processing Order..."
+            : (paymentType === "online" || paymentType === "online_credit")
+            ? "Proceed to Online Gateway"
+            : "Confirm & Place Order"}
         </button>
+
+        {/* Payment Gateway Modal Simulator */}
+        {gatewaySession && (
+          <PaymentGatewayModal
+            sessionData={gatewaySession}
+            onClose={() => {
+              setGatewaySession(null);
+              navigate("/orders");
+            }}
+            onSuccess={() => {
+              setGatewaySession(null);
+              navigate("/orders");
+            }}
+            onFailure={() => {
+              // Stay in modal or allow retry
+            }}
+          />
+        )}
       </div>
     </div>
   );

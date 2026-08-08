@@ -204,6 +204,16 @@ export default function Dashboard() {
 
   // Credit details computation
   const creditData = useMemo(() => {
+    const accounts = creditInfo?.accounts || [];
+    
+    let selectedId = null;
+    if (filterDistributor && accounts.length > 0) {
+      const match = accounts.find(
+        (a) => a.distributor_name === filterDistributor || a.company_name === filterDistributor
+      );
+      if (match) selectedId = match.distributor_id;
+    }
+
     const limit = creditInfo ? Number(creditInfo.credit_limit ?? 0) : 0;
     const used = creditInfo ? Number(creditInfo.current_balance ?? 0) : 0;
     const available = creditInfo ? Number(creditInfo.available_credit ?? 0) : 0;
@@ -215,10 +225,11 @@ export default function Dashboard() {
       available,
       usedPercent,
       distributorName: creditInfo?.distributor_name || "",
-      accounts: creditInfo?.accounts || [],
+      accounts,
+      selectedDistributorId: selectedId,
       status: creditInfo?.status || "Active",
     };
-  }, [creditInfo]);
+  }, [creditInfo, filterDistributor]);
 
   // Credit Usage Chart data mapping
   const creditChartData = useMemo(() => {

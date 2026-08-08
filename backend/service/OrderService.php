@@ -9,6 +9,10 @@ require_once __DIR__ . '/../repository/StockRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
 require_once __DIR__ . '/../util/Database.php';
 
+if (!defined('LOCK_WINDOW_MINUTES')) {
+    define('LOCK_WINDOW_MINUTES', 15);
+}
+
 class OrderService {
     private OrderRepository       $orderRepo;
     private ProductRepository     $productRepo;
@@ -87,6 +91,8 @@ class OrderService {
         $creditAmount = round((float)$creditAmount, 2);
         $cashAmount   = round((float)$cashAmount, 2);
 
+        $paymentStatus = 'Unpaid';
+
         if ($paymentMethod === 'Cash') {
             // Full cash — no credit used
             $creditAmount = 0;
@@ -112,6 +118,22 @@ class OrderService {
             if ($creditAmount > (float)$creditObj['available_credit']) {
                 throw new Exception("Credit amount LKR " . number_format($creditAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
             }
+        } elseif ($paymentMethod === 'Online') {
+            // Full Online Gateway Payment
+            $creditAmount  = 0;
+            $cashAmount    = 0;
+            $paymentStatus = 'Pending_Gateway';
+        } elseif ($paymentMethod === 'Online_Credit') {
+            // Split Online + Credit Payment
+            if (!$creditObj) throw new Exception("No credit account found. Please contact your distributor.", 403);
+            if ($creditObj['status'] === 'Blocked') throw new Exception("Your credit account is blocked.", 403);
+            if ($creditAmount <= 0) throw new Exception("Credit amount must be greater than 0 for split payment.", 400);
+            if ($creditAmount >= $totalAmount) throw new Exception("Credit amount cannot exceed order total.", 400);
+            if ($creditAmount > (float)$creditObj['available_credit']) {
+                throw new Exception("Credit amount LKR " . number_format($creditAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
+            }
+            $cashAmount    = 0;
+            $paymentStatus = 'Pending_Gateway';
         } else {
             throw new Exception("Invalid payment method: $paymentMethod", 400);
         }
@@ -121,6 +143,7 @@ class OrderService {
             'distributor_id'     => $distributorId,
             'total_amount'       => $totalAmount,
             'payment_method'     => $paymentMethod,
+            'payment_status'     => $paymentStatus,
             'credit_amount'      => $creditAmount,
             'cash_amount'        => $cashAmount,
             'outstanding_credit' => $outstanding,
