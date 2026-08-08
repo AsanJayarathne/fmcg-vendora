@@ -7,7 +7,7 @@ require_once __DIR__ . '/../repository/RetailerRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
 require_once __DIR__ . '/../repository/StockRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
-require_once __DIR__ . '/../util/Database.php';
+date_default_timezone_set('Asia/Colombo');
 
 if (!defined('LOCK_WINDOW_MINUTES')) {
     define('LOCK_WINDOW_MINUTES', 15);
@@ -238,6 +238,8 @@ class OrderService {
 
     public function isEditable(array $order): bool {
         if ($order['status'] !== 'Pending') return false;
+        if (in_array($order['payment_method'] ?? '', ['Online', 'Online_Credit'], true)) return false;
+        if (($order['payment_status'] ?? '') === 'Paid') return false;
         return time() < strtotime($order['created_at']) + (LOCK_WINDOW_MINUTES * 60);
     }
 

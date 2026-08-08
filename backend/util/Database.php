@@ -26,6 +26,7 @@ class Database {
             }
 
             try {
+                date_default_timezone_set('Asia/Colombo');
                 self::$instance = new PDO(
                     "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4",
                     $user,
@@ -36,6 +37,7 @@ class Database {
                         PDO::ATTR_EMULATE_PREPARES   => false,
                     ]
                 );
+                self::$instance->exec("SET time_zone = '+05:30'");
             } catch (PDOException $e) {
                 http_response_code(500);
                 echo json_encode(['success' => false, 'message' => 'Database connection failed']);

@@ -89,6 +89,7 @@ class PaymentGatewayService {
         $order = $this->orderRepo->findById($orderId);
         if ($newStatus === 'SUCCESS') {
             $this->orderRepo->updatePaymentStatus($orderId, 'Paid');
+            $this->orderRepo->updateStatus($orderId, 'Processing');
 
             // Record in payment table
             $retailer  = $this->retailerRepo->findById((int)$gwRecord['retailer_id']);

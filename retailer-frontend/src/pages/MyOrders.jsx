@@ -95,8 +95,8 @@ function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
 
       <span className="flex-1 font-medium">
         {isUrgent
-          ? "⚡ Edit window closing soon! Action required if modifying."
-          : "⏱ Order is in 15-minute lock window — you can still cancel or confirm immediately."}
+          ? "⚡ 15-minute cancellation window closing soon!"
+          : "⏱ Order is in 15-minute lock window — you can cancel or confirm immediately."}
       </span>
 
       <span
@@ -589,6 +589,24 @@ function MyOrders() {
                 >
                   View Details
                 </button>
+                {latestOrder.editable && (
+                  <>
+                    <button
+                      onClick={() => handleConfirmLockClick(latestOrder)}
+                      disabled={confirmingLockId === latestOrder.backendId || cancellingId === latestOrder.backendId}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition cursor-pointer"
+                    >
+                      {confirmingLockId === latestOrder.backendId ? "Confirming..." : "Confirm Now"}
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(latestOrder)}
+                      disabled={cancellingId === latestOrder.backendId || confirmingLockId === latestOrder.backendId}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 transition cursor-pointer"
+                    >
+                      {cancellingId === latestOrder.backendId ? "Cancelling..." : "Cancel Order"}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
