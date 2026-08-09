@@ -13,6 +13,7 @@ import {
 import { OrderContext } from "../context/OrderContextObject";
 import OrdersHeader from "../components/orders/OrdersHeader";
 import OrdersStats from "../components/orders/OrdersStats";
+import Pagination from "../components/orders/Pagination";
 import {
   LOCK_WINDOW_MS,
   filterOrders,
@@ -476,6 +477,19 @@ function MyOrders() {
   const urgentOrders    = orders.filter((o) => o.orderType === "Urgent");
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, orders]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredOrders, currentPage]);
+
   const [orderToCancel, setOrderToCancel] = useState(null);
 
   function handleCancelClick(order) {
@@ -688,7 +702,7 @@ function MyOrders() {
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((order) => (
+                    paginatedOrders.map((order) => (
                       <tr key={order.orderId} className="hover:bg-slate-50/50 transition">
                         <td className="px-6 py-4 font-bold text-blue-600">{order.orderId}</td>
                         <td className="px-6 py-4 text-slate-700 max-w-[160px]">
@@ -749,12 +763,14 @@ function MyOrders() {
               </table>
             </div>
 
-            {/* Table footer */}
-            {filteredOrders.length > 0 && (
-              <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 text-xs font-semibold text-slate-400">
-                Showing {filteredOrders.length} of {orders.length} orders
-              </div>
-            )}
+            {/* Pagination footer */}
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredOrders.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+              label="orders"
+            />
           </section>
         </>
       )}

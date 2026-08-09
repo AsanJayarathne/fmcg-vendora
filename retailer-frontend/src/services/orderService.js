@@ -39,7 +39,7 @@ function normaliseOrder(raw) {
   let paymentLabel = "Full Cash";
   if (raw.payment_method === "Credit") paymentLabel = "Full Credit";
   else if (raw.payment_method === "Cash_Credit") paymentLabel = "Cash + Credit";
-  else if (raw.payment_method === "Online") paymentLabel = "Online Gateway";
+  else if (raw.payment_method === "Online") paymentLabel = "Online";
 
   const creditUsed = Number(raw.credit_amount ?? 0);
   const cashAmount = Number(raw.cash_amount ?? 0);

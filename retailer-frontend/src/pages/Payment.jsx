@@ -165,7 +165,7 @@ function Payment() {
         cashAmount:  finalCashAmount,
         creditUsed:  finalCreditAmount,
         paymentType,
-        paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : paymentType === "online" ? "Online Gateway" : "Cash + Credit",
+        paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : paymentType === "online" ? "Online" : "Cash + Credit",
       };
 
       addOrder(confirmedOrder);
@@ -437,7 +437,7 @@ function Payment() {
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800 text-xs">Online Payment Gateway</span>
+                <span className="font-black text-slate-800 text-xs">Online Payment</span>
                 <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-200/50 px-2 py-0.5 rounded-full flex items-center gap-1">
                   <FiGlobe size={11} /> Cards / Wallets
                 </span>
