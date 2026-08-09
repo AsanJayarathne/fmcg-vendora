@@ -90,7 +90,6 @@ export default function OrdersTable({ orders, returnedOrderIds, onView, onApprov
                         order.payment_method === "Cash" ? "bg-green-50 text-green-700 border border-green-200/50" :
                         order.payment_method === "Credit" ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
                         order.payment_method === "Online" ? "bg-blue-50 text-blue-700 border border-blue-200/50" :
-                        order.payment_method === "Online_Credit" ? "bg-indigo-50 text-indigo-700 border border-indigo-200/50" :
                         "bg-slate-100 text-slate-600 border border-slate-200"
                       }`}>
                         {order.payment_method?.replace('_', ' ') ?? "—"}

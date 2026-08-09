@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `gateway_payments` (
 
 -- 2. Modify orders payment_method enum & add payment_status column
 ALTER TABLE `orders` 
-MODIFY COLUMN `payment_method` enum('Cash','Credit','Cash_Credit','Online','Online_Credit') DEFAULT 'Cash';
+MODIFY COLUMN `payment_method` enum('Cash','Credit','Cash_Credit','Online') DEFAULT 'Cash';
 
 ALTER TABLE `orders` 
 ADD COLUMN IF NOT EXISTS `payment_status` enum('Unpaid','Pending_Gateway','Paid','Failed','Refunded') DEFAULT 'Unpaid' AFTER `payment_method`;

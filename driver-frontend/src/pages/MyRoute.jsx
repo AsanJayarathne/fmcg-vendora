@@ -41,7 +41,6 @@ function MyRoute() {
         if (item.payment_method === 'Credit') paymentLabel = 'Full Credit';
         else if (item.payment_method === 'Cash_Credit') paymentLabel = 'Cash + Credit';
         else if (item.payment_method === 'Online') paymentLabel = 'Online Gateway (Prepaid)';
-        else if (item.payment_method === 'Online_Credit') paymentLabel = 'Online + Credit (Prepaid)';
 
         return {
           id: item.delivery_id,

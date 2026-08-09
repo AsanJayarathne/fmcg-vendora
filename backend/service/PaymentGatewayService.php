@@ -105,27 +105,6 @@ class PaymentGatewayService {
                 $receivedBy
             );
 
-            // Handle credit portion if split payment (Online_Credit)
-            if ($order && $order['payment_method'] === 'Online_Credit' && (float)$order['credit_amount'] > 0) {
-                $creditObj = $this->creditRepo->findByRetailerAndDistributor((int)$gwRecord['retailer_id'], (int)$gwRecord['distributor_id']);
-                if ($creditObj) {
-                    $creditId = (int)$creditObj['credit_id'];
-                    $cAmount  = (float)$order['credit_amount'];
-                    $this->creditRepo->debit($creditId, $cAmount);
-                    $freshCredit = $this->creditRepo->findById($creditId);
-                    $this->creditRepo->addTransaction(
-                        $creditId,
-                        'Debit',
-                        $cAmount,
-                        (float)$freshCredit['current_balance'],
-                        "Order #{$orderId} Split Payment (Credit Portion)",
-                        $orderId,
-                        null,
-                        $receivedBy
-                    );
-                }
-            }
-
             // Notifications
             $distributor = $this->distributorRepo->findById((int)$gwRecord['distributor_id']);
             if ($distributor) {

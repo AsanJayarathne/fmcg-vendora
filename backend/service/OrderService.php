@@ -123,17 +123,6 @@ class OrderService {
             $creditAmount  = 0;
             $cashAmount    = 0;
             $paymentStatus = 'Pending_Gateway';
-        } elseif ($paymentMethod === 'Online_Credit') {
-            // Split Online + Credit Payment
-            if (!$creditObj) throw new Exception("No credit account found. Please contact your distributor.", 403);
-            if ($creditObj['status'] === 'Blocked') throw new Exception("Your credit account is blocked.", 403);
-            if ($creditAmount <= 0) throw new Exception("Credit amount must be greater than 0 for split payment.", 400);
-            if ($creditAmount >= $totalAmount) throw new Exception("Credit amount cannot exceed order total.", 400);
-            if ($creditAmount > (float)$creditObj['available_credit']) {
-                throw new Exception("Credit amount LKR " . number_format($creditAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
-            }
-            $cashAmount    = 0;
-            $paymentStatus = 'Pending_Gateway';
         } else {
             throw new Exception("Invalid payment method: $paymentMethod", 400);
         }
@@ -238,7 +227,7 @@ class OrderService {
 
     public function isEditable(array $order): bool {
         if ($order['status'] !== 'Pending') return false;
-        if (in_array($order['payment_method'] ?? '', ['Online', 'Online_Credit'], true)) return false;
+        if (($order['payment_method'] ?? '') === 'Online') return false;
         if (($order['payment_status'] ?? '') === 'Paid') return false;
         return time() < strtotime($order['created_at']) + (LOCK_WINDOW_MINUTES * 60);
     }

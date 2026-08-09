@@ -312,7 +312,7 @@ CREATE TABLE `orders` (
   `distributor_id`     int(11)                                                       NOT NULL,
   `status`             enum('Pending','Approved','Processing','Delivered','Rejected') DEFAULT 'Pending',
   `total_amount`       decimal(12,2)                                                 DEFAULT NULL,
-  `payment_method`     enum('Cash','Credit','Cash_Credit','Online','Online_Credit') DEFAULT 'Cash',
+  `payment_method`     enum('Cash','Credit','Cash_Credit','Online')                 DEFAULT 'Cash',
   `payment_status`     enum('Unpaid','Pending_Gateway','Paid','Failed','Refunded')   DEFAULT 'Unpaid',
   `credit_amount`      decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
   `cash_amount`        decimal(12,2)                                                 NOT NULL DEFAULT 0.00,
