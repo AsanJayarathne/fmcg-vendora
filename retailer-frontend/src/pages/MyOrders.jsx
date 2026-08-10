@@ -13,6 +13,7 @@ import {
 import { OrderContext } from "../context/OrderContextObject";
 import OrdersHeader from "../components/orders/OrdersHeader";
 import OrdersStats from "../components/orders/OrdersStats";
+import Pagination from "../components/orders/Pagination";
 import {
   LOCK_WINDOW_MS,
   filterOrders,
@@ -95,8 +96,8 @@ function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
 
       <span className="flex-1 font-medium">
         {isUrgent
-          ? "⚡ Edit window closing soon! Action required if modifying."
-          : "⏱ Order is in 15-minute lock window — you can still cancel or confirm immediately."}
+          ? "⚡ 15-minute cancellation window closing soon!"
+          : "⏱ Order is in 15-minute lock window — you can cancel or confirm immediately."}
       </span>
 
       <span
@@ -476,6 +477,19 @@ function MyOrders() {
   const urgentOrders    = orders.filter((o) => o.orderType === "Urgent");
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, orders]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredOrders, currentPage]);
+
   const [orderToCancel, setOrderToCancel] = useState(null);
 
   function handleCancelClick(order) {
@@ -589,6 +603,24 @@ function MyOrders() {
                 >
                   View Details
                 </button>
+                {latestOrder.editable && (
+                  <>
+                    <button
+                      onClick={() => handleConfirmLockClick(latestOrder)}
+                      disabled={confirmingLockId === latestOrder.backendId || cancellingId === latestOrder.backendId}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition cursor-pointer"
+                    >
+                      {confirmingLockId === latestOrder.backendId ? "Confirming..." : "Confirm Now"}
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(latestOrder)}
+                      disabled={cancellingId === latestOrder.backendId || confirmingLockId === latestOrder.backendId}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 transition cursor-pointer"
+                    >
+                      {cancellingId === latestOrder.backendId ? "Cancelling..." : "Cancel Order"}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -670,7 +702,7 @@ function MyOrders() {
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((order) => (
+                    paginatedOrders.map((order) => (
                       <tr key={order.orderId} className="hover:bg-slate-50/50 transition">
                         <td className="px-6 py-4 font-bold text-blue-600">{order.orderId}</td>
                         <td className="px-6 py-4 text-slate-700 max-w-[160px]">
@@ -731,12 +763,14 @@ function MyOrders() {
               </table>
             </div>
 
-            {/* Table footer */}
-            {filteredOrders.length > 0 && (
-              <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 text-xs font-semibold text-slate-400">
-                Showing {filteredOrders.length} of {orders.length} orders
-              </div>
-            )}
+            {/* Pagination footer */}
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredOrders.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              onPageChange={setCurrentPage}
+              label="orders"
+            />
           </section>
         </>
       )}

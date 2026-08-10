@@ -31,10 +31,12 @@ class CreditRepository {
         $this->db->prepare("UPDATE credit_account SET status = ? WHERE credit_id = ?")->execute([$status, $creditId]);
     }
     public function debit(int $creditId, float $amount): void {
-        $this->db->prepare("UPDATE credit_account SET current_balance = current_balance + ?, available_credit = available_credit - ? WHERE credit_id = ?")->execute([$amount, $amount, $creditId]);
+        if ($amount <= 0) return;
+        $this->db->prepare("UPDATE credit_account SET current_balance = current_balance + ?, available_credit = GREATEST(0.00, available_credit - ?) WHERE credit_id = ?")->execute([$amount, $amount, $creditId]);
     }
     public function credit(int $creditId, float $amount): void {
-        $this->db->prepare("UPDATE credit_account SET current_balance = current_balance - ?, available_credit = available_credit + ? WHERE credit_id = ?")->execute([$amount, $amount, $creditId]);
+        if ($amount <= 0) return;
+        $this->db->prepare("UPDATE credit_account SET current_balance = GREATEST(0.00, current_balance - ?), available_credit = LEAST(credit_limit, available_credit + ?) WHERE credit_id = ?")->execute([$amount, $amount, $creditId]);
     }
     public function addTransaction(int $creditId, string $type, float $amount, float $balanceAfter, string $description = '', ?int $orderId = null, ?int $paymentId = null, ?int $createdBy = null): void {
         $this->db->prepare("INSERT INTO credit_transaction (credit_id, order_id, payment_id, transaction_type, amount, balance_after, description, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")->execute([$creditId, $orderId, $paymentId, $type, $amount, $balanceAfter, $description, $createdBy]);

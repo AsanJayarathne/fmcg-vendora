@@ -40,6 +40,7 @@ function MyRoute() {
         let paymentLabel = 'Cash Payment';
         if (item.payment_method === 'Credit') paymentLabel = 'Full Credit';
         else if (item.payment_method === 'Cash_Credit') paymentLabel = 'Cash + Credit';
+        else if (item.payment_method === 'Online') paymentLabel = 'Online (Prepaid)';
 
         return {
           id: item.delivery_id,

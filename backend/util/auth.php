@@ -6,7 +6,9 @@ require_once __DIR__ . '/../repository/TokenRepository.php';
 // to parse those values. A mismatch causes the 15-min lock window to never trigger.
 date_default_timezone_set('Asia/Colombo'); // IST / UTC+5:30
 
-define('LOCK_WINDOW_MINUTES', 15);
+if (!defined('LOCK_WINDOW_MINUTES')) {
+    define('LOCK_WINDOW_MINUTES', 15);
+}
 
 function requireAuth(): array {
     $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';

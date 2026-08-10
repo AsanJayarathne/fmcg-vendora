@@ -86,12 +86,11 @@ class DeliveryService {
                 $settlement = round($collectedAmount - $cashAmount, 2);
                 $credit = $credit ?? $this->creditRepo->findByRetailerAndDistributor((int)$order['retailer_id'], (int)$order['distributor_id']);
                 if ($credit && $settlement > 0) {
-                    // Don't settle more than the outstanding balance
-                    $outstanding = (float)$credit['current_balance'];
+                    $outstanding = max(0.0, (float)$credit['current_balance']);
                     // Refresh if we already debited above
                     if ($creditAmount > 0) {
                         $refreshed = $this->creditRepo->findById((int)$credit['credit_id']);
-                        $outstanding = (float)$refreshed['current_balance'];
+                        $outstanding = max(0.0, (float)$refreshed['current_balance']);
                     }
                     $settlement = min($settlement, $outstanding);
                     if ($settlement > 0) {

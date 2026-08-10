@@ -89,9 +89,10 @@ export default function OrdersTable({ orders, returnedOrderIds, onView, onApprov
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         order.payment_method === "Cash" ? "bg-green-50 text-green-700 border border-green-200/50" :
                         order.payment_method === "Credit" ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
+                        order.payment_method === "Online" ? "bg-blue-50 text-blue-700 border border-blue-200/50" :
                         "bg-slate-100 text-slate-600 border border-slate-200"
                       }`}>
-                        {order.payment_method ?? "—"}
+                        {order.payment_method?.replace('_', ' ') ?? "—"}
                       </span>
                     </td>
 

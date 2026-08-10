@@ -7,7 +7,11 @@ require_once __DIR__ . '/../repository/RetailerRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
 require_once __DIR__ . '/../repository/StockRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
-require_once __DIR__ . '/../util/Database.php';
+date_default_timezone_set('Asia/Colombo');
+
+if (!defined('LOCK_WINDOW_MINUTES')) {
+    define('LOCK_WINDOW_MINUTES', 15);
+}
 
 class OrderService {
     private OrderRepository       $orderRepo;
@@ -87,6 +91,8 @@ class OrderService {
         $creditAmount = round((float)$creditAmount, 2);
         $cashAmount   = round((float)$cashAmount, 2);
 
+        $paymentStatus = 'Unpaid';
+
         if ($paymentMethod === 'Cash') {
             // Full cash — no credit used
             $creditAmount = 0;
@@ -112,6 +118,11 @@ class OrderService {
             if ($creditAmount > (float)$creditObj['available_credit']) {
                 throw new Exception("Credit amount LKR " . number_format($creditAmount, 2) . " exceeds available credit LKR " . number_format($creditObj['available_credit'], 2), 402);
             }
+        } elseif ($paymentMethod === 'Online') {
+            // Full Online Gateway Payment
+            $creditAmount  = 0;
+            $cashAmount    = 0;
+            $paymentStatus = 'Pending_Gateway';
         } else {
             throw new Exception("Invalid payment method: $paymentMethod", 400);
         }
@@ -121,6 +132,7 @@ class OrderService {
             'distributor_id'     => $distributorId,
             'total_amount'       => $totalAmount,
             'payment_method'     => $paymentMethod,
+            'payment_status'     => $paymentStatus,
             'credit_amount'      => $creditAmount,
             'cash_amount'        => $cashAmount,
             'outstanding_credit' => $outstanding,
@@ -215,6 +227,8 @@ class OrderService {
 
     public function isEditable(array $order): bool {
         if ($order['status'] !== 'Pending') return false;
+        if (($order['payment_method'] ?? '') === 'Online') return false;
+        if (($order['payment_status'] ?? '') === 'Paid') return false;
         return time() < strtotime($order['created_at']) + (LOCK_WINDOW_MINUTES * 60);
     }
 

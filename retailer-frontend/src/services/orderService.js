@@ -39,6 +39,7 @@ function normaliseOrder(raw) {
   let paymentLabel = "Full Cash";
   if (raw.payment_method === "Credit") paymentLabel = "Full Credit";
   else if (raw.payment_method === "Cash_Credit") paymentLabel = "Cash + Credit";
+  else if (raw.payment_method === "Online") paymentLabel = "Online";
 
   const creditUsed = Number(raw.credit_amount ?? 0);
   const cashAmount = Number(raw.cash_amount ?? 0);
@@ -76,6 +77,8 @@ function normaliseOrder(raw) {
 
   return {
     // IDs
+    id:           Number(raw.order_id),
+    order_id:     Number(raw.order_id),
     orderId:      `ORD-${raw.order_id}`,
     backendId:    Number(raw.order_id),
 
@@ -239,3 +242,39 @@ export async function updatePassword(token, data) {
   });
   return result.data;
 }
+
+/**
+ * Initialize online payment gateway session for an order.
+ */
+export async function initiateOnlinePayment(token, orderId) {
+  const result = await apiFetch("/retailer/payment-gateway.php?action=init", token, {
+    method: "POST",
+    body: JSON.stringify({ order_id: orderId }),
+  });
+  return result.data;
+}
+
+/**
+ * Process gateway payment completion callback / webhook.
+ */
+export async function processGatewayCallback(transactionToken, status, gatewayRef, signature) {
+  const result = await apiFetch("/payment/callback.php", null, {
+    method: "POST",
+    body: JSON.stringify({
+      transaction_token: transactionToken,
+      status,
+      gateway_ref: gatewayRef,
+      signature,
+    }),
+  });
+  return result.data;
+}
+
+/**
+ * Fetch online gateway status for an order.
+ */
+export async function fetchPaymentGatewayStatus(token, orderId) {
+  const result = await apiFetch(`/retailer/payment-gateway.php?action=status&order_id=${orderId}`, token);
+  return result.data;
+}
+
