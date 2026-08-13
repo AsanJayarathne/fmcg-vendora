@@ -54,7 +54,8 @@ function useEditCountdown(createdAt) {
 }
 
 // ── EditWindowBanner ──────────────────────────────────────────────────────────
-function EditWindowBanner({ createdAt, backendStatus, onExpired }) {
+function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType, onExpired }) {
+  if (paymentMethod === "Online" || paymentType === "online") return null;
   const isPending   = backendStatus === "Pending";
   const remaining   = useEditCountdown(isPending ? createdAt : null);
   const prevPending = useRef(isPending);
@@ -251,7 +252,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(order.status)}`}>
               {order.status}
             </span>
-            {order.editable && (
+            {order.editable && order.paymentMethod !== "Online" && order.paymentType !== "online" && (
               <>
                 <button
                   onClick={() => onConfirmLock(order)}
@@ -603,7 +604,7 @@ function MyOrders() {
                 >
                   View Details
                 </button>
-                {latestOrder.editable && (
+                {latestOrder.editable && latestOrder.paymentMethod !== "Online" && latestOrder.paymentType !== "online" && (
                   <>
                     <button
                       onClick={() => handleConfirmLockClick(latestOrder)}
@@ -627,6 +628,8 @@ function MyOrders() {
             <EditWindowBanner
               createdAt={latestOrder.createdAt}
               backendStatus={latestOrder.backendStatus}
+              paymentMethod={latestOrder.paymentMethod}
+              paymentType={latestOrder.paymentType}
               onExpired={loadOrders}
             />
 
@@ -732,7 +735,7 @@ function MyOrders() {
                             >
                               View Detail
                             </button>
-                            {order.editable && (
+                            {order.editable && order.paymentMethod !== "Online" && order.paymentType !== "online" && (
                               <>
                                 <button
                                   onClick={() => handleConfirmLockClick(order)}

@@ -14,7 +14,7 @@ function Payment() {
   const token            = auth?.token ?? null;
 
   const { removeFromCart }   = useContext(CartContext);
-  const { addOrder, cancelOrder } = useContext(OrderContext);
+  const { addOrder, cancelOrder, loadOrders } = useContext(OrderContext);
 
   // ── Payment form state ─────────────────────────────────────────
   const [paymentType, setPaymentType] = useState("cash");       // "cash" | "credit" | "cash_credit" | "online"
@@ -40,9 +40,27 @@ function Payment() {
       maximumFractionDigits: 2,
     });
 
-  const handlePaymentSuccess = (res) => {
-    if (pendingOnlineOrder) {
-      addOrder(pendingOnlineOrder);
+  const handlePaymentSuccess = async (res) => {
+    let loaded = false;
+    if (loadOrders) {
+      try {
+        await loadOrders();
+        loaded = true;
+      } catch (e) {
+        console.error("Failed to reload orders after payment:", e);
+      }
+    }
+    if (!loaded && pendingOnlineOrder) {
+      const confirmedPlacedOrder = {
+        ...pendingOnlineOrder,
+        backendStatus: "Processing",
+        status: "Placed",
+        paymentStatus: "Paid",
+        editable: false,
+        paymentType: "online",
+        paymentLabel: "Online",
+      };
+      addOrder(confirmedPlacedOrder);
     }
     if (order?.items) {
       order.items.forEach((item) => {
@@ -176,6 +194,18 @@ function Payment() {
 
     setSubmitting(true);
     try {
+      if (paymentType === "online" && pendingOnlineOrder) {
+        const prevOrderId = Number(pendingOnlineOrder.order_id ?? pendingOnlineOrder.id ?? pendingOnlineOrder.backendId);
+        if (prevOrderId) {
+          try {
+            await cancelOrder(prevOrderId);
+          } catch (err) {
+            console.warn("Cleaned up previous pending online order:", err);
+          }
+        }
+        setPendingOnlineOrder(null);
+      }
+
       const placed = await placeOrder(
         token,
         itemsPayload,

@@ -87,7 +87,7 @@ function normaliseOrder(raw) {
     status:       uiStatus,
     backendStatus: raw.status,
     orderType:    raw.order_type ?? "Normal",
-    paymentType:  raw.payment_method === "Cash" ? "cash" : (raw.payment_method === "Credit" ? "credit" : "cash_credit"),
+    paymentType:  raw.payment_method === "Cash" ? "cash" : (raw.payment_method === "Credit" ? "credit" : (raw.payment_method === "Online" ? "online" : "cash_credit")),
     paymentMethod: raw.payment_method,
     paymentLabel,
 
@@ -110,7 +110,7 @@ function normaliseOrder(raw) {
     statusHistory: buildStatusHistory(raw.status, raw.delivery_status, raw.created_at),
 
     // Can the retailer still edit / cancel?
-    editable: raw.editable === true || raw.editable === 1,
+    editable: (raw.payment_method === "Online" && raw.payment_status === "Paid") ? false : (raw.editable === true || raw.editable === 1),
   };
 }
 
