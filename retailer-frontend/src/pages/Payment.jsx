@@ -14,12 +14,13 @@ function Payment() {
   const token            = auth?.token ?? null;
 
   const { removeFromCart }   = useContext(CartContext);
-  const { addOrder }         = useContext(OrderContext);
+  const { addOrder, cancelOrder } = useContext(OrderContext);
 
   // ── Payment form state ─────────────────────────────────────────
   const [paymentType, setPaymentType] = useState("cash");       // "cash" | "credit" | "cash_credit" | "online"
   const [orderType,   setOrderType]   = useState("Normal");
   const [gatewaySession, setGatewaySession] = useState(null);
+  const [pendingOnlineOrder, setPendingOnlineOrder] = useState(null);
 
   // ── Credit account state ───────────────────────────────────────
   const [creditInfo,    setCreditInfo]    = useState(null);   // null = loading | false = no account
@@ -38,6 +39,34 @@ function Payment() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
+
+  const handlePaymentSuccess = (res) => {
+    if (pendingOnlineOrder) {
+      addOrder(pendingOnlineOrder);
+    }
+    if (order?.items) {
+      order.items.forEach((item) => {
+        removeFromCart(item.id ?? item.productId ?? item.product_id);
+      });
+    }
+    setGatewaySession(null);
+    setPendingOnlineOrder(null);
+    navigate("/orders");
+  };
+
+  const handleCancelPaymentSession = async () => {
+    const orderIdToCancel = gatewaySession?.order_id ?? pendingOnlineOrder?.backendId ?? pendingOnlineOrder?.order_id;
+    if (orderIdToCancel) {
+      try {
+        await cancelOrder(orderIdToCancel);
+      } catch (err) {
+        console.error("Failed to cancel pending online order:", err);
+      }
+    }
+    setGatewaySession(null);
+    setPendingOnlineOrder(null);
+    setSubmitError("Online payment was cancelled. Order was not placed.");
+  };
 
   // ── Fetch real credit info on mount for active distributor ───
   useEffect(() => {
@@ -168,21 +197,20 @@ function Payment() {
         paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : paymentType === "online" ? "Online" : "Cash + Credit",
       };
 
-      addOrder(confirmedOrder);
-
-      // Clear placed items from cart
-      order.items.forEach((item) => {
-        removeFromCart(item.id ?? item.productId ?? item.product_id);
-      });
-
       if (paymentType === "online") {
         const targetOrderId = Number(placed.order_id ?? placed.id ?? placed.backendId);
         if (!targetOrderId) {
           throw new Error("Order created but Order ID could not be determined.");
         }
+        setPendingOnlineOrder(confirmedOrder);
         const session = await initiateOnlinePayment(token, targetOrderId);
         setGatewaySession(session);
       } else {
+        addOrder(confirmedOrder);
+        // Clear placed items from cart
+        order.items.forEach((item) => {
+          removeFromCart(item.id ?? item.productId ?? item.product_id);
+        });
         navigate("/orders");
       }
     } catch (err) {
@@ -577,14 +605,9 @@ function Payment() {
         {gatewaySession && (
           <PaymentGatewayModal
             sessionData={gatewaySession}
-            onClose={() => {
-              setGatewaySession(null);
-              navigate("/orders");
-            }}
-            onSuccess={() => {
-              setGatewaySession(null);
-              navigate("/orders");
-            }}
+            onClose={handleCancelPaymentSession}
+            onCancel={handleCancelPaymentSession}
+            onSuccess={handlePaymentSuccess}
             onFailure={() => {
               // Stay in modal or allow retry
             }}

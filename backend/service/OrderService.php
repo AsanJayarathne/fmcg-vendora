@@ -227,7 +227,6 @@ class OrderService {
 
     public function isEditable(array $order): bool {
         if ($order['status'] !== 'Pending') return false;
-        if (($order['payment_method'] ?? '') === 'Online') return false;
         if (($order['payment_status'] ?? '') === 'Paid') return false;
         return time() < strtotime($order['created_at']) + (LOCK_WINDOW_MINUTES * 60);
     }

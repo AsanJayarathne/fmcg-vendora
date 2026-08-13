@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiCreditCard, FiCheckCircle, FiXCircle, FiLock, FiShield, FiX, FiLoader } from "react-icons/fi";
 import { processGatewayCallback } from "../services/orderService";
 
-export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, onFailure }) {
+export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, onFailure, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
 
@@ -47,6 +47,14 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
 
   if (!sessionData) return null;
 
+  const handleCancelClick = () => {
+    if (onCancel) {
+      onCancel();
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
       <div className="bg-white border border-slate-100 rounded-[32px] max-w-lg w-full overflow-hidden shadow-2xl relative">
@@ -54,7 +62,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
         {/* Header */}
         <div className="bg-slate-900 text-white p-6 relative">
           <button 
-            onClick={onClose}
+            onClick={handleCancelClick}
             className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition cursor-pointer"
           >
             <FiX size={20} />
@@ -168,10 +176,19 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
             <button
               onClick={() => handleSimulatePayment("FAILED")}
               disabled={loading}
-              className="w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 border border-amber-200 disabled:opacity-50"
             >
               <FiXCircle size={15} />
               <span>Simulate Payment Failure / Decline</span>
+            </button>
+
+            <button
+              onClick={handleCancelClick}
+              disabled={loading}
+              className="w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <FiX size={15} />
+              <span>Cancel Payment & Order</span>
             </button>
           </div>
         </div>
