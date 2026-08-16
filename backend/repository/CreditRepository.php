@@ -30,6 +30,15 @@ class CreditRepository {
     public function setStatus(int $creditId, string $status): void {
         $this->db->prepare("UPDATE credit_account SET status = ? WHERE credit_id = ?")->execute([$status, $creditId]);
     }
+    public function setDistributorRetailerStatus(int $retailerId, int $distributorId, string $status): void {
+        $existing = $this->findByRetailerAndDistributor($retailerId, $distributorId);
+        if ($existing) {
+            $this->setStatus((int)$existing['credit_id'], $status);
+        } else {
+            $stmt = $this->db->prepare("INSERT INTO credit_account (retailer_id, distributor_id, credit_limit, current_balance, available_credit, status) VALUES (?, ?, 0.00, 0.00, 0.00, ?)");
+            $stmt->execute([$retailerId, $distributorId, $status]);
+        }
+    }
     public function debit(int $creditId, float $amount): void {
         if ($amount <= 0) return;
         $this->db->prepare("UPDATE credit_account SET current_balance = current_balance + ?, available_credit = GREATEST(0.00, available_credit - ?) WHERE credit_id = ?")->execute([$amount, $amount, $creditId]);

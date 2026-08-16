@@ -85,6 +85,9 @@ class OrderService {
 
         // Fetch credit account to find previous outstanding balance (if any)
         $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
+        if ($creditObj && $creditObj['status'] === 'Blocked') {
+            throw new Exception("You are blocked from placing orders with this distributor.", 403);
+        }
         $outstanding = $creditObj ? (float)$creditObj['current_balance'] : 0.0;
 
         // ── Payment validation ──────────────────────────────────────
@@ -147,6 +150,10 @@ class OrderService {
         if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
         if (!$this->isEditable($order)) throw new Exception("Order lock window has expired.", 403);
         $distributorId = (int)$order['distributor_id'];
+        $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
+        if ($creditObj && $creditObj['status'] === 'Blocked') {
+            throw new Exception("You are blocked from modifying orders with this distributor.", 403);
+        }
         $enrichedItems = [];
         $totalAmount = 0.0;
         foreach ($items as $item) {

@@ -103,7 +103,7 @@ class ProductRepository {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getCatalogForRegion(int $regionId, int $categoryId = 0): array {
+    public function getCatalogForRegion(int $regionId, int $categoryId = 0, int $retailerId = 0): array {
         $sql = "SELECT
                     p.*,
                     pc.category_name,
@@ -125,6 +125,15 @@ class ProductRepository {
         if ($categoryId > 0) {
             $sql .= " AND p.category_id = ?";
             $params[] = $categoryId;
+        }
+        if ($retailerId > 0) {
+            $sql .= " AND NOT EXISTS (
+                SELECT 1 FROM credit_account ca
+                WHERE ca.retailer_id = ?
+                  AND ca.distributor_id = d.distributor_id
+                  AND ca.status = 'Blocked'
+            )";
+            $params[] = $retailerId;
         }
         $sql .= " GROUP BY p.product_id, pc.category_name, pc.category_id, d.distributor_id, d.company_name, pp.base_price";
         $sql .= " ORDER BY p.product_name, d.company_name";
