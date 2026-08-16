@@ -34,7 +34,7 @@ class OrderService {
         $this->notifService    = new NotificationService();
     }
 
-    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0, float $creditAmount = 0, float $cashAmount = 0): array {
+    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0, float $creditAmount = 0, float $cashAmount = 0, string $orderType = 'Normal'): array {
         $retailer = $this->retailerRepo->findById($retailerId);
         if (!$retailer) throw new Exception("Retailer profile not found", 404);
 
@@ -82,6 +82,9 @@ class OrderService {
                 'total_price' => $lineTotal
             ];
         }
+
+        $urgentFee = ($orderType === 'Urgent') ? 500.00 : 0.00;
+        $totalAmount = round($totalAmount + $urgentFee, 2);
 
         // Fetch credit account to find previous outstanding balance (if any)
         $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
@@ -133,6 +136,7 @@ class OrderService {
         $orderId = $this->orderRepo->create([
             'retailer_id'        => $retailerId,
             'distributor_id'     => $distributorId,
+            'order_type'         => $orderType,
             'total_amount'       => $totalAmount,
             'payment_method'     => $paymentMethod,
             'payment_status'     => $paymentStatus,
@@ -184,6 +188,8 @@ class OrderService {
                 'total_price' => $lineTotal
             ];
         }
+        $urgentFee = (($order['order_type'] ?? 'Normal') === 'Urgent') ? 500.00 : 0.00;
+        $totalAmount = round($totalAmount + $urgentFee, 2);
         $this->orderRepo->deleteItems($orderId);
         $this->orderRepo->createItems($orderId, $enrichedItems);
         $this->orderRepo->updateTotal($orderId, $totalAmount);

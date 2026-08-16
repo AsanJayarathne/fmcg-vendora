@@ -212,7 +212,8 @@ function Payment() {
         backendPaymentMethod,
         order.distributor_id,
         finalCreditAmount,
-        finalCashAmount
+        finalCashAmount,
+        orderType
       );
 
       // Enrich with UI-only fields

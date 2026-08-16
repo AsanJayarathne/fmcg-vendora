@@ -25,9 +25,16 @@ class OrderRepository {
     }
     public function create(array $data): int {
         $paymentStatus = $data['payment_status'] ?? 'Unpaid';
-        $stmt = $this->db->prepare("INSERT INTO orders (retailer_id, distributor_id, total_amount, payment_method, payment_status, credit_amount, cash_amount, outstanding_credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$data['retailer_id'], $data['distributor_id'], $data['total_amount'], $data['payment_method'] ?? 'Cash', $paymentStatus, $data['credit_amount'] ?? 0, $data['cash_amount'] ?? 0, $data['outstanding_credit'] ?? 0]);
-        return (int)$this->db->lastInsertId();
+        $orderType     = $data['order_type'] ?? 'Normal';
+        try {
+            $stmt = $this->db->prepare("INSERT INTO orders (retailer_id, distributor_id, order_type, total_amount, payment_method, payment_status, credit_amount, cash_amount, outstanding_credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$data['retailer_id'], $data['distributor_id'], $orderType, $data['total_amount'], $data['payment_method'] ?? 'Cash', $paymentStatus, $data['credit_amount'] ?? 0, $data['cash_amount'] ?? 0, $data['outstanding_credit'] ?? 0]);
+            return (int)$this->db->lastInsertId();
+        } catch (PDOException $e) {
+            $stmt = $this->db->prepare("INSERT INTO orders (retailer_id, distributor_id, total_amount, payment_method, payment_status, credit_amount, cash_amount, outstanding_credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$data['retailer_id'], $data['distributor_id'], $data['total_amount'], $data['payment_method'] ?? 'Cash', $paymentStatus, $data['credit_amount'] ?? 0, $data['cash_amount'] ?? 0, $data['outstanding_credit'] ?? 0]);
+            return (int)$this->db->lastInsertId();
+        }
     }
     public function updatePaymentStatus(int $orderId, string $paymentStatus): void {
         $this->db->prepare("UPDATE orders SET payment_status = ? WHERE order_id = ?")->execute([$paymentStatus, $orderId]);
