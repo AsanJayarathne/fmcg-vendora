@@ -23,9 +23,20 @@ class DistributorRepository {
     public function updateStatus(int $distributorId, string $status): void {
         $this->db->prepare("UPDATE distributor SET status = ? WHERE distributor_id = ?")->execute([$status, $distributorId]);
     }
-    public function getByRegion(int $regionId): array {
-        $stmt = $this->db->prepare("SELECT d.*, u.full_name, u.email, u.phone FROM distributor d JOIN users u ON u.user_id = d.user_id WHERE d.region_id = ? AND d.status = 'Approved'");
-        $stmt->execute([$regionId]);
+    public function getByRegion(int $regionId, int $retailerId = 0): array {
+        $sql = "SELECT d.*, u.full_name, u.email, u.phone FROM distributor d JOIN users u ON u.user_id = d.user_id WHERE d.region_id = ? AND d.status = 'Approved'";
+        $params = [$regionId];
+        if ($retailerId > 0) {
+            $sql .= " AND NOT EXISTS (
+                SELECT 1 FROM credit_account ca
+                WHERE ca.retailer_id = ?
+                  AND ca.distributor_id = d.distributor_id
+                  AND ca.status = 'Blocked'
+            )";
+            $params[] = $retailerId;
+        }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function updateProfile(int $distributorId, string $companyName, string $companyAddress): void {

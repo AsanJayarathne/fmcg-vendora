@@ -18,10 +18,11 @@ class ProductController {
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'GET') sendError('Method not allowed', 405);
             $categoryId = (int)($_GET['category_id'] ?? 0);
+            $retailerId = (int)$retailer['retailer_id'];
             sendSuccess([
-                'products' => $this->productRepo->getCatalogForRegion((int)$retailer['region_id'], $categoryId),
+                'products' => $this->productRepo->getCatalogForRegion((int)$retailer['region_id'], $categoryId, $retailerId),
                 'categories' => $this->productRepo->getAllCategories(),
-                'distributors' => $this->distributorRepo->getByRegion((int)$retailer['region_id'])
+                'distributors' => $this->distributorRepo->getByRegion((int)$retailer['region_id'], $retailerId)
             ]);
         } catch (Exception $e) { sendError($e->getMessage(), $e->getCode() ?: 400); }
     }

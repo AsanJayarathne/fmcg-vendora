@@ -310,6 +310,7 @@ CREATE TABLE `orders` (
   `order_id`           int(11)                                                       NOT NULL AUTO_INCREMENT,
   `retailer_id`        int(11)                                                       NOT NULL,
   `distributor_id`     int(11)                                                       NOT NULL,
+  `order_type`         enum('Normal','Urgent')                                       NOT NULL DEFAULT 'Normal',
   `status`             enum('Pending','Approved','Processing','Delivered','Rejected') DEFAULT 'Pending',
   `total_amount`       decimal(12,2)                                                 DEFAULT NULL,
   `payment_method`     enum('Cash','Credit','Cash_Credit','Online')                 DEFAULT 'Cash',

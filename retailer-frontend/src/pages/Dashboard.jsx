@@ -288,19 +288,25 @@ export default function Dashboard() {
   }, [filteredOrders]);
 
   const paymentsToday = useMemo(() => {
-    let cash = 0;
+    let orderCash = 0;
+    let outstandingSettled = 0;
     let credit = 0;
+    let totalOrderValue = 0;
     let count = 0;
-    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     filteredOrders.forEach(o => {
       const oDate = o.createdAt ? o.createdAt.split(' ')[0] : "";
       if (oDate === todayStr && o.backendStatus !== "Rejected") {
-        cash += Number(o.cashAmount ?? 0);
+        orderCash += Number(o.cashAmount ?? 0);
+        outstandingSettled += Number(o.outstandingSettled ?? o.outstandingCredit ?? 0);
         credit += Number(o.creditUsed ?? 0);
+        totalOrderValue += Number(o.total ?? 0);
         count++;
       }
     });
-    return { cash, credit, count };
+    const totalDriverCash = orderCash + outstandingSettled;
+    return { orderCash, outstandingSettled, totalDriverCash, credit, totalOrderValue, count };
   }, [filteredOrders]);
 
   const spendingChartData = useMemo(() => {
@@ -381,8 +387,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch">
         <div className="w-full">
           <TodayStorefrontPayments
-            cashAmount={paymentsToday.cash}
+            orderCash={paymentsToday.orderCash}
+            outstandingSettled={paymentsToday.outstandingSettled}
+            totalDriverCash={paymentsToday.totalDriverCash}
             creditAmount={paymentsToday.credit}
+            totalOrderValue={paymentsToday.totalOrderValue}
             transactionCount={paymentsToday.count}
           />
         </div>

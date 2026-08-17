@@ -34,7 +34,7 @@ class OrderService {
         $this->notifService    = new NotificationService();
     }
 
-    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0, float $creditAmount = 0, float $cashAmount = 0): array {
+    public function placeOrder(int $retailerId, string $paymentMethod, array $items, int $distributorId = 0, float $creditAmount = 0, float $cashAmount = 0, string $orderType = 'Normal'): array {
         $retailer = $this->retailerRepo->findById($retailerId);
         if (!$retailer) throw new Exception("Retailer profile not found", 404);
 
@@ -83,8 +83,14 @@ class OrderService {
             ];
         }
 
+        $urgentFee = ($orderType === 'Urgent') ? 500.00 : 0.00;
+        $totalAmount = round($totalAmount + $urgentFee, 2);
+
         // Fetch credit account to find previous outstanding balance (if any)
         $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
+        if ($creditObj && $creditObj['status'] === 'Blocked') {
+            throw new Exception("You are blocked from placing orders with this distributor.", 403);
+        }
         $outstanding = $creditObj ? (float)$creditObj['current_balance'] : 0.0;
 
         // ── Payment validation ──────────────────────────────────────
@@ -130,6 +136,7 @@ class OrderService {
         $orderId = $this->orderRepo->create([
             'retailer_id'        => $retailerId,
             'distributor_id'     => $distributorId,
+            'order_type'         => $orderType,
             'total_amount'       => $totalAmount,
             'payment_method'     => $paymentMethod,
             'payment_status'     => $paymentStatus,
@@ -147,6 +154,10 @@ class OrderService {
         if (!$order || (int)$order['retailer_id'] !== $retailerId) throw new Exception("Order not found", 404);
         if (!$this->isEditable($order)) throw new Exception("Order lock window has expired.", 403);
         $distributorId = (int)$order['distributor_id'];
+        $creditObj = $this->creditRepo->findByRetailerAndDistributor($retailerId, $distributorId);
+        if ($creditObj && $creditObj['status'] === 'Blocked') {
+            throw new Exception("You are blocked from modifying orders with this distributor.", 403);
+        }
         $enrichedItems = [];
         $totalAmount = 0.0;
         foreach ($items as $item) {
@@ -177,6 +188,8 @@ class OrderService {
                 'total_price' => $lineTotal
             ];
         }
+        $urgentFee = (($order['order_type'] ?? 'Normal') === 'Urgent') ? 500.00 : 0.00;
+        $totalAmount = round($totalAmount + $urgentFee, 2);
         $this->orderRepo->deleteItems($orderId);
         $this->orderRepo->createItems($orderId, $enrichedItems);
         $this->orderRepo->updateTotal($orderId, $totalAmount);

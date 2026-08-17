@@ -34,7 +34,8 @@ class OrderController {
         $distributorId = (int)($body['distributor_id'] ?? 0);
         $creditAmount  = (float)($body['credit_amount'] ?? 0);
         $cashAmount    = (float)($body['cash_amount'] ?? 0);
-        sendSuccess($this->orderService->placeOrder($retailerId, $body['payment_method'] ?? 'Cash', $body['items'], $distributorId, $creditAmount, $cashAmount), 'Order placed', 201);
+        $orderType     = ($body['order_type'] ?? 'Normal') === 'Urgent' ? 'Urgent' : 'Normal';
+        sendSuccess($this->orderService->placeOrder($retailerId, $body['payment_method'] ?? 'Cash', $body['items'], $distributorId, $creditAmount, $cashAmount, $orderType), 'Order placed', 201);
     }
     private function modifyOrder(int $retailerId): void {
         $id = (int)($_GET['id'] ?? 0); $body = getBody();

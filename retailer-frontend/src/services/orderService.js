@@ -98,6 +98,8 @@ function normaliseOrder(raw) {
     urgentCharge,
     cashAmount,
     creditUsed,
+    outstandingSettled: Number(raw.outstanding_credit ?? 0),
+    outstandingCredit:  Number(raw.outstanding_credit ?? 0),
 
     // Dates
     createdAt:    raw.created_at,
@@ -126,7 +128,7 @@ function normaliseOrder(raw) {
  * @param {string} paymentMethod  — "Cash" | "Credit"
  * @returns {Promise<object>}  normalised order
  */
-export async function placeOrder(token, items, paymentMethod = "Cash", distributorId = null, creditAmount = 0, cashAmount = 0) {
+export async function placeOrder(token, items, paymentMethod = "Cash", distributorId = null, creditAmount = 0, cashAmount = 0, orderType = "Normal") {
   const result = await apiFetch("/retailer/orders.php", token, {
     method: "POST",
     body: JSON.stringify({
@@ -135,6 +137,7 @@ export async function placeOrder(token, items, paymentMethod = "Cash", distribut
       distributor_id: distributorId,
       credit_amount: creditAmount,
       cash_amount: cashAmount,
+      order_type: orderType,
     }),
   });
   return normaliseOrder(result.data);
