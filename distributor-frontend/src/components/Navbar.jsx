@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Bell, ChevronDown, Settings, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/vendora logo.png";
-import Lang from "./Lang";
 import { useAuth } from "../auth/AuthContext";
 import { fetchProfile } from "../services/profileApi";
 
@@ -50,8 +49,6 @@ export default function Navbar() {
 
       {/* Right section */}
       <div className="flex items-center gap-3">
-        <Lang />
-
         {/* Notifications */}
         <button
           type="button"
