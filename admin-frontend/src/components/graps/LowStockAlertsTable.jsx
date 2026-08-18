@@ -1,14 +1,22 @@
 import React from "react";
-import { AlertTriangle, ChevronRight } from "lucide-react";
+import { AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const LowStockAlertsTable = () => {
-  const alertItems = [
-    { name: "Anchor Full Cream Milk Powder (400g)", current: 12, min: 100, status: "Critical" },
-    { name: "Munchee Super Cream Cracker (500g)", current: 28, min: 150, status: "Low" },
-    { name: "Maliban Gold Marie (80g)", current: 10, min: 200, status: "Critical" },
-    { name: "Siddhalepa Herbal Balm (50g)", current: 45, min: 120, status: "Low" },
-    { name: "Clogard Natural Clove Toothpaste (120g)", current: 0, min: 180, status: "Out of Stock" },
-  ];
+const LowStockAlertsTable = ({ stockItems = [], loading = false }) => {
+  const navigate = useNavigate();
+
+  // Filter low stock items (quantity <= 50) and sort by lowest stock first
+  const alertItems = (stockItems || [])
+    .filter((item) => parseInt(item.quantity || 0) <= 50)
+    .sort((a, b) => parseInt(a.quantity || 0) - parseInt(b.quantity || 0))
+    .slice(0, 5);
+
+  const getStatus = (qty) => {
+    const q = parseInt(qty || 0);
+    if (q <= 0) return { label: "Out of Stock", color: "text-rose-600 bg-rose-50 border-rose-200/60" };
+    if (q <= 20) return { label: "Critical", color: "text-amber-600 bg-amber-50 border-amber-200/60" };
+    return { label: "Low", color: "text-amber-600 bg-amber-50 border-amber-200/60" };
+  };
 
   return (
     <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xs flex flex-col justify-between h-full">
@@ -19,11 +27,19 @@ const LowStockAlertsTable = () => {
             <AlertTriangle size={18} />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-800 leading-tight">Low Stock Alerts</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-bold text-slate-800 leading-tight">Low Stock Alerts</h2>
+              <span className="text-[11px] font-extrabold text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
+                {alertItems.length} {alertItems.length === 1 ? "Alert" : "Alerts"}
+              </span>
+            </div>
             <p className="text-[10px] font-semibold text-slate-400">Inventory items needing reorder</p>
           </div>
         </div>
-        <button className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 cursor-pointer">
+        <button
+          onClick={() => navigate("/warehouse")}
+          className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 cursor-pointer"
+        >
           See All <ChevronRight size={14} />
         </button>
       </div>
@@ -41,26 +57,59 @@ const LowStockAlertsTable = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {alertItems.map((item, index) => (
-                <tr key={index} className="hover:bg-slate-50/50 transition duration-150">
-                  <td className="px-4 py-3 font-bold text-slate-800 max-w-[200px] truncate">
-                    {item.name}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`font-bold ${item.current === 0 ? "text-rose-600" : "text-amber-600"}`}>
-                      {item.current} units
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold text-slate-500">
-                    {item.min} units
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button className="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition cursor-pointer shadow-2xs">
-                      Reorder
-                    </button>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-xs font-semibold text-slate-400">
+                    <div className="animate-pulse flex items-center justify-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 animate-spin" />
+                      Loading low stock alerts...
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : alertItems.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-xs font-semibold text-slate-400">
+                    <div className="flex flex-col items-center gap-1">
+                      <CheckCircle2 size={24} className="text-emerald-500" />
+                      <span className="text-slate-700 font-bold">All products are well-stocked!</span>
+                      <span className="text-[11px] text-slate-400">No warehouse stock alerts at this time.</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                alertItems.map((item, index) => {
+                  const qty = parseInt(item.quantity || 0);
+                  const st = getStatus(qty);
+                  return (
+                    <tr key={index} className="hover:bg-slate-50/50 transition duration-150">
+                      <td className="px-4 py-3 font-bold text-slate-800 max-w-[200px] truncate">
+                        <div className="flex flex-col">
+                          <span className="truncate">{item.product_name}</span>
+                          {item.category_name && (
+                            <span className="text-[10px] font-medium text-slate-400">{item.category_name}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <span className={`font-bold ${qty === 0 ? "text-rose-600" : "text-amber-600"}`}>
+                          {qty} {item.unit || "units"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold text-slate-500">
+                        50 {item.unit || "units"}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          onClick={() => navigate("/warehouse")}
+                          className="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition cursor-pointer shadow-2xs"
+                        >
+                          Reorder
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -70,3 +119,4 @@ const LowStockAlertsTable = () => {
 };
 
 export default LowStockAlertsTable;
+
