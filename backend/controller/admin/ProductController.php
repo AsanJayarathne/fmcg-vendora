@@ -91,7 +91,12 @@ class ProductController {
         $this->stockRepo->adjustWarehouse($id, 0);
 
         if (!empty($body['base_price']) && !empty($body['mrp'])) {
-            $this->productRepo->setPrice($id, (float)$body['base_price'], (float)$body['mrp']);
+            $base = (float)$body['base_price'];
+            $mrp  = (float)$body['mrp'];
+            if ($mrp <= $base) {
+                sendError('MRP must be higher than Base Price', 400);
+            }
+            $this->productRepo->setPrice($id, $base, $mrp);
         }
 
         sendSuccess($this->productRepo->findById($id), 'Product created', 201);
@@ -136,6 +141,9 @@ class ProductController {
         }
 
         $this->productRepo->update($id, $data);
+        if (!empty($body['status']) && in_array($body['status'], ['Active', 'Inactive'])) {
+            $this->productRepo->setStatus($id, $body['status']);
+        }
         sendSuccess($this->productRepo->findById($id), 'Updated');
     }
 
@@ -176,7 +184,12 @@ class ProductController {
         if (!$id || !isset($body['base_price'], $body['mrp'])) {
             sendError('product_id, base_price, mrp required', 400);
         }
-        $this->productRepo->setPrice($id, (float)$body['base_price'], (float)$body['mrp']);
+        $base = (float)$body['base_price'];
+        $mrp  = (float)$body['mrp'];
+        if ($mrp <= $base) {
+            sendError('MRP must be higher than Base Price', 400);
+        }
+        $this->productRepo->setPrice($id, $base, $mrp);
         sendSuccess(null, 'Pricing updated');
     }
 
