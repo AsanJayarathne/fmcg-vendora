@@ -12,7 +12,6 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-  User,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 
@@ -26,11 +25,6 @@ export default function Sidebar() {
   const [shopsDriversOpen, setShopsDriversOpen] = useState(false);
   const [inventoryOpen, setInventoryOpen] = useState(false);
 
-  // Read cached profile name from localStorage (set by Navbar on load)
-  const [profileName, setProfileName] = useState(() =>
-    localStorage.getItem("vendora_full_name") || ""
-  );
-
   // Auto-open dropdowns if sub-routes are active
   useEffect(() => {
     if (currentPath.startsWith("/orders") || currentPath.startsWith("/order-history")) {
@@ -43,15 +37,6 @@ export default function Sidebar() {
       setInventoryOpen(true);
     }
   }, [currentPath]);
-
-  // Listen for profile name changes (set by Navbar)
-  useEffect(() => {
-    const onStorage = () => {
-      setProfileName(localStorage.getItem("vendora_full_name") || "");
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
 
   const getLinkClass = (path, isSubLink = false) => {
     const isActive = path === "/" ? currentPath === "/" : currentPath.startsWith(path);
@@ -85,11 +70,6 @@ export default function Sidebar() {
     localStorage.removeItem("vendora_full_name");
     navigate("/login");
   };
-
-  // Get initials
-  const initials = profileName
-    ? profileName.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
-    : "D";
 
   return (
     <aside className="h-full p-3 overflow-y-auto bg-white border-r border-gray-200 w-60 no-scrollbar flex flex-col">
@@ -222,23 +202,6 @@ export default function Sidebar() {
           </button>
         </nav>
       </div>
-
-      {/* Profile footer */}
-      {profileName && (
-        <Link
-          to="/settings"
-          className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100 hover:bg-gray-50 rounded-xl px-2 py-2 transition group"
-        >
-          <div className="flex items-center justify-center w-9 h-9 text-xs font-bold text-blue-600 bg-blue-100 rounded-full shrink-0 group-hover:bg-blue-200 transition">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{profileName}</p>
-            <p className="text-[10px] text-gray-400">Distributor Account</p>
-          </div>
-          <User size={14} className="text-gray-400 shrink-0" />
-        </Link>
-      )}
     </aside>
   );
 }
