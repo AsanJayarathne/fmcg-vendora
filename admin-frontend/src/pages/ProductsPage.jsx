@@ -3,6 +3,7 @@ import { useAuth } from "../auth/AuthContext";
 import ProductStatCards from "../components/ProductStatCards";
 import ProductFilters from "../components/ProductFilters";
 import ProductTable from "../components/Tables/ProductTable";
+import ProductGrid from "../components/Tables/ProductGrid";
 import Pagination from "../components/Pagination";
 import AddProductModal from "../components/AddProductModal";
 import EditProductModal from "../components/EditProductModal";
@@ -17,6 +18,7 @@ const ProductsPage = () => {
   const [editProduct, setEditProduct]   = useState(null);
   const [refreshKey, setRefreshKey]     = useState(0);
 
+  const [viewMode, setViewMode]             = useState("grid"); // "grid" or "table"
   const [products, setProducts]             = useState([]);
   const [warehouseStock, setWarehouseStock] = useState([]);
   const [loading, setLoading]               = useState(true);
@@ -153,6 +155,8 @@ const ProductsPage = () => {
         onSortChange={(sort) => { setSortBy(sort); setCurrentPage(1); }}
         search={search}
         onSearchChange={(val) => { setSearch(val); setCurrentPage(1); }}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         onReset={() => {
           setSelectedCategory("all");
           setSelectedStatus("all");
@@ -162,13 +166,22 @@ const ProductsPage = () => {
         }}
       />
 
-      {/* Products Table */}
-      <ProductTable
-        products={paginatedProducts}
-        loading={loading}
-        error={error}
-        onEditProduct={(p) => setEditProduct(p)}
-      />
+      {/* Products Catalog Display (Grid View vs Table View) */}
+      {viewMode === "grid" ? (
+        <ProductGrid
+          products={paginatedProducts}
+          loading={loading}
+          error={error}
+          onEditProduct={(p) => setEditProduct(p)}
+        />
+      ) : (
+        <ProductTable
+          products={paginatedProducts}
+          loading={loading}
+          error={error}
+          onEditProduct={(p) => setEditProduct(p)}
+        />
+      )}
 
       {/* Pagination */}
       {!loading && sortedProducts.length > 0 && (

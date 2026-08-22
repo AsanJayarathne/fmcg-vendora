@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, RotateCcw } from "lucide-react";
+import { Search, RotateCcw, LayoutGrid, List } from "lucide-react";
 
 const ProductFilters = ({
   categories = [],
@@ -11,6 +11,8 @@ const ProductFilters = ({
   onSortChange,
   search = "",
   onSearchChange,
+  viewMode = "grid",
+  onViewModeChange,
   onReset,
 }) => {
   return (
@@ -82,6 +84,36 @@ const ProductFilters = ({
             <option value="price_low">Price: Low to High</option>
           </select>
         </div>
+
+        {/* View Mode Switcher Pill */}
+        {onViewModeChange && (
+          <div className="flex items-center bg-white border border-slate-200 rounded-full p-1 shadow-2xs shrink-0">
+            <button
+              type="button"
+              onClick={() => onViewModeChange("grid")}
+              title="Grid View"
+              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+                viewMode === "grid"
+                  ? "bg-blue-600 text-white shadow-2xs"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewModeChange("table")}
+              title="Table View"
+              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${
+                viewMode === "table"
+                  ? "bg-blue-600 text-white shadow-2xs"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <List size={16} />
+            </button>
+          </div>
+        )}
 
         {/* Reset Button */}
         {onReset && (
