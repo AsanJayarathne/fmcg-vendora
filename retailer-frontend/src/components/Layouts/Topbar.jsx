@@ -227,9 +227,7 @@ function Topbar() {
         </button>
 
         {cartCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] min-w-4 h-4 px-1 flex items-center justify-center rounded-full font-black border border-white">
-            {cartCount}
-          </span>
+          <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full border border-white shadow-sm"></span>
         )}
       </Link>
 
