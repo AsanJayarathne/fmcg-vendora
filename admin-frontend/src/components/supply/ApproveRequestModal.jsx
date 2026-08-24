@@ -71,7 +71,7 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
       const res = await fetch(`${API_BASE}/supply-requests.php?id=${request.request_id}&action=approve`, {
         method:  "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth?.token}` },
-        body:    JSON.stringify({ items: itemsPayload }),
+        body:    JSON.stringify({ approvals: itemsPayload, items: itemsPayload }),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Failed to approve request");

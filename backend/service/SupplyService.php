@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../repository/SupplyRepository.php';
 require_once __DIR__ . '/../repository/StockRepository.php';
+require_once __DIR__ . '/../repository/ProductRepository.php';
 require_once __DIR__ . '/../repository/DistributorRepository.php';
 require_once __DIR__ . '/../service/NotificationService.php';
 require_once __DIR__ . '/../util/Database.php';
@@ -8,6 +9,7 @@ require_once __DIR__ . '/../util/Database.php';
 class SupplyService {
     private SupplyRepository      $supplyRepo;
     private StockRepository       $stockRepo;
+    private ProductRepository     $productRepo;
     private DistributorRepository $distributorRepo;
     private NotificationService   $notifService;
     private PDO                   $db;
@@ -15,16 +17,43 @@ class SupplyService {
     public function __construct() {
         $this->supplyRepo      = new SupplyRepository();
         $this->stockRepo       = new StockRepository();
+        $this->productRepo     = new ProductRepository();
         $this->distributorRepo = new DistributorRepository();
         $this->notifService    = new NotificationService();
         $this->db              = Database::getConnection();
     }
 
     public function createRequest(int $distributorId, array $items, string $remarks = ''): array {
-        $requestId = $this->supplyRepo->create($distributorId, $remarks);
+        if (empty($items)) throw new Exception("Items are required", 400);
+
+        // Validate available unreserved stock for each requested item
         foreach ($items as $item) {
-            $this->supplyRepo->createItem($requestId, (int)$item['product_id'], (int)$item['quantity']);
+            $productId = (int)($item['product_id'] ?? 0);
+            $qty       = (int)($item['quantity'] ?? 0);
+            if ($qty <= 0) {
+                throw new Exception("Quantity must be greater than 0", 400);
+            }
+
+            $unreserved = $this->stockRepo->getWarehouseUnreservedQty($productId);
+            if ($qty > $unreserved) {
+                $product = $this->productRepo->findById($productId);
+                $name    = $product['product_name'] ?? "Product #$productId";
+                throw new Exception("Requested quantity ($qty) for '$name' exceeds available unreserved warehouse stock ($unreserved).", 422);
+            }
         }
+
+        $this->db->beginTransaction();
+        try {
+            $requestId = $this->supplyRepo->create($distributorId, $remarks);
+            foreach ($items as $item) {
+                $this->supplyRepo->createItem($requestId, (int)$item['product_id'], (int)$item['quantity']);
+            }
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+
         $this->notifService->send(1, "New Supply Request", "Distributor ID $distributorId submitted supply request #$requestId");
         return $this->getRequestWithItems($requestId);
     }

@@ -12,7 +12,7 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
             <tr>
               <th className="px-6 py-4">Product Name</th>
               <th className="px-6 py-4">Product ID</th>
-              <th className="px-6 py-4 text-right">Admin Warehouse Stock</th>
+              <th className="px-6 py-4 text-right">Available to Request</th>
               <th className="px-6 py-4 text-right">Base Price</th>
               <th className="px-6 py-4 text-right">MRP</th>
               <th className="px-6 py-4 text-center">Action</th>
@@ -32,6 +32,10 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
               products.map((product) => {
                 const code = `PRD-${String(product.product_id).padStart(3, "0")}`;
                 const qtyValue = quantities[product.product_id] || "";
+                const availableQty = product.available_to_request !== undefined
+                  ? Number(product.available_to_request)
+                  : Number(product.warehouse_stock || 0);
+                const isOutOfStock = availableQty <= 0;
 
                 return (
                   <tr key={product.product_id} className="hover:bg-slate-50/60 transition duration-150">
@@ -42,8 +46,10 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
 
                     <td className="px-6 py-4 font-bold text-blue-600">{code}</td>
 
-                    <td className="px-6 py-4 text-right font-bold text-slate-800">
-                      {product.warehouse_stock}
+                    <td className="px-6 py-4 text-right">
+                      <div className="font-bold text-slate-900 text-sm">
+                        {availableQty.toLocaleString()}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4 text-right font-bold text-slate-900">
@@ -55,39 +61,52 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <input
-                          type="number"
-                          min="1"
-                          placeholder="Qty"
-                          value={qtyValue}
-                          onChange={(e) =>
-                            setQuantities((prev) => ({
-                              ...prev,
-                              [product.product_id]: e.target.value,
-                            }))
-                          }
-                          className="w-20 border border-slate-200 focus:border-blue-500 rounded-full px-3 py-1.5 text-xs font-bold outline-none bg-white text-slate-700 placeholder-slate-400 transition shadow-2xs text-center"
-                        />
-                        <button
-                          onClick={() => {
-                            const qty = parseInt(qtyValue);
-                            if (!qty || qty <= 0) {
-                              alert("Please enter a valid quantity greater than 0");
-                              return;
+                      {isOutOfStock ? (
+                        <div className="flex items-center justify-center">
+                          <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/60">
+                            Out of Stock
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            max={availableQty}
+                            placeholder="Qty"
+                            value={qtyValue}
+                            onChange={(e) =>
+                              setQuantities((prev) => ({
+                                ...prev,
+                                [product.product_id]: e.target.value,
+                              }))
                             }
-                            onRequestItem && onRequestItem(product, qty);
-                            setQuantities((prev) => ({
-                              ...prev,
-                              [product.product_id]: "",
-                            }));
-                          }}
-                          className="px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center gap-1"
-                        >
-                          <PackagePlus size={13} />
-                          Add to Draft
-                        </button>
-                      </div>
+                            className="w-20 border border-slate-200 focus:border-blue-500 rounded-full px-3 py-1.5 text-xs font-bold outline-none bg-white text-slate-700 placeholder-slate-400 transition shadow-2xs text-center"
+                          />
+                          <button
+                            onClick={() => {
+                              const qty = parseInt(qtyValue);
+                              if (!qty || qty <= 0) {
+                                alert("Please enter a valid quantity greater than 0");
+                                return;
+                              }
+                              if (qty > availableQty) {
+                                alert(`Cannot request ${qty} units. Only ${availableQty} units available.`);
+                                return;
+                              }
+                              onRequestItem && onRequestItem(product, qty);
+                              setQuantities((prev) => ({
+                                ...prev,
+                                [product.product_id]: "",
+                              }));
+                            }}
+                            className="px-4 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer shadow-2xs flex items-center gap-1"
+                          >
+                            <PackagePlus size={13} />
+                            Add to Draft
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );
