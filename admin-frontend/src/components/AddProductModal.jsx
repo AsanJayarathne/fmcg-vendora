@@ -96,6 +96,10 @@ export default function AddProductModal({ onClose, onProductAdded }) {
       setError("Please enter a valid MRP price.");
       return;
     }
+    if (parseFloat(form.mrp) <= parseFloat(form.base_price)) {
+      setError("MRP must be higher than Base Price (MRP > Base Price).");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -299,6 +303,11 @@ export default function AddProductModal({ onClose, onProductAdded }) {
                 />
               </Field>
             </div>
+            {form.base_price !== "" && form.mrp !== "" && parseFloat(form.mrp) <= parseFloat(form.base_price) && (
+              <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-xl flex items-center gap-1.5">
+                ⚠️ MRP Price must be strictly higher than Base Price.
+              </p>
+            )}
           </div>
 
           {/* Footer Action Buttons */}

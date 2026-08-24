@@ -35,6 +35,7 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
     description:  product.description    || "",
     base_price:   product.base_price    != null ? String(product.base_price)                  : "",
     mrp:          product.mrp_max_retail_price != null ? String(product.mrp_max_retail_price) : "",
+    status:       product.status        || "Active",
   });
 
   const [imageFile, setImageFile]             = useState(null);
@@ -97,6 +98,23 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
       return;
     }
 
+    if (form.base_price !== "" || form.mrp !== "") {
+      const baseVal = parseFloat(form.base_price);
+      const mrpVal  = parseFloat(form.mrp);
+      if (isNaN(baseVal) || baseVal <= 0) {
+        setError("Please enter a valid base price.");
+        return;
+      }
+      if (isNaN(mrpVal) || mrpVal <= 0) {
+        setError("Please enter a valid MRP price.");
+        return;
+      }
+      if (mrpVal <= baseVal) {
+        setError("MRP must be higher than Base Price (MRP > Base Price).");
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       const fd = new FormData();
@@ -104,6 +122,7 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
       fd.append("category_id",  form.category_id);
       fd.append("unit",         form.unit.trim());
       fd.append("description",  form.description.trim());
+      fd.append("status",       form.status);
       if (removeExistingImage) fd.append("remove_image", "1");
       if (imageFile)           fd.append("image", imageFile);
 
@@ -295,7 +314,7 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
             </Field>
           </div>
 
-          {/* Unit & Description */}
+          {/* Unit & Status */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Unit / Size">
               <input
@@ -306,16 +325,30 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
                 className={inputClass}
               />
             </Field>
-            <Field label="Description">
-              <input
-                name="description"
-                value={form.description}
+            <Field label="Product Status" required>
+              <select
+                name="status"
+                value={form.status}
                 onChange={handleChange}
-                placeholder="Short product description"
-                className={inputClass}
-              />
+                className={selectClass}
+                required
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
             </Field>
           </div>
+
+          {/* Description */}
+          <Field label="Description">
+            <input
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Short product description"
+              className={inputClass}
+            />
+          </Field>
 
           {/* Pricing Section Card */}
           <div className="bg-slate-50/70 rounded-2xl p-5 space-y-3.5 border border-slate-100">
@@ -346,6 +379,11 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
                 />
               </Field>
             </div>
+            {form.base_price !== "" && form.mrp !== "" && parseFloat(form.mrp) <= parseFloat(form.base_price) && (
+              <p className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-xl flex items-center gap-1.5">
+                ⚠️ MRP Price must be strictly higher than Base Price.
+              </p>
+            )}
           </div>
 
           {/* Footer Action Buttons */}
