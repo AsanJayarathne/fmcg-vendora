@@ -18,7 +18,7 @@ class SupplyController {
         $id = (int)($_GET['id'] ?? 0); $action = $_GET['action'] ?? ''; $body = getBody();
         if (!$id) sendError('Request ID required', 400);
         match ($action) {
-            'approve' => sendSuccess($this->supplyService->approveRequest($id, $body['approvals'] ?? [], $user['user_id']), 'Approved'),
+            'approve' => sendSuccess($this->supplyService->approveRequest($id, $body['approvals'] ?? $body['items'] ?? [], $user['user_id']), 'Approved'),
             'reject'  => (function () use ($id, $body) { $r = $this->supplyService->getRequestWithItems($id); $this->supplyService->rejectRequest($id, (int)$r['distributor_id'], $body['remarks'] ?? ''); sendSuccess(null, 'Rejected'); })(),
             default   => sendError('Invalid action', 400),
         };

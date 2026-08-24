@@ -135,6 +135,18 @@ class StockRepository {
         return (int) $stmt->fetchColumn();
     }
 
+    /** Total unreserved quantity for a product in warehouse (Active warehouse qty minus Pending supply requests). */
+    public function getWarehouseUnreservedQty(int $productId): int {
+        $stmt = $this->db->prepare(
+            "SELECT GREATEST(0,
+                COALESCE((SELECT SUM(quantity) FROM warehouse_batch WHERE product_id = ? AND status = 'Active'), 0) -
+                COALESCE((SELECT SUM(sri.requested_qty) FROM supply_request_items sri JOIN supply_request sr ON sr.request_id = sri.request_id WHERE sri.product_id = ? AND sr.status = 'Pending'), 0)
+            )"
+        );
+        $stmt->execute([$productId, $productId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** Add a new warehouse batch when admin receives goods. */
     public function addWarehouseBatch(
         int $productId, int $qty, float $costPrice, float $sellingPrice,

@@ -91,8 +91,7 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
                     </td>
 
                     <td className="px-6 py-4 font-bold text-slate-900 text-sm">
-                      {totalQty.toLocaleString()}{" "}
-                      <span className="text-[10px] font-medium text-slate-400">{item.unit || "units"}</span>
+                      {totalQty.toLocaleString()}
                     </td>
 
                     <td className="px-6 py-4">

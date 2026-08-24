@@ -92,7 +92,29 @@ class ProductRepository {
                          FROM warehouse_batch wb 
                          WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
                         0
-                    ) AS warehouse_stock
+                    ) AS warehouse_stock,
+                    COALESCE(
+                        (SELECT SUM(sri.requested_qty)
+                         FROM supply_request_items sri
+                         JOIN supply_request sr ON sr.request_id = sri.request_id
+                         WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
+                        0
+                    ) AS pending_stock,
+                    GREATEST(0,
+                        COALESCE(
+                            (SELECT SUM(wb.quantity) 
+                             FROM warehouse_batch wb 
+                             WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
+                            0
+                        ) -
+                        COALESCE(
+                            (SELECT SUM(sri.requested_qty)
+                             FROM supply_request_items sri
+                             JOIN supply_request sr ON sr.request_id = sri.request_id
+                             WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
+                            0
+                        )
+                    ) AS available_to_request
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
                 LEFT JOIN product_pricing pp ON pp.product_id = p.product_id

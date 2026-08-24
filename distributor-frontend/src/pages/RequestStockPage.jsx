@@ -204,10 +204,17 @@ export default function RequestStockPage() {
         setCurrentRequest({ items: [] });
         setRemarks("");
         
-        const reqRes = await fetch(`${API_BASE}/distributor/supply-requests.php`, {
-          headers: { Authorization: `Bearer ${auth?.token}` },
-        });
+        const [prodRes, reqRes] = await Promise.all([
+          fetch(`${API_BASE}/distributor/products.php`, {
+            headers: { Authorization: `Bearer ${auth?.token}` },
+          }),
+          fetch(`${API_BASE}/distributor/supply-requests.php`, {
+            headers: { Authorization: `Bearer ${auth?.token}` },
+          }),
+        ]);
+        const prodJson = await prodRes.json();
         const reqJson = await reqRes.json();
+        if (prodJson.success) setProducts(prodJson.data?.products || []);
         if (reqJson.success) setRequests(reqJson.data || []);
 
         setActiveTab("Requested Stock");
