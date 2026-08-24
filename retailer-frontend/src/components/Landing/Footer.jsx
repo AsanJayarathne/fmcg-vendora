@@ -8,6 +8,7 @@ import {
   FiPhone,
   FiMapPin,
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 import logo from "../../assets/images/logo.png";
 
@@ -73,31 +74,31 @@ function Footer() {
             <ul className="space-y-4 text-slate-400">
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link to="/landing" className="hover:text-white transition">
                   Home
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <a href="/landing#features" className="hover:text-white transition">
                   Features
                 </a>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <a href="/landing#analytics" className="hover:text-white transition">
                   Analytics
                 </a>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
-                  Pricing
-                </a>
+                <Link to="/faq" className="hover:text-white transition">
+                  FAQs
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <a href="mailto:support@vendora.lk" className="hover:text-white transition">
                   Contact
                 </a>
               </li>
