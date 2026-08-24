@@ -12,10 +12,11 @@ class GatewayController {
     public function handle(array $user, string $action): void {
         try {
             match ($action) {
-                'init'     => $this->initiatePayment($user),
-                'callback' => $this->processCallback(),
-                'status'   => $this->getStatus($user),
-                default    => sendError('Invalid action', 400),
+                'init'            => $this->initiatePayment($user),
+                'init-settlement' => $this->initiateSettlement($user),
+                'callback'        => $this->processCallback(),
+                'status'          => $this->getStatus($user),
+                default           => sendError('Invalid action', 400),
             };
         } catch (Exception $e) {
             sendError($e->getMessage(), $e->getCode() ?: 400);
@@ -32,6 +33,21 @@ class GatewayController {
 
         $sessionData = $this->gwService->initiatePayment((int)$retailer['retailer_id'], $orderId);
         sendSuccess($sessionData, 'Payment initialized');
+    }
+
+    public function initiateSettlement(array $user): void {
+        $body = getBody();
+        $creditId = (int)($body['credit_id'] ?? $_GET['credit_id'] ?? $_POST['credit_id'] ?? 0);
+        $amount   = (float)($body['amount'] ?? $_GET['amount'] ?? $_POST['amount'] ?? 0);
+
+        if (!$creditId) sendError('Credit Account ID is required', 400);
+        if ($amount <= 0) sendError('Valid settlement amount is required', 400);
+
+        $retailer = (new RetailerRepository())->findByUserId($user['user_id']);
+        if (!$retailer) sendError('Retailer profile not found', 404);
+
+        $sessionData = $this->gwService->initiateCreditSettlement((int)$retailer['retailer_id'], $creditId, $amount);
+        sendSuccess($sessionData, 'Credit settlement initialized');
     }
 
     public function processCallback(): void {

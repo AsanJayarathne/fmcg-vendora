@@ -1,6 +1,6 @@
 # FMCG Vendora — Online Debit Settlement Implementation Plan
 
-Comprehensive guide and technical architecture to implement an **Online Debt / Credit Settlement** feature for retailers across the **Vendora FMCG** system.
+Comprehensive guide and technical architecture to implement an **Online Debt / Credit Settlement (Full Settlement Only)** feature for retailers across the **Vendora FMCG** system.
 
 ---
 
@@ -8,11 +8,14 @@ Comprehensive guide and technical architecture to implement an **Online Debt / C
 
 Currently, retailers accumulate debt on their credit accounts when placing credit orders, which is traditionally settled on subsequent orders or cash collection. 
 
-This feature allows retailers to **settle their outstanding credit balance (full or partial) directly online at any time** using the integrated payment gateway (Credit/Debit Card, Sandbox Mock Gateway).
+This feature allows retailers to **settle their full outstanding credit balance directly online at any time** using the integrated payment gateway (Credit/Debit Card, Sandbox Mock Gateway).
+
+> [!NOTE]
+> **Strict Policy**: Settlement must always be for the **exact full outstanding debt** (`current_balance`). Partial settlements are not permitted.
 
 ### Key Benefits
-* **Accelerates Cash Flow**: Distributors receive payments faster without waiting for subsequent physical deliveries.
-* **Instant Credit Line Restoration**: Retailers hitting their credit limit can instantly pay off debt online and unlock purchasing power for urgent stock replenishment.
+* **Accelerates Cash Flow**: Distributors receive payments in full without waiting for subsequent physical deliveries.
+* **Instant Full Credit Line Restoration**: Retailers hitting their credit limit can instantly clear 100% of their debt online and restore their entire available credit line.
 * **Zero Impact on Existing Orders**: 100% backward compatible with normal order checkout.
 
 ---
@@ -29,31 +32,30 @@ sequenceDiagram
     participant BE as PHP Backend (Credit & PaymentGateway API)
     participant DB as MySQL (credit_account, credit_transaction, gateway_payments)
 
-    Retailer->>UI: Views Credit Balance (e.g. Used / Debt: Rs. 45,000)
-    Retailer->>UI: Clicks "Settle Balance Online" button
-    UI->>Modal: Opens Settle Debit Modal
-    Retailer->>Modal: Chooses "Full Balance" (Rs. 45,000) or "Custom Amount" (e.g. Rs. 15,000)
-    Retailer->>Modal: Clicks "Proceed to Online Payment"
-    Modal->>BE: POST /api/credit/initiate-settlement.php { credit_id, amount }
-    BE->>DB: Validates retailer owns account & amount <= current_balance
+    Retailer->>UI: Views Credit Balance (e.g. Outstanding Debt: Rs. 45,000)
+    Retailer->>UI: Clicks "Settle Full Balance Online" button
+    UI->>Modal: Opens Settle Debit Modal displaying full balance (Rs. 45,000)
+    Retailer->>Modal: Clicks "Proceed to Pay Full Balance"
+    Modal->>BE: POST /api/credit/initiate-settlement.php { credit_id, amount: 45000 }
+    BE->>DB: Validates retailer owns account & amount == current_balance
     BE->>DB: Records transaction token in gateway_payments (type: 'CREDIT_SETTLEMENT', credit_id: X, order_id: NULL)
     BE-->>Modal: Returns gateway token, signature, distributor name, amount
     Modal->>GW: Opens PaymentGatewayModal
     Retailer->>GW: Submits card / mock payment
     GW->>BE: POST /api/payment/callback.php (Status: SUCCESS)
-    BE->>DB: 1. Deducts current_balance & restores available_credit in credit_account
+    BE->>DB: 1. Resets current_balance = 0 & restores available_credit = credit_limit
     BE->>DB: 2. Inserts audit record in credit_transaction (type: 'PAYMENT')
     BE->>DB: 3. Inserts record in payment table
     BE->>BE: 4. Sends push notifications to Retailer & Distributor
     GW-->>UI: Displays Payment Success Confirmation
-    UI->>UI: Refreshes credit overview with updated balance
+    UI->>UI: Refreshes credit overview with 0 debt and full available credit
 ```
 
 ---
 
 ## 3. Database Migration
 
-File: `backend/database/migrations/011_alter_gateway_payments_for_credit_settlement.sql`
+File: `backend/database/migrations/004_alter_gateway_payments_for_credit_settlement.sql`
 
 ```sql
 -- ============================================================
@@ -78,7 +80,7 @@ ALTER TABLE `gateway_payments`
 ### A. Update Gateway Payment Repository (`backend/repository/GatewayPaymentRepository.php`)
 Add a dedicated method for credit settlement records:
 ```php
-public function createSettlement(int $creditId, int $retailerId, int $distributorId, float $amount, string $token, string $signature, string $gatewayName = 'Vendora Mock Gateway'): int {
+public function createSettlement(int $creditId, int $retailerId, int $distributorId, float $amount, string $token, string $signature, string $gatewayName = 'Vendora Mock Gateway (Sandbox)'): int {
     $stmt = $this->db->prepare("
         INSERT INTO gateway_payments 
         (order_id, credit_id, retailer_id, distributor_id, payment_type, amount, currency, gateway_name, transaction_token, status, signature)
@@ -92,7 +94,8 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
 ### B. Update Payment Gateway Service (`backend/service/PaymentGatewayService.php`)
 1. **Add `initiateCreditSettlement(int $retailerId, int $creditId, float $amount)`**:
    - Validates that the credit account exists and belongs to the authenticated retailer.
-   - Validates `$amount > 0` and `$amount <= (float)$account['current_balance']`.
+   - Validates `$account['current_balance'] > 0`.
+   - **Enforces Full Settlement**: Validates that `$amount == (float)$account['current_balance']` (rejects partial payments with 400 error).
    - Generates token and cryptographic signature.
    - Saves record via `gwRepo->createSettlement(...)`.
    - Returns transaction payload for frontend modal.
@@ -103,7 +106,7 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
    if ($gwRecord['payment_type'] === 'CREDIT_SETTLEMENT') {
        $creditId = (int)$gwRecord['credit_id'];
        
-       // 1. Credit the account (reduces balance & increases available limit)
+       // 1. Full credit settlement: clears balance and restores available limit
        $this->creditRepo->credit($creditId, $amount);
        
        // 2. Add audit trail in credit_transaction
@@ -116,7 +119,7 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
            'PAYMENT',
            $amount,
            (float)$account['current_balance'],
-           "Online Debit Settlement (Ref: " . ($gatewayRef ?: $token) . ")",
+           "Full Online Debit Settlement (Ref: " . ($gatewayRef ?: $token) . ")",
            null,
            null,
            $userId
@@ -125,10 +128,10 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
        // 3. Send notifications
        $distributor = $this->distributorRepo->findById((int)$gwRecord['distributor_id']);
        if ($distributor) {
-           $this->notifService->send($distributor['user_id'], "Credit Settlement Received", "Retailer '{$retailer['shop_name']}' paid LKR " . number_format($amount, 2) . " online.");
+           $this->notifService->send($distributor['user_id'], "Full Credit Settlement Received", "Retailer '{$retailer['shop_name']}' settled full debt of LKR " . number_format($amount, 2) . " online.");
        }
        if ($retailer) {
-           $this->notifService->send($retailer['user_id'], "Credit Payment Confirmed", "Your online payment of LKR " . number_format($amount, 2) . " was processed.");
+           $this->notifService->send($retailer['user_id'], "Debt Settlement Confirmed", "Your full online debt settlement of LKR " . number_format($amount, 2) . " was processed. Your credit line is fully restored.");
        }
    } else {
        // Standard Order Payment Flow (Existing Logic)
@@ -145,7 +148,7 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
   ```json
   {
     "credit_id": 3,
-    "amount": 15000.00
+    "amount": 45000.00
   }
   ```
 * **Response**:
@@ -155,7 +158,7 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
     "data": {
       "gateway_payment_id": 42,
       "credit_id": 3,
-      "amount": 15000.00,
+      "amount": 45000.00,
       "currency": "LKR",
       "transaction_token": "a1b2c3d4...",
       "signature": "e5f6g7...",
@@ -172,15 +175,17 @@ public function createSettlement(int $creditId, int $retailerId, int $distributo
 ### A. Settle Debit Modal Component (`src/components/Credits/SettleDebitModal.jsx`)
 * Modal interface allowing the retailer to:
   * View current outstanding balance with the selected distributor.
-  * Choose between:
-    * **Full Settlement**: Pre-fills the exact `current_balance`.
-    * **Partial Settlement**: Input field with live validation (min: `Rs. 100`, max: `current_balance`).
-  * Displays a summary breakdown before opening the gateway modal.
+  * Clear visual breakdown showing:
+    * Total Credit Limit
+    * Current Outstanding Debt (Amount to be settled in full)
+    * Post-Payment Available Credit (100% restored)
+  * Action button: **"Pay Full Balance (Rs. XX,XXX.XX)"**
+  * Initiates payment gateway with the exact outstanding amount.
 
 ### B. Update Credit Overview Card (`src/components/Credits/CreditOverview.jsx`)
-* Add a primary **"Settle Debt Online"** button with a credit card icon.
+* Add a primary **"Settle Full Debt Online"** button with a credit card icon.
 * Automatically passes the active distributor's `credit_id` and `current_balance`.
-* If `used === 0`, the button is disabled or displays `"No Outstanding Debt"`.
+* If `used === 0`, the button displays `"No Outstanding Debt"` and is disabled.
 
 ### C. Service Integration (`src/services/orderService.js` / `creditService.js`)
 Add service function:
@@ -204,9 +209,9 @@ export async function initiateCreditSettlement(token, creditId, amount) {
 
 1. **Safety Verification**:
    * Run standard order placement with Cash, Credit, and Online payment to confirm zero regression.
-2. **Partial Settlement**:
-   * Settle `Rs. 5,000` out of a `Rs. 20,000` debt $\rightarrow$ verify balance becomes `Rs. 15,000` and available limit increases by `Rs. 5,000`.
-3. **Full Settlement**:
-   * Settle remaining `Rs. 15,000` $\rightarrow$ verify balance drops to `Rs. 0` and available limit matches the total credit limit.
-4. **Audit History**:
-   * Check `credit_transaction` table to ensure every settlement has a distinct timestamp, amount, and reference code.
+2. **Full Debt Settlement Test**:
+   * Settle full debt (e.g. `Rs. 45,000`) $\rightarrow$ verify balance drops to `Rs. 0.00` and available limit matches 100% of the credit limit.
+3. **Partial Amount Rejection Test**:
+   * Attempt to send an amount less than `current_balance` directly to the API $\rightarrow$ verify backend rejects it with `400 Bad Request: "Partial settlement is not allowed. Full balance must be settled."`
+4. **Audit History Verification**:
+   * Check `credit_transaction` table to ensure the full settlement is logged with type `'PAYMENT'`, updated `balance_after = 0.00`, and reference code.
