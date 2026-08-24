@@ -570,9 +570,11 @@ CREATE TABLE `system_announcement` (
 -- ============================================================
 CREATE TABLE `gateway_payments` (
   `id`                int(11)                                                               NOT NULL AUTO_INCREMENT,
-  `order_id`          int(11)                                                               NOT NULL,
+  `order_id`          int(11)                                                               DEFAULT NULL,
+  `credit_id`         int(11)                                                               DEFAULT NULL,
   `retailer_id`       int(11)                                                               NOT NULL,
   `distributor_id`    int(11)                                                               NOT NULL,
+  `payment_type`      enum('ORDER','CREDIT_SETTLEMENT')                                     NOT NULL DEFAULT 'ORDER',
   `amount`            decimal(12,2)                                                         NOT NULL,
   `currency`          varchar(10)                                                           DEFAULT 'LKR',
   `gateway_name`      varchar(50)                                                           DEFAULT 'MockGateway',
@@ -585,7 +587,9 @@ CREATE TABLE `gateway_payments` (
   `updated_at`        timestamp                                                             NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_gw_order` (`order_id`),
-  CONSTRAINT `fk_gw_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE
+  KEY `idx_gw_credit` (`credit_id`),
+  CONSTRAINT `fk_gw_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_gw_credit` FOREIGN KEY (`credit_id`) REFERENCES `credit_account` (`credit_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
