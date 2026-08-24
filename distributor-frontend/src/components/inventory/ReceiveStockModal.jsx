@@ -107,7 +107,7 @@ const ReceiveStockModal = ({ request, onClose, onReceived }) => {
                       <tr key={item.request_item_id} className="hover:bg-slate-50/50 transition duration-150">
                         <td className="px-4 py-2.5 font-bold text-slate-800">{item.product_name}</td>
                         <td className="px-4 py-2.5 text-right font-bold text-emerald-600">
-                          {item.approved_qty} <span className="font-normal text-[10px] text-slate-400">{item.unit || "units"}</span>
+                          {item.approved_qty}
                         </td>
                       </tr>
                     ))}

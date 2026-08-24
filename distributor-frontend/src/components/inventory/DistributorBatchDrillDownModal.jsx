@@ -99,7 +99,7 @@ const DistributorBatchDrillDownModal = ({ product, batches = [], loading, onClos
                       <td className="px-5 py-4 text-right text-slate-600 font-medium">{fmtPrice(b.cost_price)}</td>
                       <td className="px-5 py-4 text-right font-bold text-slate-900">{fmtPrice(b.selling_price)}</td>
                       <td className="px-5 py-4 text-right font-bold text-slate-900">
-                        {b.quantity.toLocaleString()} <span className="font-normal text-[10px] text-slate-400">{product.unit || 'units'}</span>
+                        {b.quantity.toLocaleString()}
                       </td>
                       <td className="px-5 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${style.badge}`}>
@@ -124,7 +124,7 @@ const DistributorBatchDrillDownModal = ({ product, batches = [], loading, onClos
             <div className="font-bold text-slate-900 text-xs">
               Active Stock:{" "}
               <span className="text-blue-600">
-                {batches.filter(b => b.status === 'Active').reduce((s, b) => s + parseInt(b.quantity || 0), 0).toLocaleString()} {product.unit || 'units'}
+                {batches.filter(b => b.status === 'Active').reduce((s, b) => s + parseInt(b.quantity || 0), 0).toLocaleString()}
               </span>
             </div>
           </div>
