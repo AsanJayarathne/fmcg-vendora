@@ -39,7 +39,7 @@ class OrderRepository {
     public function updatePaymentStatus(int $orderId, string $paymentStatus): void {
         $this->db->prepare("UPDATE orders SET payment_status = ? WHERE order_id = ?")->execute([$paymentStatus, $orderId]);
     }
-    public function recordPayment(int $retailerId, int $distributorId, int $orderId, float $amount, string $paymentMethod, string $referenceNo, int $receivedBy): int {
+    public function recordPayment(int $retailerId, int $distributorId, ?int $orderId, float $amount, string $paymentMethod, string $referenceNo, int $receivedBy): int {
         $stmt = $this->db->prepare("INSERT INTO payment (retailer_id, distributor_id, order_id, payment_date, amount, payment_method, reference_no, received_by) VALUES (?, ?, ?, CURDATE(), ?, ?, ?, ?)");
         $stmt->execute([$retailerId, $distributorId, $orderId, $amount, $paymentMethod, $referenceNo, $receivedBy]);
         return (int)$this->db->lastInsertId();

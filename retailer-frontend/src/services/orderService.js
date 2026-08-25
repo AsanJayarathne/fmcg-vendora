@@ -274,10 +274,16 @@ export async function processGatewayCallback(transactionToken, status, gatewayRe
 }
 
 /**
- * Fetch online gateway status for an order.
+ * Initialize online payment gateway session for credit debt settlement.
  */
-export async function fetchPaymentGatewayStatus(token, orderId) {
-  const result = await apiFetch(`/retailer/payment-gateway.php?action=status&order_id=${orderId}`, token);
+export async function initiateCreditSettlement(token, creditId, amount) {
+  const result = await apiFetch("/retailer/payment-gateway.php?action=init-settlement", token, {
+    method: "POST",
+    body: JSON.stringify({
+      credit_id: creditId,
+      amount: Number(amount),
+    }),
+  });
   return result.data;
 }
 

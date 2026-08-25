@@ -11,10 +11,20 @@ class GatewayPaymentRepository {
     public function create(int $orderId, int $retailerId, int $distributorId, float $amount, string $token, string $signature, string $gatewayName = 'Vendora Mock Gateway (Sandbox)'): int {
         $stmt = $this->db->prepare("
             INSERT INTO gateway_payments 
-            (order_id, retailer_id, distributor_id, amount, currency, gateway_name, transaction_token, status, signature)
-            VALUES (?, ?, ?, ?, 'LKR', ?, ?, 'INITIATED', ?)
+            (order_id, credit_id, retailer_id, distributor_id, payment_type, amount, currency, gateway_name, transaction_token, status, signature)
+            VALUES (?, NULL, ?, ?, 'ORDER', ?, 'LKR', ?, ?, 'INITIATED', ?)
         ");
         $stmt->execute([$orderId, $retailerId, $distributorId, $amount, $gatewayName, $token, $signature]);
+        return (int)$this->db->lastInsertId();
+    }
+
+    public function createSettlement(int $creditId, int $retailerId, int $distributorId, float $amount, string $token, string $signature, string $gatewayName = 'Vendora Mock Gateway (Sandbox)'): int {
+        $stmt = $this->db->prepare("
+            INSERT INTO gateway_payments 
+            (order_id, credit_id, retailer_id, distributor_id, payment_type, amount, currency, gateway_name, transaction_token, status, signature)
+            VALUES (NULL, ?, ?, ?, 'CREDIT_SETTLEMENT', ?, 'LKR', ?, ?, 'INITIATED', ?)
+        ");
+        $stmt->execute([$creditId, $retailerId, $distributorId, $amount, $gatewayName, $token, $signature]);
         return (int)$this->db->lastInsertId();
     }
 

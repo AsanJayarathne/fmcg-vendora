@@ -24,18 +24,37 @@ class PaymentGateway {
     }
 
     /**
+     * Generate secure hash signature for credit debt settlement initialization
+     */
+    public function generateSettlementSignature(int $creditId, float $amount, string $token): string {
+        $data = $this->merchantId . '|CREDIT_' . $creditId . '|' . number_format($amount, 2, '.', '') . '|' . $this->currency . '|' . $token . '|' . $this->merchantSecret;
+        return hash('sha256', $data);
+    }
+
+    /**
      * Verify callback signature received from payment gateway / webhook
      */
-    public function verifyCallbackSignature(int $orderId, float $amount, string $status, string $token, string $receivedSignature): bool {
-        $expected = $this->generateSignature($orderId, $amount, $token);
+    public function verifyCallbackSignature(?int $orderId, float $amount, string $status, string $token, string $receivedSignature, ?int $creditId = null): bool {
+        if ($creditId && !$orderId) {
+            $expected = $this->generateSettlementSignature($creditId, $amount, $token);
+        } else {
+            $expected = $this->generateSignature((int)$orderId, $amount, $token);
+        }
         return hash_equals($expected, $receivedSignature);
     }
 
     /**
-     * Generate unique transaction token
+     * Generate unique transaction token for orders
      */
     public function generateToken(int $orderId): string {
         return 'GW_TXN_' . $orderId . '_' . time() . '_' . bin2hex(random_bytes(4));
+    }
+
+    /**
+     * Generate unique transaction token for credit settlements
+     */
+    public function generateSettlementToken(int $creditId): string {
+        return 'GW_CREDIT_' . $creditId . '_' . time() . '_' . bin2hex(random_bytes(4));
     }
 
     public function getGatewayName(): string {

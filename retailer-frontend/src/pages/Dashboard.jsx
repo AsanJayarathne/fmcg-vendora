@@ -29,11 +29,8 @@ export default function Dashboard() {
   const [filterStatus, setFilterStatus] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Load backend data
-  useEffect(() => {
+  const loadData = useCallback(() => {
     if (!token) return;
-    setLoading(true);
-    setError("");
     Promise.all([
       fetchCreditInfo(token).catch(() => null),
       fetchOrders(token).catch(() => [])
@@ -50,6 +47,14 @@ export default function Dashboard() {
         setLoading(false);
       });
   }, [token]);
+
+  // Load backend data on mount
+  useEffect(() => {
+    if (!token) return;
+    setLoading(true);
+    setError("");
+    loadData();
+  }, [token, loadData]);
 
   // Unique list of distributors for filter dropdown
   const uniqueDistributors = useMemo(() => {
@@ -396,7 +401,7 @@ export default function Dashboard() {
           />
         </div>
         <div className="w-full">
-          <CreditOverview data={creditData} />
+          <CreditOverview data={creditData} onRefresh={loadData} />
         </div>
         <div className="w-full">
           <RecentlyOrderedProducts products={recentProductsMapped} />

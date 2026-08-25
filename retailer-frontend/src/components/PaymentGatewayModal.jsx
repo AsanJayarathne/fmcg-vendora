@@ -80,11 +80,17 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
 
           <div className="mt-5 bg-slate-800/80 rounded-2xl p-4 flex items-center justify-between border border-slate-700/50">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order #{sessionData.order_id}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {sessionData.payment_type === 'CREDIT_SETTLEMENT' || sessionData.credit_id
+                  ? 'Credit Debt Settlement'
+                  : `Order #${sessionData.order_id}`}
+              </p>
               <p className="text-xs font-black text-white">{sessionData.distributor_name}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Amount Due</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {sessionData.payment_type === 'CREDIT_SETTLEMENT' ? 'Full Settlement Amount' : 'Amount Due'}
+              </p>
               <p className="text-lg font-black text-blue-400">LKR {fmt(sessionData.amount)}</p>
             </div>
           </div>
