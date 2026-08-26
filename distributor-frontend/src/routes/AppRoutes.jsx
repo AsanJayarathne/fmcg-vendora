@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "../auth/Login";
 import Register from "../auth/Register";
+import ResetPassword from "../pages/ResetPassword";
 import ProtectedRoute from "./ProtectedRoute";
 import DistributorLayout from "../layout/DistributorLayout";
 import Dashboard from "../pages/DashboardPage";
@@ -16,13 +17,13 @@ import PaymentsPage from "../pages/PaymentsPage";
 import AnalyticsPage from "../pages/AnalyticsPage";
 import SettingsPage from "../pages/SettingsPage";
 
-
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Protected distributor routes */}
       <Route

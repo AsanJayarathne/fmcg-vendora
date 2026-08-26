@@ -4,6 +4,7 @@ import { MapPin, Map as MapIcon } from "lucide-react";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
 import MapPickerModal from "../components/RegisterPage/MapPickerModal";
+import OtpVerificationModal from "../components/auth/OtpVerificationModal";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch } from "../utils/api";
@@ -16,6 +17,8 @@ export default function RegisterStep2() {
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [regions, setRegions] = useState([]);
 
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function RegisterStep2() {
         region_id: parseInt(regionId, 10),
         shop_name: shopName.trim(),
         owner_name: `${firstName.trim()} ${lastName.trim()}`,
-        shop_address: regForm.addressLine2.trim()
+        shop_address: regForm.addressLine2?.trim()
           ? `${shopAddress.trim()}, ${regForm.addressLine2.trim()}`
           : shopAddress.trim(),
         city: city.trim(),
@@ -119,15 +122,22 @@ export default function RegisterStep2() {
         body: JSON.stringify(payload),
       });
 
-      setSuccess("Registration submitted successfully! Awaiting distributor approval. Redirecting to login...");
-      resetRegForm();
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
+      setLoading(false);
+      setRegisteredEmail(email.trim());
+      setShowOtpModal(true);
     } catch (err) {
       setError(err.message || "Network error — make sure the backend is running.");
       setLoading(false);
     }
+  };
+
+  const handleOtpSuccess = () => {
+    setShowOtpModal(false);
+    setSuccess("Registration verified successfully! Awaiting distributor approval. Redirecting to login...");
+    resetRegForm();
+    setTimeout(() => {
+      navigate("/login");
+    }, 2500);
   };
 
   return (
@@ -269,7 +279,7 @@ export default function RegisterStep2() {
                 disabled={loading}
                 className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50 cursor-pointer"
               >
-                {loading ? "Registering..." : "Register"}
+                {loading ? "Submitting..." : "Register"}
               </button>
             </div>
 
@@ -291,7 +301,15 @@ export default function RegisterStep2() {
         initialLat={regForm.latitude}
         initialLng={regForm.longitude}
       />
+
+      {/* OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={showOtpModal}
+        email={registeredEmail}
+        onSuccess={handleOtpSuccess}
+        onClose={() => setShowOtpModal(false)}
+        portalName="Retailer Portal"
+      />
     </div>
   );
 }
-

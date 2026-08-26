@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import logo from '../assets/vendora logo.png';
+import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 
 const API_BASE = 'http://localhost/fmcg-vendora/backend/api';
 
@@ -14,6 +15,7 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -73,15 +75,15 @@ export default function Login() {
             <h1 className="text-3xl font-extrabold text-white tracking-tight bg-clip-text bg-gradient-to-r from-white to-blue-200">
               Vendora Distributor
             </h1>
-            <p className="text-blue-300/60 text-sm mt-1.5 font-medium tracking-wide">
-              Sign in to manage your distribution
+            <p className="text-sm font-medium text-blue-200/60 mt-1.5 text-center">
+              Distributor Portal &bull; Sign in to manage distribution
             </p>
           </div>
 
-          {/* Premium Error Banner */}
+          {/* Error Message */}
           {error && (
-            <div className="flex items-start gap-3 bg-red-500/15 border border-red-500/30 text-red-300 text-sm rounded-xl px-4 py-3 mb-6 animate-shake">
-              <svg className="w-5 h-5 shrink-0 text-red-400 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm font-medium flex items-center gap-3 backdrop-blur-md animate-shake">
+              <svg className="w-5 h-5 flex-shrink-0 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -90,17 +92,17 @@ export default function Login() {
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             
-            {/* Email Address */}
+            {/* Email Field */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-blue-200/80 uppercase tracking-wider">Email Address</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
+                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                   </svg>
                 </div>
                 <input
@@ -110,19 +112,23 @@ export default function Login() {
                   autoComplete="email"
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="distributor@vendora.com"
+                  placeholder="distributor@vendora.lk"
                   className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white/8 transition-all text-sm font-medium"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            {/* Password Field */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="block text-xs font-semibold text-blue-200/80 uppercase tracking-wider">Password</label>
-                <a href="#" className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                <button 
+                  type="button"
+                  onClick={() => setShowForgotModal(true)}
+                  className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                >
                   Forgot Password?
-                </a>
+                </button>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
@@ -144,7 +150,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPass(p => !p)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors cursor-pointer"
                 >
                   {showPass ? (
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -166,7 +172,7 @@ export default function Login() {
               id="login-submit"
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 mt-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 mt-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -198,6 +204,12 @@ export default function Login() {
           &copy; 2026 Vendora. All rights reserved.
         </p>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+      />
     </div>
   );
 }
