@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "../auth/login";
+import ResetPassword from "../pages/ResetPassword";
 import AdminLayout from "../layouts/AdminLayout";
 import ProductsPage from "../pages/ProductsPage";
 import Dashboard from "../pages/dashboard";
@@ -13,6 +14,7 @@ const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             
             <Route
                 path="/"

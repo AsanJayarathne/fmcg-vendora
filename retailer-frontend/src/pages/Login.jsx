@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock } from "react-icons/fi";
 import loginImage from "../assets/images/shop.png"; 
 import { useAuth } from "../context/AuthContext";
+import ForgotPasswordModal from "../components/auth/ForgotPasswordModal";
 
 function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ function Login() {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -55,10 +57,6 @@ function Login() {
 
   const handleRegister = () => {
     navigate("/register");
-  };
-
-  const handleForgotPassword = () => {
-    alert("Forgot Password function is not available.");
   };
 
   return (
@@ -165,8 +163,8 @@ function Login() {
 
               <button
                 type="button"
-                onClick={handleForgotPassword}
-                className="text-gray-500 hover:text-blue-600"
+                onClick={() => setShowForgotModal(true)}
+                className="text-gray-500 hover:text-blue-600 cursor-pointer"
               >
                 Forgot Password?
               </button>
@@ -178,7 +176,7 @@ function Login() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-blue-700 hover:bg-blue-800 transition text-white py-3 rounded-full text-base font-semibold ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+              className={`w-full bg-blue-700 hover:bg-blue-800 transition text-white py-3 rounded-full text-base font-semibold cursor-pointer ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               {loading ? "Logging In..." : "Log In"}
             </button>
@@ -193,7 +191,7 @@ function Login() {
 
             <button
               onClick={handleRegister}
-              className="ml-1.5 text-blue-700 font-semibold"
+              className="ml-1.5 text-blue-700 font-semibold cursor-pointer"
             >
               Register
             </button>
@@ -208,20 +206,24 @@ function Login() {
 
           <div className="w-full h-full rounded-[24px] flex items-center justify-center">
 
-
             <img
               src={loginImage}
               alt="Login Illustration"
               className="max-h-[420px] object-contain"
-
             />
-           
 
           </div>
 
         </div>
 
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+        portalName="Retailer Portal"
+      />
 
     </div>
   );

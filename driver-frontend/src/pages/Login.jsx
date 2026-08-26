@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import deliveryImg from "../assets/delivery.png";
+import ForgotPasswordModal from "../components/auth/ForgotPasswordModal";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -91,7 +93,12 @@ export default function Login() {
               />
               Remember me
             </label>
-            <span style={styles.forgotLink}>Forgot Password?</span>
+            <span 
+              onClick={() => setShowForgotModal(true)} 
+              style={{ ...styles.forgotLink, cursor: "pointer" }}
+            >
+              Forgot Password?
+            </span>
           </div>
 
           <button
@@ -115,6 +122,11 @@ export default function Login() {
         </div>
 
       </div>
+
+      <ForgotPasswordModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+      />
     </div>
   );
 }
