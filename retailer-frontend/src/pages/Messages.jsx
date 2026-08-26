@@ -13,21 +13,33 @@ function formatDate(date) {
 }
 
 function Messages() {
-  const { messages, markMessageRead } = useContext(OrderContext);
+  const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   return (
     <div className="space-y-6 relative p-6 bg-slate-50/50 min-h-screen">
-      <div>
-        <h1 className="text-3xl font-black text-slate-805">Messages</h1>
-        <p className="text-xs font-bold text-slate-400 mt-1">
-          Order confirmations, system updates, and distributor dispatches.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-805">Messages</h1>
+          <p className="text-xs font-bold text-slate-400 mt-1">
+            Order confirmations, system updates, and distributor dispatches.
+          </p>
+        </div>
+
+        {unreadMessageCount > 0 && (
+          <button
+            type="button"
+            onClick={markAllMessagesRead}
+            className="self-start sm:self-auto px-4 py-2 bg-blue-50 border border-blue-100 text-blue-600 rounded-full text-xs font-bold hover:bg-blue-100 transition cursor-pointer"
+          >
+            Mark all as read
+          </button>
+        )}
       </div>
 
       {messages.length === 0 ? (
         <div className="bg-white border border-slate-100 rounded-[32px] p-12 text-center text-slate-400 font-bold">
-          No order messages yet.
+          No notifications or messages yet.
         </div>
       ) : (
         <div className="space-y-4">
@@ -38,7 +50,7 @@ function Messages() {
               className="w-full text-left bg-white border border-slate-100 rounded-[28px] p-5 flex gap-4 cursor-pointer hover:shadow-xs transition duration-300 hover:border-blue-300"
               onClick={() => {
                 setSelectedMessage(message);
-                markMessageRead(message.orderId);
+                markMessageRead(message.id ?? message.orderId);
               }}
             >
               <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100/50 text-blue-600 flex items-center justify-center shrink-0 relative">
