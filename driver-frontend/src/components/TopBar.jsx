@@ -1,7 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, User, LogOut, Package, Map, ChevronDown, Mail, CheckCircle2, X } from 'lucide-react';
+import { Bell, User, LogOut, Package, Map, ChevronDown, Mail, CheckCircle2, X, CheckCheck } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
+import {
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from '../services/notificationApi';
+
+function formatTimeAgo(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+}
 
 function TopBar() {
   const { auth, logout } = useAuth();
@@ -9,11 +29,61 @@ function TopBar() {
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const profileButtonRef = useRef(null);
   const profilePopupRef = useRef(null);
   const notifButtonRef = useRef(null);
   const notifPopupRef = useRef(null);
+
+  const token = auth?.token;
+
+  const loadNotifs = useCallback(async () => {
+    if (!token) return;
+    try {
+      const data = await fetchNotifications(token);
+      setNotifications(data.notifications || []);
+      setUnreadCount(Number(data.unread_count || 0));
+    } catch {
+      // silent background error
+    }
+  }, [token]);
+
+  useEffect(() => {
+    loadNotifs();
+    const interval = setInterval(loadNotifs, 30000);
+    return () => clearInterval(interval);
+  }, [loadNotifs]);
+
+  const handleMarkAsRead = async (notif) => {
+    if (!notif.is_read) {
+      try {
+        await markNotificationRead(token, notif.notification_id);
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.notification_id === notif.notification_id
+              ? { ...n, is_read: 1 }
+              : n
+          )
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    if (unreadCount === 0) return;
+    try {
+      await markAllNotificationsRead(token);
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: 1 })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const driverInitials = auth?.fullName
     ? auth.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
@@ -52,11 +122,6 @@ function TopBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showProfileMenu, showNotifications]);
 
-  const notificationsList = [
-    { id: 1, title: 'New Job in Pool', text: 'Order #ORD-1089 ready for delivery', time: '10m ago', unread: true },
-    { id: 2, title: 'Dispatch Alert', text: 'Route updated for Colombo Central', time: '1h ago', unread: false },
-  ];
-
   return (
     <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0">
       {/* Left side empty space */}
@@ -64,8 +129,6 @@ function TopBar() {
 
       {/* Right side controls */}
       <div className="flex items-center gap-3">
-
-
 
         {/* ── Notifications Button & Popover ── */}
         <div className="relative" ref={notifButtonRef}>
@@ -77,37 +140,79 @@ function TopBar() {
             className="relative w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100/80 border border-orange-100 flex items-center justify-center transition-all cursor-pointer active:scale-[0.98]"
           >
             <Bell size={17} className="text-orange-600" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-4 h-4 px-1 text-[9px] font-bold text-white bg-rose-500 rounded-full border border-white animate-pulse">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </button>
 
           {showNotifications && (
             <div
               ref={notifPopupRef}
-              className="absolute right-0 top-full mt-2 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp"
+              className="absolute right-0 top-full mt-2 w-80 sm:w-88 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-orange-50/50">
                 <div className="flex items-center gap-2">
                   <Bell size={15} className="text-orange-600" />
                   <span className="text-xs font-bold text-slate-800">Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-700 rounded-full">
+                      {unreadCount} new
+                    </span>
+                  )}
                 </div>
-                <button
-                  onClick={() => setShowNotifications(false)}
-                  className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                >
-                  <X size={14} />
-                </button>
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllRead}
+                      className="text-[11px] font-semibold text-orange-600 hover:text-orange-700 cursor-pointer flex items-center gap-1"
+                      title="Mark all as read"
+                    >
+                      <CheckCheck size={13} />
+                      <span>Read all</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowNotifications(false)}
+                    className="text-slate-400 hover:text-slate-600 cursor-pointer p-0.5 rounded-full hover:bg-orange-100/50"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
 
-              <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto no-scrollbar">
-                {notificationsList.map((notif) => (
-                  <div key={notif.id} className="p-3 hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800">{notif.title}</span>
-                      <span className="text-[10px] text-slate-400">{notif.time}</span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-0.5">{notif.text}</p>
+              <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto no-scrollbar">
+                {notifications.length === 0 ? (
+                  <div className="py-8 text-center text-xs font-medium text-slate-400">
+                    No notifications yet
                   </div>
-                ))}
+                ) : (
+                  notifications.map((notif) => (
+                    <div
+                      key={notif.notification_id}
+                      onClick={() => handleMarkAsRead(notif)}
+                      className={`p-3 transition-colors cursor-pointer hover:bg-slate-50 relative ${
+                        !notif.is_read ? 'bg-orange-50/20' : ''
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`text-xs ${!notif.is_read ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
+                          {notif.title}
+                        </span>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                          {formatTimeAgo(notif.created_at)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                        {notif.message}
+                      </p>
+                      {!notif.is_read && (
+                        <span className="absolute top-3.5 right-2.5 w-1.5 h-1.5 rounded-full bg-orange-500" />
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

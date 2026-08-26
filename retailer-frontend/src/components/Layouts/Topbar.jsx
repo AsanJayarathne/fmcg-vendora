@@ -27,7 +27,7 @@ function formatDate(date) {
 
 function Topbar() {
   const { cartCount } = useContext(CartContext);
-  const { messages, unreadMessageCount, markMessageRead } = useContext(OrderContext);
+  const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
   const { auth, logout } = useAuth();
 
   const [showMessages, setShowMessages] = useState(false);
@@ -161,13 +161,24 @@ function Topbar() {
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    className="text-slate-400 hover:text-slate-700 cursor-pointer p-0.5 rounded-full hover:bg-slate-100 transition"
-                    onClick={() => setShowMessages(false)}
-                  >
-                    <FiX size={15} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {unreadMessageCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={markAllMessagesRead}
+                        className="text-[10px] font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
+                      >
+                        Read all
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="text-slate-400 hover:text-slate-700 cursor-pointer p-0.5 rounded-full hover:bg-slate-100 transition"
+                      onClick={() => setShowMessages(false)}
+                    >
+                      <FiX size={15} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* List */}
@@ -182,7 +193,7 @@ function Topbar() {
                         key={message.id}
                         onClick={() => {
                           setActiveMsgId(message.id);
-                          markMessageRead(message.orderId);
+                          markMessageRead(message.id ?? message.orderId);
                         }}
                         className="w-full text-left rounded-2xl border border-slate-100 p-3.5 bg-white transition hover:bg-blue-50/10 hover:border-blue-200/50 cursor-pointer relative"
                       >
