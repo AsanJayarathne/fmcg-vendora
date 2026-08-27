@@ -31,7 +31,6 @@ TRUNCATE TABLE `roles`;
 TRUNCATE TABLE `supply_request_items`;
 TRUNCATE TABLE `supply_request`;
 TRUNCATE TABLE `notification`;
-TRUNCATE TABLE `system_announcement`;
 
 -- ============================================================
 -- 1. ROLES
@@ -204,11 +203,6 @@ INSERT INTO `distributor_pricing` (`dist_price_id`, `distributor_id`, `product_i
 INSERT INTO `credit_account` (`credit_id`, `retailer_id`, `distributor_id`, `credit_limit`, `current_balance`, `available_credit`, `status`) VALUES
 (1, 1, 1, 50000.00, 0.00, 50000.00, 'Active');
 
--- ============================================================
--- 14. SYSTEM ANNOUNCEMENT
--- ============================================================
-INSERT INTO `system_announcement` (`announcement_id`, `title`, `message`, `target_role`, `created_by`) VALUES
-(1, 'Welcome to Vendora FMCG', 'Welcome to the new FMCG Vendora platform. Please ensure your profiles and prices are up to date.', 'ALL', 1);
 
 -- ============================================================
 -- Reset AUTO_INCREMENT values
@@ -235,6 +229,5 @@ ALTER TABLE `credit_transaction`  AUTO_INCREMENT = 1;
 ALTER TABLE `supply_request`      AUTO_INCREMENT = 1;
 ALTER TABLE `supply_request_items` AUTO_INCREMENT = 1;
 ALTER TABLE `notification`        AUTO_INCREMENT = 1;
-ALTER TABLE `system_announcement` AUTO_INCREMENT = 2;
 
 SET FOREIGN_KEY_CHECKS = 1;

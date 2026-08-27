@@ -364,7 +364,6 @@ Pending (editable) → [15 min passes] → Processing (locked) → Approved → 
 | `credit_transaction` | Ledger of all credit debits/credits |
 | `payment` | Recorded cash/bank payments |
 | `notification` | Per-user in-app notifications |
-| `system_announcement` | Broadcast messages by role |
 
 ---
 
