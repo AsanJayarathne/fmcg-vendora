@@ -95,15 +95,16 @@ class AnalyticsController {
                     SELECT 
                         d.distributor_id,
                         d.company_name,
-                        d.full_name,
+                        u.full_name,
                         dr.region_name,
                         COUNT(DISTINCT o.order_id) AS total_orders,
                         COALESCE(SUM(o.total_amount), 0) AS total_revenue,
                         d.status
                     FROM distributor d
+                    JOIN users u ON u.user_id = d.user_id
                     LEFT JOIN distributor_region dr ON dr.region_id = d.region_id
                     LEFT JOIN orders o ON o.distributor_id = d.distributor_id
-                    GROUP BY d.distributor_id, d.company_name, d.full_name, dr.region_name, d.status
+                    GROUP BY d.distributor_id, d.company_name, u.full_name, dr.region_name, d.status
                     ORDER BY total_revenue DESC, total_orders DESC
                     LIMIT 5
                 ");

@@ -113,10 +113,10 @@ export default function RequestStockPage() {
       if (json.success) {
         setViewRequest(json.data);
       } else {
-        alert(json.message || "Failed to load request details.");
+        setError(json.message || "Failed to load request details.");
       }
     } catch (err) {
-      alert("Error reaching the server.");
+      setError("Error reaching the server.");
     } finally {
       setLoadingDetails(false);
     }
@@ -170,10 +170,8 @@ export default function RequestStockPage() {
 
   // Clear entire draft request
   const handleClearRequest = () => {
-    if (window.confirm("Are you sure you want to clear your current request draft?")) {
-      setCurrentRequest({ items: [] });
-      setRemarks("");
-    }
+    setCurrentRequest({ items: [] });
+    setRemarks("");
   };
 
   // Submit supply request to admin
@@ -200,7 +198,8 @@ export default function RequestStockPage() {
 
       const json = await res.json();
       if (json.success) {
-        alert("Supply request submitted successfully!");
+        setSuccessMsg("Supply request submitted successfully!");
+        setTimeout(() => setSuccessMsg(""), 5000);
         setCurrentRequest({ items: [] });
         setRemarks("");
         
@@ -219,10 +218,10 @@ export default function RequestStockPage() {
 
         setActiveTab("Requested Stock");
       } else {
-        alert(json.message || "Failed to submit request.");
+        setError(json.message || "Failed to submit request.");
       }
     } catch (err) {
-      alert("Network error occurred during submission.");
+      setError("Network error occurred during submission.");
     } finally {
       setSubmitting(false);
     }
