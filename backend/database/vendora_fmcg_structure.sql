@@ -32,15 +32,16 @@ CREATE TABLE `roles` (
 -- 2. USERS
 -- ============================================================
 CREATE TABLE `users` (
-  `user_id`    int(11)      NOT NULL AUTO_INCREMENT,
-  `full_name`  varchar(100) NOT NULL,
-  `email`      varchar(100) NOT NULL,
-  `phone`      varchar(20)  NOT NULL,
-  `password`   varchar(255) NOT NULL,
-  `role_id`    int(11)      NOT NULL,
-  `is_active`  tinyint(1)   NOT NULL DEFAULT 1,
-  `created_at` timestamp    NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp    NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `user_id`           int(11)      NOT NULL AUTO_INCREMENT,
+  `full_name`         varchar(100) NOT NULL,
+  `email`             varchar(100) NOT NULL,
+  `phone`             varchar(20)  NOT NULL,
+  `password`          varchar(255) NOT NULL,
+  `role_id`           int(11)      NOT NULL,
+  `is_active`         tinyint(1)   NOT NULL DEFAULT 1,
+  `is_email_verified` tinyint(1)   NOT NULL DEFAULT 0,
+  `created_at`        timestamp    NOT NULL DEFAULT current_timestamp(),
+  `updated_at`        timestamp    NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `uq_users_email` (`email`),
   UNIQUE KEY `uq_users_phone` (`phone`),
@@ -424,25 +425,6 @@ CREATE TABLE `credit_transaction` (
   CONSTRAINT `fk_credittxn_payment`    FOREIGN KEY (`payment_id`)  REFERENCES `payment` (`payment_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- 20. TRANSACTION (generic credit ledger)
--- ============================================================
-CREATE TABLE `transaction` (
-  `transaction_id`   int(11)       NOT NULL AUTO_INCREMENT,
-  `credit_id`        int(11)       NOT NULL,
-  `transaction_type` varchar(20)   NOT NULL,
-  `amount`           decimal(12,2) NOT NULL,
-  `description`      varchar(255)  DEFAULT NULL,
-  `transaction_date` timestamp     NOT NULL DEFAULT current_timestamp(),
-  `reference_id`     varchar(100)  DEFAULT NULL,
-  `created_at`       timestamp     NOT NULL DEFAULT current_timestamp(),
-  `updated_at`       timestamp     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`transaction_id`),
-  KEY `idx_txn_credit` (`credit_id`),
-  KEY `idx_txn_date`   (`transaction_date`),
-  KEY `idx_txn_type`   (`transaction_type`),
-  CONSTRAINT `fk_txn_credit` FOREIGN KEY (`credit_id`) REFERENCES `credit_account` (`credit_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 21. SUPPLY REQUEST
@@ -524,46 +506,6 @@ CREATE TABLE `notification` (
   CONSTRAINT `fk_notif_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================================
--- 25. SALES REPORT
--- ============================================================
-CREATE TABLE `sales_report` (
-  `report_id`      int(11)       NOT NULL AUTO_INCREMENT,
-  `report_name`    varchar(150)  NOT NULL,
-  `distributor_id` int(11)       DEFAULT NULL,
-  `retailer_id`    int(11)       DEFAULT NULL,
-  `report_type`    varchar(20)   NOT NULL,
-  `period_date`    date          NOT NULL,
-  `total_sales`    decimal(15,2) DEFAULT NULL,
-  `total_orders`   int(11)       DEFAULT NULL,
-  `generated_at`   timestamp     NOT NULL DEFAULT current_timestamp(),
-  `updated_at`     timestamp     NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`report_id`),
-  KEY `idx_report_distributor` (`distributor_id`),
-  KEY `idx_report_retailer`    (`retailer_id`),
-  KEY `idx_report_date`        (`period_date`),
-  KEY `idx_report_type`        (`report_type`),
-  CONSTRAINT `fk_report_distributor` FOREIGN KEY (`distributor_id`) REFERENCES `distributor` (`distributor_id`),
-  CONSTRAINT `fk_report_retailer`    FOREIGN KEY (`retailer_id`)    REFERENCES `retailer` (`retailer_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- 26. SYSTEM ANNOUNCEMENT
--- ============================================================
-CREATE TABLE `system_announcement` (
-  `announcement_id` int(11)      NOT NULL AUTO_INCREMENT,
-  `title`           varchar(150) NOT NULL,
-  `message`         varchar(500) NOT NULL,
-  `target_role`     varchar(50)  DEFAULT NULL,
-  `created_by`      int(11)      NOT NULL,
-  `created_at`      timestamp    NOT NULL DEFAULT current_timestamp(),
-  `updated_at`      timestamp    NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`announcement_id`),
-  KEY `idx_announce_role`      (`target_role`),
-  KEY `idx_announce_created`   (`created_at`),
-  KEY `fk_announce_created_by` (`created_by`),
-  CONSTRAINT `fk_announce_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 27. GATEWAY PAYMENTS
@@ -593,6 +535,38 @@ CREATE TABLE `gateway_payments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- 28. EMAIL VERIFICATIONS (OTP)
+-- ============================================================
+CREATE TABLE `email_verifications` (
+  `id`         int(11)      NOT NULL AUTO_INCREMENT,
+  `email`      varchar(100) NOT NULL,
+  `code`       varchar(6)   NOT NULL,
+  `attempts`   int(11)      NOT NULL DEFAULT 0,
+  `expires_at` datetime     NOT NULL,
+  `used`       tinyint(1)   NOT NULL DEFAULT 0,
+  `created_at` timestamp    NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_verify_email` (`email`),
+  KEY `idx_verify_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 29. PASSWORD RESETS
+-- ============================================================
+CREATE TABLE `password_resets` (
+  `id`         int(11)      NOT NULL AUTO_INCREMENT,
+  `email`      varchar(100) NOT NULL,
+  `token`      varchar(128) NOT NULL,
+  `expires_at` datetime     NOT NULL,
+  `used`       tinyint(1)   NOT NULL DEFAULT 0,
+  `created_at` timestamp    NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_reset_email` (`email`),
+  KEY `idx_reset_token` (`token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 SET FOREIGN_KEY_CHECKS = 1;
 -- End of structure file
 -- ============================================================
+
