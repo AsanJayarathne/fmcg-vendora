@@ -1,6 +1,6 @@
 import { Search, RotateCcw } from "lucide-react";
 
-const STATUSES = ["All", "OPEN", "CLAIMED", "DELIVERED", "RETURNED"];
+const STATUSES = ["OPEN", "CLAIMED", "DELIVERED", "RETURNED", "All"];
 
 export default function DeliveryFilters({
   search,

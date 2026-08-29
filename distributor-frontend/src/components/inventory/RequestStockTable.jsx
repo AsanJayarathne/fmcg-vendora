@@ -85,16 +85,11 @@ export default function RequestStockTable({ products = [], onRequestItem }) {
                           />
                           <button
                             onClick={() => {
-                              const qty = parseInt(qtyValue);
-                              if (!qty || qty <= 0) {
-                                alert("Please enter a valid quantity greater than 0");
-                                return;
-                              }
-                              if (qty > availableQty) {
-                                alert(`Cannot request ${qty} units. Only ${availableQty} units available.`);
-                                return;
-                              }
-                              onRequestItem && onRequestItem(product, qty);
+                              const parsed = parseInt(qtyValue);
+                              const qty = isNaN(parsed) || parsed <= 0 ? 1 : parsed;
+                              const finalQty = Math.min(qty, availableQty);
+                              if (finalQty <= 0) return;
+                              onRequestItem && onRequestItem(product, finalQty);
                               setQuantities((prev) => ({
                                 ...prev,
                                 [product.product_id]: "",

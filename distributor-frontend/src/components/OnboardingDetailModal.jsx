@@ -1,4 +1,4 @@
-import { X, Check, XCircle, ShieldOff, User } from "lucide-react";
+import { X, Check, ShieldOff, User } from "lucide-react";
 
 export default function OnboardingDetailModal({
   title,
@@ -86,26 +86,15 @@ export default function OnboardingDetailModal({
               />
             )}
 
-            <div className="flex gap-3">
-              {status !== "Rejected" && (
-                <ActionButton
-                  label="Reject"
-                  icon={<XCircle size={15} />}
-                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 shadow-2xs"
-                  loading={actionLoading === "Rejected"}
-                  onClick={() => onAction("Rejected")}
-                />
-              )}
-              {status !== "Blocked" && (
-                <ActionButton
-                  label="Block"
-                  icon={<ShieldOff size={15} />}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-2xs"
-                  loading={actionLoading === "Blocked"}
-                  onClick={() => onAction("Blocked")}
-                />
-              )}
-            </div>
+            {status !== "Blocked" && (
+              <ActionButton
+                label={status === "Approved" ? "Block Account" : "Block"}
+                icon={<ShieldOff size={15} />}
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 shadow-2xs"
+                loading={actionLoading === "Blocked"}
+                onClick={() => onAction("Blocked")}
+              />
+            )}
           </div>
         </div>
       </div>
