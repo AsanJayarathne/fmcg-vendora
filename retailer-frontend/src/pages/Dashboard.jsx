@@ -273,22 +273,21 @@ export default function Dashboard() {
     const list = [];
     filteredOrders.forEach(o => {
       (o.items ?? []).forEach(item => {
-        if (list.length < 3 && !list.some(p => p.id === item.productId)) {
+        const prodId = item.id || item.productId || item.product_id;
+        if (list.length < 5 && !list.some(p => p.id === prodId)) {
+          const qty = Number(item.quantity || 1);
+          const unitP = Number(item.price || item.unit_price || 0);
           list.push({
-            id: item.id || item.productId,
-            name: item.name,
-            distributor: o.distributor,
-            quantity: item.quantity,
-            price: `Rs. ${item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            id: prodId,
+            name: item.name || item.product_name || `Product #${prodId}`,
+            distributor: o.distributor || "Distributor",
+            quantity: qty,
+            unitPrice: unitP,
+            price: `Rs. ${(unitP * qty).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
           });
         }
       });
     });
-    if (list.length === 0) {
-      return [
-        { id: 1, name: "No products in filtered results", distributor: "—", quantity: 0, price: "Rs. 0.00" }
-      ];
-    }
     return list;
   }, [filteredOrders]);
 

@@ -9,7 +9,7 @@ import DeliveryTable from "../components/delivery/DeliveryTable";
 import DeliveryDetailModal from "../components/delivery/DeliveryDetailModal";
 import Pagination from "../components/Pagination";
 
-const TABS = ["All", "OPEN", "CLAIMED", "DELIVERED", "RETURNED"];
+const TABS = ["OPEN", "CLAIMED", "DELIVERED", "RETURNED", "All"];
 const ITEMS_PER_PAGE = 8;
 
 export default function DeliveryPage() {

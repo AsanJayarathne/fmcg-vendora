@@ -28,13 +28,21 @@ class ProfileController {
         $distributor = $this->distributorRepo->findByUserId((int)$user['user_id']);
         if (!$distributor) sendError('Distributor profile not found', 404);
         sendSuccess([
+            'distributor_id'  => (int)($distributor['distributor_id']  ?? 0),
+            'user_id'         => (int)($distributor['user_id']         ?? 0),
             'full_name'       => $distributor['full_name']       ?? '',
             'email'           => $distributor['email']           ?? '',
             'phone'           => $distributor['phone']           ?? '',
             'company_name'    => $distributor['company_name']    ?? '',
             'company_address' => $distributor['company_address'] ?? '',
+            'reg_number'      => $distributor['reg_number']      ?? '',
+            'lic_number'      => $distributor['lic_number']      ?? '',
+            'doc_url'         => $distributor['doc_url']         ?? '',
             'region_name'     => $distributor['region_name']     ?? '',
-            'status'          => $distributor['status']          ?? '',
+            'region_id'       => (int)($distributor['region_id']       ?? 0),
+            'status'          => $distributor['status']          ?? 'Approved',
+            'created_at'      => $distributor['created_at']      ?? '',
+            'updated_at'      => $distributor['updated_at']      ?? '',
         ]);
     }
 
