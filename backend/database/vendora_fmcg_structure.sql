@@ -36,6 +36,7 @@ CREATE TABLE `users` (
   `full_name`         varchar(100) NOT NULL,
   `email`             varchar(100) NOT NULL,
   `phone`             varchar(20)  NOT NULL,
+  `avatar_url`        varchar(255) DEFAULT NULL,
   `password`          varchar(255) NOT NULL,
   `role_id`           int(11)      NOT NULL,
   `is_active`         tinyint(1)   NOT NULL DEFAULT 1,
