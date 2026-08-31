@@ -225,6 +225,19 @@ export async function fetchProfile(token) {
 }
 
 /**
+ * Upload avatar image for the retailer account.
+ */
+export async function uploadAvatar(token, file) {
+  const formData = new FormData();
+  formData.append("avatar", file);
+  const result = await apiFetch("/retailer/upload-avatar.php", token, {
+    method: "POST",
+    body: formData,
+  });
+  return result.data;
+}
+
+/**
  * Update profile information for the retailer.
  */
 export async function updateProfileData(token, data) {

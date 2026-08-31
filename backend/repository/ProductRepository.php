@@ -47,9 +47,27 @@ class ProductRepository {
         $this->db->prepare("UPDATE product_pricing SET effective_to = CURDATE() WHERE product_id = ? AND effective_to IS NULL")->execute([$productId]);
         $this->db->prepare("INSERT INTO product_pricing (product_id, base_price, mrp_max_retail_price, effective_from) VALUES (?, ?, ?, CURDATE())")->execute([$productId, $basePrice, $mrp]);
     }
-    public function getCatalogForDistributor(int $distributorId, int $categoryId = 0): array {
+    public function getCatalogForDistributor(int $distributorId, int $categoryId = 0, int $excludeOrderId = 0): array {
         $sql = "SELECT p.*, pc.category_name,
-                       SUM(db.quantity) AS available_qty,
+                       GREATEST(0,
+                           COALESCE((
+                               SELECT SUM(db.quantity) 
+                               FROM distributor_batch db 
+                               WHERE db.product_id = p.product_id 
+                                 AND db.distributor_id = ? 
+                                 AND db.status = 'Active'
+                           ), 0)
+                           -
+                           COALESCE((
+                               SELECT SUM(oi.quantity) 
+                               FROM order_items oi 
+                               JOIN orders o ON o.order_id = oi.order_id 
+                               WHERE oi.product_id = p.product_id 
+                                 AND o.distributor_id = ? 
+                                 AND o.status IN ('Pending', 'Processing')
+                                 AND (? = 0 OR o.order_id != ?)
+                           ), 0)
+                       ) AS available_qty,
                        MIN(db.selling_price) AS unit_price
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
@@ -57,11 +75,16 @@ class ProductRepository {
                   AND db.distributor_id = ? AND db.status = 'Active'
                 WHERE p.status = 'Active'
                 GROUP BY p.product_id, pc.category_name
-                HAVING SUM(db.quantity) > 0";
-        $params = [$distributorId];
-        if ($categoryId > 0) { $sql .= " AND p.category_id = ?"; $params[] = $categoryId; }
+                HAVING available_qty > 0";
+        $params = [$distributorId, $distributorId, $excludeOrderId, $excludeOrderId, $distributorId];
+        if ($categoryId > 0) {
+            $sql .= " AND p.category_id = ?";
+            $params[] = $categoryId;
+        }
         $sql .= " ORDER BY p.product_name";
-        $stmt = $this->db->prepare($sql); $stmt->execute($params); return $stmt->fetchAll();
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
     public function getProductsForDistributor(int $distributorId): array {
         $sql = "SELECT
@@ -75,43 +98,55 @@ class ProductRepository {
                     pc.category_id,
                     pp.base_price,
                     pp.mrp_max_retail_price AS mrp,
-                    COALESCE(
-                        (SELECT MIN(db.selling_price) 
-                         FROM distributor_batch db 
-                         WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'),
-                        pp.base_price
-                    ) AS selling_price,
-                    COALESCE(
-                        (SELECT SUM(db.quantity) 
-                         FROM distributor_batch db 
-                         WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'),
-                        0
+                    COALESCE((
+                        SELECT MIN(db.selling_price) 
+                        FROM distributor_batch db 
+                        WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'
+                    ), pp.base_price) AS selling_price,
+                    -- Total Physical Batch Stock
+                    COALESCE((
+                        SELECT SUM(db.quantity) 
+                        FROM distributor_batch db 
+                        WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'
+                    ), 0) AS physical_stock,
+                    -- Reserved Stock in Pending / Processing Orders
+                    COALESCE((
+                        SELECT SUM(oi.quantity)
+                        FROM order_items oi
+                        JOIN orders o ON o.order_id = oi.order_id
+                        WHERE oi.product_id = p.product_id AND o.distributor_id = ? AND o.status IN ('Pending', 'Processing')
+                    ), 0) AS reserved_stock,
+                    -- Net Available Headroom
+                    GREATEST(0,
+                        COALESCE((SELECT SUM(db.quantity) FROM distributor_batch db WHERE db.product_id = p.product_id AND db.distributor_id = ? AND db.status = 'Active'), 0)
+                        -
+                        COALESCE((SELECT SUM(oi.quantity) FROM order_items oi JOIN orders o ON o.order_id = oi.order_id WHERE oi.product_id = p.product_id AND o.distributor_id = ? AND o.status IN ('Pending', 'Processing')), 0)
                     ) AS stock,
-                    COALESCE(
-                        (SELECT SUM(wb.quantity) 
-                         FROM warehouse_batch wb 
-                         WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
+                    COALESCE((
+                        SELECT SUM(wb.quantity) 
+                        FROM warehouse_batch wb 
+                        WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
                         0
                     ) AS warehouse_stock,
-                    COALESCE(
-                        (SELECT SUM(sri.requested_qty)
-                         FROM supply_request_items sri
-                         JOIN supply_request sr ON sr.request_id = sri.request_id
-                         WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
+                    COALESCE((
+                        SELECT SUM(sri.requested_qty)
+                        FROM supply_request_items sri
+                        JOIN supply_request sr ON sr.request_id = sri.request_id
+                        WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
                         0
                     ) AS pending_stock,
                     GREATEST(0,
-                        COALESCE(
-                            (SELECT SUM(wb.quantity) 
-                             FROM warehouse_batch wb 
-                             WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
+                        COALESCE((
+                            SELECT SUM(wb.quantity) 
+                            FROM warehouse_batch wb 
+                            WHERE wb.product_id = p.product_id AND wb.status = 'Active'),
                             0
                         ) -
-                        COALESCE(
-                            (SELECT SUM(sri.requested_qty)
-                             FROM supply_request_items sri
-                             JOIN supply_request sr ON sr.request_id = sri.request_id
-                             WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
+                        COALESCE((
+                            SELECT SUM(sri.requested_qty)
+                            FROM supply_request_items sri
+                            JOIN supply_request sr ON sr.request_id = sri.request_id
+                            WHERE sri.product_id = p.product_id AND sr.status = 'Pending'),
                             0
                         )
                     ) AS available_to_request
@@ -121,7 +156,7 @@ class ProductRepository {
                     AND pp.effective_to IS NULL
                 ORDER BY p.product_name";
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$distributorId, $distributorId]);
+        $stmt->execute([$distributorId, $distributorId, $distributorId, $distributorId, $distributorId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -133,7 +168,24 @@ class ProductRepository {
                     d.distributor_id,
                     d.company_name AS distributor_name,
                     COALESCE(MIN(db.selling_price), pp.base_price) AS unit_price,
-                    COALESCE(SUM(db.quantity), 0) AS available_qty
+                    GREATEST(0,
+                        COALESCE((
+                            SELECT SUM(db2.quantity)
+                            FROM distributor_batch db2
+                            WHERE db2.product_id = p.product_id 
+                              AND db2.distributor_id = d.distributor_id 
+                              AND db2.status = 'Active'
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM(oi.quantity)
+                            FROM order_items oi
+                            JOIN orders o ON o.order_id = oi.order_id
+                            WHERE oi.product_id = p.product_id 
+                              AND o.distributor_id = d.distributor_id 
+                              AND o.status IN ('Pending', 'Processing')
+                        ), 0)
+                    ) AS available_qty
                 FROM product p
                 JOIN product_category pc ON pc.category_id = p.category_id
                 CROSS JOIN distributor d

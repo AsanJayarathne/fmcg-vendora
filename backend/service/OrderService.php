@@ -58,7 +58,9 @@ class OrderService {
                 if ((int)$p['product_id'] === (int)$item['product_id']) { $product = $p; break; }
             }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
-            if ($product['available_qty'] < $item['quantity']) throw new Exception("Insufficient stock for: {$product['product_name']}", 422);
+            if ($product['available_qty'] < $item['quantity']) {
+                throw new Exception("Insufficient available stock for: {$product['product_name']}. Only {$product['available_qty']} units currently available.", 422);
+            }
             
             $qty = (int)$item['quantity'];
             $discountRate = 0;
@@ -161,10 +163,13 @@ class OrderService {
         $enrichedItems = [];
         $totalAmount = 0.0;
         foreach ($items as $item) {
-            $catalog = $this->productRepo->getCatalogForDistributor($distributorId, 0);
+            $catalog = $this->productRepo->getCatalogForDistributor($distributorId, 0, $orderId);
             $product = null;
             foreach ($catalog as $p) { if ((int)$p['product_id'] === (int)$item['product_id']) { $product = $p; break; } }
             if (!$product) throw new Exception("Product ID {$item['product_id']} not available", 422);
+            if ($product['available_qty'] < $item['quantity']) {
+                throw new Exception("Insufficient stock for: {$product['product_name']}. Only {$product['available_qty']} units available.", 422);
+            }
             
             $qty = (int)$item['quantity'];
             $discountRate = 0;

@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { FaPen } from "react-icons/fa";
-import { FiLoader, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiLoader, FiCheckCircle, FiAlertCircle, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
-import { fetchProfile, updateProfileData } from "../services/orderService";
+import { fetchProfile, updateProfileData, uploadAvatar } from "../services/orderService";
+
+const AVATAR_BASE = "http://localhost/fmcg-vendora/backend/uploads/avatars/";
 
 export default function ProfileTab() {
-  const { auth, login } = useAuth();
+  const { auth, login, updateAvatarUrl } = useAuth();
   const token = auth?.token ?? null;
 
   const fileInputRef = useRef(null);
-  const avatarRef    = useRef(null);
 
   // Form inputs state
   const [formData, setFormData] = useState({
@@ -24,9 +25,12 @@ export default function ProfileTab() {
     retailer_phone: "",
   });
 
+  const [avatarUrl, setAvatarUrl] = useState(auth?.avatarUrl || "");
+
   // UI state
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError]     = useState(null);
 
@@ -46,8 +50,12 @@ export default function ProfileTab() {
           shop_address: data.shop_address ?? "",
           city: data.city ?? "",
           nic_number: data.nic_number ?? "",
-          retailer_phone: data.phone ?? "", // fallback to phone
+          retailer_phone: data.phone ?? "",
         });
+        if (data.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+          updateAvatarUrl(data.avatar_url);
+        }
       })
       .catch((err) => {
         console.error("Load profile error:", err);
@@ -61,14 +69,40 @@ export default function ProfileTab() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (avatarRef.current) avatarRef.current.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    if (!token) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Avatar image must be under 2 MB.");
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Only JPG, PNG and WEBP images are allowed.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const res = await uploadAvatar(token, file);
+      const newAvatarUrl = res.avatar_url;
+      setAvatarUrl(newAvatarUrl);
+      updateAvatarUrl(newAvatarUrl);
+      setMessage("Profile avatar updated successfully!");
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err) {
+      console.error("Upload avatar error:", err);
+      setError(err.message || "Failed to upload avatar.");
+    } finally {
+      setUploadingAvatar(false);
+      // Reset input value so same file can be re-selected if desired
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSave = async (e) => {
@@ -92,12 +126,13 @@ export default function ProfileTab() {
         retailer_phone: updated.phone ?? "",
       });
 
-      // Update AuthContext name locally
+      // Update AuthContext locally
       login({
         token,
         role: auth.role,
         full_name: updated.full_name,
         profile_id: auth.profileId,
+        avatar_url: avatarUrl,
       });
 
       setMessage("Account profile updated successfully!");
@@ -119,34 +154,50 @@ export default function ProfileTab() {
     );
   }
 
+  const avatarSrc = avatarUrl ? `${AVATAR_BASE}${avatarUrl}` : null;
+
   return (
     <form onSubmit={handleSave} className="p-7 flex flex-col lg:flex-row gap-8">
       
       {/* Avatar column */}
       <div className="flex flex-col items-center gap-3 shrink-0">
         <div className="relative w-32 h-32">
-          <img
-            ref={avatarRef}
-            src="https://i.pravatar.cc/300"
-            alt="profile"
-            className="w-full h-full rounded-full object-cover border border-slate-200 shadow-sm"
-          />
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt="profile"
+              className="w-full h-full rounded-full object-cover border border-slate-200 shadow-sm"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(formData.full_name || "Retailer") + "&background=2563EB&color=fff";
+              }}
+            />
+          ) : (
+            <div className="w-full h-full rounded-full bg-blue-100 flex items-center justify-center text-blue-600 border border-blue-200 text-3xl font-black shadow-sm">
+              {formData.full_name ? formData.full_name.charAt(0).toUpperCase() : <FiUser />}
+            </div>
+          )}
+
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             ref={fileInputRef}
             onChange={handleImageChange}
             className="hidden"
           />
           <button
             type="button"
+            disabled={uploadingAvatar}
             onClick={() => fileInputRef.current.click()}
-            className="absolute bottom-1 right-0 bg-blue-600 w-9 h-9 rounded-full flex items-center justify-center text-white shadow-xs hover:bg-blue-750 transition cursor-pointer"
+            className="absolute bottom-1 right-0 bg-blue-600 w-9 h-9 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-700 transition cursor-pointer disabled:opacity-50"
+            title="Change Avatar"
           >
-            <FaPen size={11} />
+            {uploadingAvatar ? <FiLoader size={13} className="animate-spin" /> : <FaPen size={11} />}
           </button>
         </div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Change Avatar</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+          {uploadingAvatar ? "Uploading..." : "Change Avatar"}
+        </p>
       </div>
 
       {/* Form column */}

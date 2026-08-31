@@ -27,7 +27,8 @@ export function AuthProvider({ children }) {
     const role  = localStorage.getItem('vendora_retailer_role');
     const fullName = localStorage.getItem('vendora_retailer_name');
     const profileId = localStorage.getItem('vendora_retailer_profile_id');
-    return token ? { token, role, fullName, profileId } : null;
+    const avatarUrl = localStorage.getItem('vendora_retailer_avatar');
+    return token ? { token, role, fullName, profileId, avatarUrl } : null;
   });
 
   const [regForm, setRegForm] = useState(INITIAL_REG_FORM);
@@ -37,7 +38,19 @@ export function AuthProvider({ children }) {
     localStorage.setItem('vendora_retailer_role',       data.role);
     localStorage.setItem('vendora_retailer_name',       data.full_name);
     localStorage.setItem('vendora_retailer_profile_id',  data.profile_id ?? '');
-    setAuth({ token: data.token, role: data.role, fullName: data.full_name, profileId: data.profile_id });
+    localStorage.setItem('vendora_retailer_avatar',      data.avatar_url ?? '');
+    setAuth({
+      token: data.token,
+      role: data.role,
+      fullName: data.full_name,
+      profileId: data.profile_id,
+      avatarUrl: data.avatar_url ?? ''
+    });
+  }
+
+  function updateAvatarUrl(avatarUrl) {
+    localStorage.setItem('vendora_retailer_avatar', avatarUrl ?? '');
+    setAuth(prev => prev ? { ...prev, avatarUrl } : null);
   }
 
   function logout() {
@@ -45,6 +58,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('vendora_retailer_role');
     localStorage.removeItem('vendora_retailer_name');
     localStorage.removeItem('vendora_retailer_profile_id');
+    localStorage.removeItem('vendora_retailer_avatar');
     setAuth(null);
   }
 
@@ -53,7 +67,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, regForm, setRegForm, resetRegForm }}>
+    <AuthContext.Provider value={{ auth, login, logout, updateAvatarUrl, regForm, setRegForm, resetRegForm }}>
       {children}
     </AuthContext.Provider>
   );
