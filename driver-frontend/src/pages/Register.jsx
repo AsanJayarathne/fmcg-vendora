@@ -38,8 +38,35 @@ export default function Register() {
   const handleRegister = async () => {
     const { fullName, email, phone, password, distributorId, licenseNumber, vehicleNumber } = form;
 
-    if (!fullName.trim() || !email.trim() || !phone.trim() || !password || !distributorId || !licenseNumber.trim() || !vehicleNumber.trim()) {
+    const cleanPhone = (phone || "").replace(/[\s\-]/g, "");
+
+    if (!fullName.trim() || !email.trim() || !cleanPhone || !password || !distributorId || !licenseNumber.trim() || !vehicleNumber.trim()) {
       setError("All fields are required.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!/^(?:\+94|0)?7[0-9]{8}$/.test(cleanPhone)) {
+      setError("Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678).");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+      return;
+    }
+
+    if (!/[!@#$%^&*()\-_=+\[\]{};:\'",.<>\/?\\|`~]/.test(password)) {
+      setError("Password must contain at least one special character (!@#$%^&* etc.).");
       return;
     }
 

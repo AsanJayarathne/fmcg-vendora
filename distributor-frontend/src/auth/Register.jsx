@@ -64,8 +64,19 @@ export default function Register() {
     const { full_name, email, phone, password, confirm_password } = form;
     if (!full_name.trim()) return 'Full name is required.';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'A valid email is required.';
-    if (!phone.trim()) return 'Phone number is required.';
-    if (!password || password.length < 6) return 'Password must be at least 6 characters.';
+    
+    const cleanPhone = (phone || '').replace(/[\s\-]/g, '');
+    if (!/^(?:\+94|0)?7[0-9]{8}$/.test(cleanPhone)) {
+      return 'Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678).';
+    }
+
+    if (!password || password.length < 8) return 'Password must be at least 8 characters.';
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return 'Password must contain at least one uppercase letter, one lowercase letter, and one number.';
+    }
+    if (!/[!@#$%^&*()\-_=+\[\]{};:\'",.<>\/?\\|`~]/.test(password)) {
+      return 'Password must contain at least one special character (!@#$%^&* etc.).';
+    }
     if (password !== confirm_password) return 'Passwords do not match.';
     return null;
   }

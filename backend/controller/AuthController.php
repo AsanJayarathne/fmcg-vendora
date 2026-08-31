@@ -65,6 +65,11 @@ class AuthController {
                 || !$profileData['nic_number'] || !$profileData['region_id']) {
                 sendError('Required fields: full_name, email, phone, password, shop_name, owner_name, shop_address, nic_number, region_id', 400);
             }
+            $this->validateEmail($userData['email']);
+            $this->validateSriLankanPhone($userData['phone']);
+            $this->validateSriLankanNic($profileData['nic_number']);
+            $this->validatePassword($userData['password']);
+
             $result = $this->authService->registerRetailer($userData, $profileData);
             sendSuccess($result, 'Registration submitted. A 6-digit verification code has been sent to your email.', 201);
         } catch (Exception $e) { 
@@ -95,6 +100,10 @@ class AuthController {
                 || !$profileData['reg_number'] || !$profileData['lic_number'] || !$profileData['region_id']) {
                 sendError('Required fields: full_name, email, phone, password, company_name, company_address, reg_number, lic_number, region_id', 400);
             }
+            $this->validateEmail($userData['email']);
+            $this->validateSriLankanPhone($userData['phone']);
+            $this->validatePassword($userData['password']);
+
             $result = $this->authService->registerDistributor($userData, $profileData);
             sendSuccess($result, 'Registration submitted. A 6-digit verification code has been sent to your email.', 201);
         } catch (Exception $e) { 
@@ -121,6 +130,10 @@ class AuthController {
                 || !$profileData['distributor_id'] || !$profileData['license_number'] || !$profileData['vehicle_number']) {
                 sendError('Required fields: full_name, email, phone, password, distributor_id, license_number, vehicle_number', 400);
             }
+            $this->validateEmail($userData['email']);
+            $this->validateSriLankanPhone($userData['phone']);
+            $this->validatePassword($userData['password']);
+
             $result = $this->authService->registerDriver($userData, $profileData);
             sendSuccess($result, 'Registration submitted. A 6-digit verification code has been sent to your email.', 201);
         } catch (Exception $e) { 
@@ -202,11 +215,46 @@ class AuthController {
             if (!$email || !$token || !$newPassword) {
                 sendError('Email, token, and new password are required', 400);
             }
+            $this->validatePassword($newPassword);
 
             $result = $this->authService->resetPassword($email, $token, $newPassword);
             sendSuccess($result, $result['message']);
         } catch (Exception $e) {
             sendError($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    // ─── Input Validation Helpers ────────────────────────────────────────────
+
+    private function validateEmail(string $email): void {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Please enter a valid email address.", 400);
+        }
+    }
+
+    private function validateSriLankanPhone(string $phone): void {
+        $clean = preg_replace('/[\s\-]/', '', $phone);
+        if (!preg_match('/^(?:\+94|0)?7[0-9]{8}$/', $clean)) {
+            throw new Exception("Please enter a valid Sri Lankan mobile number (e.g., 07XXXXXXXX or +947XXXXXXXX).", 400);
+        }
+    }
+
+    private function validateSriLankanNic(string $nic): void {
+        $clean = preg_replace('/[\s\-]/', '', $nic);
+        if (!preg_match('/^([0-9]{9}[vVxX]|[0-9]{12})$/', $clean)) {
+            throw new Exception("Please enter a valid Sri Lankan NIC number (9 digits with V/X or 12 digits).", 400);
+        }
+    }
+
+    private function validatePassword(string $password): void {
+        if (strlen($password) < 8) {
+            throw new Exception("Password must be at least 8 characters long.", 400);
+        }
+        if (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+            throw new Exception("Password must contain at least one uppercase letter, one lowercase letter, and one number.", 400);
+        }
+        if (!preg_match('/[!@#$%^&*()\-_=+\[\]{};:\'",.<>\/?\\|`~]/', $password)) {
+            throw new Exception("Password must contain at least one special character (!@#$%^&* etc.).", 400);
         }
     }
 }

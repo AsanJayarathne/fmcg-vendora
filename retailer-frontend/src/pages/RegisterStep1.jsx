@@ -5,10 +5,27 @@ import FormInput from "../components/RegisterPage/FormInput";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
 
+const SRI_LANKAN_PHONE_REGEX = /^(?:\+94|0)?7[0-9]{8}$/;
+const SRI_LANKAN_NIC_REGEX = /^([0-9]{9}[vVxX]|[0-9]{12})$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function getPasswordCriteria(password = "") {
+  return {
+    minLength: password.length >= 8,
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*()\-_=+\[\]{};:\'",.<>\/?\\|`~]/.test(password),
+  };
+}
+
 export default function RegisterStep1() {
   const navigate = useNavigate();
   const { regForm, setRegForm } = useAuth();
   const [error, setError] = useState("");
+
+  const passCriteria = getPasswordCriteria(regForm.password || "");
+  const passScore = Object.values(passCriteria).filter(Boolean).length;
 
   const handleChange = (field, val) => {
     setRegForm((prev) => ({ ...prev, [field]: val }));
@@ -27,13 +44,16 @@ export default function RegisterStep1() {
       confirmPassword,
     } = regForm;
 
+    const cleanPhone = (phone || "").replace(/[\s\-]/g, "");
+    const cleanNic = (nic || "").replace(/[\s\-]/g, "");
+
     if (
       !firstName.trim() ||
       !lastName.trim() ||
       !shopName.trim() ||
-      !nic.trim() ||
+      !cleanNic ||
       !email.trim() ||
-      !phone.trim() ||
+      !cleanPhone ||
       !password ||
       !confirmPassword
     ) {
@@ -41,13 +61,33 @@ export default function RegisterStep1() {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!EMAIL_REGEX.test(email.trim())) {
       setError("Please enter a valid email address.");
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (!SRI_LANKAN_PHONE_REGEX.test(cleanPhone)) {
+      setError("Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678).");
+      return;
+    }
+
+    if (!SRI_LANKAN_NIC_REGEX.test(cleanNic)) {
+      setError("Please enter a valid Sri Lankan NIC number (9 digits with V/X or 12 digits).");
+      return;
+    }
+
+    if (!passCriteria.minLength) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (!passCriteria.hasUpper || !passCriteria.hasLower || !passCriteria.hasNumber) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+      return;
+    }
+
+    if (!passCriteria.hasSpecial) {
+      setError("Password must contain at least one special character (!@#$%^&* etc.).");
       return;
     }
 
@@ -104,7 +144,7 @@ export default function RegisterStep1() {
 
             <FormInput
               label="NIC Number"
-              placeholder="2002 76 23 555 555"
+              placeholder="921234567V or 200212345678"
               value={regForm.nic}
               onChange={(e) => handleChange("nic", e.target.value)}
             />
@@ -119,18 +159,47 @@ export default function RegisterStep1() {
 
             <FormInput
               label="Phone Number"
-              placeholder="+94 76 1234567"
+              placeholder="076 1234567 or +94 76 1234567"
               value={regForm.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
             />
 
-            <FormInput
-              label="Password"
-              placeholder="********"
-              type="password"
-              value={regForm.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-            />
+            <div className="flex flex-col">
+              <FormInput
+                label="Password"
+                placeholder="********"
+                type="password"
+                value={regForm.password}
+                onChange={(e) => handleChange("password", e.target.value)}
+              />
+              {regForm.password && (
+                <div className="mt-2 text-xs space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  <div className="flex gap-1 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden mb-1.5">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        passScore <= 2
+                          ? "w-1/3 bg-red-500"
+                          : passScore <= 4
+                          ? "w-2/3 bg-amber-500"
+                          : "w-full bg-emerald-500"
+                      }`}
+                    />
+                  </div>
+                  <p className={`flex items-center gap-1.5 ${passCriteria.minLength ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
+                    {passCriteria.minLength ? "✓" : "○"} At least 8 characters
+                  </p>
+                  <p className={`flex items-center gap-1.5 ${passCriteria.hasUpper && passCriteria.hasLower ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
+                    {passCriteria.hasUpper && passCriteria.hasLower ? "✓" : "○"} Uppercase & lowercase letters
+                  </p>
+                  <p className={`flex items-center gap-1.5 ${passCriteria.hasNumber ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
+                    {passCriteria.hasNumber ? "✓" : "○"} At least one number
+                  </p>
+                  <p className={`flex items-center gap-1.5 ${passCriteria.hasSpecial ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
+                    {passCriteria.hasSpecial ? "✓" : "○"} At least one symbol (!@#$%^&*)
+                  </p>
+                </div>
+              )}
+            </div>
 
             <FormInput
               label="Confirm Password"
