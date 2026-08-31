@@ -62,6 +62,7 @@ class AuthService {
             'full_name'  => $user['full_name'],
             'email'      => $user['email'],
             'profile_id' => $profileId,
+            'avatar_url' => $user['avatar_url'] ?? null,
         ];
     }
 

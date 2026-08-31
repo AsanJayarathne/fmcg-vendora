@@ -25,6 +25,8 @@ function formatDate(date) {
   }).format(new Date(date));
 }
 
+const AVATAR_BASE = "http://localhost/fmcg-vendora/backend/uploads/avatars/";
+
 function Topbar() {
   const { cartCount } = useContext(CartContext);
   const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
@@ -248,11 +250,21 @@ function Topbar() {
           onClick={() => setShowProfileMenu((prev) => !prev)}
           className="flex items-center gap-1.5 focus:outline-none cursor-pointer rounded-full"
         >
-          <img
-            src="https://i.pravatar.cc/100"
-            alt="Profile"
-            className="w-9 h-9 rounded-full border border-blue-100 hover:border-blue-500 object-cover transition"
-          />
+          {auth?.avatarUrl ? (
+            <img
+              src={`${AVATAR_BASE}${auth.avatarUrl}`}
+              alt="Profile"
+              className="w-9 h-9 rounded-full border border-blue-100 hover:border-blue-500 object-cover transition"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://ui-avatars.com/api/?name=" + encodeURIComponent(auth?.fullName || "Retailer") + "&background=2563EB&color=fff";
+              }}
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center border border-blue-100 hover:border-blue-500 transition">
+              {auth?.fullName ? auth.fullName.charAt(0).toUpperCase() : <FiUser size={14} />}
+            </div>
+          )}
         </button>
 
         {showProfileMenu && (

@@ -4,16 +4,16 @@ class RetailerRepository {
     private PDO $db;
     public function __construct() { $this->db = Database::getConnection(); }
     public function findByUserId(int $userId): ?array {
-        $stmt = $this->db->prepare("SELECT r.*, u.full_name, u.email, u.phone, dr.region_name FROM retailer r JOIN users u ON u.user_id = r.user_id JOIN distributor_region dr ON dr.region_id = r.region_id WHERE r.user_id = ?");
+        $stmt = $this->db->prepare("SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url, dr.region_name FROM retailer r JOIN users u ON u.user_id = r.user_id JOIN distributor_region dr ON dr.region_id = r.region_id WHERE r.user_id = ?");
         $stmt->execute([$userId]); return $stmt->fetch() ?: null;
     }
     public function findById(int $retailerId): ?array {
-        $stmt = $this->db->prepare("SELECT r.*, u.full_name, u.email, u.phone, dr.region_name FROM retailer r JOIN users u ON u.user_id = r.user_id JOIN distributor_region dr ON dr.region_id = r.region_id WHERE r.retailer_id = ?");
+        $stmt = $this->db->prepare("SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url, dr.region_name FROM retailer r JOIN users u ON u.user_id = r.user_id JOIN distributor_region dr ON dr.region_id = r.region_id WHERE r.retailer_id = ?");
         $stmt->execute([$retailerId]); return $stmt->fetch() ?: null;
     }
     public function getByRegion(int $regionId, string $status = '', int $distributorId = 0): array {
         if ($distributorId > 0) {
-            $sql = "SELECT r.*, u.full_name, u.email, u.phone,
+            $sql = "SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url,
                            CASE WHEN ca.status = 'Blocked' THEN 'Blocked' ELSE r.status END AS status
                     FROM retailer r 
                     JOIN users u ON u.user_id = r.user_id 
@@ -30,7 +30,7 @@ class RetailerRepository {
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $sql = "SELECT r.*, u.full_name, u.email, u.phone FROM retailer r JOIN users u ON u.user_id = r.user_id WHERE r.region_id = ?";
+        $sql = "SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url FROM retailer r JOIN users u ON u.user_id = r.user_id WHERE r.region_id = ?";
         $params = [$regionId];
         if ($status) { $sql .= " AND r.status = ?"; $params[] = $status; }
         $sql .= " ORDER BY r.created_at DESC";

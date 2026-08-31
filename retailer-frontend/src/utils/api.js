@@ -10,8 +10,9 @@ const BASE_URL = "http://localhost/fmcg-vendora/backend/api";
  * @param {object} options  - Optional fetch options (method, body, etc.)
  */
 export async function apiFetch(path, token, options = {}) {
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -21,7 +22,14 @@ export async function apiFetch(path, token, options = {}) {
     headers,
   });
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (err) {
+    console.error("Non-JSON API response from:", path, text);
+    throw new Error(`Server returned unexpected response (${response.status})`);
+  }
 
   if (!response.ok || data.success === false) {
     const message = data?.message || `HTTP ${response.status}`;

@@ -47,4 +47,8 @@ class UserRepository {
     public function updatePassword(int $userId, string $passwordHash): void {
         $this->db->prepare("UPDATE users SET password = ? WHERE user_id = ?")->execute([$passwordHash, $userId]);
     }
+
+    public function updateAvatar(int $userId, ?string $avatarUrl): void {
+        $this->db->prepare("UPDATE users SET avatar_url = ? WHERE user_id = ?")->execute([$avatarUrl, $userId]);
+    }
 }
