@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff, FiGlobe } from "react-icons/fi";
 import loginImage from "../assets/images/shop.png"; 
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
