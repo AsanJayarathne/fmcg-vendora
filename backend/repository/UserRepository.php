@@ -14,6 +14,12 @@ class UserRepository {
         return $stmt->fetch() ?: null;
     }
 
+    public function findByPhone(string $phone): ?array {
+        $stmt = $this->db->prepare("SELECT u.*, r.role_name FROM users u JOIN roles r ON r.role_id = u.role_id WHERE u.phone = ? LIMIT 1");
+        $stmt->execute([$phone]);
+        return $stmt->fetch() ?: null;
+    }
+
     public function findById(int $userId): ?array {
         $stmt = $this->db->prepare("SELECT u.*, r.role_name FROM users u JOIN roles r ON r.role_id = u.role_id WHERE u.user_id = ?");
         $stmt->execute([$userId]);

@@ -30,10 +30,20 @@ class AuthController {
         sendSuccess($this->authService->login($email, $password), 'Login successful');
     }
 
-    private function logout(): void {
+    public function logout(): void {
         $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-        $token  = trim(str_replace('Bearer ', '', $header));
-        if ($token) $this->authService->logout($token);
+        if (!$header && function_exists('apache_request_headers')) {
+            $headers = apache_request_headers();
+            $header  = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        }
+        $token = trim(str_replace('Bearer ', '', $header));
+        if (!$token) {
+            $body  = getBody();
+            $token = trim($body['token'] ?? '');
+        }
+        if ($token) {
+            $this->authService->logout($token);
+        }
         sendSuccess(null, 'Logged out successfully');
     }
 
@@ -56,14 +66,15 @@ class AuthController {
                 'shop_address' => trim($body['shop_address']  ?? ''),
                 'city'         => trim($body['city']          ?? ''),
                 'nic_number'   => trim($body['nic_number']    ?? ''),
+                'br_number'    => trim($body['br_number']     ?? $body['businessReg'] ?? ''),
                 'phone'        => trim($body['phone']         ?? ''),
                 'latitude'     => isset($body['latitude'])  ? (float)$body['latitude']  : null,
                 'longitude'    => isset($body['longitude']) ? (float)$body['longitude'] : null,
             ];
             if (!$userData['full_name'] || !$userData['email'] || !$userData['phone'] || !$userData['password']
                 || !$profileData['shop_name'] || !$profileData['owner_name'] || !$profileData['shop_address']
-                || !$profileData['nic_number'] || !$profileData['region_id']) {
-                sendError('Required fields: full_name, email, phone, password, shop_name, owner_name, shop_address, nic_number, region_id', 400);
+                || !$profileData['nic_number'] || !$profileData['br_number'] || !$profileData['region_id']) {
+                sendError('Required fields: full_name, email, phone, password, shop_name, owner_name, shop_address, nic_number, br_number, region_id', 400);
             }
             $this->validateEmail($userData['email']);
             $this->validateSriLankanPhone($userData['phone']);

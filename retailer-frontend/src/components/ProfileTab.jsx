@@ -22,6 +22,7 @@ export default function ProfileTab() {
     shop_address: "",
     city: "",
     nic_number: "",
+    br_number: "",
     retailer_phone: "",
   });
 
@@ -50,6 +51,7 @@ export default function ProfileTab() {
           shop_address: data.shop_address ?? "",
           city: data.city ?? "",
           nic_number: data.nic_number ?? "",
+          br_number: data.br_number ?? "",
           retailer_phone: data.phone ?? "",
         });
         if (data.avatar_url) {
@@ -259,6 +261,13 @@ export default function ProfileTab() {
             value={formData.nic_number}
             onChange={handleInputChange}
             placeholder="NIC number"
+          />
+          <InputField
+            label="Business Registration (BR)"
+            name="br_number"
+            value={formData.br_number}
+            onChange={handleInputChange}
+            placeholder="e.g. PV-12345 / BR-2024-001"
           />
           <InputField
             label="Shop Address"

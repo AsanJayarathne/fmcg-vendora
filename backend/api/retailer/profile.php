@@ -27,6 +27,7 @@ if ($method === 'GET') {
     $shopAddress = trim($body['shop_address'] ?? '');
     $city = trim($body['city'] ?? '');
     $nicNumber = trim($body['nic_number'] ?? '');
+    $brNumber = trim($body['br_number'] ?? '');
     $retailerPhone = trim($body['retailer_phone'] ?? '');
     
     if (!$fullName || !$email) {
@@ -41,8 +42,8 @@ if ($method === 'GET') {
         $stmt->execute([$fullName, $email, $phone, $user['user_id']]);
         
         // Update retailer profile table
-        $stmt = $db->prepare("UPDATE retailer SET shop_name = ?, owner_name = ?, shop_address = ?, city = ?, nic_number = ?, phone = ? WHERE user_id = ?");
-        $stmt->execute([$shopName, $ownerName, $shopAddress, $city, $nicNumber, $retailerPhone, $user['user_id']]);
+        $stmt = $db->prepare("UPDATE retailer SET shop_name = ?, owner_name = ?, shop_address = ?, city = ?, nic_number = ?, br_number = ?, phone = ? WHERE user_id = ?");
+        $stmt->execute([$shopName, $ownerName, $shopAddress, $city, $nicNumber, $brNumber ?: null, $retailerPhone, $user['user_id']]);
         
         $db->commit();
         
