@@ -16,7 +16,6 @@ import {
   FiTag,
   FiTrendingUp,
   FiPieChart,
-  FiDownload,
   FiCalendar,
   FiCheckCircle,
   FiDollarSign,
@@ -51,7 +50,6 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState("This Month");
   const [activeTab, setActiveTab] = useState("all");
-  const [exportNotice, setExportNotice] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -243,11 +241,6 @@ export default function Analytics() {
     });
   }, [creditInfo]);
 
-  const handleExport = () => {
-    setExportNotice(true);
-    setTimeout(() => setExportNotice(false), 3000);
-  };
-
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 gap-3">
@@ -259,14 +252,6 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6 font-sans">
-      {/* Toast Notification */}
-      {exportNotice && (
-        <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
-          <FiCheckCircle className="text-emerald-400 size-4" />
-          <span>{t("analytics.reportGenerated", "Analytics report summary generated & ready for download!")}</span>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
@@ -294,15 +279,6 @@ export default function Analytics() {
               <option value="All Time">{t("dashboard.allTime", "All Time")}</option>
             </select>
           </div>
-
-          {/* Export Report */}
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
-          >
-            <FiDownload size={15} />
-            <span>{t("analytics.exportReport", "Export Report")}</span>
-          </button>
         </div>
       </div>
 

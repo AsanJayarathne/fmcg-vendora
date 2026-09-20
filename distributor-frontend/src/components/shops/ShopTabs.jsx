@@ -1,5 +1,5 @@
 const tabs = [
-  "All Shop",
+  "All Shops",
   "Pending Approval",
   "Approved",
   "Rejected",

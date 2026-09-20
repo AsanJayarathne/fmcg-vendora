@@ -10,7 +10,6 @@ import {
   RefreshCw,
   BarChart3,
   Calendar,
-  Download,
   CheckCircle2,
   PieChart as PieChartIcon,
   TrendingUp,
@@ -67,10 +66,6 @@ export default function AnalyticsPage() {
   useEffect(() => {
     load();
   }, [auth?.token]);
-
-  const handleExport = () => {
-    showToast("Analytics report summary generated & ready for download!");
-  };
 
   const handleRefresh = () => {
     load();
@@ -175,7 +170,7 @@ export default function AnalyticsPage() {
     {
       title: "Low Stock Alert",
       value: String(kpis.lowStockCount),
-      change: "SKUs need replenishment",
+      change: "Products need restock",
       icon: <AlertTriangle size={22} />,
       iconBg: "bg-rose-50",
       iconColor: "text-rose-600",
@@ -206,7 +201,7 @@ export default function AnalyticsPage() {
             <span>Distributor Analytics</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1 font-normal">
-            Real-time business performance insights, order metrics & regional distribution
+            Overview of sales, orders, and delivery metrics
           </p>
         </div>
 
@@ -233,15 +228,6 @@ export default function AnalyticsPage() {
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
             <span>Refresh</span>
-          </button>
-
-          {/* Export Report Action */}
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
-          >
-            <Download size={14} />
-            <span>Export Report</span>
           </button>
         </div>
       </div>

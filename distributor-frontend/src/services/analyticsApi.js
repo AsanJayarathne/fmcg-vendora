@@ -91,9 +91,9 @@ export async function fetchAnalyticsData(token) {
   const outOfStockCount = stockValues.filter((p) => p.quantity <= 0).length;
   const inventoryInsights = [
     { title: "Products In Stock",      value: inStockCount,    note: "Active products",     color: "green"  },
-    { title: "Low Stock Products",     value: lowStockCount,   note: "Need replenishment",  color: "yellow" },
+    { title: "Low Stock Products",     value: lowStockCount,   note: "Need restock",        color: "yellow" },
     { title: "Out of Stock Products",  value: outOfStockCount, note: "Requires restock",    color: "red"    },
-    { title: "Total SKUs Tracked",     value: Object.keys(stockMap).length, note: "All products", color: "blue" },
+    { title: "Total Products",         value: Object.keys(stockMap).length, note: "All products", color: "blue" },
   ];
 
   return {

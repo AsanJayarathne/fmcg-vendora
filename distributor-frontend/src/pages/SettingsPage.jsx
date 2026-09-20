@@ -35,7 +35,7 @@ export default function SettingsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[450px] bg-white border border-slate-100 rounded-[32px] gap-3 text-slate-500 shadow-xs">
         <Loader2 className="w-9 h-9 animate-spin text-blue-600" />
-        <p className="text-xs font-bold text-slate-600">Loading enterprise profile & security settings...</p>
+        <p className="text-xs font-bold text-slate-600">Loading profile & settings...</p>
       </div>
     );
   }
@@ -47,11 +47,6 @@ export default function SettingsPage() {
         <h1 className="text-3xl font-bold flex items-center text-slate-800">
           <Settings className="inline mr-3 text-blue-600 w-8 h-8" />
           Account Settings
-          {!loading && (
-            <span className="ml-3 text-base font-normal text-slate-500">
-              (Live FMCG Network Profile)
-            </span>
-          )}
         </h1>
 
         <button
@@ -76,28 +71,28 @@ export default function SettingsPage() {
         <MetricCard
           title="Account Status"
           value={profile?.status || "Approved"}
-          subtitle="Verified Network Partner"
+          subtitle="Distributor Account"
           icon={<ShieldCheck size={20} />}
           color="emerald"
         />
         <MetricCard
-          title="Assigned Territory"
+          title="Operating Region"
           value={profile?.region_name ? `${profile.region_name}` : "Colombo"}
-          subtitle={`Region #${profile?.region_id || 1} Distribution Hub`}
+          subtitle={`Region #${profile?.region_id || 1}`}
           icon={<MapPin size={20} />}
           color="blue"
         />
         <MetricCard
           title="Business Reg. No."
           value={profile?.reg_number || "REG-001"}
-          subtitle="Ministry Verified Entity"
+          subtitle="Registered Business"
           icon={<FileText size={20} />}
           color="amber"
         />
         <MetricCard
-          title="FMCG Operating License"
-          value={profile?.lic_number || "LIC-001"}
-          subtitle="Tier-1 Distribution Authorization"
+          title="Operating License"
+          value={profile?.lic_number || profile?.reg_number || "LIC-001"}
+          subtitle="Authorized Distributor"
           icon={<Award size={20} />}
           color="violet"
         />

@@ -7,8 +7,8 @@ export default function SalesByTerritory({ data }) {
 
   return (
     <AnalyticsCard
-      title="Sales by Territory"
-      subtitle="Regional revenue distribution & volume share"
+      title="Sales by Region"
+      subtitle="Revenue distribution by region"
       icon={MapPin}
     >
       <div className="space-y-4 py-2">

@@ -5,7 +5,7 @@ import RevenueTrendChart from "../components/analytics/RevenueTrendChart";
 import RegionShareChart from "../components/analytics/RegionShareChart";
 import TopDistributorsTable from "../components/analytics/TopDistributorsTable";
 import AnalyticsCard from "../components/analytics/AnalyticsCard";
-import { BarChart3, TrendingUp, ShoppingBag, Boxes, CheckCircle2, Download, Layers, RotateCcw } from "lucide-react";
+import { BarChart3, TrendingUp, ShoppingBag, Boxes, CheckCircle2, Layers, RotateCcw } from "lucide-react";
 
 const API = "http://localhost/fmcg-vendora/backend/api/admin/analytics.php";
 
@@ -40,10 +40,6 @@ export default function AnalyticsPage() {
   }, [auth?.token, fetchAnalytics]);
 
   const ranges = ["Last 7 Days", "This Month", "This Quarter", "This Year"];
-
-  const handleExport = () => {
-    alert("Exporting Real Analytics Data Report (CSV / PDF)...");
-  };
 
   const metrics = analyticsData?.metrics || {};
   const categoriesData = analyticsData?.categories || [];
@@ -89,15 +85,6 @@ export default function AnalyticsPage() {
             title="Refresh Data"
           >
             <RotateCcw size={15} className={loading ? "animate-spin" : ""} />
-          </button>
-
-          {/* Export Report CTA */}
-          <button
-            onClick={handleExport}
-            className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-2xs transition flex items-center gap-2 cursor-pointer shrink-0"
-          >
-            <Download size={15} />
-            Export Report
           </button>
         </div>
       </div>

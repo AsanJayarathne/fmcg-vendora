@@ -12,7 +12,7 @@ export default function InventoryInsights({ insights }) {
             <span>Inventory Insights</span>
           </h2>
           <p className="text-xs text-slate-400 font-normal mt-0.5">
-            Stock levels, replenishment alerts & product movement summary
+            Stock levels and low stock alerts summary
           </p>
         </div>
       </div>

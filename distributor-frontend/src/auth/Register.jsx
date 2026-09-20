@@ -4,6 +4,7 @@ import {
   Eye, EyeOff, AlertCircle, CheckCircle2, Package,
   User, Mail, Phone, Lock, Building2, MapPin, FileText, Globe, ChevronDown
 } from 'lucide-react';
+import OtpVerificationModal from '../components/auth/OtpVerificationModal';
 
 const API_BASE = 'http://localhost/fmcg-vendora/backend/api';
 
@@ -53,6 +54,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/auth/regions.php`)
@@ -136,13 +138,24 @@ export default function Register() {
         setError(json.message || 'Registration failed. Please try again.');
         return;
       }
-      setSuccess('Registration submitted successfully! Your account is awaiting admin approval. You will be notified by email.');
-      setTimeout(() => navigate('/login'), 5000);
+
+      if (json.data?.requires_verification) {
+        setShowOtpModal(true);
+      } else {
+        setSuccess('Registration submitted successfully! Your account is awaiting admin approval. You will be notified by email.');
+        setTimeout(() => navigate('/login'), 5000);
+      }
     } catch {
       setError('Network error - make sure the backend is running.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleOtpSuccess() {
+    setShowOtpModal(false);
+    setSuccess('Registration completed successfully! Your email is verified and your distributor account is awaiting admin approval.');
+    setTimeout(() => navigate('/login'), 5000);
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -405,6 +418,15 @@ export default function Register() {
 
         <p className="text-center text-xs text-white/20 mt-6">© 2025 Vendora. All rights reserved.</p>
       </div>
+
+      {/* OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={showOtpModal}
+        email={form.email.trim()}
+        onSuccess={handleOtpSuccess}
+        onClose={() => setShowOtpModal(false)}
+        portalName="Distributor Portal"
+      />
     </div>
   );
 }

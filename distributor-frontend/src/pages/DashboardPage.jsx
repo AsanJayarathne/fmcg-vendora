@@ -350,7 +350,7 @@ export default function Dashboard() {
             {[
               { label: "Shops", val: approvedShops, icon: Store },
               { label: "Drivers", val: activeDrivers, icon: Truck },
-              { label: "SKUs", val: aggregatedStock.length, icon: Package },
+              { label: "Products", val: aggregatedStock.length, icon: Package },
             ].map(({ label, val, icon: Icon }) => (
               <div key={label} className="bg-white/10 rounded-2xl px-4 py-3">
                 <Icon size={16} className="text-blue-200 mb-1" />
@@ -457,13 +457,13 @@ export default function Dashboard() {
       {/* ── Territory + Recent Orders + Low Stock ── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
 
-        {/* Territory */}
+        {/* Territory / Region */}
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-black text-gray-800 mb-1">Sales by Territory</h3>
+          <h3 className="text-sm font-black text-gray-800 mb-1">Sales by Region</h3>
           <p className="text-xs text-gray-400 mb-4">Revenue distribution by region</p>
 
           {territoryData.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No territory data yet</p>
+            <p className="text-sm text-gray-400 text-center py-8">No regional sales data yet</p>
           ) : (
             <div className="space-y-4">
               {territoryData.map(({ name, val, pct }, i) => {

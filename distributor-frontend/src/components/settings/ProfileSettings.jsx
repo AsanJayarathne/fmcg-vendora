@@ -58,7 +58,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
     setToast(null);
     try {
       await updateProfile(auth.token, form);
-      setToast({ type: "success", msg: "Account and enterprise profile updated successfully!" });
+      setToast({ type: "success", msg: "Profile updated successfully!" });
       onSaved?.();
       setTimeout(() => setToast(null), 5000);
     } catch (err) {
@@ -78,9 +78,9 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
   const code = `DST-${String(profile?.distributor_id || 1).padStart(3, "0")}`;
 
   const tabs = [
-    { id: "general", label: "Representative Profile", icon: User },
-    { id: "business", label: "Enterprise & Territory", icon: Building2 },
-    { id: "security", label: "Security & Access", icon: ShieldCheck },
+    { id: "general", label: "Personal Profile", icon: User },
+    { id: "business", label: "Company Details", icon: Building2 },
+    { id: "security", label: "Security", icon: ShieldCheck },
   ];
 
   return (
@@ -126,7 +126,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
                 <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-                  {form.company_name || form.full_name || "Distributor Partner"}
+                  {form.company_name || form.full_name || "Distributor"}
                 </h2>
                 <span className="px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-100">
                   {code}
@@ -138,11 +138,11 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
               </div>
 
               <p className="text-xs text-slate-400 font-semibold mt-1 flex flex-wrap items-center gap-2">
-                <span>Representative: <strong className="text-slate-700">{form.full_name || "-"}</strong></span>
+                <span>Contact Person: <strong className="text-slate-700">{form.full_name || "-"}</strong></span>
                 <span>•</span>
                 <span className="flex items-center gap-1 text-slate-600">
                   <MapPin size={12} className="text-blue-500" />
-                  {profile?.region_name || "National Territory"}
+                  {profile?.region_name || "Assigned Region"}
                 </span>
               </p>
             </div>
@@ -197,21 +197,21 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
         {activeTab === "general" && (
           <div className="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xs space-y-6">
             <div className="border-b border-slate-50 pb-4">
-              <h3 className="text-base font-bold text-slate-800">Representative Details</h3>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Primary contact and account representative credentials</p>
+              <h3 className="text-base font-bold text-slate-800">Personal Details</h3>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Primary contact information</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Representative Full Name <span className="text-rose-500">*</span>
+                  Full Name <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={form.full_name}
                     onChange={(e) => handleChange("full_name", e.target.value)}
-                    placeholder="Enter full legal name"
+                    placeholder="Enter full name"
                     className="w-full bg-slate-50/60 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-800 outline-none transition shadow-2xs focus:ring-4 focus:ring-blue-500/10"
                   />
                   <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -220,7 +220,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Contact Phone Number
+                  Phone Number
                 </label>
                 <div className="relative">
                   <input
@@ -236,7 +236,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Primary Login Email (System Bound)
+                  Email Address
                 </label>
                 <div className="relative">
                   <input
@@ -248,43 +248,43 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
                   <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
                 <p className="text-[11px] text-slate-400 font-medium mt-1.5">
-                  Locked for platform security. Contact system administrator for email migrations.
+                  Email cannot be changed directly. Contact support if you need to update it.
                 </p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Assigned Regional Territory
+                  Assigned Region
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    value={profile?.region_name ? `${profile.region_name} District (Region #${profile?.region_id || 1})` : "National FMCG Territory"}
+                    value={profile?.region_name ? `${profile.region_name} (Region #${profile?.region_id || 1})` : "Assigned Region"}
                     readOnly
                     className="w-full bg-slate-100/70 border border-slate-200/80 rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-500 cursor-not-allowed outline-none"
                   />
                   <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
                 <p className="text-[11px] text-slate-400 font-medium mt-1.5">
-                  Territory is assigned and verified by Vendora FMCG network operations.
+                  Region assigned to your account.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* TAB 2: Enterprise & Business Details */}
+        {/* TAB 2: Company & Business Details */}
         {activeTab === "business" && (
           <div className="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xs space-y-6">
             <div className="border-b border-slate-50 pb-4">
-              <h3 className="text-base font-bold text-slate-800">Enterprise Entity & Warehouse Hub</h3>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Commercial registration, trade licenses, and supply warehouse location</p>
+              <h3 className="text-base font-bold text-slate-800">Company & Warehouse Details</h3>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Business registration and warehouse location</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Registered Distribution Company Name
+                  Company Name
                 </label>
                 <div className="relative">
                   <input
@@ -315,12 +315,12 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  FMCG Operating License (Lic No.)
+                  Operating License (Lic No.)
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    value={profile?.lic_number || "LIC-001"}
+                    value={profile?.lic_number || profile?.reg_number || "LIC-001"}
                     readOnly
                     className="w-full bg-slate-100/70 border border-slate-200/80 rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-600 outline-none cursor-not-allowed"
                   />
@@ -330,14 +330,14 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
 
               <div className="md:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Distribution Hub / Physical Warehouse Address
+                  Company / Warehouse Address
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={form.company_address}
                     onChange={(e) => handleChange("company_address", e.target.value)}
-                    placeholder="Enter complete physical address of distribution center"
+                    placeholder="Enter physical address"
                     className="w-full bg-slate-50/60 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-800 outline-none transition shadow-2xs focus:ring-4 focus:ring-blue-500/10"
                   />
                   <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -347,12 +347,12 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
           </div>
         )}
 
-        {/* TAB 3: Security & Access */}
+        {/* TAB 3: Security */}
         {activeTab === "security" && (
           <div className="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xs space-y-6">
             <div className="border-b border-slate-50 pb-4">
-              <h3 className="text-base font-bold text-slate-800">Security & Authentication</h3>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Manage your credentials, active JWT session, and platform verification</p>
+              <h3 className="text-base font-bold text-slate-800">Security & Password</h3>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Manage your password and active session</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -364,7 +364,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
                     <h4>Account Password</h4>
                   </div>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    Ensure your account is protected with a strong, multi-character password.
+                    Ensure your account is protected with a strong password.
                   </p>
                 </div>
 
@@ -380,21 +380,21 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
                 </div>
               </div>
 
-              {/* Session / Verification Status Card */}
+              {/* Session Status Card */}
               <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-2 text-slate-800 font-bold text-sm">
                     <ShieldCheck size={16} className="text-emerald-600" />
-                    <h4>Authentication Token</h4>
+                    <h4>Account Session</h4>
                   </div>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    Signed JWT bearer authentication active with role: <strong className="text-slate-800">DISTRIBUTOR</strong>.
+                    You are currently logged in as a <strong className="text-slate-800">Distributor</strong>.
                   </p>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
                   <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-3 py-1 rounded-full">
-                    Token Active & Verified
+                    Active Session
                   </span>
                 </div>
               </div>
