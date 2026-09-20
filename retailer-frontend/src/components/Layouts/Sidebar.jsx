@@ -47,12 +47,7 @@ function Sidebar({ isOpen = false, onClose }) {
       path: "/orders",
       icon: <FiClipboard size={20} />
     },
-    {
-      name: t("nav.messages", "Messages"),
-      path: "/messages",
-      icon: <FiMessageSquare size={20} />,
-      badge: unreadMessageCount
-    },
+    
     {
       name: t("nav.analytics", "Analytics"),
       path: "/analytics",

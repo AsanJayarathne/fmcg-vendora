@@ -7,6 +7,24 @@ import { useLanguage } from "../../context/LanguageContext";
 function CategoryFilter({ categories, selectedCategoryId, onSelect, isLoading }) {
   const { t } = useLanguage();
 
+  const getCategoryLabel = (categoryName) => {
+    const normalizedName = String(categoryName ?? "").trim().toLowerCase();
+    const categoryKeyByName = {
+      beverages: "products.beverages",
+      "beverages & drinks": "products.beverages",
+      snacks: "products.snacks",
+      "snacks & confectionery": "products.snacks",
+      dairy: "products.dairy",
+      "dairy & chilled": "products.dairy",
+      "personal care": "products.personalCare",
+      household: "products.household",
+      "household essentials": "products.household",
+    };
+
+    const translationKey = categoryKeyByName[normalizedName];
+    return translationKey ? t(translationKey, categoryName) : categoryName;
+  };
+
   const items = [
     { category_id: null, category_name: t("products.allCategories", "All Products") },
     ...(categories ?? []),
@@ -39,7 +57,7 @@ function CategoryFilter({ categories, selectedCategoryId, onSelect, isLoading })
               : "bg-white border-slate-200 hover:border-blue-500 text-slate-600 hover:text-blue-600"
           }`}
         >
-          {cat.category_name}
+          {getCategoryLabel(cat.category_name)}
         </button>
       ))}
     </div>
