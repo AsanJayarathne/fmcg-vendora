@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ShieldCheck, ArrowRight, CheckCircle2, AlertCircle, RefreshCw, Loader2, X } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function OtpVerificationModal({
   isOpen,
@@ -8,6 +9,7 @@ export default function OtpVerificationModal({
   onClose,
   portalName = "Retailer Portal",
 }) {
+  const { t } = useLanguage();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -88,7 +90,7 @@ export default function OtpVerificationModal({
     if (e) e.preventDefault();
     const code = otp.join("");
     if (code.length !== 6) {
-      setError("Please enter the complete 6-digit verification code.");
+      setError(t("auth.enterComplete6Digits", "Please enter the complete 6-digit verification code."));
       return;
     }
 
@@ -107,7 +109,7 @@ export default function OtpVerificationModal({
 
       const data = await res.json();
       if (!data.success) {
-        setError(data.message || "Verification failed. Please check the code.");
+        setError(data.message || t("auth.otpFailed", "Verification failed. Please check the code."));
         setLoading(false);
         return;
       }
@@ -118,7 +120,7 @@ export default function OtpVerificationModal({
         if (onSuccess) onSuccess();
       }, 1500);
     } catch (err) {
-      setError("Network error — unable to reach verification server.");
+      setError(t("auth.networkError", "Network error — unable to reach verification server."));
       setLoading(false);
     }
   };
@@ -137,13 +139,13 @@ export default function OtpVerificationModal({
 
       const data = await res.json();
       if (!data.success) {
-        setError(data.message || "Failed to resend code.");
+        setError(data.message || t("auth.failedResend", "Failed to resend code."));
       } else {
         setResendCooldown(60);
       }
       setResending(false);
     } catch (err) {
-      setError("Network error — unable to resend verification code.");
+      setError(t("auth.networkError", "Network error — unable to resend verification code."));
       setResending(false);
     }
   };
@@ -168,9 +170,9 @@ export default function OtpVerificationModal({
           <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mb-4 shadow-sm">
             <ShieldCheck size={28} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Verify Your Email</h3>
+          <h3 className="text-2xl font-bold text-slate-800">{t("auth.otpTitle", "Verify Your Email")}</h3>
           <p className="text-sm text-slate-500 mt-1">
-            We sent a 6-digit code to <span className="font-semibold text-slate-700">{email}</span>
+            {t("auth.otpSubtitle", "We sent a 6-digit code to")} <span className="font-semibold text-slate-700">{email}</span>
           </p>
         </div>
 
@@ -186,9 +188,9 @@ export default function OtpVerificationModal({
             <div className="w-14 h-14 bg-green-50 text-green-600 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-3 animate-bounce">
               <CheckCircle2 size={32} />
             </div>
-            <h4 className="text-lg font-bold text-slate-800">Email Verified!</h4>
+            <h4 className="text-lg font-bold text-slate-800">{t("auth.emailVerified", "Email Verified!")}</h4>
             <p className="text-xs text-slate-500 mt-1">
-              Your account has been verified successfully. Redirecting...
+              {t("auth.accountVerifiedRedirecting", "Your account has been verified successfully. Redirecting...")}
             </p>
           </div>
         ) : (
@@ -215,7 +217,7 @@ export default function OtpVerificationModal({
             </div>
 
             <p className="text-center text-xs text-amber-600 font-medium mb-5">
-              ⏱ Code expires in 15 minutes
+              ⏱ {t("auth.codeExpiryNotice", "Code expires in 15 minutes")}
             </p>
 
             <button
@@ -226,11 +228,11 @@ export default function OtpVerificationModal({
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  <span>Verifying Code...</span>
+                  <span>{t("auth.verifyingOtp", "Verifying Code...")}</span>
                 </>
               ) : (
                 <>
-                  <span>Verify Email</span>
+                  <span>{t("auth.verifyOtp", "Verify Email")}</span>
                   <ArrowRight size={18} />
                 </>
               )}
@@ -238,10 +240,10 @@ export default function OtpVerificationModal({
 
             {/* Resend Section */}
             <div className="mt-5 text-center text-xs text-slate-500">
-              Didn't receive the code?{" "}
+              {t("auth.didntReceiveCode", "Didn't receive the code?")}{" "}
               {resendCooldown > 0 ? (
                 <span className="font-semibold text-slate-700">
-                  Resend in <span className="text-blue-600">{resendCooldown}s</span>
+                  {t("auth.resendIn", "Resend in")} <span className="text-blue-600">{resendCooldown}s</span>
                 </span>
               ) : (
                 <button
@@ -251,7 +253,7 @@ export default function OtpVerificationModal({
                   className="font-semibold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer inline-flex items-center gap-1"
                 >
                   <RefreshCw size={12} className={resending ? "animate-spin" : ""} />
-                  <span>{resending ? "Resending..." : "Resend Code"}</span>
+                  <span>{resending ? t("auth.sendingLink", "Resending...") : t("auth.resendOtp", "Resend Code")}</span>
                 </button>
               )}
             </div>

@@ -1,6 +1,8 @@
 import ProductCard from "./ProductCard";
+import { useLanguage } from "../../context/LanguageContext";
 
 function ProductGrid({ products, onView, onCart, isLoading }) {
+  const { t } = useLanguage();
 
   // Loading skeleton — matches responsive grid layout
   if (isLoading) {
@@ -24,8 +26,8 @@ function ProductGrid({ products, onView, onCart, isLoading }) {
     return (
       <div className="text-center py-12 sm:py-16 bg-white rounded-3xl border border-slate-100 p-8 shadow-xs">
         <p className="text-4xl mb-2">🔍</p>
-        <p className="font-bold text-sm sm:text-base text-slate-800">No products found</p>
-        <p className="text-xs text-slate-400 mt-1">Try selecting a different category or search keyword</p>
+        <p className="font-bold text-sm sm:text-base text-slate-800">{t("products.noProductsFound", "No products found")}</p>
+        <p className="text-xs text-slate-400 mt-1">{t("products.noProductsSubtitle", "Try selecting a different category or search keyword")}</p>
       </div>
     );
   }

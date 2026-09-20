@@ -1,17 +1,20 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { MapPin, Map as MapIcon } from "lucide-react";
+import { FiGlobe } from "react-icons/fi";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
 import MapPickerModal from "../components/RegisterPage/MapPickerModal";
 import OtpVerificationModal from "../components/auth/OtpVerificationModal";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { apiFetch } from "../utils/api";
 
 export default function RegisterStep2() {
   const navigate = useNavigate();
   const { regForm, setRegForm, resetRegForm } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +39,7 @@ export default function RegisterStep2() {
 
   const handleGetLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
+      setError(t("auth.geoNotSupported", "Geolocation is not supported by your browser."));
       return;
     }
     setGettingLocation(true);
@@ -54,7 +57,7 @@ export default function RegisterStep2() {
       },
       (err) => {
         setGettingLocation(false);
-        setError("Unable to retrieve your location. Please allow location permissions in your browser.");
+        setError(t("auth.geoPermissionError", "Unable to retrieve your location. Please allow location permissions in your browser."));
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -85,13 +88,13 @@ export default function RegisterStep2() {
 
     // Check step 1 fields just in case they cleared or bypassed
     if (!firstName || !lastName || !nic || !email || !phone || !password) {
-      setError("Please go back and fill in all personal information fields first.");
+      setError(t("auth.fillStep1First", "Please go back and fill in all personal information fields first."));
       return;
     }
 
     // Validate step 2 fields
     if (!shopName.trim() || !shopAddress.trim() || !city.trim() || !regionId) {
-      setError("Please fill in all business information fields (Shop Name, Address, City, Region).");
+      setError(t("auth.fillBusinessFields", "Please fill in all business information fields (Shop Name, Address, City, Region)."));
       return;
     }
 
@@ -126,14 +129,14 @@ export default function RegisterStep2() {
       setRegisteredEmail(email.trim());
       setShowOtpModal(true);
     } catch (err) {
-      setError(err.message || "Network error — make sure the backend is running.");
+      setError(err.message || t("auth.networkError", "Network error — make sure the backend is running."));
       setLoading(false);
     }
   };
 
   const handleOtpSuccess = () => {
     setShowOtpModal(false);
-    setSuccess("Registration verified successfully! Awaiting distributor approval. Redirecting to login...");
+    setSuccess(t("auth.regVerifiedSuccess", "Registration verified successfully! Awaiting distributor approval. Redirecting to login..."));
     resetRegForm();
     setTimeout(() => {
       navigate("/login");
@@ -141,7 +144,18 @@ export default function RegisterStep2() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 sm:p-6 relative">
+      {/* Floating Language Switcher */}
+      <button
+        type="button"
+        onClick={toggleLanguage}
+        title={language === "si" ? "Switch to English" : "සිංහල භාෂාවට මාරුවන්න"}
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold transition shadow-xs border border-blue-200 cursor-pointer active:scale-95"
+      >
+        <FiGlobe size={14} />
+        <span>{language === "si" ? "සිංහල" : "English"}</span>
+      </button>
+
       <div className="flex gap-12 min-h-[90vh]">
         <LeftPanel />
 
@@ -150,8 +164,8 @@ export default function RegisterStep2() {
 
           <p className="text-center text-base text-gray-400 mt-2">2 / 2</p>
 
-          <h1 className="text-center text-3xl font-bold mt-2">
-            Business Information
+          <h1 className="text-center text-3xl font-bold mt-2 text-slate-800">
+            {t("auth.registerStep2Title", "Business Information")}
           </h1>
 
           {error && (
@@ -166,42 +180,44 @@ export default function RegisterStep2() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mt-6">
             <FormInput
-              label="Shop Name"
+              label={t("auth.shopName", "Shop Name")}
               placeholder="Jayarathna Stores Pvt Ltd"
               value={regForm.shopName}
               onChange={(e) => handleChange("shopName", e.target.value)}
             />
 
             <FormInput
-              label="Shop Address"
+              label={t("auth.shopAddress", "Shop Address")}
               placeholder="Address Line 1"
               value={regForm.shopAddress}
               onChange={(e) => handleChange("shopAddress", e.target.value)}
             />
 
             <FormInput
-              label="Business Registration Number"
+              label={t("auth.brn", "Business Registration Number")}
               placeholder="Jayarathna Stores Pvt Ltd"
               value={regForm.businessReg}
               onChange={(e) => handleChange("businessReg", e.target.value)}
             />
 
             <FormInput
-              label="Address Line 2"
+              label={t("auth.addressLine2", "Address Line 2")}
               placeholder="Address Line 2"
               value={regForm.addressLine2}
               onChange={(e) => handleChange("addressLine2", e.target.value)}
             />
 
             <div className="flex flex-col">
-              <label className="text-gray-500 text-base mb-1.5 font-medium">GPS Location</label>
+              <label className="text-gray-500 text-base mb-1.5 font-medium">
+                {t("auth.gpsCoordinates", "GPS Location")}
+              </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   readOnly
-                  placeholder="Pick GPS location"
+                  placeholder={t("auth.pickOnMap", "Pick GPS location")}
                   value={
                     regForm.latitude && regForm.longitude
                       ? `${regForm.latitude}, ${regForm.longitude}`
@@ -217,7 +233,7 @@ export default function RegisterStep2() {
                   title="Auto-detect current location"
                 >
                   <MapPin size={16} />
-                  <span>{gettingLocation ? "Locating..." : "GPS"}</span>
+                  <span>{gettingLocation ? t("common.loading", "Locating...") : "GPS"}</span>
                 </button>
                 <button
                   type="button"
@@ -226,33 +242,35 @@ export default function RegisterStep2() {
                   title="Pick on interactive map"
                 >
                   <MapIcon size={16} />
-                  <span>Map</span>
+                  <span>{t("auth.map", "Map")}</span>
                 </button>
               </div>
             </div>
 
             <FormInput
-              label="City"
+              label={t("auth.city", "City")}
               placeholder="Colombo"
               value={regForm.city}
               onChange={(e) => handleChange("city", e.target.value)}
             />
 
             <FormInput
-              label="Shop Phone"
+              label={t("auth.shopPhone", "Shop Phone")}
               placeholder="+94 11 32 45 789"
               value={regForm.shopPhone}
               onChange={(e) => handleChange("shopPhone", e.target.value)}
             />
 
             <div className="flex flex-col">
-              <label className="text-gray-500 text-base mb-1.5 font-medium">Region</label>
+              <label className="text-gray-500 text-base mb-1.5 font-medium">
+                {t("auth.district", "Region / District")}
+              </label>
               <select
-                className="bg-[#EEF2F6] rounded-2xl px-5 py-3.5 text-base font-semibold outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-[#EEF2F6] rounded-2xl px-5 py-3.5 text-base font-semibold outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 value={regForm.regionId}
                 onChange={(e) => handleChange("regionId", e.target.value)}
               >
-                <option value="">Select Region</option>
+                <option value="">{t("auth.selectDistrict", "Select Region")}</option>
                 {regions.map((r) => (
                   <option key={r.region_id} value={r.region_id}>
                     {r.region_name}
@@ -270,7 +288,7 @@ export default function RegisterStep2() {
                 disabled={loading}
                 className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50 cursor-pointer"
               >
-                Back
+                {t("common.back", "Back")}
               </button>
 
               <button
@@ -279,14 +297,14 @@ export default function RegisterStep2() {
                 disabled={loading}
                 className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50 cursor-pointer"
               >
-                {loading ? "Submitting..." : "Register"}
+                {loading ? t("auth.registering", "Submitting...") : t("auth.completeRegistration", "Register")}
               </button>
             </div>
 
             <p className="text-sm text-slate-500">
-              Already have an account?{" "}
+              {t("auth.alreadyHaveAccount", "Already have an account?")}{" "}
               <Link to="/login" className="text-blue-700 font-semibold hover:underline">
-                Login
+                {t("auth.loginHere", "Login")}
               </Link>
             </p>
           </div>

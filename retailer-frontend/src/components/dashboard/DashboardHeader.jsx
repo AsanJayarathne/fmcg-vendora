@@ -1,4 +1,5 @@
 import { FiHome, FiFilter, FiX } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function DashboardHeader({
   onOpenFilter,
@@ -7,17 +8,19 @@ export default function DashboardHeader({
   onRemoveFilter,
   onResetFilters,
 }) {
+  const { t } = useLanguage();
+
   return (
     <div className="mb-6 space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
             <FiHome className="text-blue-500" />
-            Dashboard
+            {t("nav.dashboard", "Dashboard")}
           </h1>
 
           <p className="text-slate-400 text-sm mt-1 font-normal">
-            Welcome back Here is your store performance overview
+            {t("dashboard.dashboardSubtitle", "Welcome back! Here is your store performance overview")}
           </p>
         </div>
 
@@ -31,7 +34,7 @@ export default function DashboardHeader({
               }`}
           >
             <FiFilter className={activeFilterCount > 0 ? "text-white" : "text-slate-500"} />
-            <span>Filters</span>
+            <span>{t("common.filter", "Filters")}</span>
             {activeFilterCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-white text-blue-600 text-xs font-bold flex items-center justify-center shadow-xs">
                 {activeFilterCount}
@@ -45,7 +48,7 @@ export default function DashboardHeader({
       {activeFilterBadges.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Active Filters:
+            {t("dashboard.activeFilters", "Active Filters")}:
           </span>
           {activeFilterBadges.map((badge) => (
             <span
@@ -67,7 +70,7 @@ export default function DashboardHeader({
             onClick={onResetFilters}
             className="text-xs font-semibold text-red-500 hover:text-red-700 underline cursor-pointer ml-1"
           >
-            Reset All
+            {t("common.reset", "Reset All")}
           </button>
         </div>
       )}

@@ -1,3 +1,5 @@
+import { useLanguage } from "../../context/LanguageContext";
+
 const CATEGORY_GRADIENTS = {
   Dairy:      { from: "#fef3c7", to: "#fcd34d", icon: "🥛" },
   Beverages:  { from: "#dbeafe", to: "#93c5fd", icon: "🧃" },
@@ -8,6 +10,8 @@ const CATEGORY_GRADIENTS = {
 };
 
 function ProductCard({ product, onView, onCart }) {
+  const { t } = useLanguage();
+
   // Map real API field names → local variables
   const id       = product.product_id    ?? product.id;
   const name     = product.product_name  ?? product.name;
@@ -71,10 +75,10 @@ function ProductCard({ product, onView, onCart }) {
                 : "text-green-600 bg-green-50 border-green-200/50"
           }`}>
             {isOutOfStock
-              ? "Out of Stock"
+              ? t("products.outOfStock", "Out of Stock")
               : isLowStock
-                ? `Low Stock (${stockQty})`
-                : "In Stock"}
+                ? `${t("products.lowStock", "Low Stock")} (${stockQty})`
+                : t("products.inStock", "In Stock")}
           </span>
         </div>
 
@@ -104,7 +108,7 @@ function ProductCard({ product, onView, onCart }) {
             onClick={() => onView(product)}
             className="flex-1 border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 text-slate-700 hover:text-blue-600 font-bold text-[11px] sm:text-xs py-2 rounded-xl cursor-pointer transition flex items-center justify-center shadow-2xs"
           >
-            Details
+            {t("products.productDetails", "Details")}
           </button>
 
           <button
@@ -118,7 +122,7 @@ function ProductCard({ product, onView, onCart }) {
                 : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10"
             }`}
           >
-            Add To Cart
+            {t("products.addToCart", "Add To Cart")}
           </button>
         </div>
       </div>

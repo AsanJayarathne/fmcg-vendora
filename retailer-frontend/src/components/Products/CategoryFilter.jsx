@@ -1,10 +1,14 @@
+import { useLanguage } from "../../context/LanguageContext";
+
 /**
  * CategoryFilter
  * Renders category pill buttons with matching blue themes, smooth mobile touch scrolling and micro-animations.
  */
 function CategoryFilter({ categories, selectedCategoryId, onSelect, isLoading }) {
+  const { t } = useLanguage();
+
   const items = [
-    { category_id: null, category_name: "All Products" },
+    { category_id: null, category_name: t("products.allCategories", "All Products") },
     ...(categories ?? []),
   ];
 

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiLock, FiGlobe } from "react-icons/fi";
 import loginImage from "../assets/images/shop.png"; 
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import ForgotPasswordModal from "../components/auth/ForgotPasswordModal";
 
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,7 @@ function Login() {
     e.preventDefault();
 
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError(t("auth.enterBothCredentials", "Please enter both email and password."));
       return;
     }
 
@@ -36,13 +38,13 @@ function Login() {
       const json = await res.json();
 
       if (!json.success) {
-        setError(json.message || "Login failed. Please check your credentials.");
+        setError(json.message || t("auth.loginFailed", "Login failed. Please check your credentials."));
         setLoading(false);
         return;
       }
 
       if (json.data.role !== 'RETAILER') {
-        setError("Access denied. This portal is for Retailers only.");
+        setError(t("auth.retailerOnly", "Access denied. This portal is for Retailers only."));
         setLoading(false);
         return;
       }
@@ -50,7 +52,7 @@ function Login() {
       login(json.data);
       navigate("/");
     } catch (err) {
-      setError("Network error — make sure the backend is running.");
+      setError(t("auth.networkError", "Network error — make sure the backend is running."));
       setLoading(false);
     }
   };
@@ -60,12 +62,22 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#2446D8] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#2446D8] flex items-center justify-center p-4 sm:p-6 relative">
+      {/* Floating Language Switcher */}
+      <button
+        type="button"
+        onClick={toggleLanguage}
+        title={language === "si" ? "Switch to English" : "සිංහල භාෂාවට මාරුවන්න"}
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold transition shadow-md border border-white/20 cursor-pointer active:scale-95"
+      >
+        <FiGlobe size={14} />
+        <span>{language === "si" ? "සිංහල" : "English"}</span>
+      </button>
 
       <div className="bg-white rounded-[32px] w-full max-w-5xl overflow-hidden flex shadow-2xl">
 
         {/* LEFT */}
-        <div className="w-full lg:w-1/2 flex flex-col justify-center px-12 py-12">
+        <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 py-10 sm:py-12">
 
           {/* Logo */}
           <div className="flex items-center gap-3.5 mb-7">
@@ -80,12 +92,15 @@ function Login() {
 
           </div>
 
-          <h2 className="text-3xl font-bold mb-6">
-            Welcome Back
+          <h2 className="text-3xl font-bold mb-2 text-slate-800">
+            {t("auth.welcomeBack", "Welcome Back")}
           </h2>
+          <p className="text-slate-500 text-sm mb-6">
+            {t("auth.loginSubtitle", "Sign in to your retailer account to place orders")}
+          </p>
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl text-center font-semibold mb-6 text-base">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl text-center font-semibold mb-6 text-sm">
               {error}
             </div>
           )}
@@ -96,11 +111,10 @@ function Login() {
           >
 
             {/* Email */}
-
             <div className="bg-slate-100 rounded-xl px-4 py-2.5">
 
               <label className="text-gray-500 text-xs">
-                E-mail Address
+                {t("auth.email", "Email Address")}
               </label>
 
               <div className="flex items-center gap-2 mt-1.5">
@@ -121,11 +135,10 @@ function Login() {
             </div>
 
             {/* Password */}
-
             <div className="bg-slate-100 rounded-xl px-4 py-2.5">
 
               <label className="text-gray-500 text-xs">
-                Password
+                {t("auth.password", "Password")}
               </label>
 
               <div className="flex items-center gap-2 mt-1.5">
@@ -146,10 +159,9 @@ function Login() {
             </div>
 
             {/* Remember */}
-
             <div className="flex justify-between items-center text-sm">
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-600">
 
                 <input
                   type="checkbox"
@@ -157,43 +169,41 @@ function Login() {
                   onChange={() => setRemember(!remember)}
                 />
 
-                Remember Me
+                {t("auth.rememberMe", "Remember Me")}
 
               </label>
 
               <button
                 type="button"
                 onClick={() => setShowForgotModal(true)}
-                className="text-gray-500 hover:text-blue-600 cursor-pointer"
+                className="text-gray-500 hover:text-blue-600 cursor-pointer text-xs sm:text-sm"
               >
-                Forgot Password?
+                {t("auth.forgotPassword", "Forgot Password?")}
               </button>
 
             </div>
 
             {/* Login */}
-
             <button
               type="submit"
               disabled={loading}
               className={`w-full bg-blue-700 hover:bg-blue-800 transition text-white py-3 rounded-full text-base font-semibold cursor-pointer ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
             >
-              {loading ? "Logging In..." : "Log In"}
+              {loading ? t("auth.loggingIn", "Logging In...") : t("auth.loginButton", "Log In")}
             </button>
 
           </form>
 
           {/* Register */}
-
           <p className="text-center mt-6 text-gray-600 text-sm">
 
-            Don't Have an Account?
+            {t("auth.dontHaveAccount", "Don't Have an Account?")}
 
             <button
               onClick={handleRegister}
-              className="ml-1.5 text-blue-700 font-semibold cursor-pointer"
+              className="ml-1.5 text-blue-700 font-semibold cursor-pointer hover:underline"
             >
-              Register
+              {t("auth.registerNow", "Register Now")}
             </button>
 
           </p>
@@ -201,7 +211,6 @@ function Login() {
         </div>
 
         {/* RIGHT */}
-
         <div className="hidden lg:flex w-1/2 bg-[#2446D8] items-center justify-center p-8">
 
           <div className="w-full h-full rounded-[24px] flex items-center justify-center">

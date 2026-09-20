@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX, FiPlus, FiMinus, FiShoppingBag, FiCheck } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 const CATEGORY_GRADIENTS = {
   Dairy:      { from: "#fde68a", to: "#f59e0b", icon: "🥛" },
@@ -15,6 +16,8 @@ function AddToCartModal({
   onClose,
   onConfirm,
 }) {
+  const { t } = useLanguage();
+
   if (!product) return null;
 
   // Support real API field names first, then fallback
@@ -23,7 +26,7 @@ function AddToCartModal({
   const stockQty    = product.available_qty ?? product.stock_qty ?? product.stock ?? 0;
   const category    = product.category_name ?? product.category ?? "Default";
   const unit        = product.unit          ?? "";
-  const description = product.description ?? "High quality product selected from our top distributors.";
+  const description = product.description ?? t("products.defaultDescription", "High quality product selected from our top distributors.");
 
   const hasInsufficientStock = stockQty < 8;
   const [quantity, setQuantity] = useState(hasInsufficientStock ? 0 : 8);
@@ -112,19 +115,19 @@ function AddToCartModal({
             {/* Bulk Discounts Pill Strip */}
             <div className="bg-blue-50/40 border border-blue-100/60 rounded-2xl p-3.5 space-y-1.5">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-blue-600">
-                Bulk Tier Discounts
+                {t("products.bulkTiers", "Bulk Tier Discounts")}
               </h3>
               <div className="text-xs font-semibold text-slate-600 space-y-1">
                 <div className="flex justify-between items-center">
-                  <span>8–24 units</span>
+                  <span>8–24 {t("common.units", "units")}</span>
                   <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">5% OFF</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>32–48 units</span>
+                  <span>32–48 {t("common.units", "units")}</span>
                   <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">10% OFF</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>56+ units</span>
+                  <span>56+ {t("common.units", "units")}</span>
                   <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded text-[11px]">15% OFF</span>
                 </div>
               </div>
@@ -149,7 +152,7 @@ function AddToCartModal({
                     ? "bg-red-50 text-red-600 border-red-200" 
                     : "bg-green-50 text-green-600 border-green-200"
                 }`}>
-                  {hasInsufficientStock ? "Out of stock (Min 8)" : `${stockQty} available`}
+                  {hasInsufficientStock ? `${t("products.outOfStock", "Out of stock")} (Min 8)` : `${stockQty} ${t("products.available", "available")}`}
                 </span>
               </div>
 
@@ -166,7 +169,7 @@ function AddToCartModal({
               {/* Unit Price */}
               <div className="pt-1">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Wholesale Unit Price
+                  {t("products.wholesalePrice", "Wholesale Unit Price")}
                 </p>
                 <p className="text-lg sm:text-xl font-black text-slate-900">
                   Rs. {Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -180,7 +183,7 @@ function AddToCartModal({
                 {/* Quantity Adjuster: [-] [qty] [+] */}
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    Quantity (Units)
+                    {t("products.quantity", "Quantity (Units)")}
                   </span>
                   <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-2xl border border-slate-200/80">
                     <button
@@ -210,7 +213,7 @@ function AddToCartModal({
                 {/* Total Billing */}
                 <div className="flex flex-col items-end">
                   <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                    Order Total
+                    {t("cart.totalAmount", "Order Total")}
                   </span>
                   {discountRate > 0 && (
                     <span className="text-xs font-bold text-slate-400 line-through">
@@ -230,7 +233,7 @@ function AddToCartModal({
                   onClick={onClose}
                   className="flex-1 py-3 px-4 rounded-2xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition cursor-pointer"
                 >
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </button>
 
                 <button
@@ -240,7 +243,7 @@ function AddToCartModal({
                   className="flex-[2] py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <FiShoppingBag size={14} />
-                  <span>Add To Cart</span>
+                  <span>{t("products.addToCart", "Add To Cart")}</span>
                 </button>
               </div>
             </div>

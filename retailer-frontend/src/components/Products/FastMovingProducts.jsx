@@ -1,3 +1,5 @@
+import { useLanguage } from "../../context/LanguageContext";
+
 const defaultFastProducts = [
   { name: "Anchor Milk Powder 400g", orders: 145, growth: "+22%", trend: "up" },
   { name: "Sunlight Care Soap 100g", orders: 122, growth: "+16%", trend: "up" },
@@ -7,6 +9,7 @@ const defaultFastProducts = [
 ];
 
 export default function FastMovingProducts({ products }) {
+  const { t } = useLanguage();
   const displayList = Array.isArray(products) && products.length > 0 ? products : defaultFastProducts;
 
   return (
@@ -15,14 +18,14 @@ export default function FastMovingProducts({ products }) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="font-semibold text-slate-800 text-base leading-tight">
-              Fast Moving Products
+              {t("analytics.fastMovingProducts", "Fast Moving Products")}
             </h2>
             <p className="text-xs text-slate-400 font-normal mt-0.5">
-              Highest order velocity items over time
+              {t("analytics.highestVelocitySubtitle", "Highest order velocity items over time")}
             </p>
           </div>
           <span className="rounded-full bg-emerald-50 border border-emerald-100/80 px-3 py-1 text-emerald-600 text-xs font-medium">
-            High Velocity
+            {t("analytics.highVelocity", "High Velocity")}
           </span>
         </div>
 
@@ -30,9 +33,9 @@ export default function FastMovingProducts({ products }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                <th className="pb-3 pl-1 font-semibold">Rank & Product</th>
-                <th className="pb-3 text-center font-semibold">Orders</th>
-                <th className="pb-3 text-right pr-1 font-semibold">Growth Rate</th>
+                <th className="pb-3 pl-1 font-semibold">{t("analytics.rankProduct", "Rank & Product")}</th>
+                <th className="pb-3 text-center font-semibold">{t("analytics.ordersCount", "Orders")}</th>
+                <th className="pb-3 text-right pr-1 font-semibold">{t("analytics.growthRate", "Growth Rate")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">

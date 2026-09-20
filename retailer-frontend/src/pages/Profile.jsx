@@ -1,15 +1,17 @@
 import { useState } from "react";
 import ProfileTab from "../components/ProfileTab";
 import SecurityTab from "../components/SecurityTab";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Profile() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("profile");
 
   return (
     <div className="space-y-6 font-sans">
 
       {/* Page heading */}
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Account Settings</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-6">{t("profile.title", "Account Settings")}</h1>
 
       {/* Full-width card filling the content area */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -26,7 +28,7 @@ export default function Profile() {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {tab === "profile" ? "Edit Profile" : "Security"}
+              {tab === "profile" ? t("profile.shopDetails", "Edit Profile") : t("profile.changePassword", "Security")}
             </button>
           ))}
         </div>

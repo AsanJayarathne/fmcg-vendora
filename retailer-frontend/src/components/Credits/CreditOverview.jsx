@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { FiCreditCard, FiCheckCircle, FiShield, FiArrowRight, FiCheck, FiClock, FiAlertTriangle, FiCalendar } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { fetchCreditInfo } from "../../services/orderService";
 import SettleDebitModal from "./SettleDebitModal";
 import PaymentGatewayModal from "../PaymentGatewayModal";
 
 export default function CreditOverview({ data = {}, onSelectDistributor, onRefresh }) {
   const { auth } = useAuth();
+  const { t } = useLanguage();
   const token = auth?.token ?? null;
 
   const [localAccounts, setLocalAccounts] = useState(data.accounts ?? (data.all_accounts ?? []));
@@ -161,15 +163,15 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-50 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="font-bold text-slate-800 text-base leading-tight">Credit Overview</h2>
+              <h2 className="font-bold text-slate-800 text-base leading-tight">{t("credits.creditOverview", "Credit Overview")}</h2>
               {isBlocked && (
                 <span className="rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-rose-600 text-[10px] font-extrabold uppercase">
-                  Blocked
+                  {t("credits.blocked", "Blocked")}
                 </span>
               )}
             </div>
             <p className="text-xs text-slate-400 font-medium mt-0.5">
-              {distributorName ? `Account with ${distributorName}` : "Current balance and usage"}
+              {distributorName ? `${t("credits.accountWith", "Account with")} ${distributorName}` : t("credits.currentBalanceUsage", "Current balance and usage")}
             </p>
           </div>
 
@@ -187,7 +189,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
             </select>
           ) : (
             <div className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-600 text-xs font-bold">
-              {usedPercent.toFixed(0)}% used
+              {usedPercent.toFixed(0)}% {t("credits.usedLabel", "used")}
             </div>
           )}
         </div>
@@ -195,17 +197,17 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
         {/* Balance Cards */}
         <div className="mt-5 space-y-3">
           <div className="rounded-2xl border border-blue-100/50 bg-blue-50/40 p-4">
-            <p className="text-[10px] font-bold text-blue-600/70 uppercase tracking-wider mb-1">Credit Limit</p>
+            <p className="text-[10px] font-bold text-blue-600/70 uppercase tracking-wider mb-1">{t("credits.totalCreditLimit", "Credit Limit")}</p>
             <p className="text-xl font-black text-blue-700">Rs. {fmt(limit)}</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-slate-100 bg-amber-50/40 p-4">
-              <p className="text-[10px] font-bold text-amber-600/70 uppercase tracking-wider mb-1">Used (Outstanding Debt)</p>
+              <p className="text-[10px] font-bold text-amber-600/70 uppercase tracking-wider mb-1">{t("credits.usedOutstandingDebt", "Used (Outstanding Debt)")}</p>
               <p className="text-lg font-bold text-amber-700">Rs. {fmt(used)}</p>
             </div>
             <div className="rounded-2xl border border-slate-100 bg-green-50/40 p-4">
-              <p className="text-[10px] font-bold text-green-600/70 uppercase tracking-wider mb-1">Available</p>
+              <p className="text-[10px] font-bold text-green-600/70 uppercase tracking-wider mb-1">{t("credits.availableCredit", "Available")}</p>
               <p className="text-lg font-bold text-green-700">Rs. {fmt(available)}</p>
             </div>
           </div>
@@ -237,7 +239,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                   }
                 />
                 <span className="text-[11px] font-bold uppercase tracking-wider">
-                  Settlement Timeline (30 Days)
+                  {t("credits.settlementTimeline", "Settlement Timeline (30 Days)")}
                 </span>
               </div>
               <span
@@ -253,9 +255,9 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
               >
                 {used > 0
                   ? daysRemaining === 0
-                    ? "Overdue"
-                    : `${daysRemaining} Days Left`
-                  : "30-Day Active Term"}
+                    ? t("credits.overdue", "Overdue")
+                    : `${daysRemaining} ${t("credits.daysLeft", "Days Left")}`
+                  : t("credits.thirtyDayActive", "30-Day Active Term")}
               </span>
             </div>
 
@@ -264,10 +266,10 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-600">
                     {daysRemaining === 0
-                      ? "Grace period expired — please settle debt"
-                      : `Must settle within ${daysRemaining} day${daysRemaining === 1 ? "" : "s"}`}
+                      ? t("credits.gracePeriodExpired", "Grace period expired — please settle debt")
+                      : `${t("credits.mustSettleWithin", "Must settle within")} ${daysRemaining} ${t("credits.days", "days")}`}
                   </span>
-                  <span className="font-bold text-slate-700">Due: {formattedDueDate}</span>
+                  <span className="font-bold text-slate-700">{t("credits.due", "Due")}: {formattedDueDate}</span>
                 </div>
                 {/* 30-Day Progress Bar */}
                 <div className="w-full bg-slate-200/60 rounded-full h-1.5 overflow-hidden">
@@ -285,13 +287,13 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                   />
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400 font-medium">
-                  <span>Day {Math.min(30, daysElapsed)}</span>
-                  <span>30 Days Maximum Period</span>
+                  <span>{t("credits.day", "Day")} {Math.min(30, daysElapsed)}</span>
+                  <span>{t("credits.thirtyDaysMax", "30 Days Maximum Period")}</span>
                 </div>
               </div>
             ) : (
               <p className="text-[11px] text-slate-500 font-medium">
-                Retailers have a maximum of 30 days to settle their credit after placing orders.
+                {t("credits.settleExplanation", "Retailers have a maximum of 30 days to settle their credit after placing orders.")}
               </p>
             )}
           </div>
@@ -300,7 +302,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
         {/* Progress Bar */}
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between text-xs text-slate-500 font-medium">
-            <span>Usage progress</span>
+            <span>{t("credits.usageProgress", "Usage progress")}</span>
             <span>{usedPercent.toFixed(0)}%</span>
           </div>
           <div className="h-3 overflow-hidden rounded-full bg-slate-100">
@@ -325,19 +327,19 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                 <FiCreditCard size={15} />
               </div>
               <div className="text-left">
-                <p className="text-[10px] text-emerald-100 font-bold uppercase tracking-wider">Instant Online Payment</p>
-                <p className="text-xs font-black text-white">Settle Full Debt (Rs. {fmt(used)})</p>
+                <p className="text-[10px] text-emerald-100 font-bold uppercase tracking-wider">{t("credits.instantOnlinePayment", "Instant Online Payment")}</p>
+                <p className="text-xs font-black text-white">{t("credits.settleFullDebt", "Settle Full Debt")} (Rs. {fmt(used)})</p>
               </div>
             </div>
             <div className="flex items-center gap-1 bg-white/15 px-3 py-1.5 rounded-xl text-[11px] font-bold">
-              <span>Pay Now</span>
+              <span>{t("credits.payNow", "Pay Now")}</span>
               <FiArrowRight size={13} />
             </div>
           </button>
         ) : (
           <div className="w-full py-3 px-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center gap-2 text-slate-400 font-bold text-xs">
             <FiCheck size={14} className="text-emerald-500" />
-            <span>Zero Outstanding Debt</span>
+            <span>{t("credits.zeroDebt", "Zero Outstanding Debt")}</span>
           </div>
         )}
       </div>

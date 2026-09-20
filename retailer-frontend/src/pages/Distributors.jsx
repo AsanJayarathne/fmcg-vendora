@@ -3,9 +3,10 @@ import DistributorCard from "../components/distributors/DistributorCard";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import SearchBar from "../components/products/SearchBar";
+import { useLanguage } from "../context/LanguageContext";
 
 function Distributors() {
-
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,7 +26,7 @@ function Distributors() {
     <div className="p-6">
 
       <h1 className="text-3xl font-bold mb-6">
-        Distributors
+        {t("distributors.title", "Distributors")}
       </h1>
 
       <SearchBar

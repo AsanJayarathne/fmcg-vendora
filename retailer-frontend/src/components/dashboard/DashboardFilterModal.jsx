@@ -1,4 +1,5 @@
 import { FiX, FiRefreshCw, FiFilter, FiCheck } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function DashboardFilterModal({
   isOpen,
@@ -14,31 +15,33 @@ export default function DashboardFilterModal({
   setSelectedStatus,
   onReset,
 }) {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   const timeframeOptions = [
-    { label: "All Time", value: "All Time" },
-    { label: "This Week", value: "This Week" },
-    { label: "This Month", value: "This Month" },
-    { label: "Last Month", value: "Last Month" },
-    { label: "This Quarter", value: "This Quarter" },
-    { label: "This Year", value: "This Year" },
+    { label: t("dashboard.allTime", "All Time"), value: "All Time" },
+    { label: t("dashboard.thisWeek", "This Week"), value: "This Week" },
+    { label: t("dashboard.thisMonth", "This Month"), value: "This Month" },
+    { label: t("dashboard.lastMonth", "Last Month"), value: "Last Month" },
+    { label: t("dashboard.thisQuarter", "This Quarter"), value: "This Quarter" },
+    { label: t("dashboard.thisYear", "This Year"), value: "This Year" },
   ];
 
   const paymentOptions = [
-    { label: "All Methods", value: "" },
-    { label: "Cash", value: "Cash" },
-    { label: "Credit", value: "Credit" },
-    { label: "Cash + Credit", value: "Cash_Credit" },
+    { label: t("payment.allMethods", "All Methods"), value: "" },
+    { label: t("payment.cashOnDelivery", "Cash"), value: "Cash" },
+    { label: t("payment.credit30Days", "Credit"), value: "Credit" },
+    { label: t("payment.splitCashCredit", "Cash + Credit"), value: "Cash_Credit" },
   ];
 
   const statusOptions = [
-    { label: "All Statuses", value: "" },
-    { label: "Placed / Processing", value: "Processing" },
-    { label: "Accepted / Approved", value: "Approved" },
-    { label: "Out for Delivery", value: "CLAIMED" },
-    { label: "Delivered", value: "Delivered" },
-    { label: "Cancelled / Rejected", value: "Rejected" },
+    { label: t("orders.allOrders", "All Statuses"), value: "" },
+    { label: t("orders.processing", "Placed / Processing"), value: "Processing" },
+    { label: t("orders.accepted", "Accepted / Approved"), value: "Approved" },
+    { label: t("orders.claimed", "Out for Delivery"), value: "CLAIMED" },
+    { label: t("orders.delivered", "Delivered"), value: "Delivered" },
+    { label: t("orders.rejected", "Cancelled / Rejected"), value: "Rejected" },
   ];
 
   const hasActiveFilters =
@@ -58,10 +61,10 @@ export default function DashboardFilterModal({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800 leading-tight">
-                Filter Dashboard Data
+                {t("dashboard.filterModalTitle", "Filter Dashboard Data")}
               </h2>
               <p className="text-xs text-slate-400 font-normal">
-                Refine metrics, charts & lists
+                {t("dashboard.filterModalSubtitle", "Refine metrics, charts & lists")}
               </p>
             </div>
           </div>
@@ -79,7 +82,7 @@ export default function DashboardFilterModal({
           {/* Timeframe Section */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-              Time Period
+              {t("dashboard.timePeriod", "Time Period")}
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {timeframeOptions.map((opt) => {
@@ -106,14 +109,14 @@ export default function DashboardFilterModal({
           {/* Distributor Filter */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Distributor
+              {t("dashboard.distributor", "Distributor")}
             </label>
             <select
               value={selectedDistributor}
               onChange={(e) => setSelectedDistributor(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:bg-white transition cursor-pointer"
             >
-              <option value="">All Distributors</option>
+              <option value="">{t("dashboard.allDistributors", "All Distributors")}</option>
               {distributors.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -125,7 +128,7 @@ export default function DashboardFilterModal({
           {/* Payment Method Filter */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
-              Payment Method
+              {t("payment.paymentMethod", "Payment Method")}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {paymentOptions.map((opt) => {
@@ -152,7 +155,7 @@ export default function DashboardFilterModal({
           {/* Order Status Filter */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              Order Status
+              {t("orders.orderStatus", "Order Status")}
             </label>
             <select
               value={selectedStatus}
@@ -181,7 +184,7 @@ export default function DashboardFilterModal({
             }`}
           >
             <FiRefreshCw size={13} />
-            Reset All
+            {t("common.reset", "Reset All")}
           </button>
 
           <button
@@ -189,7 +192,7 @@ export default function DashboardFilterModal({
             onClick={onClose}
             className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-xs transition cursor-pointer"
           >
-            Apply Filters
+            {t("common.apply", "Apply Filters")}
           </button>
         </div>
       </div>

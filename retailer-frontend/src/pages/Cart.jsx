@@ -2,9 +2,10 @@ import { useContext, useMemo, useState } from "react";
 import { CartContext } from "../context/CartContextObject";
 import { useNavigate } from "react-router-dom";
 import { FiTrash2, FiAlertTriangle, FiX, FiShoppingCart, FiMinus, FiPlus, FiArrowRight } from "react-icons/fi";
+import { useLanguage } from "../context/LanguageContext";
 
 // ── Confirmation Modal ──────────────────────────────────────────────────────
-function RemoveConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
+function RemoveConfirmModal({ isOpen, onClose, onConfirm, title, message, cancelText, confirmText }) {
   if (!isOpen) return null;
 
   return (
@@ -43,13 +44,13 @@ function RemoveConfirmModal({ isOpen, onClose, onConfirm, title, message }) {
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer"
           >
-            Cancel
+            {cancelText || "Cancel"}
           </button>
           <button
             onClick={onConfirm}
             className="px-4.5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-2xs transition cursor-pointer"
           >
-            Yes, Remove
+            {confirmText || "Yes, Remove"}
           </button>
         </div>
       </div>
@@ -69,6 +70,7 @@ function Cart() {
   } = useContext(CartContext);
 
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Confirmation state: null | { type: 'single', item } | { type: 'all' }
   const [removeTarget, setRemoveTarget] = useState(null);
@@ -128,10 +130,10 @@ function Cart() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center gap-2">
             <FiShoppingCart className="text-blue-600" />
-            <span>Shopping Cart</span>
+            <span>{t("cart.title", "Shopping Cart")}</span>
           </h1>
           <p className="text-xs font-semibold text-slate-400 mt-0.5">
-            Review orders organized separately by distributor.
+            {t("cart.subtitle", "Review orders organized separately by distributor.")}
           </p>
         </div>
 
@@ -141,7 +143,7 @@ function Cart() {
             className="self-start sm:self-auto px-4 py-2 border border-red-200 text-red-600 rounded-full hover:bg-red-50 font-bold text-xs cursor-pointer transition flex items-center gap-1.5 shadow-2xs"
           >
             <FiTrash2 size={13} />
-            <span>Clear Cart</span>
+            <span>{t("cart.clearCart", "Clear Cart")}</span>
           </button>
         )}
       </div>
@@ -149,13 +151,13 @@ function Cart() {
       {cartItems.length === 0 ? (
         <div className="bg-white border border-slate-100 rounded-3xl p-10 sm:p-16 text-center text-slate-400 font-bold shadow-xs flex flex-col items-center justify-center">
           <FiShoppingCart className="text-slate-300 mb-3" size={40} />
-          <p className="text-base sm:text-lg font-bold text-slate-700">Your cart is empty</p>
-          <p className="text-xs text-slate-400 mt-1 mb-5">Browse our catalog to add wholesale items to your cart.</p>
+          <p className="text-base sm:text-lg font-bold text-slate-700">{t("cart.emptyCartTitle", "Your cart is empty")}</p>
+          <p className="text-xs text-slate-400 mt-1 mb-5">{t("cart.emptyCartSubtitle", "Browse our catalog to add wholesale items to your cart.")}</p>
           <button
             onClick={() => navigate("/products")}
             className="px-6 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition cursor-pointer shadow-md shadow-blue-500/20 flex items-center gap-1.5"
           >
-            <span>Browse Products</span>
+            <span>{t("cart.startShopping", "Browse Products")}</span>
             <FiArrowRight size={14} />
           </button>
         </div>
@@ -174,12 +176,12 @@ function Cart() {
                       {order.distributor}
                     </h2>
                     <p className="text-[11px] font-bold text-slate-400 mt-0.5">
-                      {order.items.length} product lines — {order.totalQuantity} units
+                      {order.items.length} {t("common.items", "product lines")} — {order.totalQuantity} {t("common.units", "units")}
                     </p>
                   </div>
 
                   <div className="text-left sm:text-right">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Distributor Total</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("cart.distributorTotal", "Distributor Total")}</p>
                     <p className="text-lg sm:text-xl font-black text-blue-600">
                       Rs. {fmt(order.total)}
                     </p>
@@ -198,11 +200,11 @@ function Cart() {
                           {item.name}
                         </h3>
                         <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                          Rs. {fmt(item.price)} each
+                          Rs. {fmt(item.price)} {t("products.each", "each")}
                         </p>
                         {item.discountRate > 0 && (
                           <p className="text-[11px] font-bold text-emerald-600 mt-0.5">
-                            {item.discountRate}% bulk discount applied
+                            {item.discountRate}% {t("cart.discountApplied", "bulk discount applied")}
                           </p>
                         )}
                       </div>
@@ -266,9 +268,9 @@ function Cart() {
                 {/* Distributor Order Footer */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 bg-slate-50/50 border-t border-slate-100">
                   <div className="text-xs font-bold text-slate-500">
-                    <span>Subtotal: Rs. {fmt(order.subtotal)}</span>
+                    <span>{t("cart.subtotal", "Subtotal")}: Rs. {fmt(order.subtotal)}</span>
                     <span className="mx-2 text-slate-300">|</span>
-                    <span className="text-emerald-600">Discount: Rs. {fmt(order.discount)}</span>
+                    <span className="text-emerald-600">{t("cart.discount", "Discount")}: Rs. {fmt(order.discount)}</span>
                   </div>
 
                   <button
@@ -282,7 +284,7 @@ function Cart() {
                     }
                     className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-2xl cursor-pointer transition shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5"
                   >
-                    <span>Place Order With {order.distributor}</span>
+                    <span>{t("cart.placeOrderWith", "Place Order With")} {order.distributor}</span>
                     <FiArrowRight size={13} />
                   </button>
                 </div>
@@ -292,16 +294,18 @@ function Cart() {
 
           {/* Cart Summary Sidebar */}
           <aside className="bg-white border border-slate-100 rounded-2xl sm:rounded-[32px] p-5 sm:p-6 shadow-xs h-fit">
-            <h2 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider mb-4">Cart Summary</h2>
+            <h2 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider mb-4">
+              {t("cart.orderSummary", "Cart Summary")}
+            </h2>
 
             <div className="space-y-3">
               <div className="flex justify-between text-xs font-bold text-slate-500">
-                <span>Distributor orders</span>
+                <span>{t("cart.distributorOrders", "Distributor orders")}</span>
                 <span className="text-slate-800 font-extrabold">{distributorOrders.length}</span>
               </div>
 
               <div className="flex justify-between text-xs font-bold text-slate-500">
-                <span>Product lines</span>
+                <span>{t("cart.productLines", "Product lines")}</span>
                 <span className="text-slate-800 font-extrabold">{cartItems.length}</span>
               </div>
 
@@ -320,18 +324,18 @@ function Cart() {
 
             <div className="space-y-2 pt-4 mt-4 border-t border-slate-100 text-xs font-bold text-slate-500">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>{t("cart.subtotal", "Subtotal")}</span>
                 <span className="text-slate-800 font-extrabold">Rs. {fmt(cartSubtotal)}</span>
               </div>
 
               <div className="flex justify-between text-emerald-600">
-                <span>Discount</span>
+                <span>{t("cart.discount", "Discount")}</span>
                 <span className="font-extrabold">- Rs. {fmt(cartDiscount)}</span>
               </div>
             </div>
 
             <div className="flex justify-between text-base sm:text-lg font-black pt-4 mt-4 border-t border-slate-100 text-blue-600">
-              <span>Total</span>
+              <span>{t("cart.totalAmount", "Total")}</span>
               <span>Rs. {fmt(cartTotal)}</span>
             </div>
           </aside>
@@ -343,11 +347,13 @@ function Cart() {
         isOpen={Boolean(removeTarget)}
         onClose={() => setRemoveTarget(null)}
         onConfirm={handleConfirmRemoval}
-        title={removeTarget?.type === "all" ? "Clear Shopping Cart" : "Remove Item"}
+        cancelText={t("common.cancel", "Cancel")}
+        confirmText={t("cart.confirmRemove", "Yes, Remove")}
+        title={removeTarget?.type === "all" ? t("cart.clearCart", "Clear Shopping Cart") : t("cart.removeItem", "Remove Item")}
         message={
           removeTarget?.type === "all"
-            ? "Are you sure you want to remove all items from your shopping cart?"
-            : `Are you sure you want to remove "${removeTarget?.item?.name}" from your cart?`
+            ? t("cart.clearCartConfirm", "Are you sure you want to remove all items from your shopping cart?")
+            : `${t("cart.removeItemConfirm", "Are you sure you want to remove")} "${removeTarget?.item?.name}" ${t("cart.fromYourCart", "from your cart?")}`
         }
       />
     </div>

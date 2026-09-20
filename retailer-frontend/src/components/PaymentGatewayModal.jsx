@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { FiCreditCard, FiCheckCircle, FiXCircle, FiLock, FiShield, FiX, FiLoader } from "react-icons/fi";
+import { useLanguage } from "../context/LanguageContext";
 import { processGatewayCallback } from "../services/orderService";
 
 export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, onFailure, onCancel }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
 
@@ -34,12 +36,12 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
       if (status === "SUCCESS") {
         onSuccess(res);
       } else {
-        setError("Payment was declined by bank simulator.");
+        setError(t("payment.declinedByBank", "Payment was declined by bank simulator."));
         onFailure(res);
       }
     } catch (err) {
       console.error("Gateway execution error:", err);
-      setError(err.message || "Failed to process sandbox payment");
+      setError(err.message || t("payment.failedSandbox", "Failed to process sandbox payment"));
     } finally {
       setLoading(false);
     }
@@ -73,7 +75,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
               <FiShield size={20} />
             </div>
             <div>
-              <span className="text-[10px] font-black tracking-widest text-blue-400 uppercase">Secure Payment Gateway</span>
+              <span className="text-[10px] font-black tracking-widest text-blue-400 uppercase">{t("payment.gatewayTitle", "Secure Payment Gateway")}</span>
               <h2 className="text-base font-black text-white leading-tight">{sessionData.gateway_name}</h2>
             </div>
           </div>
@@ -82,14 +84,14 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 {sessionData.payment_type === 'CREDIT_SETTLEMENT' || sessionData.credit_id
-                  ? 'Credit Debt Settlement'
-                  : `Order #${sessionData.order_id}`}
+                  ? t("credits.creditDebtSettlement", "Credit Debt Settlement")
+                  : `${t("orders.orderId", "Order")} #${sessionData.order_id}`}
               </p>
               <p className="text-xs font-black text-white">{sessionData.distributor_name}</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                {sessionData.payment_type === 'CREDIT_SETTLEMENT' ? 'Full Settlement Amount' : 'Amount Due'}
+                {sessionData.payment_type === 'CREDIT_SETTLEMENT' ? t("credits.fullSettlementAmount", "Full Settlement Amount") : t("payment.amountDue", "Amount Due")}
               </p>
               <p className="text-lg font-black text-blue-400">LKR {fmt(sessionData.amount)}</p>
             </div>
@@ -101,7 +103,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
           <div className="bg-blue-50 border border-blue-100 rounded-2xl p-3.5 flex items-center gap-3 text-blue-900 text-xs">
             <FiLock size={16} className="text-blue-600 shrink-0" />
             <p className="font-bold text-[11px]">
-              Sandbox Environment: Use simulated card details below or click <strong className="font-black">Pay Now</strong>.
+              {t("payment.sandboxNotice", "Sandbox Environment: Use simulated card details below or click Pay Now.")}
             </p>
           </div>
 
@@ -115,7 +117,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
           {/* Form */}
           <div className="space-y-3">
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Cardholder Name</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("payment.cardHolderName", "Cardholder Name")}</label>
               <input
                 type="text"
                 value={cardHolder}
@@ -125,7 +127,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Card Number</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("payment.cardNumber", "Card Number")}</label>
               <div className="relative">
                 <input
                   type="text"
@@ -139,7 +141,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Expiry (MM/YY)</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("payment.expiry", "Expiry (MM/YY)")}</label>
                 <input
                   type="text"
                   value={expiry}
@@ -148,7 +150,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">CVV / CVC</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("payment.cvv", "CVV / CVC")}</label>
                 <input
                   type="text"
                   value={cvv}
@@ -169,12 +171,12 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
               {loading ? (
                 <>
                   <FiLoader className="animate-spin" size={16} />
-                  <span>Processing Online Payment...</span>
+                  <span>{t("payment.processingPayment", "Processing Online Payment...")}</span>
                 </>
               ) : (
                 <>
                   <FiCheckCircle size={16} />
-                  <span>Pay Now (LKR {fmt(sessionData.amount)})</span>
+                  <span>{t("payment.payNow", "Pay Now")} (LKR {fmt(sessionData.amount)})</span>
                 </>
               )}
             </button>
@@ -185,7 +187,7 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
               className="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 border border-amber-200 disabled:opacity-50"
             >
               <FiXCircle size={15} />
-              <span>Simulate Payment Failure / Decline</span>
+              <span>{t("payment.simulateDecline", "Simulate Payment Failure / Decline")}</span>
             </button>
 
             <button
@@ -194,14 +196,14 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
               className="w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <FiX size={15} />
-              <span>Cancel Payment & Order</span>
+              <span>{t("payment.cancelPaymentOrder", "Cancel Payment & Order")}</span>
             </button>
           </div>
         </div>
 
         {/* Footer */}
         <div className="bg-slate-50 px-6 py-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400">
-          <span>Encrypted 256-Bit SSL</span>
+          <span>{t("payment.encryptedSSL", "Encrypted 256-Bit SSL")}</span>
           <span>Vendora B2B Gateway</span>
         </div>
       </div>

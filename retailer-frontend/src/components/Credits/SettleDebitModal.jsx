@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FiCreditCard, FiX, FiShield, FiCheckCircle, FiLock, FiAlertCircle, FiArrowRight, FiLoader } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 import { initiateCreditSettlement } from "../../services/orderService";
 
 export default function SettleDebitModal({
@@ -9,6 +10,7 @@ export default function SettleDebitModal({
   token,
   onInitiateGateway,
 }) {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -28,7 +30,7 @@ export default function SettleDebitModal({
 
   const handleProceedPayment = async () => {
     if (currentBalance <= 0) {
-      setError("No outstanding balance to settle.");
+      setError(t("credits.noOutstandingBalance", "No outstanding balance to settle."));
       return;
     }
 
@@ -42,7 +44,7 @@ export default function SettleDebitModal({
       onClose();
     } catch (err) {
       console.error("Initiate credit settlement error:", err);
-      setError(err.message || "Failed to initialize payment gateway for credit settlement.");
+      setError(err.message || t("credits.failedInitGateway", "Failed to initialize payment gateway for credit settlement."));
     } finally {
       setLoading(false);
     }
@@ -68,21 +70,21 @@ export default function SettleDebitModal({
             </div>
             <div>
               <span className="text-[10px] font-black tracking-widest text-emerald-400 uppercase">
-                Online Debt Settlement
+                {t("credits.onlineDebtSettlement", "Online Debt Settlement")}
               </span>
               <h2 className="text-base font-black text-white leading-tight">
-                Clear Outstanding Credit Balance
+                {t("credits.clearOutstandingCredit", "Clear Outstanding Credit Balance")}
               </h2>
             </div>
           </div>
 
           <div className="mt-5 bg-slate-800/90 rounded-2xl p-4 flex items-center justify-between border border-slate-700/60">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Distributor Account</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t("credits.distributorAccount", "Distributor Account")}</p>
               <p className="text-sm font-black text-white">{distributorName}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-bold text-rose-300 uppercase tracking-wider">Outstanding Debt</p>
+              <p className="text-[10px] font-bold text-rose-300 uppercase tracking-wider">{t("credits.outstandingDebt", "Outstanding Debt")}</p>
               <p className="text-xl font-black text-rose-400">LKR {fmt(currentBalance)}</p>
             </div>
           </div>
@@ -100,11 +102,11 @@ export default function SettleDebitModal({
           {/* Account Breakdown Cards */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total Credit Limit</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("credits.totalCreditLimit", "Total Credit Limit")}</p>
               <p className="text-sm font-black text-slate-800 mt-0.5">LKR {fmt(creditLimit)}</p>
             </div>
             <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Current Available</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("credits.availableCredit", "Current Available")}</p>
               <p className="text-sm font-black text-blue-600 mt-0.5">LKR {fmt(availableCredit)}</p>
             </div>
           </div>
@@ -113,17 +115,17 @@ export default function SettleDebitModal({
           <div className="bg-emerald-50/80 border border-emerald-100/90 rounded-2xl p-4 space-y-2">
             <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
               <FiCheckCircle size={16} className="text-emerald-600 shrink-0" />
-              <span>Instant Full Credit Line Restoration</span>
+              <span>{t("credits.instantRestoration", "Instant Full Credit Line Restoration")}</span>
             </div>
             <p className="text-[11px] text-emerald-700 font-medium leading-relaxed">
-              Paying the full balance of <strong className="font-extrabold text-emerald-900">LKR {fmt(currentBalance)}</strong> will reset your debt to <strong className="font-extrabold text-emerald-900">LKR 0.00</strong> and instantly restore your available credit to <strong className="font-extrabold text-emerald-900">100% (LKR {fmt(creditLimit)})</strong>.
+              {t("credits.payingFullBalance", "Paying the full balance of")} <strong className="font-extrabold text-emerald-900">LKR {fmt(currentBalance)}</strong> {t("credits.resetToZero", "will reset your debt to")} <strong className="font-extrabold text-emerald-900">LKR 0.00</strong> {t("credits.restoreFull", "and instantly restore your available credit to")} <strong className="font-extrabold text-emerald-900">100% (LKR {fmt(creditLimit)})</strong>.
             </p>
           </div>
 
           {/* Security & Sandbox Badge */}
           <div className="flex items-center gap-2 text-slate-400 text-[11px] font-bold">
             <FiLock size={13} className="text-slate-400 shrink-0" />
-            <span>Encrypted sandbox transaction with instantaneous credit confirmation</span>
+            <span>{t("credits.encryptedTransaction", "Encrypted sandbox transaction with instantaneous credit confirmation")}</span>
           </div>
 
           {/* Action Buttons */}
@@ -134,7 +136,7 @@ export default function SettleDebitModal({
               disabled={loading}
               className="flex-1 py-3 px-4 border border-slate-200 text-slate-600 font-black text-xs rounded-2xl hover:bg-slate-50 transition cursor-pointer disabled:opacity-50"
             >
-              Cancel
+              {t("common.cancel", "Cancel")}
             </button>
             <button
               type="button"
@@ -145,11 +147,11 @@ export default function SettleDebitModal({
               {loading ? (
                 <>
                   <FiLoader className="animate-spin" size={15} />
-                  <span>Connecting to Gateway...</span>
+                  <span>{t("credits.connectingGateway", "Connecting to Gateway...")}</span>
                 </>
               ) : (
                 <>
-                  <span>Pay Full Balance (LKR {fmt(currentBalance)})</span>
+                  <span>{t("credits.payFullBalance", "Pay Full Balance")} (LKR {fmt(currentBalance)})</span>
                   <FiArrowRight size={14} />
                 </>
               )}

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { FiMessageSquare, FiX, FiClock, FiCheck } from "react-icons/fi";
 import { OrderContext } from "../context/OrderContextObject";
+import { useLanguage } from "../context/LanguageContext";
 
 function formatDate(date) {
   if (!date) return "";
@@ -15,6 +16,7 @@ function formatDate(date) {
 
 function Messages() {
   const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
+  const { t } = useLanguage();
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   return (
@@ -24,10 +26,10 @@ function Messages() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center gap-2.5">
             <FiMessageSquare className="text-blue-600" />
-            <span>Messages & Alerts</span>
+            <span>{t("messages.title", "Messages & Alerts")}</span>
           </h1>
           <p className="text-xs font-semibold text-slate-400 mt-1">
-            Order updates, delivery tracking alerts, and system notices.
+            {t("messages.subtitle", "Order updates, delivery tracking alerts, and system notices.")}
           </p>
         </div>
 
@@ -38,7 +40,7 @@ function Messages() {
             className="self-start sm:self-auto px-4 py-2 bg-blue-50 border border-blue-100 text-blue-600 rounded-full text-xs font-bold hover:bg-blue-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
           >
             <FiCheck size={14} />
-            <span>Mark all as read</span>
+            <span>{t("messages.markAllRead", "Mark all as read")}</span>
           </button>
         )}
       </div>
@@ -47,8 +49,12 @@ function Messages() {
       {messages.length === 0 ? (
         <div className="bg-white border border-slate-100 rounded-3xl p-10 sm:p-16 text-center text-slate-400 font-bold shadow-xs">
           <FiMessageSquare className="mx-auto text-slate-300 mb-3" size={36} />
-          <p className="text-sm sm:text-base font-bold text-slate-700">No notifications or messages yet</p>
-          <p className="text-xs text-slate-400 mt-1">You will receive updates here when you place orders.</p>
+          <p className="text-sm sm:text-base font-bold text-slate-700">
+            {t("messages.noMessagesTitle", "No notifications or messages yet")}
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            {t("messages.noMessagesSubtitle", "You will receive updates here when you place orders.")}
+          </p>
         </div>
       ) : (
         <div className="space-y-3 sm:space-y-4">
@@ -110,7 +116,7 @@ function Messages() {
             <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50">
               <div>
                 <p className="text-[9px] font-black text-blue-600 uppercase tracking-wider">
-                  Message Details
+                  {t("messages.messageDetails", "Message Details")}
                 </p>
                 <h2 className="text-base sm:text-lg font-black text-slate-800 leading-tight mt-1">
                   {selectedMessage.title}
@@ -129,7 +135,7 @@ function Messages() {
             <div className="p-5 sm:p-6 space-y-6 flex-1 flex flex-col justify-between">
               <div className="rounded-2xl sm:rounded-3xl bg-blue-50/20 border border-blue-100/50 p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between gap-4 text-[10px] font-black text-blue-600 uppercase tracking-wider pb-3 border-b border-blue-100/40">
-                  <span>Sent Date</span>
+                  <span>{t("messages.sentDate", "Sent Date")}</span>
                   <span className="flex items-center gap-1 font-bold normal-case text-slate-600">
                     <FiClock size={11} className="text-blue-500" /> {formatDate(selectedMessage.createdAt)}
                   </span>
@@ -145,7 +151,7 @@ function Messages() {
                 className="w-full rounded-2xl bg-blue-600 hover:bg-blue-700 py-3.5 text-xs font-bold text-white transition cursor-pointer shadow-md shadow-blue-500/20"
                 onClick={() => setSelectedMessage(null)}
               >
-                Return to Inbox
+                {t("messages.returnToInbox", "Return to Inbox")}
               </button>
             </div>
           </aside>

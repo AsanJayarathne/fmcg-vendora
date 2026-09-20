@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function RecentOrdersStatus({ orders = [] }) {
   const displayOrders = orders.slice(0, 3);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const statusClass = (status) => {
     if (status === "Delivered") return "bg-green-50 text-green-600 border border-green-200/50";
@@ -15,12 +17,14 @@ export default function RecentOrdersStatus({ orders = [] }) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4 px-1">
-        <h2 className="font-bold text-slate-800 text-xl leading-tight">Recent Orders</h2>
+        <h2 className="font-bold text-slate-800 text-xl leading-tight">
+          {t("dashboard.recentOrdersTitle", "Recent Orders")}
+        </h2>
         <button
           onClick={() => navigate("/orders")}
           className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer transition"
         >
-          See All
+          {t("common.viewAll", "See All")}
         </button>
       </div>
 
@@ -34,7 +38,9 @@ export default function RecentOrdersStatus({ orders = [] }) {
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Price</p>
+                <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>
+                  {t("products.wholesalePrice", "Price")}
+                </p>
                 <div className={`mt-2 text-2xl font-bold ${idx === 0 ? "text-white" : "text-slate-900"}`}>{order.total}</div>
                 <div className={`mt-2 text-xs font-medium ${idx === 0 ? "text-white/80" : "text-slate-500"}`}>{order.distributor ?? "No distributor"}</div>
               </div>
@@ -47,11 +53,15 @@ export default function RecentOrdersStatus({ orders = [] }) {
             <div className="mt-6 grid gap-4 text-xs font-medium">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Payment</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>
+                    {t("payment.paymentMethod", "Payment")}
+                  </p>
                   <p className={`mt-2 font-semibold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.payment ?? "N/A"}</p>
                 </div>
                 <div className="text-right">
-                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Order Placed</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>
+                    {t("orders.orderDate", "Order Placed")}
+                  </p>
                   <p className={`mt-2 font-semibold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.date ?? "Unknown"}</p>
                 </div>
               </div>
@@ -60,12 +70,16 @@ export default function RecentOrdersStatus({ orders = [] }) {
             <div className={`mt-6 rounded-[24px] p-4 ${idx === 0 ? "bg-white/10" : "bg-slate-50/50 border border-slate-100"}`}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Order ID</p>
+                  <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>
+                    {t("orders.orderId", "Order ID")}
+                  </p>
                   <p className={`mt-2 text-base font-bold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.id}</p>
                 </div>
                 {order.itemCount > 0 && (
                   <div className="text-right">
-                    <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>Items Count</p>
+                    <p className={`text-[10px] font-semibold uppercase tracking-wider ${idx === 0 ? "text-white/60" : "text-slate-400"}`}>
+                      {t("orders.itemsCount", "Items Count")}
+                    </p>
                     <p className={`mt-2 text-base font-bold ${idx === 0 ? "text-white" : "text-slate-800"}`}>{order.itemCount}</p>
                   </div>
                 )}

@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { CartContext } from "../../context/CartContextObject";
 import { OrderContext } from "../../context/OrderContextObject";
 import { useAuth } from "../../context/AuthContext";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   FiMenu,
   FiMessageSquare,
@@ -32,6 +33,7 @@ function Topbar({ onToggleSidebar }) {
   const { cartCount } = useContext(CartContext);
   const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
   const { auth, logout } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const [showMessages, setShowMessages] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -93,10 +95,19 @@ function Topbar({ onToggleSidebar }) {
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-3.5 ml-auto">
-        {/* Language Selector */}
-        <button className="flex items-center gap-1 border border-blue-100 hover:border-blue-500 rounded-full px-2.5 sm:px-3.5 py-1.5 text-[10px] font-black text-blue-600 hover:bg-blue-50/50 transition cursor-pointer">
-          <FiGlobe size={13} />
-          <span>ENG</span>
+        {/* Language Selector Toggle */}
+        <button
+          type="button"
+          onClick={toggleLanguage}
+          title={language === "si" ? "Switch to English" : "සිංහල භාෂාවට මාරුවන්න"}
+          className={`flex items-center gap-1.5 border rounded-full px-2.5 sm:px-3.5 py-1.5 text-[10px] font-extrabold transition cursor-pointer shadow-2xs active:scale-95 ${
+            language === "si"
+              ? "bg-blue-600 border-blue-600 text-white shadow-xs"
+              : "border-blue-100 hover:border-blue-500 text-blue-600 hover:bg-blue-50/50"
+          }`}
+        >
+          <FiGlobe size={13} className={language === "si" ? "animate-spin-slow" : ""} />
+          <span>{language === "si" ? "සිංහල" : "ENG"}</span>
         </button>
 
         {/* Messages Toggle */}
@@ -114,7 +125,7 @@ function Topbar({ onToggleSidebar }) {
             aria-label="Messages"
           >
             <FiMessageSquare size={14} />
-            <span className="hidden sm:inline">Messages</span>
+            <span className="hidden sm:inline">{t("nav.messages", "Messages")}</span>
             {unreadMessageCount > 0 && (
               <span className={`text-[9px] min-w-4 h-4 px-1 rounded-full flex items-center justify-center font-black border ${showMessages ? "bg-white text-blue-600 border-blue-600" : "bg-red-500 text-white border-white"}`}>
                 {unreadMessageCount}
@@ -140,7 +151,7 @@ function Topbar({ onToggleSidebar }) {
                       className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
                     >
                       <FiArrowLeft size={14} />
-                      <span>Back</span>
+                      <span>{t("common.back", "Back")}</span>
                     </button>
                     <button
                       type="button"
@@ -171,7 +182,7 @@ function Topbar({ onToggleSidebar }) {
                       onClick={() => setActiveMsgId(null)}
                       className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold text-[11px] cursor-pointer transition shadow-2xs"
                     >
-                      Close Message
+                      {t("common.close", "Close Message")}
                     </button>
                   </div>
                 </div>
@@ -182,10 +193,10 @@ function Topbar({ onToggleSidebar }) {
                   <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-blue-50/30">
                     <div>
                       <p className="text-[9px] text-blue-500 uppercase tracking-wider font-black">
-                        Latest Messages
+                        {t("topbar.unreadMessages", "Latest Messages")}
                       </p>
                       <p className="text-xs font-black text-slate-800 mt-0.5">
-                        Recent Updates
+                        {t("topbar.notifications", "Recent Updates")}
                       </p>
                     </div>
 
@@ -196,7 +207,7 @@ function Topbar({ onToggleSidebar }) {
                           onClick={markAllMessagesRead}
                           className="text-[10px] font-bold text-blue-600 hover:text-blue-700 cursor-pointer"
                         >
-                          Read all
+                          {t("topbar.markAllRead", "Read all")}
                         </button>
                       )}
                       <button
@@ -215,7 +226,7 @@ function Topbar({ onToggleSidebar }) {
                       <div className="text-center py-8">
                         <FiMessageSquare className="mx-auto text-slate-300 mb-2" size={24} />
                         <p className="text-xs font-bold text-slate-400">
-                          No messages available.
+                          {t("topbar.noMessages", "No messages available.")}
                         </p>
                       </div>
                     ) : (
@@ -252,7 +263,7 @@ function Topbar({ onToggleSidebar }) {
                         type="button"
                         className="w-full rounded-full bg-blue-600 py-2.5 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer shadow-xs"
                       >
-                        See All Messages
+                        {t("topbar.viewAllMessages", "See All Messages")}
                       </button>
                     </Link>
                   </div>
@@ -308,7 +319,7 @@ function Topbar({ onToggleSidebar }) {
                   {auth?.fullName ?? "Retailer"}
                 </p>
                 <p className="text-[10px] font-bold text-slate-400 mt-0.5 truncate flex items-center gap-1">
-                  <FiUser size={10} /> Retailer Account
+                  <FiUser size={10} /> {t("topbar.retailerAccount", "Retailer Account")}
                 </p>
               </div>
 
@@ -320,7 +331,7 @@ function Topbar({ onToggleSidebar }) {
                   className="flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition"
                 >
                   <FiSettings size={13} />
-                  <span>Account Settings</span>
+                  <span>{t("nav.settings", "Account Settings")}</span>
                 </Link>
 
                 <button
@@ -331,7 +342,7 @@ function Topbar({ onToggleSidebar }) {
                   className="w-full text-left flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
                 >
                   <FiLogOut size={13} />
-                  <span>Log Out</span>
+                  <span>{t("nav.logout", "Log Out")}</span>
                 </button>
               </div>
             </div>

@@ -13,10 +13,12 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { OrderContext } from "../../context/OrderContextObject";
+import { useLanguage } from "../../context/LanguageContext";
 
 function Sidebar({ isOpen = false, onClose }) {
   const { logout } = useAuth();
   const { unreadMessageCount = 0 } = useContext(OrderContext) || {};
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -31,33 +33,33 @@ function Sidebar({ isOpen = false, onClose }) {
 
   const menuItems = [
     {
-      name: "Dashboard",
+      name: t("nav.dashboard", "Dashboard"),
       path: "/",
       icon: <FiHome size={20} />
     },
     {
-      name: "Products",
+      name: t("nav.products", "Products"),
       path: "/products",
       icon: <FiShoppingBag size={20} />
     },
     {
-      name: "My Orders",
+      name: t("nav.myOrders", "My Orders"),
       path: "/orders",
       icon: <FiClipboard size={20} />
     },
     {
-      name: "Messages",
+      name: t("nav.messages", "Messages"),
       path: "/messages",
       icon: <FiMessageSquare size={20} />,
       badge: unreadMessageCount
     },
     {
-      name: "Analytics",
+      name: t("nav.analytics", "Analytics"),
       path: "/analytics",
       icon: <FiBarChart2 size={20} />
     },
     {
-      name: "Settings",
+      name: t("nav.settings", "Settings"),
       path: "/profile",
       icon: <FiSettings size={20} />
     }
@@ -152,7 +154,7 @@ function Sidebar({ isOpen = false, onClose }) {
             "
           >
             <FiLogOut size={16} />
-            <span>Logout</span>
+            <span>{t("nav.logout", "Logout")}</span>
           </button>
         </div>
       </aside>
