@@ -142,6 +142,38 @@ class Mailer {
         return $this->sendMail($toEmail, $toName, $subject, $html);
     }
 
+    /**
+     * Send Retailer Registration Approval Notification
+     */
+    public function sendRetailerApproval(string $toEmail, string $toName, string $shopName, string $distributorName, ?string $loginUrl = null): bool {
+        $env = parse_ini_file(__DIR__ . '/../.env') ?: [];
+        $url = $loginUrl ?: (($env['FRONTEND_RETAILER_URL'] ?? 'http://localhost:5176') . '/login');
+        $subject = "Congratulations! Your Vendora FMCG Retailer Account is Approved";
+        $html = $this->buildRetailerApprovalTemplate($toName ?: 'Valued Retailer', $shopName, $distributorName, $url);
+        return $this->sendMail($toEmail, $toName, $subject, $html);
+    }
+
+    /**
+     * Send Retailer Registration Rejection Notification
+     */
+    public function sendRetailerRejection(string $toEmail, string $toName, string $shopName, string $distributorName, ?string $reason = null): bool {
+        $subject = "Update regarding your Vendora FMCG Retailer Application";
+        $html = $this->buildRetailerRejectionTemplate($toName ?: 'Valued Partner', $shopName, $distributorName, $reason);
+        return $this->sendMail($toEmail, $toName, $subject, $html);
+    }
+
+    /**
+     * Send Password Changed Security Alert Notification
+     */
+    public function sendPasswordChangedAlert(string $toEmail, string $toName, ?string $changedAt = null, ?string $loginUrl = null): bool {
+        $env = parse_ini_file(__DIR__ . '/../.env') ?: [];
+        $url = $loginUrl ?: (($env['FRONTEND_RETAILER_URL'] ?? 'http://localhost:5176') . '/login');
+        $timeStr = $changedAt ?: date('F j, Y, g:i A T');
+        $subject = "Security Alert: Your Vendora FMCG Password Was Changed";
+        $html = $this->buildPasswordChangedTemplate($toName ?: 'Vendora Partner', $timeStr, $url);
+        return $this->sendMail($toEmail, $toName, $subject, $html);
+    }
+
     // ─── HTML Email Templates ────────────────────────────────────────────────
 
     private function buildOtpTemplate(string $name, string $code): string {
@@ -257,6 +289,236 @@ HTML;
         <tr>
           <td style="background: #F1F5F9; padding: 20px 30px; text-align: center; border-top: 1px solid #E2E8F0;">
             <p style="margin: 0; color: #94A3B8; font-size: 12px;">© " . date('Y') . " Vendora FMCG Platform. All rights reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+HTML;
+    }
+
+    private function buildRetailerApprovalTemplate(string $name, string $shopName, string $distributorName, string $loginUrl): string {
+        $year = date('Y');
+        $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $safeShop = htmlspecialchars($shopName, ENT_QUOTES, 'UTF-8');
+        $safeDist = htmlspecialchars($distributorName, ENT_QUOTES, 'UTF-8');
+        $safeUrl  = htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8');
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Approved - Vendora FMCG</title>
+</head>
+<body style="margin:0; padding:0; background-color:#F8FAFC; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#1E293B;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC; padding: 40px 20px;">
+  <tr>
+    <td align="center">
+      <table width="100%" max-width="580px" style="max-width:580px; background:#FFFFFF; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow:hidden; border: 1px solid #E2E8F0;" cellpadding="0" cellspacing="0">
+        
+        <!-- Header Banner -->
+        <tr>
+          <td style="background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%); padding: 35px 30px; text-align: center;">
+            <div style="display:inline-block; width: 52px; height: 52px; background: #FFFFFF; border-radius: 50%; text-align: center; line-height: 52px; font-size: 26px; color: #059669; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">✓</div>
+            <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Account Approved!</h1>
+            <p style="margin: 6px 0 0 0; color: #D1FAE5; font-size: 14px; font-weight: 500;">Welcome to the Vendora FMCG Network</p>
+          </td>
+        </tr>
+
+        <!-- Main Body -->
+        <tr>
+          <td style="padding: 35px 30px;">
+            <p style="margin: 0 0 16px 0; color: #0F172A; font-size: 18px; font-weight: 700;">Hello {$safeName},</p>
+            <p style="margin: 0 0 20px 0; color: #475569; font-size: 15px; line-height: 1.6;">Great news! Your retailer application for <strong>{$safeShop}</strong> has been officially reviewed and <span style="color: #059669; font-weight: 700;">approved</span> by your regional distributor.</p>
+            
+            <!-- Details Card -->
+            <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 20px; margin: 25px 0;">
+              <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 14px;">
+                <tr>
+                  <td style="color: #64748B; width: 40%; font-weight: 600;">Shop Name:</td>
+                  <td style="color: #0F172A; font-weight: 700;">{$safeShop}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748B; font-weight: 600;">Approved By:</td>
+                  <td style="color: #0F172A; font-weight: 700;">{$safeDist}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748B; font-weight: 600;">Account Status:</td>
+                  <td><span style="display:inline-block; background:#DCFCE7; color:#15803D; font-weight:700; padding:3px 10px; border-radius:12px; font-size:12px;">Active & Verified</span></td>
+                </tr>
+              </table>
+            </div>
+
+            <p style="margin: 0 0 25px 0; color: #475569; font-size: 15px; line-height: 1.6;">You can now log in to the <strong>Vendora Retailer Portal</strong>, browse product catalogs, request stock, and place FMCG orders directly with your regional distributor.</p>
+
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="{$safeUrl}" target="_blank" style="display: inline-block; background-color: #2446D8; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; padding: 14px 38px; border-radius: 30px; box-shadow: 0 4px 14px rgba(36, 70, 216, 0.35);">Log In to Retailer Portal</a>
+            </div>
+
+            <!-- Fallback URL -->
+            <div style="margin-top: 25px; padding: 14px; background: #F8FAFC; border-radius: 10px; border: 1px solid #E2E8F0;">
+              <p style="margin: 0 0 6px 0; color: #64748B; font-size: 11px; font-weight: 600; text-transform: uppercase;">Direct Login Link:</p>
+              <p style="margin: 0; color: #2446D8; font-size: 12px; word-break: break-all;"><a href="{$safeUrl}" style="color: #2446D8; text-decoration: underline;">{$safeUrl}</a></p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background: #F1F5F9; padding: 20px 30px; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="margin: 0; color: #94A3B8; font-size: 12px;">© {$year} Vendora FMCG Platform. All rights reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+HTML;
+    }
+
+    private function buildRetailerRejectionTemplate(string $name, string $shopName, string $distributorName, ?string $reason): string {
+        $year = date('Y');
+        $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $safeShop = htmlspecialchars($shopName, ENT_QUOTES, 'UTF-8');
+        $safeDist = htmlspecialchars($distributorName, ENT_QUOTES, 'UTF-8');
+        $reasonHtml = $reason ? '<p style="margin: 10px 0 0 0; color: #991B1B; font-size: 13px;"><strong>Reason:</strong> ' . htmlspecialchars($reason, ENT_QUOTES, 'UTF-8') . '</p>' : '';
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Status - Vendora FMCG</title>
+</head>
+<body style="margin:0; padding:0; background-color:#F8FAFC; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#1E293B;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC; padding: 40px 20px;">
+  <tr>
+    <td align="center">
+      <table width="100%" max-width="580px" style="max-width:580px; background:#FFFFFF; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow:hidden; border: 1px solid #E2E8F0;" cellpadding="0" cellspacing="0">
+        
+        <!-- Header Banner -->
+        <tr>
+          <td style="background: linear-gradient(135deg, #64748B 0%, #475569 100%); padding: 35px 30px; text-align: center;">
+            <h1 style="margin: 0; color: #FFFFFF; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Vendora FMCG</h1>
+            <p style="margin: 6px 0 0 0; color: #E2E8F0; font-size: 13px; font-weight: 500;">Retailer Application Status Update</p>
+          </td>
+        </tr>
+
+        <!-- Main Body -->
+        <tr>
+          <td style="padding: 35px 30px;">
+            <p style="margin: 0 0 16px 0; color: #0F172A; font-size: 18px; font-weight: 700;">Hello {$safeName},</p>
+            <p style="margin: 0 0 16px 0; color: #475569; font-size: 15px; line-height: 1.6;">Thank you for your interest in joining the Vendora FMCG network. We are writing to inform you that your retailer application for <strong>{$safeShop}</strong> could not be approved by regional distributor <strong>{$safeDist}</strong> at this time.</p>
+            
+            <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 16px; margin: 20px 0;">
+              <p style="margin: 0; color: #991B1B; font-size: 13px; line-height: 1.5;">If you believe this decision was made in error or if your business details have updated, please reach out to your regional distributor or contact our support team.</p>
+              {$reasonHtml}
+            </div>
+
+            <p style="margin: 20px 0 0 0; color: #64748B; font-size: 13px; line-height: 1.5;">Thank you for your understanding.</p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background: #F1F5F9; padding: 20px 30px; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="margin: 0; color: #94A3B8; font-size: 12px;">© {$year} Vendora FMCG Platform. All rights reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+HTML;
+    }
+
+    private function buildPasswordChangedTemplate(string $name, string $timeStr, string $loginUrl): string {
+        $year = date('Y');
+        $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $safeTime = htmlspecialchars($timeStr, ENT_QUOTES, 'UTF-8');
+        $safeUrl = htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8');
+
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Password Changed - Vendora FMCG</title>
+</head>
+<body style="margin:0; padding:0; background-color:#F8FAFC; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color:#1E293B;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC; padding: 40px 20px;">
+  <tr>
+    <td align="center">
+      <table width="100%" max-width="580px" style="max-width:580px; background:#FFFFFF; border-radius:20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow:hidden; border: 1px solid #E2E8F0;" cellpadding="0" cellspacing="0">
+        
+        <!-- Header Banner -->
+        <tr>
+          <td style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 35px 30px; text-align: center;">
+            <div style="display:inline-block; width: 52px; height: 52px; background: #334155; border-radius: 50%; text-align: center; line-height: 52px; font-size: 24px; color: #38BDF8; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.25);">🔒</div>
+            <h1 style="margin: 0; color: #FFFFFF; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Security Notification</h1>
+            <p style="margin: 6px 0 0 0; color: #94A3B8; font-size: 13px; font-weight: 500;">Password Change Confirmation</p>
+          </td>
+        </tr>
+
+        <!-- Main Body -->
+        <tr>
+          <td style="padding: 35px 30px;">
+            <p style="margin: 0 0 16px 0; color: #0F172A; font-size: 18px; font-weight: 700;">Hello {$safeName},</p>
+            <p style="margin: 0 0 20px 0; color: #475569; font-size: 15px; line-height: 1.6;">This email confirms that the password for your Vendora FMCG account was successfully updated.</p>
+            
+            <!-- Event Card -->
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 20px; margin: 20px 0;">
+              <table width="100%" cellpadding="6" cellspacing="0" style="font-size: 14px;">
+                <tr>
+                  <td style="color: #64748B; width: 35%; font-weight: 600;">Activity:</td>
+                  <td style="color: #0F172A; font-weight: 700;">Password Updated</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748B; font-weight: 600;">Time of Change:</td>
+                  <td style="color: #0F172A; font-weight: 600;">{$safeTime}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748B; font-weight: 600;">Status:</td>
+                  <td><span style="display:inline-block; background:#DCFCE7; color:#15803D; font-weight:700; padding:3px 10px; border-radius:12px; font-size:12px;">Successful</span></td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Warning Callout -->
+            <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 18px; margin: 24px 0;">
+              <p style="margin: 0 0 8px 0; color: #B45309; font-weight: 700; font-size: 14px;">Did you make this change?</p>
+              <p style="margin: 0; color: #78350F; font-size: 13px; line-height: 1.5;">
+                • <strong>Yes, this was me:</strong> You can safely disregard this email. Your new password is now active.<br>
+                • <strong>No, this wasn't me:</strong> Your account may be compromised. Please reset your password immediately or contact Vendora support.
+              </p>
+            </div>
+
+            <!-- Action Button -->
+            <div style="text-align: center; margin: 30px 0 10px 0;">
+              <a href="{$safeUrl}" target="_blank" style="display: inline-block; background-color: #2446D8; color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 700; padding: 13px 34px; border-radius: 28px; box-shadow: 0 4px 14px rgba(36, 70, 216, 0.3);">Access Your Account</a>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background: #F1F5F9; padding: 20px 30px; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="margin: 0; color: #94A3B8; font-size: 12px;">© {$year} Vendora FMCG Platform. All rights reserved.</p>
           </td>
         </tr>
 

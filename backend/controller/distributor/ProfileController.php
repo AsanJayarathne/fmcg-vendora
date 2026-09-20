@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../repository/DistributorRepository.php';
 require_once __DIR__ . '/../../repository/UserRepository.php';
+require_once __DIR__ . '/../../util/Mailer.php';
 
 class ProfileController {
     private DistributorRepository $distributorRepo;
@@ -97,6 +98,23 @@ class ProfileController {
         }
 
         $this->userRepo->updatePassword((int)$user['user_id'], password_hash($newPassword, PASSWORD_DEFAULT));
+
+        if (!empty($userRow['email'])) {
+            try {
+                $env = parse_ini_file(__DIR__ . '/../../.env') ?: [];
+                $distUrl = ($env['FRONTEND_DISTRIBUTOR_URL'] ?? 'http://localhost:5174') . '/login';
+                $mailer = new Mailer();
+                $mailer->sendPasswordChangedAlert(
+                    $userRow['email'],
+                    $userRow['full_name'] ?? 'Distributor Partner',
+                    null,
+                    $distUrl
+                );
+            } catch (Throwable $mailEx) {
+                error_log("Failed to dispatch distributor password changed alert: " . $mailEx->getMessage());
+            }
+        }
+
         sendSuccess(null, 'Password updated successfully');
     }
 }

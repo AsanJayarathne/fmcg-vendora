@@ -435,11 +435,11 @@ class AuthService
     {
         $env = parse_ini_file(__DIR__ . '/../.env') ?: [];
         return match ($role) {
-            'RETAILER' => $env['FRONTEND_RETAILER_URL'] ?? 'http://localhost:5173',
+            'RETAILER'    => $env['FRONTEND_RETAILER_URL']    ?? 'http://localhost:5176',
             'DISTRIBUTOR' => $env['FRONTEND_DISTRIBUTOR_URL'] ?? 'http://localhost:5174',
-            'DRIVER' => $env['FRONTEND_DRIVER_URL'] ?? 'http://localhost:5175',
-            'ADMIN' => $env['FRONTEND_ADMIN_URL'] ?? 'http://localhost:5176',
-            default => 'http://localhost:5173',
+            'DRIVER'      => $env['FRONTEND_DRIVER_URL']      ?? 'http://localhost:5175',
+            'ADMIN'       => $env['FRONTEND_ADMIN_URL']       ?? 'http://localhost:5173',
+            default       => 'http://localhost:5176',
         };
     }
 

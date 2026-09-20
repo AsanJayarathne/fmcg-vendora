@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiLoader, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiLoader, FiCheckCircle, FiAlertCircle, FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { updatePassword } from "../services/orderService";
 
@@ -114,19 +114,31 @@ export default function SecurityTab() {
 }
 
 function PasswordField({ label, value, placeholder, onChange, required = false }) {
+  const [show, setShow] = useState(false);
+
   return (
     <div>
       <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">
         {label}
       </label>
-      <input
-        type="password"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className="w-full h-12 border border-slate-200 rounded-2xl px-4 text-xs font-bold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
-      />
+      <div className="relative flex items-center">
+        <input
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className="w-full h-12 border border-slate-200 rounded-2xl pl-4 pr-11 text-xs font-bold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+        />
+        <button
+          type="button"
+          onClick={() => setShow(!show)}
+          className="absolute right-3.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer p-1 transition"
+          aria-label={show ? "Hide password" : "Show password"}
+        >
+          {show ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+        </button>
+      </div>
     </div>
   );
 }

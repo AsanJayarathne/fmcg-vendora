@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../util/cors.php';
 require_once __DIR__ . '/../../util/auth.php';
 require_once __DIR__ . '/../../util/Database.php';
 require_once __DIR__ . '/../../repository/UserRepository.php';
+require_once __DIR__ . '/../../util/Mailer.php';
 
 $user = requireRole('RETAILER');
 
@@ -49,6 +50,19 @@ try {
     $stmt = $db->prepare("UPDATE users SET password = ? WHERE user_id = ?");
     $stmt->execute([$newHash, $user['user_id']]);
     
+    // Send Security Alert Email Notification
+    if (!empty($userRecord['email'])) {
+        try {
+            $mailer = new Mailer();
+            $mailer->sendPasswordChangedAlert(
+                $userRecord['email'],
+                $userRecord['full_name'] ?? 'Retailer Partner'
+            );
+        } catch (Throwable $mailEx) {
+            error_log("Failed to dispatch password changed security alert: " . $mailEx->getMessage());
+        }
+    }
+
     sendSuccess(null, 'Password updated successfully');
 } catch (Exception $e) {
     sendError($e->getMessage(), 500);
