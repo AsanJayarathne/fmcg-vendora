@@ -12,10 +12,12 @@ import SpendingSummary from "../components/Cash/SpendingSummary";
 import CreditUsageChart from "../components/Credits/CreditUsageChart";
 
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchCreditInfo, fetchOrders } from "../services/orderService";
 
 export default function Dashboard() {
   const { auth } = useAuth();
+  const { t } = useLanguage();
   const token = auth?.token ?? null;
   const [creditInfo, setCreditInfo] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -40,13 +42,13 @@ export default function Dashboard() {
         setOrders(ordersData || []);
       })
       .catch((err) => {
-        setError("Failed to load dashboard metrics.");
+        setError(t("dashboard.failedLoadMetrics", "Failed to load dashboard metrics."));
         console.error("Dashboard data load error:", err);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [token]);
+  }, [token, t]);
 
   // Load backend data on mount
   useEffect(() => {
@@ -113,38 +115,35 @@ export default function Dashboard() {
 
       // 3. Payment Method filter
       if (filterPayment) {
-        if (o.paymentMethod !== filterPayment && o.paymentType !== filterPayment) {
-          return false;
-        }
+        if (filterPayment === "Cash" && o.paymentLabel !== "Cash") return false;
+        if (filterPayment === "Credit" && o.paymentLabel !== "Credit") return false;
+        if (filterPayment === "Cash_Credit" && o.paymentLabel !== "Cash + Credit") return false;
       }
 
-      // 4. Order Status filter
+      // 4. Status filter
       if (filterStatus) {
-        if (
-          o.status !== filterStatus &&
-          o.backendStatus !== filterStatus &&
-          o.deliveryStatus !== filterStatus
-        ) {
-          return false;
-        }
+        if (filterStatus === "Processing" && o.backendStatus !== "Placed" && o.backendStatus !== "Processing") return false;
+        if (filterStatus === "Approved" && o.backendStatus !== "Accepted" && o.backendStatus !== "Approved") return false;
+        if (filterStatus === "CLAIMED" && o.backendStatus !== "CLAIMED" && o.status !== "Out for Delivery") return false;
+        if (filterStatus === "Delivered" && o.backendStatus !== "Delivered") return false;
+        if (filterStatus === "Rejected" && o.backendStatus !== "Rejected" && o.backendStatus !== "Cancelled") return false;
       }
 
       return true;
     });
   }, [orders, timeframe, filterDistributor, filterPayment, filterStatus]);
 
-  // Active filter count and badges computation
+  // Active filter count and badge chips
   const activeFilterBadges = useMemo(() => {
     const badges = [];
-    if (timeframe !== "This Month" && timeframe !== "All Time") {
-      badges.push({ key: "timeframe", label: `Period: ${timeframe}` });
+    if (timeframe !== "All Time") {
+      badges.push({ key: "timeframe", label: timeframe });
     }
     if (filterDistributor) {
       badges.push({ key: "distributor", label: `Distributor: ${filterDistributor}` });
     }
     if (filterPayment) {
-      const labelMap = { Cash: "Cash", Credit: "Credit", Cash_Credit: "Cash + Credit" };
-      badges.push({ key: "payment", label: `Payment: ${labelMap[filterPayment] || filterPayment}` });
+      badges.push({ key: "payment", label: `Payment: ${filterPayment.replace("_", " + ")}` });
     }
     if (filterStatus) {
       badges.push({ key: "status", label: `Status: ${filterStatus}` });
@@ -154,39 +153,41 @@ export default function Dashboard() {
 
   const activeFilterCount = activeFilterBadges.length;
 
-  const handleRemoveFilter = useCallback((key) => {
-    if (key === "timeframe") setTimeframe("This Month");
+  const handleRemoveFilter = (key) => {
+    if (key === "timeframe") setTimeframe("All Time");
     if (key === "distributor") setFilterDistributor("");
     if (key === "payment") setFilterPayment("");
     if (key === "status") setFilterStatus("");
-  }, []);
+  };
 
-  const handleResetFilters = useCallback(() => {
-    setTimeframe("This Month");
+  const handleResetFilters = () => {
+    setTimeframe("All Time");
     setFilterDistributor("");
     setFilterPayment("");
     setFilterStatus("");
-  }, []);
+  };
 
-  // Spending metric: aggregate sum of completed (non-rejected) filtered orders
+  // ── Metrics Computation ──────────────────────────────────────────
+  // Gross volume spent across filtered orders
   const spendingVal = useMemo(() => {
     const total = filteredOrders
-      .filter(o => o.backendStatus !== "Rejected")
+      .filter((o) => o.backendStatus !== "Rejected")
       .reduce((sum, o) => sum + Number(o.total || 0), 0);
     return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }, [filteredOrders]);
 
-  // Total incoming orders count
+  // Total orders placed in selection
   const totalOrdersVal = useMemo(() => {
     return String(filteredOrders.length);
   }, [filteredOrders]);
 
-  // Unique products purchased
+  // Total unique products ordered
   const productsVal = useMemo(() => {
     const unique = new Set();
-    filteredOrders.forEach(o => {
-      (o.items ?? []).forEach(item => {
-        unique.add(item.productId);
+    filteredOrders.forEach((o) => {
+      (o.items ?? []).forEach((item) => {
+        const id = item.id || item.productId || item.product_id;
+        if (id) unique.add(id);
       });
     });
     return String(unique.size);
@@ -201,11 +202,11 @@ export default function Dashboard() {
 
   // Stats Card dataset mapping
   const stats = useMemo(() => [
-    { title: "Spending", value: spendingVal, color: "green", icon: <FiCreditCard size={18} />, subtitle: `Filtered spending (${timeframe})` },
-    { title: "Total Order", value: totalOrdersVal, color: "blue", icon: <FiFileText size={18} />, subtitle: `Filtered orders count` },
-    { title: "No of Products", value: productsVal, color: "orange", icon: <FiTag size={18} />, subtitle: "Distinct products purchased" },
-    { title: "Savings", value: savingsVal, color: "purple", icon: <FiTrendingUp size={18} />, subtitle: "Bulk promotions savings" },
-  ], [spendingVal, totalOrdersVal, productsVal, savingsVal, timeframe]);
+    { title: t("dashboard.spending", "Spending"), value: spendingVal, color: "green", icon: <FiCreditCard size={18} />, subtitle: `${t("dashboard.spending", "Spending")} (${timeframe})` },
+    { title: t("dashboard.totalOrder", "Total Order"), value: totalOrdersVal, color: "blue", icon: <FiFileText size={18} />, subtitle: t("dashboard.filteredOrdersCount", "Filtered orders count") },
+    { title: t("dashboard.noOfProducts", "No of Products"), value: productsVal, color: "orange", icon: <FiTag size={18} />, subtitle: t("dashboard.distinctProducts", "Distinct products purchased") },
+    { title: t("dashboard.savings", "Savings"), value: savingsVal, color: "purple", icon: <FiTrendingUp size={18} />, subtitle: t("dashboard.savingSummary", "Bulk promotions savings") },
+  ], [spendingVal, totalOrdersVal, productsVal, savingsVal, timeframe, t]);
 
   // Credit details computation
   const creditData = useMemo(() => {
@@ -353,7 +354,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+    <div className="space-y-6 font-sans">
       <DashboardHeader
         onOpenFilter={() => setIsFilterOpen(true)}
         activeFilterCount={activeFilterCount}

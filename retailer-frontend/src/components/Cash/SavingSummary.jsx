@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useLanguage } from "../../context/LanguageContext";
 
 const defaultSavingsData = [
   { month: "Jan", savings: 4200 },
@@ -18,6 +19,7 @@ const defaultSavingsData = [
 ];
 
 export default function SavingsSummary({ data = defaultSavingsData }) {
+  const { t } = useLanguage();
   const chartData = Array.isArray(data) && data.length > 0 ? data : defaultSavingsData;
 
   return (
@@ -26,14 +28,14 @@ export default function SavingsSummary({ data = defaultSavingsData }) {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="font-semibold text-slate-800 text-base leading-tight">
-              Savings Summary
+              {t("dashboard.savingSummary", "Savings Summary")}
             </h2>
             <p className="text-xs text-slate-400 font-normal mt-0.5">
-              Accumulated bulk discount savings over time
+              {t("dashboard.savingsSubtitle", "Accumulated bulk discount savings over time")}
             </p>
           </div>
           <span className="rounded-full bg-purple-50 border border-purple-100 px-3 py-1 text-purple-600 text-xs font-medium">
-            Promotions
+            {t("dashboard.promotions", "Promotions")}
           </span>
         </div>
 
@@ -48,7 +50,7 @@ export default function SavingsSummary({ data = defaultSavingsData }) {
               tickFormatter={(val) => `Rs.${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`}
             />
             <Tooltip
-              formatter={(value) => [`Rs. ${Number(value).toLocaleString()}`, "Savings"]}
+              formatter={(value) => [`Rs. ${Number(value).toLocaleString()}`, t("dashboard.savings", "Savings")]}
               contentStyle={{ borderRadius: 16, borderColor: "#f1f5f9", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.05)" }}
             />
             <Bar dataKey="savings" fill="#9333ea" radius={[6, 6, 0, 0]} />

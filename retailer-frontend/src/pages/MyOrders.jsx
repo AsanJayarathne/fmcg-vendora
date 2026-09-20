@@ -11,6 +11,7 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import { OrderContext } from "../context/OrderContextObject";
+import { useLanguage } from "../context/LanguageContext";
 import OrdersHeader from "../components/orders/OrdersHeader";
 import OrdersStats from "../components/orders/OrdersStats";
 import Pagination from "../components/orders/Pagination";
@@ -22,8 +23,6 @@ import {
   getStatusClass,
   getTypeClass,
 } from "../utils/orderHelpers";
-
-const tabs = ["All Orders", "Normal Orders", "Urgent Orders", "Delivered", "Cancelled"];
 
 // ── useEditCountdown hook ────────────────────────────────────────────────────
 function useEditCountdown(createdAt) {
@@ -55,6 +54,7 @@ function useEditCountdown(createdAt) {
 
 // ── EditWindowBanner ──────────────────────────────────────────────────────────
 function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType, onExpired }) {
+  const { t } = useLanguage();
   if (paymentMethod === "Online" || paymentType === "online") return null;
   const isPending   = backendStatus === "Pending";
   const remaining   = useEditCountdown(isPending ? createdAt : null);
@@ -97,8 +97,8 @@ function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType
 
       <span className="flex-1 font-medium">
         {isUrgent
-          ? "⚡ 15-minute cancellation window closing soon!"
-          : "⏱ Order is in 15-minute lock window — you can cancel or confirm immediately."}
+          ? t("orders.cancelWindowClosingSoon", "⚡ 15-minute cancellation window closing soon!")
+          : t("orders.cancelWindowNotice", "⏱ Order is in 15-minute lock window — you can cancel or confirm immediately.")}
       </span>
 
       <span
@@ -116,6 +116,8 @@ function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType
 
 // ── Cancel Confirmation Modal ────────────────────────────────────────────────
 function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
+  const { t } = useLanguage();
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
@@ -130,7 +132,7 @@ function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
             <div className="w-9 h-9 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-center text-red-600">
               <FiXCircle size={18} />
             </div>
-            <h2 className="text-base font-bold text-slate-800 leading-tight">Cancel Order</h2>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">{t("orders.cancelModalTitle", "Cancel Order")}</h2>
           </div>
           <button
             onClick={onClose}
@@ -144,7 +146,7 @@ function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
           <div className="flex items-start gap-3 p-4 bg-red-50/60 border border-red-100 rounded-2xl text-xs text-red-700 leading-relaxed font-semibold">
             <FiAlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
-              Are you sure you want to cancel order <strong className="font-bold text-red-800">{orderId}</strong>? This action cannot be undone.
+              {t("orders.cancelModalText", "Are you sure you want to cancel order #{id}? This action cannot be undone.").replace("{id}", orderId)}
             </div>
           </div>
         </div>
@@ -155,14 +157,14 @@ function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
             disabled={isCancelling}
             className="px-4.5 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer disabled:opacity-50"
           >
-            No, Keep Order
+            {t("orders.keepOrder", "No, Keep Order")}
           </button>
           <button
             onClick={onConfirm}
             disabled={isCancelling}
             className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-2xs transition cursor-pointer disabled:opacity-50"
           >
-            {isCancelling ? <><FiLoader className="animate-spin" size={14} /> Cancelling...</> : "Yes, Cancel Order"}
+            {isCancelling ? <><FiLoader className="animate-spin" size={14} /> {t("orders.cancelling", "Cancelling...")}</> : t("orders.yesCancel", "Yes, Cancel Order")}
           </button>
         </div>
       </div>
@@ -172,6 +174,8 @@ function CancelConfirmModal({ orderId, onConfirm, onClose, isCancelling }) {
 
 // ── Fast Order Confirmation Modal ────────────────────────────────────────────
 function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
+  const { t } = useLanguage();
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
@@ -186,7 +190,7 @@ function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
             <div className="w-9 h-9 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
               <FiCheckCircle size={18} />
             </div>
-            <h2 className="text-base font-bold text-slate-800 leading-tight">Confirm Order Now</h2>
+            <h2 className="text-base font-bold text-slate-800 leading-tight">{t("orders.confirmOrderNow", "Confirm Order Now")}</h2>
           </div>
           <button
             onClick={onClose}
@@ -200,7 +204,7 @@ function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
           <div className="flex items-start gap-3 p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl text-xs text-emerald-700 leading-relaxed font-semibold">
             <FiCheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
             <div>
-              Are you sure you want to confirm order <strong className="font-bold text-emerald-800">{orderId}</strong> now? This will lock the order for processing immediately.
+              {t("orders.confirmNowText", "Are you sure you want to confirm order {id} now? This will lock the order for processing immediately.").replace("{id}", orderId)}
             </div>
           </div>
         </div>
@@ -211,14 +215,14 @@ function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
             disabled={isConfirming}
             className="px-4.5 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 transition cursor-pointer disabled:opacity-50"
           >
-            Cancel
+            {t("common.cancel", "Cancel")}
           </button>
           <button
             onClick={onConfirm}
             disabled={isConfirming}
             className="flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition cursor-pointer disabled:opacity-50"
           >
-            {isConfirming ? <><FiLoader className="animate-spin" size={14} /> Confirming...</> : "Yes, Confirm Now"}
+            {isConfirming ? <><FiLoader className="animate-spin" size={14} /> {t("orders.confirming", "Confirming...")}</> : t("orders.yesConfirmNow", "Yes, Confirm Now")}
           </button>
         </div>
       </div>
@@ -228,6 +232,7 @@ function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
 
 // ── Order Detail Modal ────────────────────────────────────────────────────────
 function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLock, confirmingLockId }) {
+  const { t } = useLanguage();
   if (!order) return null;
 
   return (
@@ -242,7 +247,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
         {/* Modal header */}
         <div className="flex items-center justify-between px-6 py-4.5 border-b border-slate-100 bg-slate-50/50">
           <div>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Order Details</p>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{t("orders.orderDetails", "Order Details")}</p>
             <h2 className="font-bold text-lg text-slate-800 leading-tight">{order.orderId}</h2>
           </div>
           <div className="flex items-center gap-2">
@@ -260,7 +265,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                   className="flex items-center gap-1.5 border border-emerald-200 text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-100 disabled:opacity-50 transition cursor-pointer"
                 >
                   <FiCheckCircle size={12} />
-                  {confirmingLockId === order.backendId ? "Confirming..." : "Confirm Now"}
+                  {confirmingLockId === order.backendId ? t("orders.confirming", "Confirming...") : t("orders.confirmNow", "Confirm Now")}
                 </button>
                 <button
                   onClick={() => onCancel(order)}
@@ -268,7 +273,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                   className="flex items-center gap-1.5 border border-rose-200 text-rose-700 bg-rose-50 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 disabled:opacity-50 transition cursor-pointer"
                 >
                   <FiXCircle size={12} />
-                  {cancellingId === order.backendId ? "Cancelling..." : "Cancel"}
+                  {cancellingId === order.backendId ? t("orders.cancelling", "Cancelling...") : t("orders.cancelOrder", "Cancel")}
                 </button>
               </>
             )}
@@ -288,14 +293,14 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Order info */}
             <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4">
-              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">Order Information</h3>
+              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">{t("orders.orderInformation", "Order Information")}</h3>
               <div className="space-y-2.5">
                 {[
-                  ["Order ID",    order.orderId],
-                  ["Distributor", order.distributor],
-                  ["Order Date",  formatDate(order.createdAt)],
-                  ["Payment",     order.paymentLabel],
-                  ["Order Type",  order.orderType],
+                  [t("orders.orderId", "Order ID"),    order.orderId],
+                  [t("orders.distributorName", "Distributor"), order.distributor],
+                  [t("orders.orderDate", "Order Date"),  formatDate(order.createdAt)],
+                  [t("orders.paymentType", "Payment"),     order.paymentLabel],
+                  [t("payment.orderType", "Order Type"),  order.orderType],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between gap-4 text-xs font-medium">
                     <span className="text-slate-400">{label}</span>
@@ -307,7 +312,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
 
             {/* Status timeline */}
             <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4">
-              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">Status Timeline</h3>
+              <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">{t("orders.statusTimeline", "Status Timeline")}</h3>
               <div className="space-y-3">
                 {(order.statusHistory ?? []).map((step) => (
                   <div key={step.name} className="flex items-center gap-2.5">
@@ -327,7 +332,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                 {order.status === "Cancelled" && (
                   <div className="flex items-center gap-2 text-rose-600 pt-1">
                     <FiXCircle size={15} className="shrink-0" />
-                    <span className="text-xs font-bold">Order Cancelled</span>
+                    <span className="text-xs font-bold">{t("orders.orderCancelled", "Order Cancelled")}</span>
                   </div>
                 )}
               </div>
@@ -339,14 +344,14 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
             const boxes = [];
             boxes.push(
               <div key="subtotal" className="bg-blue-50/60 border border-blue-100/60 rounded-2xl p-3.5">
-                <p className="text-[10px] font-semibold text-blue-600/70 uppercase tracking-wider mb-0.5">Subtotal</p>
+                <p className="text-[10px] font-semibold text-blue-600/70 uppercase tracking-wider mb-0.5">{t("cart.subtotal", "Subtotal")}</p>
                 <p className="font-bold text-slate-800 text-sm">{formatCurrency(order.subtotal)}</p>
               </div>
             );
             if ((order.discount ?? 0) > 0) {
               boxes.push(
                 <div key="discount" className="bg-emerald-50/60 border border-emerald-100/60 rounded-2xl p-3.5">
-                  <p className="text-[10px] font-semibold text-emerald-600/70 uppercase tracking-wider mb-0.5">Discount</p>
+                  <p className="text-[10px] font-semibold text-emerald-600/70 uppercase tracking-wider mb-0.5">{t("cart.volumeDiscount", "Discount")}</p>
                   <p className="font-bold text-emerald-700 text-sm">- {formatCurrency(order.discount)}</p>
                 </div>
               );
@@ -354,14 +359,14 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
             if ((order.urgentCharge ?? 0) > 0) {
               boxes.push(
                 <div key="urgent" className="bg-orange-50/60 border border-orange-100/60 rounded-2xl p-3.5">
-                  <p className="text-[10px] font-semibold text-orange-600/70 uppercase tracking-wider mb-0.5">Urgent Charge</p>
+                  <p className="text-[10px] font-semibold text-orange-600/70 uppercase tracking-wider mb-0.5">{t("payment.urgentHandlingFee", "Urgent Charge")}</p>
                   <p className="font-bold text-orange-700 text-sm">{formatCurrency(order.urgentCharge)}</p>
                 </div>
               );
             }
             boxes.push(
               <div key="total" className="bg-emerald-50/60 border border-emerald-100/60 rounded-2xl p-3.5">
-                <p className="text-[10px] font-semibold text-emerald-600/70 uppercase tracking-wider mb-0.5">Total Paid</p>
+                <p className="text-[10px] font-semibold text-emerald-600/70 uppercase tracking-wider mb-0.5">{t("orders.totalAmount", "Total Paid")}</p>
                 <p className="font-bold text-emerald-700 text-sm">{formatCurrency(order.total)}</p>
               </div>
             );
@@ -380,16 +385,16 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
 
           {/* Items table */}
           <div>
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2.5">Ordered Items</h3>
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2.5">{t("orders.orderedItems", "Ordered Items")}</h3>
             <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-2xs">
               <table className="w-full text-xs">
                 <thead className="bg-slate-50 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                   <tr>
-                    <th className="text-left px-4 py-3">Product</th>
-                    <th className="text-left px-4 py-3">Unit</th>
-                    <th className="text-center px-4 py-3">Qty</th>
-                    <th className="text-right px-4 py-3">Unit Price</th>
-                    <th className="text-right px-4 py-3">Total</th>
+                    <th className="text-left px-4 py-3">{t("orders.product", "Product")}</th>
+                    <th className="text-left px-4 py-3">{t("orders.unit", "Unit")}</th>
+                    <th className="text-center px-4 py-3">{t("orders.qty", "Qty")}</th>
+                    <th className="text-right px-4 py-3">{t("orders.unitPrice", "Unit Price")}</th>
+                    <th className="text-right px-4 py-3">{t("orders.total", "Total")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -399,7 +404,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                         <div>{item.name}</div>
                         {item.discountRate > 0 && (
                           <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold inline-block mt-0.5 border border-emerald-100">
-                            {item.discountRate}% discount applied
+                            {item.discountRate}% {t("products.discountApplied", "discount applied")}
                           </span>
                         )}
                       </td>
@@ -411,14 +416,14 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
                   ))}
                   {(order.urgentCharge ?? 0) > 0 && (
                     <tr className="bg-amber-50/40">
-                      <td className="px-4 py-3 text-amber-700 font-bold" colSpan={4}>Urgent Order Charge</td>
+                      <td className="px-4 py-3 text-amber-700 font-bold" colSpan={4}>{t("payment.urgentHandlingFee", "Urgent Order Charge")}</td>
                       <td className="px-4 py-3 text-right font-bold text-amber-700">
                         {formatCurrency(order.urgentCharge)}
                       </td>
                     </tr>
                   )}
                   <tr className="bg-slate-50 font-bold text-xs">
-                    <td className="px-4 py-3 text-slate-800 uppercase tracking-wider" colSpan={4}>Grand Total</td>
+                    <td className="px-4 py-3 text-slate-800 uppercase tracking-wider" colSpan={4}>{t("orders.grandTotal", "Grand Total")}</td>
                     <td className="px-4 py-3 text-right text-blue-600 font-bold text-sm">{formatCurrency(order.total)}</td>
                   </tr>
                 </tbody>
@@ -433,7 +438,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer"
           >
-            Close
+            {t("common.close", "Close")}
           </button>
         </div>
       </div>
@@ -444,6 +449,15 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
 // ── Main Page ─────────────────────────────────────────────────────────────────
 function MyOrders() {
   const { orders, loading, error, cancelOrder, confirmOrder, loadOrders } = useContext(OrderContext);
+  const { t } = useLanguage();
+
+  const tabOptions = useMemo(() => [
+    { key: "All Orders", label: t("orders.allOrders", "All Orders") },
+    { key: "Normal Orders", label: t("orders.normalOrders", "Normal Orders") },
+    { key: "Urgent Orders", label: t("orders.urgentOrders", "Urgent Orders") },
+    { key: "Delivered", label: t("orders.tabDelivered", "Delivered") },
+    { key: "Cancelled", label: t("orders.tabCancelled", "Cancelled") },
+  ], [t]);
 
   const [activeTab,    setActiveTab]    = useState("All Orders");
   const [modalOrder,   setModalOrder]   = useState(null);
@@ -466,7 +480,7 @@ function MyOrders() {
       await confirmOrder(order.backendId);
       setModalOrder(null);
     } catch (err) {
-      alert(err.message || "Failed to confirm order.");
+      alert(err.message || t("orders.failedConfirmOrder", "Failed to confirm order."));
     } finally {
       setConfirmingLockId(null);
     }
@@ -507,7 +521,7 @@ function MyOrders() {
       await cancelOrder(order.backendId);
       setModalOrder(null);
     } catch (err) {
-      setCancelError(err.message || "Failed to cancel order.");
+      setCancelError(err.message || t("orders.failedCancelOrder", "Failed to cancel order."));
     } finally {
       setCancellingId(null);
     }
@@ -517,7 +531,7 @@ function MyOrders() {
     return (
       <div className="p-6 flex flex-col items-center justify-center min-h-[400px] gap-3 text-slate-500">
         <FiLoader className="animate-spin text-blue-600" size={32} />
-        <span className="font-semibold text-sm">Syncing order details...</span>
+        <span className="font-semibold text-sm">{t("orders.syncingDetails", "Syncing order details...")}</span>
       </div>
     );
   }
@@ -528,7 +542,7 @@ function MyOrders() {
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6 text-center shadow-xs">
           <p className="font-semibold text-sm">⚠️ {error}</p>
           <button onClick={loadOrders} className="mt-4 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition">
-            Retry
+            {t("common.retry", "Retry")}
           </button>
         </div>
       </div>
@@ -536,13 +550,13 @@ function MyOrders() {
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+    <div className="space-y-6 font-sans">
       <OrdersHeader />
 
       {cancelError && (
         <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl px-4 py-3 mb-4 text-xs font-semibold flex justify-between items-center shadow-2xs">
           <span>⚠️ {cancelError}</span>
-          <button onClick={() => setCancelError(null)} className="underline ml-4 cursor-pointer">Dismiss</button>
+          <button onClick={() => setCancelError(null)} className="underline ml-4 cursor-pointer">{t("common.dismiss", "Dismiss")}</button>
         </div>
       )}
 
@@ -555,7 +569,7 @@ function MyOrders() {
 
       {!latestOrder ? (
         <div className="bg-white border border-slate-100 rounded-3xl p-12 text-center text-slate-400 font-bold shadow-xs">
-          No confirmed orders yet.
+          {t("orders.noOrdersYet", "No confirmed orders yet.")}
         </div>
       ) : (
         <>
@@ -567,28 +581,28 @@ function MyOrders() {
                   <FiClipboard size={22} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Latest Order</p>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{t("orders.latestOrder", "Latest Order")}</p>
                   <div className="flex flex-wrap gap-x-8 gap-y-2">
                     <div>
-                      <p className="text-[10px] font-medium text-slate-400 uppercase">Order ID</p>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase">{t("orders.orderId", "Order ID")}</p>
                       <p className="text-base font-bold text-blue-600">{latestOrder.orderId}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-400 uppercase">Distributor</p>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase">{t("orders.distributorName", "Distributor")}</p>
                       <p className="text-sm font-bold text-slate-800">{latestOrder.distributor}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-400 uppercase">Status</p>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase">{t("orders.deliveryStatus", "Status")}</p>
                       <p className="text-xs font-bold text-amber-600 flex items-center gap-1">
                         <FiBox size={13} /> {latestOrder.status}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-400 uppercase">Total</p>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase">{t("orders.totalAmount", "Total")}</p>
                       <p className="text-sm font-bold text-slate-800">{formatCurrency(latestOrder.total)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-slate-400 uppercase">Date</p>
+                      <p className="text-[10px] font-medium text-slate-400 uppercase">{t("orders.orderDate", "Date")}</p>
                       <p className="text-xs font-semibold text-slate-500">{formatDate(latestOrder.createdAt)}</p>
                     </div>
                   </div>
@@ -596,13 +610,13 @@ function MyOrders() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${getTypeClass(latestOrder.orderType)}`}>
-                  {latestOrder.orderType} Order
+                  {latestOrder.orderType} {t("orders.orderSuffix", "Order")}
                 </span>
                 <button
                   onClick={() => setModalOrder(latestOrder)}
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-2xs transition cursor-pointer"
                 >
-                  View Details
+                  {t("orders.viewDetails", "View Details")}
                 </button>
                 {latestOrder.editable && latestOrder.paymentMethod !== "Online" && latestOrder.paymentType !== "online" && (
                   <>
@@ -611,14 +625,14 @@ function MyOrders() {
                       disabled={confirmingLockId === latestOrder.backendId || cancellingId === latestOrder.backendId}
                       className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 disabled:opacity-50 transition cursor-pointer"
                     >
-                      {confirmingLockId === latestOrder.backendId ? "Confirming..." : "Confirm Now"}
+                      {confirmingLockId === latestOrder.backendId ? t("orders.confirming", "Confirming...") : t("orders.confirmNow", "Confirm Now")}
                     </button>
                     <button
                       onClick={() => handleCancelClick(latestOrder)}
                       disabled={cancellingId === latestOrder.backendId || confirmingLockId === latestOrder.backendId}
                       className="px-3.5 py-2 rounded-xl text-xs font-bold border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 transition cursor-pointer"
                     >
-                      {cancellingId === latestOrder.backendId ? "Cancelling..." : "Cancel Order"}
+                      {cancellingId === latestOrder.backendId ? t("orders.cancelling", "Cancelling...") : t("orders.cancelOrder", "Cancel Order")}
                     </button>
                   </>
                 )}
@@ -658,23 +672,23 @@ function MyOrders() {
           <section className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100 gap-4">
               <div>
-                <h2 className="font-bold text-slate-800 text-lg">Orders History</h2>
-                <p className="text-xs text-slate-400 font-normal">All orders placed with distributors</p>
+                <h2 className="font-bold text-slate-800 text-lg">{t("orders.ordersHistory", "Orders History")}</h2>
+                <p className="text-xs text-slate-400 font-normal">{t("orders.allOrdersPlacedWithDistributors", "All orders placed with distributors")}</p>
               </div>
 
               {/* Tabs */}
               <div className="flex flex-wrap gap-1 bg-slate-100/70 p-1.5 rounded-2xl border border-slate-200/50">
-                {tabs.map((tab) => (
+                {tabOptions.map((tab) => (
                   <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
                     className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition cursor-pointer ${
-                      activeTab === tab
+                      activeTab === tab.key
                         ? "bg-white text-blue-600 shadow-2xs font-bold border border-slate-100"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
-                    {tab}
+                    {tab.label}
                   </button>
                 ))}
               </div>
@@ -685,15 +699,15 @@ function MyOrders() {
               <table className="w-full text-xs">
                 <thead className="bg-slate-50 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-100">
                   <tr>
-                    <th className="text-left px-6 py-3.5">Order ID</th>
-                    <th className="text-left px-6 py-3.5">Distributor</th>
-                    <th className="text-left px-6 py-3.5">Type</th>
-                    <th className="text-left px-6 py-3.5">Date</th>
-                    <th className="text-left px-6 py-3.5">Items</th>
-                    <th className="text-left px-6 py-3.5">Total</th>
-                    <th className="text-left px-6 py-3.5">Status</th>
-                    <th className="text-left px-6 py-3.5">Payment</th>
-                    <th className="text-center px-6 py-3.5">Actions</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.orderId", "Order ID")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.distributorName", "Distributor")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.type", "Type")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.orderDate", "Date")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.itemsCount", "Items")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.totalAmount", "Total")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.deliveryStatus", "Status")}</th>
+                    <th className="text-left px-6 py-3.5">{t("orders.paymentType", "Payment")}</th>
+                    <th className="text-center px-6 py-3.5">{t("orders.actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -701,7 +715,7 @@ function MyOrders() {
                     <tr>
                       <td colSpan={9} className="py-12 text-center text-slate-400 font-semibold">
                         <FiClipboard size={32} className="mx-auto mb-2 opacity-30" />
-                        <p className="text-sm font-bold">No orders in this category.</p>
+                        <p className="text-sm font-bold">{t("orders.noOrdersCategory", "No orders in this category.")}</p>
                       </td>
                     </tr>
                   ) : (
@@ -718,7 +732,7 @@ function MyOrders() {
                         </td>
                         <td className="px-6 py-4 text-slate-500 font-medium whitespace-nowrap">{formatDate(order.createdAt)}</td>
                         <td className="px-6 py-4 text-slate-500 font-medium">
-                          {(order.items ?? []).length} item{(order.items ?? []).length !== 1 ? "s" : ""}
+                          {(order.items ?? []).length} {t("orders.itemUnit", "items")}
                         </td>
                         <td className="px-6 py-4 font-bold text-slate-800">{formatCurrency(order.total)}</td>
                         <td className="px-6 py-4">
@@ -733,7 +747,7 @@ function MyOrders() {
                               onClick={() => setModalOrder(order)}
                               className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition whitespace-nowrap cursor-pointer"
                             >
-                              View Detail
+                              {t("orders.viewDetails", "View Detail")}
                             </button>
                             {order.editable && order.paymentMethod !== "Online" && order.paymentType !== "online" && (
                               <>
@@ -744,7 +758,7 @@ function MyOrders() {
                                 >
                                   {confirmingLockId === order.backendId
                                     ? <FiLoader className="animate-spin" size={13} />
-                                    : "Confirm"}
+                                    : t("orders.confirmBtn", "Confirm")}
                                 </button>
                                 <button
                                   onClick={() => handleCancelClick(order)}
@@ -753,7 +767,7 @@ function MyOrders() {
                                 >
                                   {cancellingId === order.backendId
                                     ? <FiLoader className="animate-spin" size={13} />
-                                    : "Cancel"}
+                                    : t("orders.cancelBtn", "Cancel")}
                                 </button>
                               </>
                             )}
@@ -772,7 +786,7 @@ function MyOrders() {
               totalItems={filteredOrders.length}
               itemsPerPage={ITEMS_PER_PAGE}
               onPageChange={setCurrentPage}
-              label="orders"
+              label={t("orders.title", "orders")}
             />
           </section>
         </>

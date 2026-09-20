@@ -102,8 +102,8 @@ export default function ResetPassword() {
   const hasNumber = /\d/.test(password);
 
   return (
-    <div className="min-h-screen bg-[#F97316] flex items-center justify-center p-6 font-sans">
-      <div className="bg-white rounded-[32px] w-full max-w-lg p-8 sm:p-12 shadow-2xl relative">
+    <div className="min-h-screen bg-orange-500 flex items-center justify-center p-3.5 sm:p-6 font-sans">
+      <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-10 shadow-2xl relative my-4 sm:my-8 max-h-[95vh] overflow-y-auto">
         
         {/* Header Branding */}
         <div className="flex flex-col items-center text-center">

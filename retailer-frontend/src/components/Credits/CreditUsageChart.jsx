@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import { useLanguage } from "../../context/LanguageContext";
 
 const defaultData = [
   { week: "W1", month: "Jan", credit: 3800 },
@@ -46,17 +47,22 @@ function normalizeChartData(data) {
 }
 
 export default function CreditUsageChart({ data = defaultData }) {
+  const { t } = useLanguage();
   const chartData = normalizeChartData(data);
 
   return (
     <div className="h-full w-full bg-white p-6 rounded-3xl border border-slate-100 shadow-xs">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="font-semibold text-slate-800 text-base leading-tight">Credit Usage</h2>
-          <p className="text-xs text-slate-400 font-normal mt-0.5">Historical credit utilization pattern</p>
+          <h2 className="font-semibold text-slate-800 text-base leading-tight">
+            {t("dashboard.creditUsage", "Credit Usage")}
+          </h2>
+          <p className="text-xs text-slate-400 font-normal mt-0.5">
+            {t("dashboard.creditTrendSubtitle", "Historical credit utilization pattern")}
+          </p>
         </div>
         <span className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-600 text-xs font-medium">
-          Credit Trend
+          {t("dashboard.creditTrend", "Credit Trend")}
         </span>
       </div>
 

@@ -27,7 +27,7 @@ export default function PaymentsTable({ payments, onViewOrder }) {
               <th className="px-6 py-4">Order ID</th>
               <th className="px-6 py-4">Retailer</th>
               <th className="px-6 py-4">Order Date</th>
-              <th className="px-6 py-4 text-right">Total Amount (LKR)</th>
+              <th className="px-6 py-4 text-right">Total Amount</th>
               <th className="px-6 py-4 text-right">Paid</th>
               <th className="px-6 py-4 text-right">Outstanding</th>
               <th className="px-6 py-4">Payment Method</th>

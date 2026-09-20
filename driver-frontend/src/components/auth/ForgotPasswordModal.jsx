@@ -55,7 +55,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div 
-        className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative border border-slate-100"
+        className="bg-white rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl relative border border-slate-100 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button

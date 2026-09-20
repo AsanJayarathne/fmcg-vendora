@@ -108,8 +108,8 @@ export default function DeliveryPage() {
         <Truck className="inline mr-3 text-blue-600 w-8 h-8" />
         Deliveries
         {!loading && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({filtered.length} deliveries)
+          <span className="ml-3 text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
+            {filtered.length} Deliveries
           </span>
         )}
       </h1>

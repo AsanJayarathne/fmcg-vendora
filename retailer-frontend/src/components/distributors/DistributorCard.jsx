@@ -1,4 +1,8 @@
+import { useLanguage } from "../../context/LanguageContext";
+
 function DistributorCard({ distributor, onView }) {
+  const { t } = useLanguage();
+
   return (
     <div className="bg-white rounded-xl shadow-md p-5">
 
@@ -15,22 +19,22 @@ function DistributorCard({ distributor, onView }) {
       </div>
 
       <p className="mt-2">
-        📍 {distributor.distance} km away
+        📍 {distributor.distance} {t("distributors.kmAway", "km away")}
       </p>
 
       <p>
-        📦 {distributor.productsCount} Products
+        📦 {distributor.productsCount} {t("distributors.productsCount", "Products")}
       </p>
 
       <p className="text-green-600">
-        🟢 Active
+        🟢 {t("distributors.activeStatus", "Active")}
       </p>
 
       <button
         onClick={() => onView(distributor.id)}
         className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg"
       >
-        View Inventory
+        {t("distributors.browseDistributorCatalog", "View Inventory")}
       </button>
 
     </div>

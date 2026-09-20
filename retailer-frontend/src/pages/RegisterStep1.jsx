@@ -4,6 +4,8 @@ import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
 import logo from "../assets/images/logo.png";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { FiGlobe } from "react-icons/fi";
 
 const SRI_LANKAN_PHONE_REGEX = /^(?:\+94|0)?7[0-9]{8}$/;
 const SRI_LANKAN_NIC_REGEX = /^([0-9]{9}[vVxX]|[0-9]{12})$/;
@@ -22,6 +24,7 @@ function getPasswordCriteria(password = "") {
 export default function RegisterStep1() {
   const navigate = useNavigate();
   const { regForm, setRegForm } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const [error, setError] = useState("");
 
   const passCriteria = getPasswordCriteria(regForm.password || "");
@@ -57,42 +60,42 @@ export default function RegisterStep1() {
       !password ||
       !confirmPassword
     ) {
-      setError("Please fill in all personal information fields.");
+      setError(t("auth.fillAllFields", "Please fill in all personal information fields."));
       return;
     }
 
     if (!EMAIL_REGEX.test(email.trim())) {
-      setError("Please enter a valid email address.");
+      setError(t("auth.invalidEmail", "Please enter a valid email address."));
       return;
     }
 
     if (!SRI_LANKAN_PHONE_REGEX.test(cleanPhone)) {
-      setError("Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678).");
+      setError(t("auth.invalidPhone", "Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678)."));
       return;
     }
 
     if (!SRI_LANKAN_NIC_REGEX.test(cleanNic)) {
-      setError("Please enter a valid Sri Lankan NIC number (9 digits with V/X or 12 digits).");
+      setError(t("auth.invalidNic", "Please enter a valid Sri Lankan NIC number (9 digits with V/X or 12 digits)."));
       return;
     }
 
     if (!passCriteria.minLength) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("auth.passwordTooShort", "Password must be at least 8 characters long."));
       return;
     }
 
     if (!passCriteria.hasUpper || !passCriteria.hasLower || !passCriteria.hasNumber) {
-      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+      setError(t("auth.passwordComplexity", "Password must contain at least one uppercase letter, one lowercase letter, and one number."));
       return;
     }
 
     if (!passCriteria.hasSpecial) {
-      setError("Password must contain at least one special character (!@#$%^&* etc.).");
+      setError(t("auth.passwordSpecial", "Password must contain at least one special character (!@#$%^&* etc.)."));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("auth.passwordMismatch", "Passwords do not match."));
       return;
     }
 
@@ -101,7 +104,18 @@ export default function RegisterStep1() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-4 sm:p-6 relative">
+      {/* Floating Language Switcher */}
+      <button
+        type="button"
+        onClick={toggleLanguage}
+        title={language === "si" ? "Switch to English" : "සිංහල භාෂාවට මාරුවන්න"}
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold transition shadow-xs border border-blue-200 cursor-pointer active:scale-95"
+      >
+        <FiGlobe size={14} />
+        <span>{language === "si" ? "සිංහල" : "English"}</span>
+      </button>
+
       <div className="flex gap-12 min-h-[90vh]">
         <LeftPanel />
 
@@ -110,8 +124,8 @@ export default function RegisterStep1() {
 
           <p className="text-center text-base text-gray-400 mt-2">1 / 2</p>
 
-          <h1 className="text-center text-3xl font-bold mt-2">
-            Personal Information
+          <h1 className="text-center text-3xl font-bold mt-2 text-slate-800">
+            {t("auth.registerStep1Title", "Personal Information")}
           </h1>
 
           {error && (
@@ -120,37 +134,37 @@ export default function RegisterStep1() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mt-6">
             <FormInput
-              label="First Name"
+              label={t("auth.firstName", "First Name")}
               placeholder="John"
               value={regForm.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
             />
 
             <FormInput
-              label="Last Name"
+              label={t("auth.lastName", "Last Name")}
               placeholder="Carter"
               value={regForm.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
             />
 
             <FormInput
-              label="Shop Name"
+              label={t("auth.shopName", "Shop Name")}
               placeholder="Jayarathna Stores"
               value={regForm.shopName}
               onChange={(e) => handleChange("shopName", e.target.value)}
             />
 
             <FormInput
-              label="NIC Number"
+              label={t("auth.nicNumber", "NIC Number")}
               placeholder="921234567V or 200212345678"
               value={regForm.nic}
               onChange={(e) => handleChange("nic", e.target.value)}
             />
 
             <FormInput
-              label="Email Address"
+              label={t("auth.email", "Email Address")}
               placeholder="john@gmail.com"
               type="email"
               value={regForm.email}
@@ -158,7 +172,7 @@ export default function RegisterStep1() {
             />
 
             <FormInput
-              label="Phone Number"
+              label={t("auth.phone", "Phone Number")}
               placeholder="076 1234567 or +94 76 1234567"
               value={regForm.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
@@ -166,7 +180,7 @@ export default function RegisterStep1() {
 
             <div className="flex flex-col">
               <FormInput
-                label="Password"
+                label={t("auth.password", "Password")}
                 placeholder="********"
                 type="password"
                 value={regForm.password}
@@ -186,23 +200,23 @@ export default function RegisterStep1() {
                     />
                   </div>
                   <p className={`flex items-center gap-1.5 ${passCriteria.minLength ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
-                    {passCriteria.minLength ? "✓" : "○"} At least 8 characters
+                    {passCriteria.minLength ? "✓" : "○"} {t("auth.reqMinChars", "At least 8 characters")}
                   </p>
                   <p className={`flex items-center gap-1.5 ${passCriteria.hasUpper && passCriteria.hasLower ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
-                    {passCriteria.hasUpper && passCriteria.hasLower ? "✓" : "○"} Uppercase & lowercase letters
+                    {passCriteria.hasUpper && passCriteria.hasLower ? "✓" : "○"} {t("auth.reqUpperLower", "Uppercase & lowercase letters")}
                   </p>
                   <p className={`flex items-center gap-1.5 ${passCriteria.hasNumber ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
-                    {passCriteria.hasNumber ? "✓" : "○"} At least one number
+                    {passCriteria.hasNumber ? "✓" : "○"} {t("auth.reqNumber", "At least one number")}
                   </p>
                   <p className={`flex items-center gap-1.5 ${passCriteria.hasSpecial ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
-                    {passCriteria.hasSpecial ? "✓" : "○"} At least one symbol (!@#$%^&*)
+                    {passCriteria.hasSpecial ? "✓" : "○"} {t("auth.reqSymbol", "At least one symbol (!@#$%^&*)")}
                   </p>
                 </div>
               )}
             </div>
 
             <FormInput
-              label="Confirm Password"
+              label={t("auth.confirmPassword", "Confirm Password")}
               placeholder="********"
               type="password"
               value={regForm.confirmPassword}
@@ -224,15 +238,16 @@ export default function RegisterStep1() {
                 font-semibold
                 hover:bg-blue-800
                 transition
+                cursor-pointer
               "
             >
-              Continue
+              {t("common.next", "Continue")}
             </button>
 
             <p className="text-sm text-slate-500">
-              Already have an account?{" "}
+              {t("auth.alreadyHaveAccount", "Already have an account?")}{" "}
               <Link to="/login" className="text-blue-700 font-semibold hover:underline">
-                Login
+                {t("auth.loginHere", "Login")}
               </Link>
             </p>
           </div>

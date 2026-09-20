@@ -3,6 +3,7 @@ import { FiShoppingBag } from "react-icons/fi";
 
 import { CartContext } from "../context/CartContextObject";
 import { useAuth }     from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchProductsWithCategories } from "../services/productService";
 
 // Use exact folder casing: components/Products (capital P)
@@ -17,6 +18,7 @@ import AddToCartModal      from "../components/Products/AddToCartModal";
 function Products() {
   const { auth }      = useAuth();
   const { addToCart } = useContext(CartContext);
+  const { t }         = useLanguage();
 
   // ── Data state ────────────────────────────────────────────────
   const [products,     setProducts]     = useState([]);
@@ -63,10 +65,10 @@ function Products() {
       })
       .catch((err) => {
         console.error("Products fetch error:", err);
-        setError(err.message || "Failed to load products. Please try again.");
+        setError(err.message || t("products.fetchFailed", "Failed to load products. Please try again."));
       })
       .finally(() => setLoading(false));
-  }, [token, selectedCategoryId]);
+  }, [token, selectedCategoryId, t]);
 
   // ── Client-side filter ─────────────────────────────────
   const filteredProducts = useMemo(() => {
@@ -102,21 +104,21 @@ function Products() {
 
   // Heading text
   const headingText = selectedCategoryId
-    ? (categories.find((c) => c.category_id === selectedCategoryId)?.category_name ?? "Products")
+    ? (categories.find((c) => c.category_id === selectedCategoryId)?.category_name ?? t("nav.products", "Products"))
     : searchTerm
-      ? `Results for "${searchTerm}"`
-      : "All Products";
+      ? `${t("common.search", "Results for")} "${searchTerm}"`
+      : t("products.allCategories", "All Products");
 
   return (
     <div className="min-w-0 overflow-x-hidden">
 
-      {/* Page header — original style */}
+      {/* Page header */}
       <h1 className="text-3xl font-bold mb-6 flex items-center">
         <FiShoppingBag className="inline mr-2 text-blue-600" />
-        Products
+        {t("nav.products", "Products")}
         {!loading && (
           <span className="ml-3 text-base font-normal text-gray-500">
-            ({filteredProducts.length} items)
+            ({filteredProducts.length} {t("common.items", "items")})
           </span>
         )}
       </h1>
@@ -156,7 +158,7 @@ function Products() {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder={t("products.searchPlaceholder", "Search products...")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full border border-slate-200 focus:border-blue-500 rounded-full px-5 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 bg-white text-xs font-bold transition duration-300 shadow-2xs placeholder-slate-400 text-slate-700"
@@ -175,7 +177,7 @@ function Products() {
                 backgroundRepeat: 'no-repeat',
               }}
             >
-              <option value="">All Distributors</option>
+              <option value="">{t("dashboard.allDistributors", "All Distributors")}</option>
               {distributors.map((d) => (
                 <option key={d.distributor_id} value={d.distributor_id}>
                   {d.company_name}
@@ -206,9 +208,13 @@ function Products() {
       <ProductDetailsModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
+        onAddToCart={(p) => {
+          setSelectedProduct(null);
+          setCartProduct(p);
+        }}
       />
 
-      {/* Add to cart modal (triggered from ProductCard "Add to Cart" button) */}
+      {/* Add to cart modal */}
       <AddToCartModal
         product={cartProduct}
         onClose={() => setCartProduct(null)}

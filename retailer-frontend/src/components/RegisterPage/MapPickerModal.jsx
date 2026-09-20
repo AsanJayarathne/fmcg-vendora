@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Crosshair } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const loadLeaflet = () => {
   return new Promise((resolve) => {
@@ -23,6 +24,7 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
+  const { t } = useLanguage();
 
   const defaultLat = parseFloat(initialLat) || 6.9271;
   const defaultLng = parseFloat(initialLng) || 79.8612;
@@ -111,7 +113,7 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
       },
       () => {
         setLocating(false);
-        alert("Unable to fetch current location.");
+        alert(t("auth.geoPermissionError", "Unable to fetch current location."));
       },
       { enableHighAccuracy: true }
     );
@@ -130,9 +132,11 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
         {/* Retailer Style Header */}
         <div className="px-6 py-4.5 bg-blue-700 text-white flex items-center justify-between shadow-xs">
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Pick Shop Location</h2>
+            <h2 className="text-xl font-bold tracking-tight">
+              {t("auth.pickShopLocation", "Pick Shop Location")}
+            </h2>
             <p className="text-xs text-blue-100 mt-0.5">
-              Click on the map or drag the marker pin to set your exact shop location
+              {t("auth.mapPickerInstruction", "Click on the map or drag the marker pin to set your exact shop location")}
             </p>
           </div>
           <button
@@ -147,7 +151,7 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
         {/* Toolbar */}
         <div className="px-6 py-3.5 bg-[#EEF2F6] flex items-center justify-between border-b border-slate-200">
           <div className="text-xs sm:text-sm font-medium text-slate-600 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-            Coordinates: <span className="text-blue-700 font-bold">{selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}</span>
+            {t("auth.coordinates", "Coordinates")}: <span className="text-blue-700 font-bold">{selectedLat.toFixed(6)}, {selectedLng.toFixed(6)}</span>
           </div>
           <button
             type="button"
@@ -156,7 +160,7 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
             className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-2xl text-xs sm:text-sm flex items-center gap-1.5 transition cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50"
           >
             <Crosshair size={15} />
-            <span>{locating ? "Locating..." : "Center on My Location"}</span>
+            <span>{locating ? t("common.loading", "Locating...") : t("auth.autoDetectGps", "Center on My Location")}</span>
           </button>
         </div>
 
@@ -172,14 +176,14 @@ export default function MapPickerModal({ isOpen, onClose, onConfirm, initialLat,
             onClick={onClose}
             className="px-6 py-2.5 rounded-full border border-blue-700 text-blue-700 text-sm font-semibold hover:bg-blue-50 transition cursor-pointer"
           >
-            Cancel
+            {t("common.cancel", "Cancel")}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="px-8 py-2.5 rounded-full bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold shadow-md transition cursor-pointer active:scale-[0.98]"
           >
-            Confirm Location
+            {t("auth.confirmLocation", "Confirm Location")}
           </button>
         </div>
       </div>

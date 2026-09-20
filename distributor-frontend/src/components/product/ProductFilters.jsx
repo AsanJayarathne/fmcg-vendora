@@ -18,7 +18,7 @@ export default function ProductFilters({
       <div className="relative flex-1 w-full">
         <input
           type="text"
-          placeholder="Search products by name or code (PRD-XXX)..."
+          placeholder="Search products by name or code..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full border border-slate-200 focus:border-blue-500 rounded-full pl-10 pr-5 py-3 text-xs font-semibold outline-none bg-white text-slate-700 placeholder-slate-400 transition duration-300 shadow-2xs focus:ring-4 focus:ring-blue-500/10"

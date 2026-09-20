@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Mail, ArrowRight, CheckCircle2, AlertCircle, X, Loader2 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Retailer Portal" }) {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -12,7 +14,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim()) {
-      setError("Please enter your registered email address.");
+      setError(t("auth.enterRegisteredEmail", "Please enter your registered email address."));
       return;
     }
 
@@ -32,15 +34,15 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
 
       const data = await res.json();
       if (!data.success) {
-        setError(data.message || "Failed to send reset link. Please try again.");
+        setError(data.message || t("auth.failedResetLink", "Failed to send reset link. Please try again."));
         setLoading(false);
         return;
       }
 
-      setSuccessMessage(data.message || "A password reset link has been dispatched to your email.");
+      setSuccessMessage(data.message || t("auth.resetDispatchedText", "A secure reset link has been dispatched to your email address."));
       setLoading(false);
     } catch (err) {
-      setError("Network error — unable to connect to the authentication server.");
+      setError(t("auth.networkError", "Network error — unable to connect to the authentication server."));
       setLoading(false);
     }
   };
@@ -72,9 +74,9 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
           <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-sm">
             <Mail size={28} />
           </div>
-          <h3 className="text-2xl font-bold text-slate-800">Forgot Password?</h3>
+          <h3 className="text-2xl font-bold text-slate-800">{t("auth.forgotModalTitle", "Forgot Password?")}</h3>
           <p className="text-sm text-slate-500 mt-1 max-w-xs">
-            Enter your account email to receive a secure password reset link.
+            {t("auth.forgotModalSubtitle", "Enter your registered email to receive a password reset link.")}
           </p>
         </div>
 
@@ -91,26 +93,26 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
             <div className="w-12 h-12 bg-green-50 text-green-600 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-3">
               <CheckCircle2 size={26} />
             </div>
-            <h4 className="text-base font-semibold text-slate-800">Reset Email Dispatched</h4>
+            <h4 className="text-base font-semibold text-slate-800">{t("auth.resetDispatched", "Reset Email Dispatched")}</h4>
             <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
               {successMessage}
             </p>
             <p className="text-xs text-amber-600 font-medium mt-2">
-              ⏱ Link expires in 15 minutes. Check your inbox & spam folder.
+              ⏱ {t("auth.linkExpiryNotice", "Link expires in 15 minutes. Check your inbox & spam folder.")}
             </p>
             <button
               type="button"
               onClick={handleClose}
               className="mt-5 w-full bg-slate-900 hover:bg-black text-white font-semibold py-3 rounded-xl transition cursor-pointer"
             >
-              Back to Login
+              {t("auth.backToLogin", "Back to Login")}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                Registered Email Address
+                {t("auth.registeredEmail", "Registered Email Address")}
               </label>
               <div className="relative flex items-center">
                 <Mail size={18} className="absolute left-3.5 text-slate-400" />
@@ -137,11 +139,11 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  <span>Sending Link...</span>
+                  <span>{t("auth.sendingLink", "Sending Link...")}</span>
                 </>
               ) : (
                 <>
-                  <span>Send Reset Link</span>
+                  <span>{t("auth.sendResetLink", "Send Reset Link")}</span>
                   <ArrowRight size={18} />
                 </>
               )}
@@ -152,7 +154,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
               onClick={handleClose}
               className="w-full text-center text-xs font-semibold text-slate-500 hover:text-slate-800 transition py-1 cursor-pointer"
             >
-              Cancel & Return to Login
+              {t("auth.cancelReturnLogin", "Cancel & Return to Login")}
             </button>
           </form>
         )}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, User, LogOut, Package, Map, ChevronDown, Mail, CheckCircle2, X, CheckCheck } from 'lucide-react';
+import { Bell, User, LogOut, Package, Map, ChevronDown, CheckCircle2, X, CheckCheck, Menu } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import {
   fetchNotifications,
@@ -23,7 +23,7 @@ function formatTimeAgo(dateString) {
   return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
 }
 
-function TopBar() {
+function TopBar({ onToggleSidebar }) {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -95,7 +95,7 @@ function TopBar() {
     navigate('/login');
   };
 
-  // Close dropdowns when clicking outside
+  // Close dropdowns when clicking outside (supports mouse and touch)
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -119,16 +119,29 @@ function TopBar() {
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [showProfileMenu, showNotifications]);
 
   return (
-    <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-30 flex-shrink-0">
-      {/* Left side empty space */}
-      <div></div>
+    <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-30 flex-shrink-0">
+      {/* Mobile Hamburger Button */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition cursor-pointer flex items-center justify-center focus:outline-none"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu size={22} />
+        </button>
+      </div>
 
       {/* Right side controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
 
         {/* ── Notifications Button & Popover ── */}
         <div className="relative" ref={notifButtonRef}>
@@ -138,6 +151,7 @@ function TopBar() {
               setShowProfileMenu(false);
             }}
             className="relative w-9 h-9 rounded-xl bg-orange-50 hover:bg-orange-100/80 border border-orange-100 flex items-center justify-center transition-all cursor-pointer active:scale-[0.98]"
+            aria-label="Notifications"
           >
             <Bell size={17} className="text-orange-600" />
             {unreadCount > 0 && (
@@ -150,7 +164,10 @@ function TopBar() {
           {showNotifications && (
             <div
               ref={notifPopupRef}
-              className="absolute right-0 top-full mt-2 w-80 sm:w-88 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp"
+              className="
+                fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2
+                sm:w-80 max-w-[360px] bg-white border border-slate-200 sm:border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp
+              "
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-orange-50/50">
                 <div className="flex items-center gap-2">
@@ -218,7 +235,7 @@ function TopBar() {
           )}
         </div>
 
-        <div className="h-6 w-px bg-slate-200 mx-1" />
+        <div className="h-6 w-px bg-slate-200 mx-0.5 sm:mx-1" />
 
         {/* ── Driver Account Overview Popover Button ── */}
         <div className="relative" ref={profileButtonRef}>
@@ -227,7 +244,8 @@ function TopBar() {
               setShowProfileMenu(!showProfileMenu);
               setShowNotifications(false);
             }}
-            className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100/70 transition-all cursor-pointer focus:outline-none"
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100/70 transition-all cursor-pointer focus:outline-none"
+            aria-label="User profile"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold shadow-sm select-none">
               {driverInitials}
@@ -241,84 +259,65 @@ function TopBar() {
             </div>
           </button>
 
-          {/* ── Account Overview Dropdown Popover ── */}
           {showProfileMenu && (
             <div
               ref={profilePopupRef}
-              className="absolute right-0 top-full mt-2 w-72 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp"
+              className="
+                fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2
+                sm:w-72 max-w-[320px] bg-white border border-slate-200 sm:border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden animate-fadeInUp
+              "
             >
-              {/* Header Profile Summary */}
-              <div className="p-4 bg-orange-50/60 border-b border-orange-100/80">
+              {/* Header Info */}
+              <div className="p-4 bg-orange-50/50 border-b border-slate-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm shadow-sm select-none">
                     {driverInitials}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="text-sm font-bold text-slate-900 truncate">{auth?.fullName || 'Kamal Perera'}</h4>
-                    <p className="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5">
-                      <Mail size={11} className="text-slate-400" />
-                      <span>{auth?.email || 'kamal@vendora.lk'}</span>
-                    </p>
-                    <div className="mt-1.5 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-[11px] font-semibold text-orange-600">On Duty • Active</span>
-                    </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-slate-900 truncate">{auth?.fullName || 'Kamal Perera'}</div>
+                    <div className="text-xs text-slate-400 truncate">{auth?.email || 'driver@vendora.lk'}</div>
                   </div>
                 </div>
               </div>
 
-              {/* Quick Info Grid */}
-              <div className="p-3 grid grid-cols-2 gap-2 bg-slate-50/50 border-b border-slate-100 text-xs">
-                <div className="bg-white p-2 rounded-lg border border-slate-100">
-                  <span className="text-[10px] text-slate-400 font-medium block">Driver ID</span>
-                  <span className="font-bold text-slate-800">D001</span>
-                </div>
-                <div className="bg-white p-2 rounded-lg border border-slate-100">
-                  <span className="text-[10px] text-slate-400 font-medium block">Status</span>
-                  <span className="font-bold text-emerald-600 flex items-center gap-1">
-                    <CheckCircle2 size={11} /> Verified
-                  </span>
-                </div>
-              </div>
-
-              {/* Navigation Options */}
-              <div className="p-2 space-y-1">
+              {/* Links */}
+              <div className="p-2 space-y-1 text-xs font-medium">
                 <Link
                   to="/profile"
                   onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-orange-600 transition-colors"
                 >
                   <User size={15} className="text-slate-400" />
-                  <span>Account Details & Profile</span>
+                  <span>My Profile Details</span>
                 </Link>
 
                 <Link
                   to="/myroute"
                   onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-orange-600 transition-colors"
                 >
                   <Package size={15} className="text-slate-400" />
-                  <span>My Route Deliveries</span>
+                  <span>Active Route Orders</span>
                 </Link>
 
                 <Link
                   to="/cashaudit"
                   onClick={() => setShowProfileMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                  className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-orange-600 transition-colors"
                 >
                   <Map size={15} className="text-slate-400" />
-                  <span>Interactive Route Map</span>
+                  <span>Route Map Navigation</span>
                 </Link>
               </div>
 
-              {/* Footer Logout */}
-              <div className="p-2 border-t border-slate-100 bg-slate-50/50">
+              {/* Footer logout */}
+              <div className="p-2 border-t border-slate-100">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all cursor-pointer"
+                  className="w-full flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <LogOut size={14} />
-                  <span>Log Out</span>
+                  <span>Log out</span>
                 </button>
               </div>
             </div>

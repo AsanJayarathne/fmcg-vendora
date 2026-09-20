@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { FiTag, FiTruck, FiBox, FiX } from "react-icons/fi";
+import { FiTag, FiTruck, FiBox, FiX, FiShoppingBag } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 const CATEGORY_GRADIENTS = {
   Dairy:      { from: "#fef3c7", to: "#fcd34d", icon: "🥛" },
@@ -10,9 +11,10 @@ const CATEGORY_GRADIENTS = {
   Default:    { from: "#f1f5f9", to: "#cbd5e1", icon: "📦" },
 };
 
-function ProductDetailsModal({ product, onClose }) {
+function ProductDetailsModal({ product, onClose, onAddToCart }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
-    // Lock body scrolling when details modal is open
     if (product) {
       document.body.style.overflow = "hidden";
     }
@@ -29,14 +31,13 @@ function ProductDetailsModal({ product, onClose }) {
   const price       = product.unit_price     ?? product.base_price ?? product.price;
   const stockQty    = product.available_qty  ?? product.stock_qty  ?? product.stock ?? 0;
   const unit        = product.unit           ?? "";
-  const description = product.description    ?? "No additional description provided for this product line.";
+  const description = product.description    ?? t("products.defaultDescription", "High quality product selected from our verified FMCG distributors.");
 
   const UPLOADS_BASE   = "http://localhost/fmcg-vendora/backend/uploads/products/";
   const gradient       = CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Default;
   const imageUrl       = product.image_url ? `${UPLOADS_BASE}${product.image_url}` : (product.image ?? null);
   const usePlaceholder = !imageUrl || imageUrl.includes("placeholder");
   
-  // Since minimum bulk purchase quantity is 8, availability under 8 is effectively out of stock
   const isOutOfStock   = stockQty < 8;
   const isLowStock     = stockQty >= 8 && stockQty < 48;
 
@@ -47,132 +48,140 @@ function ProductDetailsModal({ product, onClose }) {
     });
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-4">
-      <div className="bg-white border border-slate-100 p-7 rounded-[32px] w-[500px] max-w-full max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative flex flex-col justify-between animate-fadeIn">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white border border-slate-100 p-5 sm:p-7 rounded-3xl sm:rounded-[32px] w-full max-w-lg max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl relative flex flex-col justify-between animate-fadeIn">
         
         {/* Close icon in top right */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 transition cursor-pointer p-1 rounded-full hover:bg-slate-50 border border-transparent hover:border-slate-100"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-700 transition cursor-pointer p-1.5 rounded-full hover:bg-slate-100 z-10"
+          aria-label="Close modal"
         >
           <FiX size={18} />
         </button>
 
         {/* Content Body */}
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5">
           {/* Image / gradient */}
           {usePlaceholder ? (
             <div
               style={{
-                height: "180px",
+                height: "160px",
                 background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
-                borderRadius: "24px",
+                borderRadius: "20px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: "64px",
+                fontSize: "56px",
               }}
             >
               <span role="img" aria-label={category}>{gradient.icon}</span>
             </div>
           ) : (
-            <div className="h-[180px] flex items-center justify-center p-3 bg-slate-50/50 rounded-[24px] border border-slate-100 overflow-hidden">
+            <div className="h-40 sm:h-48 flex items-center justify-center p-3 bg-slate-50 rounded-2xl sm:rounded-[24px] border border-slate-100 overflow-hidden">
               <img
                 src={imageUrl}
                 alt={name}
-                className="h-full max-w-full object-contain rounded-lg"
+                className="h-full max-w-full object-contain mix-blend-multiply"
               />
             </div>
           )}
 
           {/* Heading */}
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full border ${
                 isOutOfStock 
-                  ? "text-red-655 bg-red-50 border-red-200/40" 
+                  ? "text-red-600 bg-red-50 border-red-200" 
                   : isLowStock 
-                    ? "text-amber-600 bg-amber-50 border-amber-200/40" 
-                    : "text-green-600 bg-green-50 border-green-200/40"
+                    ? "text-amber-600 bg-amber-50 border-amber-200" 
+                    : "text-green-600 bg-green-50 border-green-200"
               }`}>
-                {isOutOfStock ? "Out of Stock" : `In Stock (${stockQty} units)`}
+                {isOutOfStock ? `${t("products.outOfStock", "Out of Stock")} (Min 8)` : `${t("products.inStock", "In Stock")} (${stockQty} ${t("common.units", "units")})`}
               </span>
             </div>
 
-            <h2 className="text-xl font-black text-slate-800 leading-tight">
+            <h2 className="text-lg sm:text-xl font-black text-slate-800 leading-tight">
               {name}
             </h2>
-            
-            {unit && (
-              <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider mt-1">
-                {unit}
-              </p>
-            )}
           </div>
 
-          <div className="text-base font-black text-slate-900 border-y border-slate-100 py-3 flex justify-between items-center">
-            <span className="text-xs font-bold text-slate-400">Unit Price</span>
-            <span className="text-blue-650">Rs. {fmt(price)}</span>
-          </div>
-
-          {/* Detailed Info Grid */}
-          <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="bg-blue-50/20 border border-blue-100/30 rounded-2xl p-3.5">
-              <div className="flex items-center gap-1.5 text-blue-405 font-bold mb-1">
+          {/* Quick Specs Grid */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3">
+              <div className="flex items-center gap-1.5 text-blue-600 mb-1">
                 <FiTag size={12} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Category</span>
+                <span className="text-[10px] font-black uppercase tracking-wider">{t("products.wholesalePrice", "Unit Price")}</span>
               </div>
-              <p className="font-extrabold text-blue-700">{category}</p>
+              <p className="text-base sm:text-lg font-black text-slate-900">
+                Rs. {fmt(price)}
+              </p>
             </div>
 
-            <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-3.5">
-              <div className="flex items-center gap-1.5 text-slate-400 font-bold mb-1">
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3">
+              <div className="flex items-center gap-1.5 text-blue-600 mb-1">
                 <FiTruck size={12} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Distributor</span>
+                <span className="text-[10px] font-black uppercase tracking-wider">{t("products.distributor", "Distributor")}</span>
               </div>
-              <p className="font-extrabold text-slate-700 truncate">
+              <p className="font-bold text-xs sm:text-sm text-slate-800 truncate">
                 {product.distributor_name ?? "—"}
               </p>
             </div>
           </div>
 
           {/* Product Description */}
-          <div className="space-y-2">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">Product Description</h3>
-            <p className="text-xs font-bold text-slate-500 leading-relaxed bg-slate-50/30 border border-slate-100 rounded-2xl p-4">
+          <div className="space-y-1.5">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{t("products.description", "Description")}</h3>
+            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50/50 border border-slate-100 rounded-2xl p-3.5">
               {description}
             </p>
           </div>
 
-          {/* Wholesale Discount Promo Tiers */}
-          <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4.5">
-            <h4 className="text-[10px] font-black text-slate-450 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <FiBox size={12} /> Eligible Bulk Promotions
+          {/* Bulk Promotions */}
+          <div className="bg-blue-50/40 border border-blue-100/60 rounded-2xl p-3.5 space-y-2">
+            <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1.5">
+              <FiBox size={12} /> {t("products.bulkTiers", "Eligible Bulk Promotions")}
             </h4>
-            <ul className="text-xs font-bold text-slate-500 space-y-2">
-              <li className="flex justify-between items-center">
-                <span>Orders between 8 – 24 units</span>
-                <span className="text-green-600 bg-green-50 px-2 py-0.5 border border-green-150/30 rounded-md font-black text-[10px]">5% Discount</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <span>Orders between 32 – 48 units</span>
-                <span className="text-green-600 bg-green-50 px-2 py-0.5 border border-green-150/30 rounded-md font-black text-[10px]">10% Discount</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <span>Orders of 56 or more units</span>
-                <span className="text-green-600 bg-green-50 px-2 py-0.5 border border-green-150/30 rounded-md font-black text-[10px]">15% Discount</span>
-              </li>
-            </ul>
+            <div className="text-xs font-semibold text-slate-600 space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span>8 – 24 {t("common.units", "units")}</span>
+                <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[11px]">5% {t("cart.discount", "Discount")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>32 – 48 {t("common.units", "units")}</span>
+                <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[11px]">10% {t("cart.discount", "Discount")}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>56+ {t("common.units", "units")}</span>
+                <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[11px]">15% {t("cart.discount", "Discount")}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Modal Close CTA */}
-        <button
-          onClick={onClose}
-          className="mt-6 w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-full cursor-pointer transition shadow-xs"
-        >
-          Return to Catalog
-        </button>
+        {/* Modal Action Buttons */}
+        <div className="flex gap-2.5 sm:gap-3 mt-6 pt-2 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl cursor-pointer transition"
+          >
+            {t("common.close", "Close")}
+          </button>
+          
+          {onAddToCart && (
+            <button
+              onClick={() => {
+                onClose();
+                onAddToCart(product);
+              }}
+              disabled={isOutOfStock}
+              className="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs rounded-2xl cursor-pointer transition shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5"
+            >
+              <FiShoppingBag size={14} />
+              <span>{t("products.addToCart", "Add to Cart")}</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -32,6 +32,7 @@ import {
 } from "recharts";
 
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchCreditInfo, fetchOrders } from "../services/orderService";
 
 const PAYMENT_COLORS = {
@@ -42,6 +43,7 @@ const PAYMENT_COLORS = {
 
 export default function Analytics() {
   const { auth } = useAuth();
+  const { t } = useLanguage();
   const token = auth?.token ?? null;
 
   const [creditInfo, setCreditInfo] = useState(null);
@@ -250,18 +252,18 @@ export default function Analytics() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 gap-3">
         <FiLoader size={36} className="animate-spin text-blue-600" />
-        <p className="text-slate-500 font-semibold text-sm">Loading analytics breakdown...</p>
+        <p className="text-slate-500 font-semibold text-sm">{t("common.loading", "Loading analytics breakdown...")}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+    <div className="space-y-6 font-sans">
       {/* Toast Notification */}
       {exportNotice && (
         <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
           <FiCheckCircle className="text-emerald-400 size-4" />
-          <span>Analytics report summary generated & ready for download!</span>
+          <span>{t("analytics.reportGenerated", "Analytics report summary generated & ready for download!")}</span>
         </div>
       )}
 
@@ -270,10 +272,10 @@ export default function Analytics() {
         <div>
           <h1 className="flex items-center gap-3 text-3xl font-bold text-slate-800">
             <FiBarChart2 className="text-blue-600 w-8 h-8" />
-            <span>Store Analytics</span>
+            <span>{t("analytics.title", "Store Analytics")}</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1 font-normal">
-            Real-time business performance insights & purchasing patterns
+            {t("analytics.subtitle", "Real-time business performance insights & purchasing patterns")}
           </p>
         </div>
 
@@ -286,10 +288,10 @@ export default function Analytics() {
               onChange={(e) => setTimeframe(e.target.value)}
               className="outline-none bg-transparent text-sm font-medium text-slate-600 cursor-pointer"
             >
-              <option value="This Month">This Month</option>
-              <option value="Last Month">Last Month</option>
-              <option value="This Quarter">This Quarter</option>
-              <option value="All Time">All Time</option>
+              <option value="This Month">{t("dashboard.thisMonth", "This Month")}</option>
+              <option value="Last Month">{t("dashboard.lastMonth", "Last Month")}</option>
+              <option value="This Quarter">{t("dashboard.thisQuarter", "This Quarter")}</option>
+              <option value="All Time">{t("dashboard.allTime", "All Time")}</option>
             </select>
           </div>
 
@@ -299,7 +301,7 @@ export default function Analytics() {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
           >
             <FiDownload size={15} />
-            <span>Export Report</span>
+            <span>{t("analytics.exportReport", "Export Report")}</span>
           </button>
         </div>
       </div>
@@ -315,7 +317,7 @@ export default function Analytics() {
           }`}
         >
           <FiPieChart size={14} />
-          <span>All Overview</span>
+          <span>{t("analytics.allOverview", "All Overview")}</span>
         </button>
         <button
           onClick={() => setActiveTab("products")}
@@ -326,7 +328,7 @@ export default function Analytics() {
           }`}
         >
           <FiTag size={14} />
-          <span>Product Performance</span>
+          <span>{t("analytics.productPerformance", "Product Performance")}</span>
         </button>
         <button
           onClick={() => setActiveTab("financials")}
@@ -337,62 +339,62 @@ export default function Analytics() {
           }`}
         >
           <FiCreditCard size={14} />
-          <span>Financials & Credit</span>
+          <span>{t("analytics.financialsCredit", "Financials & Credit")}</span>
         </button>
       </div>
 
       {/* 6 Key Stat Cards Grid — Arranged in 2 Rows (3 cards per row) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
         <StatCard
-          title="Total Spending"
+          title={t("dashboard.spending", "Total Spending")}
           value={`Rs. ${spendingTotal.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
           color="green"
           icon={<FiCreditCard size={18} />}
-          subtitle={`Aggregate spending in ${timeframe}`}
+          subtitle={`${t("dashboard.spending", "Aggregate spending in")} ${timeframe}`}
         />
         <StatCard
-          title="Total Orders"
+          title={t("dashboard.totalOrder", "Total Orders")}
           value={String(totalOrdersCount)}
           color="blue"
           icon={<FiFileText size={18} />}
-          subtitle="All placed orders count"
+          subtitle={t("dashboard.filteredOrdersCount", "All placed orders count")}
         />
         <StatCard
-          title="No of Products"
+          title={t("dashboard.noOfProducts", "No of Products")}
           value={String(uniqueProductsCount)}
           color="orange"
           icon={<FiTag size={18} />}
-          subtitle="Distinct products purchased"
+          subtitle={t("dashboard.distinctProducts", "Distinct products purchased")}
         />
         <StatCard
-          title="Total Savings"
+          title={t("dashboard.savings", "Total Savings")}
           value={`Rs. ${totalSavings.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
           color="purple"
           icon={<FiTrendingUp size={18} />}
-          subtitle="Bulk promotions savings"
+          subtitle={t("dashboard.savingSummary", "Bulk promotions savings")}
         />
         <StatCard
-          title="Avg Order Value"
+          title={t("analytics.avgOrderValue", "Avg Order Value")}
           value={`Rs. ${avgOrderValue.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
           color="blue"
           icon={<FiDollarSign size={18} />}
-          subtitle="Mean order transaction value"
+          subtitle={t("analytics.meanTransactionValue", "Mean order transaction value")}
         />
         <StatCard
-          title="Fulfillment Rate"
+          title={t("analytics.fulfillmentRate", "Fulfillment Rate")}
           value={`${fulfillmentRate}%`}
           color="green"
           icon={<FiCheckCircle size={18} />}
-          subtitle="Delivered success rate"
+          subtitle={t("analytics.deliveredSuccessRate", "Delivered success rate")}
         />
       </div>
 
@@ -418,10 +420,10 @@ export default function Analytics() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="font-semibold text-slate-800 text-base leading-tight">
-                    Payment Methods
+                    {t("payment.paymentMethod", "Payment Methods")}
                   </h2>
                   <p className="text-xs text-slate-400 font-normal mt-0.5">
-                    Order volume share by payment channel
+                    {t("analytics.paymentShareSubtitle", "Order volume share by payment channel")}
                   </p>
                 </div>
                 <FiPieChart className="text-blue-600 size-5" />
@@ -464,9 +466,9 @@ export default function Analytics() {
       {(activeTab === "all" || activeTab === "financials") && (
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-slate-800">Credit Account Analytics</h2>
+            <h2 className="text-xl font-bold text-slate-800">{t("credits.creditOverview", "Credit Account Analytics")}</h2>
             <span className="text-xs text-slate-400 font-normal">
-              Facility usage & balance trend
+              {t("credits.facilityUsageTrend", "Facility usage & balance trend")}
             </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">

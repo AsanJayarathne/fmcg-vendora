@@ -112,7 +112,7 @@ function CashAudit() {
       });
 
       if (bounds.length > 0) {
-        mapRef.current.fitBounds(bounds, { padding: [40, 40] });
+        mapRef.current.fitBounds(bounds, { padding: [30, 30] });
       }
     });
 
@@ -124,17 +124,17 @@ function CashAudit() {
   const activeDeliveriesCount = routes.filter(r => r.status === 'Pending' && r.latitude && r.longitude).length;
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Route Navigation Map</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Geographic view of picked up retail store destinations</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Geographic view of picked up retail store destinations</p>
         </div>
         {!loading && (
           <button
             onClick={fetchRoutes}
-            className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-sm self-start sm:self-auto"
+            className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-xs self-start sm:self-auto"
           >
             <RefreshCw size={14} className="text-slate-500" />
             <span>Refresh Map</span>
@@ -144,19 +144,19 @@ function CashAudit() {
 
       {/* Leaflet Map Card */}
       {!loading && activeDeliveriesCount > 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-5 space-y-3.5 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0">
                 <Navigation size={16} />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-slate-900">Active Stop Pins ({activeDeliveriesCount})</h3>
-                <p className="text-[11px] text-slate-400">Click any marker on map to view order details</p>
+                <p className="text-[11px] text-slate-400">Click any pin marker on map to view order details</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-semibold">
+            <div className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               Live Route Active
             </div>
@@ -164,13 +164,12 @@ function CashAudit() {
 
           <div 
             id="map-container" 
-            className="w-full h-[520px] rounded-xl overflow-hidden border border-slate-200 shadow-inner z-0"
-            style={{ minHeight: '480px' }}
+            className="w-full h-[360px] sm:h-[460px] md:h-[520px] rounded-xl overflow-hidden border border-slate-200 shadow-inner z-0"
           />
         </div>
       ) : (
         !loading && (
-          <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-500 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-100 p-10 sm:p-12 text-center text-slate-500 shadow-sm">
             <MapPin size={36} className="mx-auto text-slate-300 mb-3" />
             <h3 className="text-base font-bold text-slate-800">No Active Route Locations</h3>
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">

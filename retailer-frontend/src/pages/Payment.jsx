@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContextObject";
 import { OrderContext } from "../context/OrderContextObject";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { placeOrder, fetchCreditInfo, initiateOnlinePayment } from "../services/orderService";
 import PaymentGatewayModal from "../components/PaymentGatewayModal";
 import { FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiLoader, FiGlobe } from "react-icons/fi";
@@ -11,6 +12,7 @@ function Payment() {
   const { state: order } = useLocation();
   const navigate         = useNavigate();
   const { auth }         = useAuth();
+  const { t }            = useLanguage();
   const token            = auth?.token ?? null;
 
   const { removeFromCart }   = useContext(CartContext);
@@ -83,7 +85,7 @@ function Payment() {
     }
     setGatewaySession(null);
     setPendingOnlineOrder(null);
-    setSubmitError("Online payment was cancelled. Order was not placed.");
+    setSubmitError(t("payment.onlineCancelled", "Online payment was cancelled. Order was not placed."));
   };
 
   // ── Fetch real credit info on mount for active distributor ───
@@ -98,26 +100,26 @@ function Payment() {
       })
       .catch((err) => {
         console.error("Credit fetch error:", err);
-        setCreditError("Could not load credit info.");
+        setCreditError(t("payment.couldNotLoadCredit", "Could not load credit info."));
         setCreditInfo(false);
       })
       .finally(() => setCreditLoading(false));
-  }, [token, order]);
+  }, [token, order, t]);
 
   // ── Guard: no order passed ─────────────────────────────────────
   if (!order) {
     return (
       <div className="max-w-xl mx-auto p-6 mt-12">
         <div className="bg-white border border-slate-100 rounded-[32px] p-8 text-center shadow-xs">
-          <h1 className="text-xl font-black text-slate-800">Payment details unavailable</h1>
+          <h1 className="text-xl font-black text-slate-800">{t("payment.detailsUnavailable", "Payment details unavailable")}</h1>
           <p className="mt-2 text-xs font-bold text-slate-400">
-            Please return to your cart and choose a distributor order again.
+            {t("payment.returnToCart", "Please return to your cart and choose a distributor order again.")}
           </p>
           <button
             onClick={() => navigate("/cart")}
             className="mt-6 bg-blue-650 hover:bg-blue-700 text-white font-bold text-xs px-5 py-3 rounded-full cursor-pointer transition shadow-xs flex items-center justify-center gap-2 mx-auto"
           >
-            <FiArrowLeft size={14} /> Back to Cart
+            <FiArrowLeft size={14} /> {t("payment.backToCart", "Back to Cart")}
           </button>
         </div>
       </div>
@@ -167,17 +169,17 @@ function Payment() {
 
     // Validation
     if (paymentType === "credit") {
-      if (!creditInfo) { setSubmitError("No credit account found."); return; }
-      if (creditBlocked) { setSubmitError("Your credit account is blocked."); return; }
-      if (payableTotal > availableCredit) { setSubmitError(`Order total Rs. ${fmt(payableTotal)} exceeds available credit Rs. ${fmt(availableCredit)}`); return; }
+      if (!creditInfo) { setSubmitError(t("payment.noCreditAccount", "No credit account found.")); return; }
+      if (creditBlocked) { setSubmitError(t("payment.creditBlocked", "Your credit account is blocked.")); return; }
+      if (payableTotal > availableCredit) { setSubmitError(`${t("payment.orderExceedsCredit", "Order total exceeds available credit")}: Rs. ${fmt(payableTotal)} > Rs. ${fmt(availableCredit)}`); return; }
     }
 
     if (paymentType === "cash_credit") {
-      if (!creditInfo) { setSubmitError("No credit account found."); return; }
-      if (creditBlocked) { setSubmitError("Your credit account is blocked."); return; }
-      if (parsedCreditInput <= 0) { setSubmitError("Credit amount must be greater than 0 for split payment."); return; }
-      if (parsedCreditInput > availableCredit) { setSubmitError(`Credit amount exceeds available credit of Rs. ${fmt(availableCredit)}`); return; }
-      if (finalCashAmount <= 0) { setSubmitError("Cash amount must be greater than 0 for split payment."); return; }
+      if (!creditInfo) { setSubmitError(t("payment.noCreditAccount", "No credit account found.")); return; }
+      if (creditBlocked) { setSubmitError(t("payment.creditBlocked", "Your credit account is blocked.")); return; }
+      if (parsedCreditInput <= 0) { setSubmitError(t("payment.creditMustBeGreaterZero", "Credit amount must be greater than 0 for split payment.")); return; }
+      if (parsedCreditInput > availableCredit) { setSubmitError(`${t("payment.creditExceedsLimit", "Credit amount exceeds available credit")} Rs. ${fmt(availableCredit)}`); return; }
+      if (finalCashAmount <= 0) { setSubmitError(t("payment.cashMustBeGreaterZero", "Cash amount must be greater than 0 for split payment.")); return; }
     }
 
     // Build items payload for backend
@@ -246,7 +248,7 @@ function Payment() {
       }
     } catch (err) {
       console.error("Place order error:", err);
-      setSubmitError(err.message || "Failed to place order. Please try again.");
+      setSubmitError(err.message || t("payment.failedPlaceOrder", "Failed to place order. Please try again."));
     } finally {
       setSubmitting(false);
     }
@@ -260,21 +262,21 @@ function Payment() {
         onClick={() => navigate("/cart")}
         className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-650 transition cursor-pointer mb-6"
       >
-        <FiArrowLeft size={14} /> Back to Cart
+        <FiArrowLeft size={14} /> {t("payment.backToCart", "Back to Cart")}
       </button>
 
       {/* ── Order Summary ──────────────────────────────────────────── */}
       <div className="bg-white border border-slate-100 rounded-[32px] p-6.5 shadow-xs">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-black text-slate-800">Review & Payment</h1>
+            <h1 className="text-2xl font-black text-slate-800">{t("payment.title", "Review & Payment")}</h1>
             <p className="text-xs font-bold text-slate-400 mt-0.5">{order.distributor}</p>
           </div>
         </div>
 
         <hr className="my-5 border-slate-100" />
 
-        <h2 className="font-extrabold text-sm text-slate-800 mb-3">Order Details</h2>
+        <h2 className="font-extrabold text-sm text-slate-800 mb-3">{t("payment.orderDetails", "Order Details")}</h2>
 
         <div className="divide-y divide-slate-100">
           {order.items.map((item) => (
@@ -294,20 +296,20 @@ function Payment() {
 
         <div className="space-y-2 text-xs font-bold text-slate-455">
           <div className="flex justify-between">
-            <span>Subtotal</span>
+            <span>{t("cart.subtotal", "Subtotal")}</span>
             <span className="text-slate-850">Rs. {fmt(order.subtotal)}</span>
           </div>
           <div className="flex justify-between text-green-600">
-            <span>Discount</span>
+            <span>{t("cart.volumeDiscount", "Discount")}</span>
             <span>- Rs. {fmt(order.discount)}</span>
           </div>
           <div className="flex justify-between">
-            <span>Urgent Handling Fee</span>
+            <span>{t("payment.urgentHandlingFee", "Urgent Handling Fee")}</span>
             <span className="text-slate-850">Rs. {fmt(urgentCharge)}</span>
           </div>
           <hr className="my-2 border-slate-100" />
           <div className="flex justify-between text-base font-black text-blue-600 pt-1">
-            <span>Payable Total</span>
+            <span>{t("payment.payableTotal", "Payable Total")}</span>
             <span>Rs. {fmt(payableTotal)}</span>
           </div>
         </div>
@@ -319,10 +321,10 @@ function Payment() {
           <FiAlertTriangle className="text-amber-600 shrink-0 mt-0.5" size={16} />
           <div>
             <p className="text-amber-800 font-black text-xs">
-              Outstanding credit balance of Rs. {fmt(outstandingCredit)} must be settled at delivery
+              {t("payment.outstandingWarning", "Outstanding credit balance of")} Rs. {fmt(outstandingCredit)} {t("payment.mustBeSettled", "must be settled at delivery")}
             </p>
             <p className="text-amber-650 font-bold text-[11px] mt-0.5 leading-normal">
-              The delivery driver will collect this pending amount in cash along with the cash payment for this order.
+              {t("payment.driverCollectNote", "The delivery driver will collect this pending amount in cash along with the cash payment for this order.")}
             </p>
           </div>
         </div>
@@ -330,7 +332,7 @@ function Payment() {
 
       {/* ── Order Type ────────────────────────────────────────────── */}
       <div className="bg-white border border-slate-100 rounded-[32px] p-6 mt-6 shadow-xs">
-        <h2 className="font-black text-slate-800 text-sm">Order Type</h2>
+        <h2 className="font-black text-slate-800 text-sm">{t("payment.orderType", "Order Type")}</h2>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <label
@@ -349,10 +351,10 @@ function Payment() {
                 onChange={() => {}}
                 className="accent-blue-600"
               />
-              <span className="font-black text-slate-800 text-xs">Normal Order</span>
+              <span className="font-black text-slate-800 text-xs">{t("payment.normalOrder", "Normal Order")}</span>
             </div>
             <p className="text-[11px] font-bold text-slate-400 mt-2 leading-normal">
-              Standard order dispatch schedule with no extra priority charge.
+              {t("payment.normalOrderDesc", "Standard order dispatch schedule with no extra priority charge.")}
             </p>
           </label>
 
@@ -372,10 +374,10 @@ function Payment() {
                 onChange={() => {}}
                 className="accent-red-650"
               />
-              <span className="font-black text-red-700 text-xs">Urgent Order</span>
+              <span className="font-black text-red-700 text-xs">{t("payment.urgentOrder", "Urgent Order")}</span>
             </div>
             <p className="text-[11px] font-bold text-slate-400 mt-2 leading-normal">
-              Priority processing and faster shipping dispatch: extra charge of Rs. {fmt(500)}.
+              {t("payment.urgentOrderDesc", "Priority processing and faster shipping dispatch: extra charge of Rs. 500.")}
             </p>
           </label>
         </div>
@@ -383,7 +385,7 @@ function Payment() {
 
       {/* ── Payment Method ────────────────────────────────────────── */}
       <div className="bg-white border border-slate-100 rounded-[32px] p-6 mt-6 shadow-xs">
-        <h2 className="font-black text-slate-800 text-sm">Payment Method</h2>
+        <h2 className="font-black text-slate-800 text-sm">{t("payment.paymentMethod", "Payment Method")}</h2>
 
         <div className="mt-4 space-y-3">
           {/* Option 1: Full Cash */}
@@ -401,8 +403,8 @@ function Payment() {
               className="accent-blue-600"
             />
             <div>
-              <span className="font-black text-slate-800 text-xs">Full Cash</span>
-              <p className="text-[11px] font-bold text-slate-400 mt-0.5">Pay the entire amount in cash upon delivery.</p>
+              <span className="font-black text-slate-800 text-xs">{t("payment.fullCash", "Full Cash (Cash on Delivery)")}</span>
+              <p className="text-[11px] font-bold text-slate-400 mt-0.5">{t("payment.codDesc", "Pay the entire amount in cash upon delivery.")}</p>
             </div>
           </label>
 
@@ -410,7 +412,7 @@ function Payment() {
           {creditLoading ? (
             <div className="flex items-center gap-2 text-xs font-bold text-slate-400 px-4 py-2">
               <FiLoader className="animate-spin text-slate-450" />
-              <span>Verifying credit account limits...</span>
+              <span>{t("payment.verifyingCredit", "Verifying credit account limits...")}</span>
             </div>
           ) : creditInfo ? (
             <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
@@ -431,18 +433,18 @@ function Payment() {
               />
               <div className="flex-1">
                 <div className="flex items-center flex-wrap gap-1.5">
-                  <span className="font-black text-slate-800 text-xs">Full Credit</span>
+                  <span className="font-black text-slate-800 text-xs">{t("payment.credit30", "30-Day Credit Term")}</span>
                   {creditBlocked && (
-                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">Blocked</span>
+                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">{t("credits.blocked", "Blocked")}</span>
                   )}
                   {!creditBlocked && !canUseFullCredit && (
                     <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200/50 px-2 py-0.5 rounded-full">
-                      Insufficient credit (Avail: Rs. {fmt(availableCredit)})
+                      {t("payment.insufficientCredit", "Insufficient credit")} (Avail: Rs. {fmt(availableCredit)})
                     </span>
                   )}
                 </div>
                 <p className="text-[11px] font-bold text-slate-400 mt-0.5">
-                  Charge the entire amount to your distributor credit account. No cash settlement required.
+                  {t("payment.credit30Desc", "Charge the entire amount to your distributor credit account. No cash settlement required.")}
                 </p>
               </div>
             </label>
@@ -468,13 +470,13 @@ function Payment() {
               />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-black text-slate-800 text-xs">Cash + Credit</span>
+                  <span className="font-black text-slate-800 text-xs">{t("payment.splitPay", "Cash + Credit Split")}</span>
                   {creditBlocked && (
-                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">Blocked</span>
+                    <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200/50 px-2 py-0.5 rounded-full">{t("credits.blocked", "Blocked")}</span>
                   )}
                 </div>
                 <p className="text-[11px] font-bold text-slate-400 mt-0.5">
-                  Split the order cost between a custom credit amount and cash at delivery.
+                  {t("payment.splitPayDesc", "Split the order cost between a custom credit amount and cash at delivery.")}
                 </p>
               </div>
             </label>
@@ -496,20 +498,20 @@ function Payment() {
             />
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800 text-xs">Online Payment</span>
+                <span className="font-black text-slate-800 text-xs">{t("payment.onlinePay", "Online Card / QR Payment")}</span>
                 <span className="text-[10px] font-black text-blue-600 bg-blue-50 border border-blue-200/50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <FiGlobe size={11} /> Cards / Wallets
+                  <FiGlobe size={11} /> {t("payment.cardsWallets", "Cards / Wallets")}
                 </span>
               </div>
               <p className="text-[11px] font-bold text-slate-400 mt-0.5">
-                Pay 100% online now via Credit/Debit Card or Mobile Wallet.
+                {t("payment.onlinePayDesc", "Pay 100% online now via Credit/Debit Card or Mobile Wallet.")}
               </p>
             </div>
           </label>
 
           {!creditLoading && !creditInfo && (
             <p className="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl">
-              No credit account available with this distributor — payment limited to cash on delivery.
+              {t("payment.noCreditDistributor", "No credit account available with this distributor — payment limited to cash on delivery.")}
               {creditError && <span className="text-red-500 ml-2 font-black">({creditError})</span>}
             </p>
           )}
@@ -518,21 +520,21 @@ function Payment() {
         {/* ── Credit Account Info Panel ──────────────────────────── */}
         {creditInfo && !creditBlocked && (paymentType === "credit" || paymentType === "cash_credit") && (
           <div className="mt-6 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
-            <h3 className="font-black text-xs text-slate-700 tracking-wide uppercase">Credit Account Summary</h3>
+            <h3 className="font-black text-xs text-slate-700 tracking-wide uppercase">{t("credits.creditOverview", "Credit Account Summary")}</h3>
             
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Credit Limit</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("credits.totalCreditLimit", "Credit Limit")}</p>
                 <p className="font-black text-slate-800 text-sm">Rs. {fmt(creditLimit)}</p>
               </div>
               <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Outstanding</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("credits.outstandingDebt", "Outstanding")}</p>
                 <p className={`font-black text-sm ${outstandingCredit > 0 ? "text-red-655" : "text-green-605"}`}>
                   Rs. {fmt(outstandingCredit)}
                 </p>
               </div>
               <div className="bg-white border border-blue-100/70 rounded-2xl p-3.5 shadow-xs">
-                <p className="text-[9px] font-black text-blue-600/70 uppercase tracking-wider mb-1">Available</p>
+                <p className="text-[9px] font-black text-blue-600/70 uppercase tracking-wider mb-1">{t("credits.availableCredit", "Available")}</p>
                 <p className="font-black text-blue-700 text-sm">Rs. {fmt(availableCredit)}</p>
               </div>
             </div>
@@ -541,13 +543,13 @@ function Payment() {
             {paymentType === "credit" && (
               <div className="bg-blue-50/40 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold space-y-1">
                 <p className="text-blue-800">
-                  Credit to Debit: Rs. {fmt(payableTotal)}
+                  {t("payment.creditToDebit", "Credit to Debit")}: Rs. {fmt(payableTotal)}
                 </p>
                 <p className="text-blue-805">
-                  Remaining Account Balance: Rs. {fmt(remainingCredit)}
+                  {t("payment.remainingAccountBalance", "Remaining Account Balance")}: Rs. {fmt(remainingCredit)}
                 </p>
                 <p className="text-[10px] text-blue-600 mt-2 flex items-center gap-1">
-                  <FiCheckCircle /> Credit ledger entries will be updated when the dispatch delivery completes.
+                  <FiCheckCircle /> {t("payment.creditUpdatedOnDelivery", "Credit ledger entries will be updated when the dispatch delivery completes.")}
                 </p>
               </div>
             )}
@@ -557,7 +559,7 @@ function Payment() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">
-                    Credit Amount (max Rs. {fmt(Math.min(availableCredit, payableTotal))})
+                    {t("payment.splitCreditAmount", "Credit Amount")} (max Rs. {fmt(Math.min(availableCredit, payableTotal))})
                   </label>
                   <input
                     type="number"
@@ -566,13 +568,13 @@ function Payment() {
                     value={creditInput}
                     onChange={(e) => setCreditInput(e.target.value)}
                     className="w-full border border-slate-200 p-3.5 rounded-full outline-none focus:border-blue-600 transition text-xs font-bold"
-                    placeholder="Enter credit amount"
+                    placeholder={t("payment.enterCreditAmount", "Enter credit amount")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-500 mb-1">
-                    Cash Amount (auto-calculated)
+                    {t("payment.splitCashAmount", "Cash Amount (auto-calculated)")}
                   </label>
                   <div className="w-full border border-slate-100 p-3.5 rounded-full bg-slate-50 text-slate-800 font-extrabold text-xs">
                     Rs. {fmt(payableTotal - parsedCreditInput)}
@@ -580,12 +582,12 @@ function Payment() {
                 </div>
 
                 <div className="bg-blue-50/30 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold space-y-1 text-blue-700">
-                  <p>Credit Portion: Rs. {fmt(parsedCreditInput)}</p>
-                  <p>Cash Portion: Rs. {fmt(payableTotal - parsedCreditInput)}</p>
-                  <p>Remaining Account Balance: Rs. {fmt(availableCredit - parsedCreditInput)}</p>
+                  <p>{t("payment.creditPortion", "Credit Portion")}: Rs. {fmt(parsedCreditInput)}</p>
+                  <p>{t("payment.cashPortion", "Cash Portion")}: Rs. {fmt(payableTotal - parsedCreditInput)}</p>
+                  <p>{t("payment.remainingBalance", "Remaining Account Balance")}: Rs. {fmt(availableCredit - parsedCreditInput)}</p>
                   {outstandingCredit > 0 && (
                     <p className="text-amber-705 mt-2 font-black">
-                      + Settling Outstanding at Delivery: Rs. {fmt(outstandingCredit)}
+                      + {t("payment.settlingOutstandingAtDelivery", "Settling Outstanding at Delivery")}: Rs. {fmt(outstandingCredit)}
                     </p>
                   )}
                 </div>
@@ -597,13 +599,13 @@ function Payment() {
         {/* ── Driver Collection Preview ─────────────────────────── */}
         {outstandingCredit > 0 && creditInfo && (paymentType === "cash" || paymentType === "cash_credit") && (
           <div className="mt-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl p-4 text-xs font-bold text-blue-700">
-            <p className="font-black text-blue-900 mb-1.5">Driver Collection Details (Cash at Delivery):</p>
+            <p className="font-black text-blue-900 mb-1.5">{t("payment.driverCollectionDetails", "Driver Collection Details (Cash at Delivery):")}</p>
             <div className="space-y-1">
-              <p>Current Order Cash Portion: Rs. {fmt(finalCashAmount)}</p>
-              <p>Settlement of Previous Outstanding: Rs. {fmt(outstandingCredit)}</p>
+              <p>{t("payment.orderCashPortion", "Current Order Cash Portion")}: Rs. {fmt(finalCashAmount)}</p>
+              <p>{t("payment.settlementPrevOutstanding", "Settlement of Previous Outstanding")}: Rs. {fmt(outstandingCredit)}</p>
               <hr className="my-1.5 border-blue-200" />
               <p className="font-black text-blue-900 text-sm">
-                Total Driver Cash Collection: Rs. {fmt(finalCashAmount + outstandingCredit)}
+                {t("payment.totalDriverCollection", "Total Driver Cash Collection")}: Rs. {fmt(finalCashAmount + outstandingCredit)}
               </p>
             </div>
           </div>
@@ -626,10 +628,10 @@ function Payment() {
           }`}
         >
           {submitting
-            ? "Processing Order..."
+            ? t("payment.placingOrder", "Processing Order...")
             : paymentType === "online"
-            ? "Proceed to Online Gateway"
-            : "Confirm & Place Order"}
+            ? t("payment.proceedOnlineGateway", "Proceed to Online Gateway")
+            : t("payment.placeOrder", "Confirm & Place Order")}
         </button>
 
         {/* Payment Gateway Modal Simulator */}

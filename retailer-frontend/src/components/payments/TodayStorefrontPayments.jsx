@@ -1,5 +1,6 @@
 import { FiDollarSign, FiCreditCard, FiTruck, FiTrendingUp, FiCheck, FiArrowUpRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function TodayStorefrontPayments({
   orderCash = 0,
@@ -11,6 +12,7 @@ export default function TodayStorefrontPayments({
   cashAmount,
   total,
 }) {
+  const { t } = useLanguage();
   const actualOrderCash = typeof orderCash === "number" && (orderCash > 0 || !cashAmount) ? orderCash : (cashAmount ?? 0);
   const actualOutstanding = Number(outstandingSettled ?? 0);
   const actualDriverCash = typeof totalDriverCash === "number" ? totalDriverCash : (actualOrderCash + actualOutstanding);
@@ -32,11 +34,15 @@ export default function TodayStorefrontPayments({
       <div>
         <div className="flex items-center justify-between gap-3 border-b border-slate-50 pb-4">
           <div>
-            <h2 className="font-bold text-slate-800 text-base leading-tight">Today Storefront Payments</h2>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">Payment & driver collection breakdown</p>
+            <h2 className="font-bold text-slate-800 text-base leading-tight">
+              {t("dashboard.storefrontOutflow", "Today Storefront Payments")}
+            </h2>
+            <p className="text-xs text-slate-400 font-medium mt-0.5">
+              {t("dashboard.paymentBreakdown", "Payment & driver collection breakdown")}
+            </p>
           </div>
           <div className="rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-blue-600 text-xs font-bold shrink-0">
-            {transactionCount} txns
+            {transactionCount} {t("common.orders", "txns")}
           </div>
         </div>
 
@@ -49,27 +55,29 @@ export default function TodayStorefrontPayments({
                 <div className="w-5 h-5 rounded-md bg-emerald-200/50 flex items-center justify-center text-emerald-700">
                   <FiTruck size={12} />
                 </div>
-                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Driver Cash Outflow</p>
+                <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                  {t("dashboard.driverCashOutflow", "Driver Cash Outflow")}
+                </p>
               </div>
               <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/70 px-2.5 py-0.5 rounded-full border border-emerald-200/50">
-                Cash at Delivery
+                {t("payment.cashOnDelivery", "Cash at Delivery")}
               </span>
             </div>
             <p className="text-xl font-black text-emerald-800 mt-1">Rs. {fmt(actualDriverCash)}</p>
             
             <div className="mt-3 pt-2.5 border-t border-emerald-200/60 space-y-1.5 text-xs font-semibold text-emerald-900">
               <div className="flex justify-between items-center">
-                <span className="text-emerald-700/90 font-medium">Order Cash (COD):</span>
+                <span className="text-emerald-700/90 font-medium">{t("payment.orderCashCod", "Order Cash (COD)")}:</span>
                 <span className="font-bold">Rs. {fmt(actualOrderCash)}</span>
               </div>
               {actualOutstanding > 0 ? (
                 <div className="flex justify-between items-center text-amber-900 font-bold bg-amber-100/40 px-2 py-0.5 rounded-lg">
-                  <span>+ Settled Debt in Cash:</span>
+                  <span>+ {t("payment.settledDebtCash", "Settled Debt in Cash")}:</span>
                   <span>Rs. {fmt(actualOutstanding)}</span>
                 </div>
               ) : (
                 <div className="flex justify-between items-center text-emerald-600/70 text-[11px] font-medium">
-                  <span>Prior Debt Settled:</span>
+                  <span>{t("payment.priorDebtSettled", "Prior Debt Settled")}:</span>
                   <span>Rs. 0.00</span>
                 </div>
               )}
@@ -80,32 +88,36 @@ export default function TodayStorefrontPayments({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-amber-50/50 border border-amber-100/70 p-3.5 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">New Credit</p>
+                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                  {t("credits.newCredit", "New Credit")}
+                </p>
                 <div className="w-5 h-5 rounded-md bg-amber-200/50 flex items-center justify-center text-amber-700">
                   <FiCreditCard size={11} />
                 </div>
               </div>
               <p className="text-base font-black text-amber-800">Rs. {fmt(creditAmount)}</p>
-              <p className="text-[10px] text-amber-600 font-medium mt-1">Added to ledger</p>
+              <p className="text-[10px] text-amber-600 font-medium mt-1">{t("credits.addedToLedger", "Added to ledger")}</p>
             </div>
 
             <div className="rounded-2xl bg-blue-50/50 border border-blue-100/70 p-3.5 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Order Volume</p>
+                <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                  {t("dashboard.orderVolume", "Order Volume")}
+                </p>
                 <div className="w-5 h-5 rounded-md bg-blue-200/50 flex items-center justify-center text-blue-700">
                   <FiTrendingUp size={11} />
                 </div>
               </div>
               <p className="text-base font-black text-blue-800">Rs. {fmt(actualTotalOrder)}</p>
-              <p className="text-[10px] text-blue-600 font-medium mt-1">Total goods ordered</p>
+              <p className="text-[10px] text-blue-600 font-medium mt-1">{t("dashboard.totalGoodsOrdered", "Total goods ordered")}</p>
             </div>
           </div>
 
           {/* Today's Cash vs Credit Ratio Bar */}
           <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5">
             <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 mb-1.5">
-              <span>Cash Flow Channels</span>
-              <span className="text-slate-500 font-semibold">{cashPct}% Cash / {creditPct}% Credit</span>
+              <span>{t("dashboard.cashFlowChannels", "Cash Flow Channels")}</span>
+              <span className="text-slate-500 font-semibold">{cashPct}% {t("payment.cash", "Cash")} / {creditPct}% {t("payment.credit", "Credit")}</span>
             </div>
             <div className="h-2 w-full rounded-full bg-slate-200/60 overflow-hidden flex">
               <div
@@ -131,10 +143,10 @@ export default function TodayStorefrontPayments({
         >
           <div className="flex items-center gap-2">
             <FiCheck size={14} className="text-emerald-600" />
-            <span>Storefront Cash Reconciled</span>
+            <span>{t("dashboard.cashReconciled", "Storefront Cash Reconciled")}</span>
           </div>
           <div className="flex items-center gap-1 text-blue-600">
-            <span>View Ledger</span>
+            <span>{t("dashboard.viewLedger", "View Ledger")}</span>
             <FiArrowUpRight size={14} />
           </div>
         </Link>

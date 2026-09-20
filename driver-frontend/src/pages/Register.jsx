@@ -110,95 +110,117 @@ export default function Register() {
   };
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.card}>
+    <div className="min-h-screen bg-orange-500 flex items-center justify-center p-3.5 sm:p-6 font-sans">
+      <div className="flex flex-col lg:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-4xl my-4 sm:my-8">
 
-        {/* ── LEFT SIDE – Image ── */}
-        <div style={styles.leftPanel}>
-          <img src={deliveryImg} alt="Delivery person" style={styles.image} />
+        {/* ── LEFT SIDE – Image (Desktop only) ── */}
+        <div className="hidden lg:flex w-[40%] bg-orange-500 m-3 rounded-2xl overflow-hidden items-center justify-center shrink-0">
+          <img src={deliveryImg} alt="Delivery person" className="w-full h-full object-cover" />
         </div>
 
         {/* ── RIGHT SIDE – Form ── */}
-        <div style={styles.rightPanel}>
-          <h1 style={styles.title}>Personal Information</h1>
+        <div className="flex-1 p-5 sm:p-8 lg:p-10 flex flex-col justify-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2 sm:mb-4">Driver Registration</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mb-5">Create your driver account to join delivery routes</p>
 
-          {error && <div style={styles.errorBanner}>{error}</div>}
-          {success && <div style={styles.successBanner}>{success}</div>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-xl text-xs sm:text-sm font-semibold mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 p-3.5 rounded-xl text-xs sm:text-sm font-semibold mb-4">
+              {success}
+            </div>
+          )}
 
-          <div style={styles.formGrid}>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Full Name</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-5">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Full Name</label>
               <input
+                id="register-fullname"
                 type="text"
                 name="fullName"
+                placeholder="John Silva"
                 value={form.fullName}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>E-mail</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">E-mail</label>
               <input
+                id="register-email"
                 type="email"
                 name="email"
+                placeholder="driver@example.com"
                 value={form.email}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Phone Number</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Phone Number</label>
               <input
+                id="register-phone"
                 type="tel"
                 name="phone"
+                placeholder="07XXXXXXXX"
                 value={form.phone}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Password</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Password</label>
               <input
+                id="register-password"
                 type="password"
                 name="password"
+                placeholder="••••••••"
                 value={form.password}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>License Number</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">License Number</label>
               <input
+                id="register-license"
                 type="text"
                 name="licenseNumber"
+                placeholder="B1234567"
                 value={form.licenseNumber}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Vehicle No.</label>
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Vehicle No.</label>
               <input
+                id="register-vehicle"
                 type="text"
                 name="vehicleNumber"
+                placeholder="WP CAB-1234"
                 value={form.vehicleNumber}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-1.5 sm:py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
             </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Distributor</label>
+            <div className="sm:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Assigned Distributor</label>
               <select
+                id="register-distributor"
                 name="distributorId"
                 value={form.distributorId}
                 onChange={handleChange}
-                style={styles.select}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-2 text-sm text-slate-900 bg-transparent transition-colors cursor-pointer"
               >
                 <option value="">Select Distributor</option>
                 {distributors.map((d) => (
@@ -211,16 +233,23 @@ export default function Register() {
           </div>
 
           <button
+            id="register-submit"
             onClick={handleRegister}
             disabled={loading}
-            style={loading ? { ...styles.registerBtn, opacity: 0.6, cursor: "not-allowed" } : styles.registerBtn}
+            className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold text-sm sm:text-base shadow-md shadow-orange-500/20 disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer mt-2"
           >
             {loading ? "Registering..." : "Register"}
           </button>
 
-          <p style={styles.loginText}>
+          <p className="text-center text-xs sm:text-sm text-slate-500 mt-4">
             Already Have an Account?{" "}
-            <span onClick={() => navigate("/login")} style={styles.loginLink}>Login</span>
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="text-orange-600 font-bold hover:underline cursor-pointer"
+            >
+              Login
+            </button>
           </p>
         </div>
 
@@ -228,132 +257,3 @@ export default function Register() {
     </div>
   );
 }
-
-const styles = {
-  pageWrapper: {
-    minHeight: "100vh",
-    backgroundColor: "#F97316",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "24px",
-    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
-  },
-  card: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    borderRadius: "28px",
-    overflow: "hidden",
-    width: "100%",
-    maxWidth: "960px",
-    minHeight: "520px",
-    boxShadow: "0 8px 40px rgba(0,0,0,0.15)",
-  },
-  leftPanel: {
-    width: "45%",
-    borderRadius: "20px",
-    overflow: "hidden",
-    flexShrink: 0,
-    backgroundColor: "#F97316",
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
-  },
-  rightPanel: {
-    flex: 1,
-    padding: "24px 44px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "800",
-    color: "#111111",
-    margin: "0 0 16px 0",
-  },
-  errorBanner: {
-    backgroundColor: "#FEE2E2",
-    border: "1px solid #FCA5A5",
-    color: "#B91C1C",
-    padding: "12px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    marginBottom: "12px",
-  },
-  successBanner: {
-    backgroundColor: "#D1FAE5",
-    border: "1px solid #6EE7B7",
-    color: "#065F46",
-    padding: "12px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    marginBottom: "12px",
-  },
-  formGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "12px 20px",
-    marginBottom: "12px",
-  },
-  fieldGroup: {
-    marginBottom: "0",
-  },
-  label: {
-    display: "block",
-    fontSize: "14px",
-    color: "#666",
-    marginBottom: "4px",
-  },
-  input: {
-    width: "100%",
-    border: "none",
-    borderBottom: "1.5px solid #333",
-    outline: "none",
-    fontSize: "15px",
-    padding: "6px 0",
-    color: "#111",
-    backgroundColor: "transparent",
-    boxSizing: "border-box",
-  },
-  select: {
-    width: "100%",
-    border: "none",
-    borderBottom: "1.5px solid #333",
-    outline: "none",
-    fontSize: "15px",
-    padding: "6px 0",
-    color: "#111",
-    backgroundColor: "transparent",
-    boxSizing: "border-box",
-    cursor: "pointer",
-  },
-  registerBtn: {
-    width: "100%",
-    padding: "14px",
-    backgroundColor: "#F97316",
-    color: "#fff",
-    border: "none",
-    borderRadius: "50px",
-    fontSize: "16px",
-    fontWeight: "700",
-    cursor: "pointer",
-    marginTop: "12px",
-  },
-  loginText: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#555",
-    marginTop: "16px",
-    margin: "16px 0 0 0",
-  },
-  loginLink: {
-    color: "#F97316",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-};

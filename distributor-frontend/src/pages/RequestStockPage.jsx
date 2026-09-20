@@ -303,8 +303,8 @@ export default function RequestStockPage() {
         <PackagePlus className="inline mr-3 text-blue-600 w-8 h-8" />
         Request Stock
         {!loading && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({filteredProducts.length} products)
+          <span className="ml-3 text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
+            {filteredProducts.length} Products
           </span>
         )}
       </h1>

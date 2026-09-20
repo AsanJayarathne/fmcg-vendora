@@ -1,4 +1,5 @@
 import { FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight } from "react-icons/fi";
+import { useLanguage } from "../../context/LanguageContext";
 
 export default function Pagination({
   currentPage = 1,
@@ -7,6 +8,7 @@ export default function Pagination({
   onPageChange,
   label = "orders",
 }) {
+  const { t } = useLanguage();
   const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
   const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const end = Math.min(currentPage * itemsPerPage, totalItems);
@@ -43,13 +45,13 @@ export default function Pagination({
       {/* Summary text */}
       <p>
         {totalItems === 0 ? (
-          <span>No {label} found</span>
+          <span>{t("common.noItemsFound", "No items found")}</span>
         ) : (
           <>
-            Showing <span className="font-bold text-slate-800">{start}</span>
+            {t("common.showing", "Showing")} <span className="font-bold text-slate-800">{start}</span>
             {" – "}
             <span className="font-bold text-slate-800">{end}</span>
-            {" of "}
+            {" "}{t("common.of", "of")}{" "}
             <span className="font-bold text-slate-800">{totalItems}</span>
             {" "}{label}
           </>

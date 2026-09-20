@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { FiLoader, FiCheckCircle, FiAlertCircle, FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { updatePassword } from "../services/orderService";
 
 export default function SecurityTab() {
   const { auth } = useAuth();
+  const { t } = useLanguage();
   const token = auth?.token ?? null;
 
   // Form states
@@ -22,12 +24,12 @@ export default function SecurityTab() {
     if (!token) return;
     
     if (newPassword !== confirmPassword) {
-      setError("New passwords do not match.");
+      setError(t("auth.passwordMismatch", "New passwords do not match."));
       return;
     }
 
     if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
+      setError(t("auth.passwordTooShort", "New password must be at least 6 characters."));
       return;
     }
 
@@ -42,13 +44,13 @@ export default function SecurityTab() {
         confirm_password: confirmPassword,
       });
 
-      setMessage("Password updated successfully!");
+      setMessage(t("auth.passwordUpdated", "Password updated successfully!"));
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
       console.error("Change password error:", err);
-      setError(err.message || "Failed to update password.");
+      setError(err.message || t("auth.failedUpdatePassword", "Failed to update password."));
     } finally {
       setSaving(false);
     }
@@ -57,8 +59,8 @@ export default function SecurityTab() {
   return (
     <form onSubmit={handleSubmit} className="p-7 max-w-lg space-y-6">
       <div>
-        <h2 className="text-base font-black text-slate-800 uppercase tracking-wider mb-1">Change Password</h2>
-        <p className="text-xs text-slate-400 font-bold">Ensure your account uses a secure password phrase.</p>
+        <h2 className="text-base font-black text-slate-800 uppercase tracking-wider mb-1">{t("profile.changePassword", "Change Password")}</h2>
+        <p className="text-xs text-slate-400 font-bold">{t("profile.securePasswordNotice", "Ensure your account uses a secure password phrase.")}</p>
       </div>
 
       {error && (
@@ -75,26 +77,26 @@ export default function SecurityTab() {
 
       <div className="space-y-4">
         <PasswordField
-          label="Current Password"
+          label={t("profile.currentPassword", "Current Password")}
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="Enter current password"
+          placeholder={t("profile.enterCurrentPassword", "Enter current password")}
           required
         />
 
         <PasswordField
-          label="New Password"
+          label={t("profile.newPassword", "New Password")}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="Enter new password"
+          placeholder={t("profile.enterNewPassword", "Enter new password")}
           required
         />
 
         <PasswordField
-          label="Confirm New Password"
+          label={t("auth.confirmPassword", "Confirm New Password")}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Re-enter new password"
+          placeholder={t("profile.reenterNewPassword", "Re-enter new password")}
           required
         />
 
@@ -105,7 +107,7 @@ export default function SecurityTab() {
             className="bg-blue-600 hover:bg-blue-755 text-white px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider cursor-pointer shadow-xs transition disabled:bg-slate-205 flex items-center gap-2"
           >
             {saving && <FiLoader className="animate-spin" />}
-            {saving ? "Updating..." : "Update Password"}
+            {saving ? t("common.saving", "Updating...") : t("profile.savePassword", "Update Password")}
           </button>
         </div>
       </div>

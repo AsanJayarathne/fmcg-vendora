@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { FaPen } from "react-icons/fa";
 import { FiLoader, FiCheckCircle, FiAlertCircle, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { fetchProfile, updateProfileData, uploadAvatar } from "../services/orderService";
 
 const AVATAR_BASE = "http://localhost/fmcg-vendora/backend/uploads/avatars/";
 
 export default function ProfileTab() {
   const { auth, login, updateAvatarUrl } = useAuth();
+  const { t } = useLanguage();
   const token = auth?.token ?? null;
 
   const fileInputRef = useRef(null);
@@ -61,10 +63,10 @@ export default function ProfileTab() {
       })
       .catch((err) => {
         console.error("Load profile error:", err);
-        setError("Failed to load profile details.");
+        setError(t("profile.failedLoad", "Failed to load profile details."));
       })
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, t]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -77,12 +79,12 @@ export default function ProfileTab() {
     if (!token) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      setError("Avatar image must be under 2 MB.");
+      setError(t("profile.avatarSizeLimit", "Avatar image must be under 2 MB."));
       return;
     }
 
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("Only JPG, PNG and WEBP images are allowed.");
+      setError(t("profile.avatarFormatLimit", "Only JPG, PNG and WEBP images are allowed."));
       return;
     }
 
@@ -95,11 +97,11 @@ export default function ProfileTab() {
       const newAvatarUrl = res.avatar_url;
       setAvatarUrl(newAvatarUrl);
       updateAvatarUrl(newAvatarUrl);
-      setMessage("Profile avatar updated successfully!");
+      setMessage(t("profile.avatarSuccess", "Profile avatar updated successfully!"));
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
       console.error("Upload avatar error:", err);
-      setError(err.message || "Failed to upload avatar.");
+      setError(err.message || t("profile.avatarFailed", "Failed to upload avatar."));
     } finally {
       setUploadingAvatar(false);
       // Reset input value so same file can be re-selected if desired
@@ -137,11 +139,11 @@ export default function ProfileTab() {
         avatar_url: avatarUrl,
       });
 
-      setMessage("Account profile updated successfully!");
+      setMessage(t("profile.profileUpdated", "Account profile updated successfully!"));
       setTimeout(() => setMessage(null), 3000);
     } catch (err) {
       console.error("Save profile error:", err);
-      setError(err.message || "Failed to update profile details.");
+      setError(err.message || t("profile.failedUpdate", "Failed to update profile details."));
     } finally {
       setSaving(false);
     }
@@ -151,7 +153,7 @@ export default function ProfileTab() {
     return (
       <div className="flex flex-col items-center justify-center p-20 gap-3">
         <FiLoader size={32} className="animate-spin text-blue-600" />
-        <p className="text-slate-400 font-bold text-xs">Loading profile credentials...</p>
+        <p className="text-slate-400 font-bold text-xs">{t("profile.loadingProfile", "Loading profile credentials...")}</p>
       </div>
     );
   }
@@ -192,13 +194,13 @@ export default function ProfileTab() {
             disabled={uploadingAvatar}
             onClick={() => fileInputRef.current.click()}
             className="absolute bottom-1 right-0 bg-blue-600 w-9 h-9 rounded-full flex items-center justify-center text-white shadow-md hover:bg-blue-700 transition cursor-pointer disabled:opacity-50"
-            title="Change Avatar"
+            title={t("profile.changeAvatar", "Change Avatar")}
           >
             {uploadingAvatar ? <FiLoader size={13} className="animate-spin" /> : <FaPen size={11} />}
           </button>
         </div>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-          {uploadingAvatar ? "Uploading..." : "Change Avatar"}
+          {uploadingAvatar ? t("profile.uploading", "Uploading...") : t("profile.changeAvatar", "Change Avatar")}
         </p>
       </div>
 
@@ -218,22 +220,22 @@ export default function ProfileTab() {
 
         <div className="grid md:grid-cols-2 gap-x-6 gap-y-5">
           <InputField
-            label="Full Name"
+            label={t("auth.fullName", "Full Name")}
             name="full_name"
             value={formData.full_name}
             onChange={handleInputChange}
-            placeholder="Your full name"
+            placeholder={t("auth.enterFullName", "Your full name")}
             required
           />
           <InputField
-            label="Owner Name"
+            label={t("auth.ownerName", "Owner Name")}
             name="owner_name"
             value={formData.owner_name}
             onChange={handleInputChange}
-            placeholder="Owner's full name"
+            placeholder={t("auth.enterOwnerName", "Owner's full name")}
           />
           <InputField
-            label="Email Address"
+            label={t("auth.email", "Email Address")}
             name="email"
             type="email"
             value={formData.email}
@@ -242,25 +244,25 @@ export default function ProfileTab() {
             required
           />
           <InputField
-            label="User Contact"
+            label={t("auth.phone", "User Contact")}
             name="phone"
             value={formData.phone}
             onChange={handleInputChange}
             placeholder="+94 7X XXX XXXX"
           />
           <InputField
-            label="Shop Name"
+            label={t("auth.shopName", "Shop Name")}
             name="shop_name"
             value={formData.shop_name}
             onChange={handleInputChange}
-            placeholder="Enter shop name"
+            placeholder={t("auth.enterShopName", "Enter shop name")}
           />
           <InputField
-            label="NIC Number"
+            label={t("auth.nicNumber", "NIC Number")}
             name="nic_number"
             value={formData.nic_number}
             onChange={handleInputChange}
-            placeholder="NIC number"
+            placeholder={t("auth.enterNic", "NIC number")}
           />
           <InputField
             label="Business Registration (BR)"
@@ -274,14 +276,14 @@ export default function ProfileTab() {
             name="shop_address"
             value={formData.shop_address}
             onChange={handleInputChange}
-            placeholder="Street, area"
+            placeholder={t("auth.enterAddress", "Street, area")}
           />
           <InputField
-            label="City"
+            label={t("auth.city", "City")}
             name="city"
             value={formData.city}
             onChange={handleInputChange}
-            placeholder="Nearest city"
+            placeholder={t("auth.enterCity", "Nearest city")}
           />
         </div>
 
@@ -292,7 +294,7 @@ export default function ProfileTab() {
             className="bg-blue-600 hover:bg-blue-755 text-white px-8 py-3.5 rounded-full text-xs font-black uppercase tracking-wider cursor-pointer shadow-xs transition disabled:bg-slate-205 flex items-center gap-2"
           >
             {saving && <FiLoader className="animate-spin" />}
-            {saving ? "Saving Changes..." : "Save Changes"}
+            {saving ? t("common.saving", "Saving Changes...") : t("profile.updateProfile", "Save Changes")}
           </button>
         </div>
       </div>
