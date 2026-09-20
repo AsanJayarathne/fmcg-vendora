@@ -256,7 +256,7 @@ export default function Analytics() {
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+    <div className="space-y-6 font-sans">
       {/* Toast Notification */}
       {exportNotice && (
         <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">

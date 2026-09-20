@@ -32,7 +32,7 @@ function ProductCard({ product, onView, onCart }) {
     });
 
   return (
-    <div className="bg-white border border-slate-100 shadow-xs rounded-[32px] p-5 flex flex-col justify-between h-full transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+    <div className="bg-white border border-slate-100 shadow-xs rounded-2xl sm:rounded-[30px] p-4 sm:p-5 flex flex-col justify-between h-full transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
       
       {/* Visual content block */}
       <div>
@@ -40,50 +40,35 @@ function ProductCard({ product, onView, onCart }) {
         {usePlaceholder ? (
           <div
             style={{
-              height: "140px",
+              height: "130px",
               background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})`,
-              borderRadius: "20px",
+              borderRadius: "18px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "48px",
+              fontSize: "42px",
             }}
           >
             <span role="img" aria-label={category}>{gradient.icon}</span>
           </div>
         ) : (
-          <div className="h-[140px] flex items-center justify-center p-2 bg-slate-50/50 rounded-[20px] border border-slate-100 overflow-hidden">
+          <div className="h-[130px] flex items-center justify-center p-2 bg-slate-50/50 rounded-[18px] border border-slate-100 overflow-hidden">
             <img
               src={imageUrl}
               alt={name}
-              className="h-full max-w-full object-contain rounded-lg"
+              className="h-full max-w-full object-contain rounded-lg mix-blend-multiply"
             />
           </div>
         )}
 
-        {/* Title and Specs */}
-        <h3 className="font-extrabold text-slate-800 mt-3.5 text-sm line-clamp-2 leading-tight">
-          {name}
-        </h3>
-
-        {unit && (
-          <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider mt-1">{unit}</p>
-        )}
-
-        {product.distributor_name && (
-          <p className="text-[11px] font-bold text-slate-450 mt-2">
-            By {product.distributor_name}
-          </p>
-        )}
-
         {/* Stock Status Pill Badge */}
-        <div className="mt-2.5">
-          <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full border ${
+        <div className="mt-3">
+          <span className={`inline-flex px-2 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md border ${
             isOutOfStock 
-              ? "text-red-655 bg-red-50 border-red-200/40" 
+              ? "text-red-600 bg-red-50 border-red-200/50" 
               : isLowStock 
-                ? "text-amber-600 bg-amber-50 border-amber-200/40" 
-                : "text-green-600 bg-green-50 border-green-200/40"
+                ? "text-amber-600 bg-amber-50 border-amber-200/50" 
+                : "text-green-600 bg-green-50 border-green-200/50"
           }`}>
             {isOutOfStock
               ? "Out of Stock"
@@ -92,31 +77,45 @@ function ProductCard({ product, onView, onCart }) {
                 : "In Stock"}
           </span>
         </div>
+
+        {/* Title and Specs */}
+        <h3 className="font-bold text-slate-800 mt-2 text-xs sm:text-sm line-clamp-2 leading-snug min-h-[2rem]">
+          {name}
+        </h3>
+
+        {product.distributor_name && (
+          <p className="text-[10px] font-medium text-slate-400 mt-1 truncate">
+            {product.distributor_name}
+          </p>
+        )}
       </div>
 
       {/* Pricing and CTAs */}
-      <div className="mt-4">
-        <p className="font-black text-slate-900 text-base">
+      <div className="mt-3 pt-2 border-t border-slate-50">
+        <p className="font-black text-slate-900 text-sm sm:text-base">
           Rs. {fmt(price)}
+          {unit && <span className="text-[10px] text-slate-400 font-normal ml-1">/{unit}</span>}
         </p>
 
-        <div className="flex gap-2 mt-4.5">
+        <div className="flex gap-2 mt-3">
           <button
             id={`product-view-${id}`}
+            type="button"
             onClick={() => onView(product)}
-            className="flex-1 border border-blue-200 hover:border-blue-600 hover:bg-blue-50/40 text-blue-650 font-bold text-xs py-2 rounded-full cursor-pointer transition flex items-center justify-center shadow-2xs"
+            className="flex-1 border border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 text-slate-700 hover:text-blue-600 font-bold text-[11px] sm:text-xs py-2 rounded-xl cursor-pointer transition flex items-center justify-center shadow-2xs"
           >
             Details
           </button>
 
           <button
             id={`product-addcart-${id}`}
+            type="button"
             onClick={() => !isOutOfStock && onCart(product)}
             disabled={isOutOfStock}
-            className={`flex-[2] text-center font-bold text-xs py-2 rounded-full cursor-pointer transition shadow-2xs ${
+            className={`flex-[1.5] text-center font-bold text-[11px] sm:text-xs py-2 rounded-xl cursor-pointer transition shadow-2xs ${
               isOutOfStock
-                ? "bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+                ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10"
             }`}
           >
             Add To Cart

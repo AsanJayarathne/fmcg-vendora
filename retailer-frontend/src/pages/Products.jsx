@@ -206,6 +206,10 @@ function Products() {
       <ProductDetailsModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
+        onAddToCart={(p) => {
+          setSelectedProduct(null);
+          setCartProduct(p);
+        }}
       />
 
       {/* Add to cart modal (triggered from ProductCard "Add to Cart" button) */}

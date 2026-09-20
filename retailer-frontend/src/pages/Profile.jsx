@@ -6,7 +6,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="space-y-6 font-sans">
 
       {/* Page heading */}
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Account Settings</h1>

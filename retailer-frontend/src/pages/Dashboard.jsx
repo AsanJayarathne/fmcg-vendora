@@ -353,7 +353,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+    <div className="space-y-6 font-sans">
       <DashboardHeader
         onOpenFilter={() => setIsFilterOpen(true)}
         activeFilterCount={activeFilterCount}

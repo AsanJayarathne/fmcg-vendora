@@ -13,13 +13,12 @@ import img4 from "../../assets/images/Live Delivery Tracking.png";
 import img5 from "../../assets/images/Business Analytics.png";
 import img6 from "../../assets/images/Quick Returns.png";
 
-
 const features = [
   {
     title: "Smart Inventory",
     description:
       "Monitor stock levels in real-time and never run out of fast-moving products.",
-    icon: <FiBox size={28} />,
+    icon: <FiBox size={24} />,
     color: "bg-blue-100 text-blue-600",
     image: img1,
   },
@@ -27,7 +26,7 @@ const features = [
     title: "Flexible Credit",
     description:
       "Purchase products with distributor credit while tracking outstanding balances.",
-    icon: <FiCreditCard size={28} />,
+    icon: <FiCreditCard size={24} />,
     color: "bg-emerald-100 text-emerald-600",
     image: img2,
   },
@@ -35,7 +34,7 @@ const features = [
     title: "Easy Ordering",
     description:
       "Browse thousands of FMCG products and place orders within seconds.",
-    icon: <FiShoppingCart size={28} />,
+    icon: <FiShoppingCart size={24} />,
     color: "bg-orange-100 text-orange-500",
     image: img3,
   },
@@ -43,7 +42,7 @@ const features = [
     title: "Live Delivery Tracking",
     description:
       "Know exactly where your orders are with real-time delivery updates.",
-    icon: <FiTruck size={28} />,
+    icon: <FiTruck size={24} />,
     color: "bg-purple-100 text-purple-600",
     image: img4,
   },
@@ -51,7 +50,7 @@ const features = [
     title: "Business Analytics",
     description:
       "Understand your sales, inventory movement and purchasing behaviour.",
-    icon: <FiBarChart2 size={28} />,
+    icon: <FiBarChart2 size={24} />,
     color: "bg-cyan-100 text-cyan-600",
     image: img5,
   },
@@ -59,7 +58,7 @@ const features = [
     title: "Quick Returns",
     description:
       "Request product returns or replacements directly through the platform.",
-    icon: <FiRefreshCcw size={28} />,
+    icon: <FiRefreshCcw size={24} />,
     color: "bg-red-100 text-red-500",
     image: img6,
   },
@@ -67,56 +66,47 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-28 bg-slate-50">
-
-      <div className="max-w-7xl mx-auto px-8">
+    <section id="features" className="py-12 sm:py-20 lg:py-28 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Heading */}
-
         <div className="text-center max-w-3xl mx-auto">
-
-          <span className="text-blue-600 font-semibold uppercase tracking-wider">
+          <span className="text-blue-600 text-xs sm:text-sm font-semibold uppercase tracking-wider">
             Platform Features
           </span>
 
-          <h2 className="mt-4 text-5xl font-bold text-slate-900">
+          <h2 className="mt-3 sm:mt-4 text-2xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
             Everything You Need to Run Your Retail Business
           </h2>
 
-          <p className="mt-6 text-lg text-slate-600 leading-8">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-lg text-slate-600 leading-relaxed">
             Vendora combines inventory, ordering, delivery, credit,
             and analytics into one powerful platform designed
             specifically for FMCG retailers.
           </p>
-
         </div>
 
         {/* Cards */}
-
-        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8 mt-20">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-10 sm:mt-16">
           {features.map((feature, index) => (
-
             <div
               key={index}
               className="
-              group
-              bg-white
-              rounded-[32px]
-              overflow-hidden
-              border
-              border-slate-200
-              shadow-sm
-              hover:shadow-2xl
-              hover:-translate-y-2
-              transition
-              duration-300"
+                group
+                bg-white
+                rounded-2xl sm:rounded-[32px]
+                overflow-hidden
+                border
+                border-slate-200
+                shadow-xs
+                hover:shadow-xl
+                hover:-translate-y-1
+                transition
+                duration-300
+              "
             >
-
-
-              {/* Image / Placeholder */}
-
-              <div className="h-56 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
+              {/* Image */}
+              <div className="h-44 sm:h-52 bg-slate-100 border-b border-slate-200 overflow-hidden flex items-center justify-center">
                 {feature.image ? (
                   <img
                     src={feature.image}
@@ -125,45 +115,33 @@ export default function Features() {
                   />
                 ) : (
                   <div className="text-center">
-                    <div className="text-5xl mb-4">🖼️</div>
-                    <p className="text-slate-500 font-medium">No Image</p>
+                    <div className="text-4xl mb-2">📦</div>
+                    <p className="text-slate-400 font-medium text-xs">Preview</p>
                   </div>
                 )}
               </div>
 
-
               {/* Content */}
-
-              <div className="p-8">
-
+              <div className="p-5 sm:p-7">
                 <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center ${feature.color}`}
+                  className={`w-11 h-11 rounded-xl flex items-center justify-center ${feature.color}`}
                 >
                   {feature.icon}
                 </div>
 
-                <h3 className="text-2xl font-bold text-slate-900 mt-6">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-4">
                   {feature.title}
                 </h3>
 
-                <p className="text-slate-600 mt-4 leading-8">
+                <p className="text-slate-600 mt-2.5 text-xs sm:text-sm leading-relaxed">
                   {feature.description}
                 </p>
-
-                <button className="mt-8 text-blue-600 font-semibold hover:underline">
-                  Learn More →
-                </button>
-
               </div>
-
             </div>
-
           ))}
-
         </div>
 
       </div>
-
     </section>
   );
 }
