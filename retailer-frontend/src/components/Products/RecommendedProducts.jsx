@@ -1,9 +1,11 @@
 import { useRef } from "react";
 import { FiChevronLeft, FiChevronRight, FiThumbsUp } from "react-icons/fi";
 import ProductCard from "./ProductCard";
+import { useLanguage } from "../../context/LanguageContext";
 
 function RecommendedProducts({ products, onView, onCart, onViewAll }) {
   const scrollRef = useRef(null);
+  const { t } = useLanguage();
 
   const recommended = products
     .filter((p) => (p.available_qty ?? p.stock ?? 0) > 0)
@@ -27,9 +29,11 @@ function RecommendedProducts({ products, onView, onCart, onViewAll }) {
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
             <FiThumbsUp className="text-blue-600" />
-            <span>Recommended For You</span>
+            <span>{t("products.recommendedForYou", "Recommended For You")}</span>
           </h2>
-          <p className="text-xs text-slate-400 font-normal mt-0.5">Handpicked items based on store history</p>
+          <p className="text-xs text-slate-400 font-normal mt-0.5">
+            {t("products.recommendedSubtitle", "Handpicked items based on store history")}
+          </p>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -61,7 +65,7 @@ function RecommendedProducts({ products, onView, onCart, onViewAll }) {
             onClick={onViewAll}
             className="rounded-full bg-blue-50 border border-blue-100 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-blue-600 hover:bg-blue-100 transition cursor-pointer shadow-2xs shrink-0"
           >
-            View All
+            {t("common.viewAll", "View All")}
           </button>
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { useRef } from "react";
 import { FiChevronLeft, FiChevronRight, FiTrendingUp } from "react-icons/fi";
 import ProductCard from "./ProductCard";
+import { useLanguage } from "../../context/LanguageContext";
 
 function TrendingProducts({ products, onView, onCart, onViewAll }) {
   const scrollRef = useRef(null);
+  const { t } = useLanguage();
 
   // Real API: sort by stock, take top 6. Mock data: use fastMoving flag
   const hasMockData = products.some((p) => "fastMoving" in p);
@@ -32,9 +34,11 @@ function TrendingProducts({ products, onView, onCart, onViewAll }) {
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
             <FiTrendingUp className="text-blue-600" />
-            <span>Trending Products</span>
+            <span>{t("products.trendingProducts", "Trending Products")}</span>
           </h2>
-          <p className="text-xs text-slate-400 font-normal mt-0.5">Top performing inventory in demand</p>
+          <p className="text-xs text-slate-400 font-normal mt-0.5">
+            {t("products.trendingSubtitle", "Top performing inventory in demand")}
+          </p>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -66,7 +70,7 @@ function TrendingProducts({ products, onView, onCart, onViewAll }) {
             onClick={onViewAll}
             className="rounded-full bg-blue-50 border border-blue-100 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-blue-600 hover:bg-blue-100 transition cursor-pointer shadow-2xs shrink-0"
           >
-            View All
+            {t("common.viewAll", "View All")}
           </button>
         </div>
       </div>

@@ -3,9 +3,9 @@ import { FiMessageSquare, FiX, FiClock, FiCheck } from "react-icons/fi";
 import { OrderContext } from "../context/OrderContextObject";
 import { useLanguage } from "../context/LanguageContext";
 
-function formatDate(date) {
+function formatDate(date, language) {
   if (!date) return "";
-  return new Intl.DateTimeFormat("en-GB", {
+  return new Intl.DateTimeFormat(language === "si" ? "si-LK" : "en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -14,9 +14,42 @@ function formatDate(date) {
   }).format(new Date(date.replace(" ", "T")));
 }
 
+function localizeMessage(message, t) {
+  const title = String(message.title ?? "").trim();
+  const body = message.body ?? "";
+  const orderId = body.match(/order #(\S+)/i)?.[1] ?? message.orderId ?? "";
+  const normalizedTitle = title.toLowerCase();
+
+  if (normalizedTitle.includes("delivery returned")) {
+    const reason = body.match(/Reason:\s*(.*)$/i)?.[1] ?? "";
+    return {
+      title: t("messages.notificationDeliveryReturned", title),
+      body: t("messages.notificationDeliveryReturnedBody", "Your order #{id} could not be delivered. Reason: {reason}")
+        .replace("{id}", orderId)
+        .replace("{reason}", reason),
+    };
+  }
+
+  if (normalizedTitle.includes("order approved")) {
+    return {
+      title: t("messages.notificationOrderApproved", title),
+      body: t("messages.notificationOrderApprovedBody", "Your order #{id} has been approved.").replace("{id}", orderId),
+    };
+  }
+
+  if (normalizedTitle.includes("order delivered")) {
+    return {
+      title: t("messages.notificationOrderDelivered", title),
+      body: t("messages.notificationOrderDeliveredBody", "Your order #{id} has been delivered.").replace("{id}", orderId),
+    };
+  }
+
+  return { title, body };
+}
+
 function Messages() {
   const { messages, unreadMessageCount, markMessageRead, markAllMessagesRead } = useContext(OrderContext);
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   return (
@@ -59,6 +92,9 @@ function Messages() {
       ) : (
         <div className="space-y-3 sm:space-y-4">
           {messages.map((message) => (
+            (() => {
+              const localizedMessage = localizeMessage(message, t);
+              return (
             <button
               key={message.id}
               type="button"
@@ -84,19 +120,21 @@ function Messages() {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1">
                   <h2 className="font-extrabold text-slate-800 text-xs sm:text-sm truncate pr-2">
-                    {message.title}
+                    {localizedMessage.title}
                   </h2>
 
                   <span className="text-[10px] font-black text-blue-500 flex items-center gap-1 shrink-0">
-                    <FiClock size={11} /> {formatDate(message.createdAt)}
+                    <FiClock size={11} /> {formatDate(message.createdAt, language)}
                   </span>
                 </div>
 
                 <p className="text-xs font-medium text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                  {message.body}
+                  {localizedMessage.body}
                 </p>
               </div>
             </button>
+              );
+            })()
           ))}
         </div>
       )}
@@ -119,13 +157,13 @@ function Messages() {
                   {t("messages.messageDetails", "Message Details")}
                 </p>
                 <h2 className="text-base sm:text-lg font-black text-slate-800 leading-tight mt-1">
-                  {selectedMessage.title}
+                  {localizeMessage(selectedMessage, t).title}
                 </h2>
               </div>
               <button
                 onClick={() => setSelectedMessage(null)}
                 className="text-slate-400 hover:text-slate-700 cursor-pointer p-2 rounded-xl hover:bg-slate-100 transition"
-                aria-label="Close details"
+                aria-label={t("common.closeDetails", "Close details")}
               >
                 <FiX size={20} />
               </button>
@@ -137,12 +175,12 @@ function Messages() {
                 <div className="flex items-center justify-between gap-4 text-[10px] font-black text-blue-600 uppercase tracking-wider pb-3 border-b border-blue-100/40">
                   <span>{t("messages.sentDate", "Sent Date")}</span>
                   <span className="flex items-center gap-1 font-bold normal-case text-slate-600">
-                    <FiClock size={11} className="text-blue-500" /> {formatDate(selectedMessage.createdAt)}
+                    <FiClock size={11} className="text-blue-500" /> {formatDate(selectedMessage.createdAt, language)}
                   </span>
                 </div>
 
                 <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed whitespace-pre-line">
-                  {selectedMessage.body}
+                  {localizeMessage(selectedMessage, t).body}
                 </p>
               </div>
 
