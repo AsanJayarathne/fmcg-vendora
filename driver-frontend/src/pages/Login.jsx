@@ -52,73 +52,88 @@ export default function Login() {
   };
 
   return (
-    <div style={styles.pageWrapper}>
-      <div style={styles.card}>
+    <div className="min-h-screen bg-orange-500 flex items-center justify-center p-3.5 sm:p-6 font-sans">
+      <div className="flex flex-col lg:flex-row bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-4xl min-h-[480px]">
 
         {/* ── LEFT SIDE – Form ── */}
-        <div style={styles.leftPanel}>
-          <h1 style={styles.title}>Welcome Back</h1>
+        <div className="flex-1 p-6 sm:p-10 lg:p-12 flex flex-col justify-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6">Welcome Back</h1>
 
-          {error && <div style={styles.errorBanner}>{error}</div>}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-xl text-xs sm:text-sm font-semibold mb-5">
+              {error}
+            </div>
+          )}
 
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>E-mail</label>
-            <input
-              id="login-email"
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); setError(""); }}
-              style={styles.input}
-            />
-          </div>
-
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>Password</label>
-            <input
-              id="login-password"
-              type="password"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              style={styles.input}
-            />
-          </div>
-
-          <div style={styles.row}>
-            <label style={styles.checkboxLabel}>
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">E-mail</label>
               <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                style={styles.checkbox}
+                id="login-email"
+                type="email"
+                placeholder="driver@vendora.lk"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
               />
-              Remember me
-            </label>
-            <span 
-              onClick={() => setShowForgotModal(true)} 
-              style={{ ...styles.forgotLink, cursor: "pointer" }}
+            </div>
+
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(""); }}
+                className="w-full border-b-2 border-slate-300 focus:border-orange-500 outline-none py-2 text-sm text-slate-900 bg-transparent transition-colors placeholder:text-slate-300"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-xs sm:text-sm pt-1">
+              <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="w-4 h-4 rounded text-orange-500 accent-orange-500 cursor-pointer"
+                />
+                <span>Remember me</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)} 
+                className="text-slate-600 hover:text-orange-600 font-medium transition cursor-pointer"
+              >
+                Forgot Password?
+              </button>
+            </div>
+
+            <button
+              id="login-submit"
+              onClick={handleLogin}
+              disabled={loading}
+              className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-bold text-sm sm:text-base shadow-md shadow-orange-500/20 disabled:opacity-60 disabled:cursor-not-allowed transition cursor-pointer"
             >
-              Forgot Password?
-            </span>
+              {loading ? "Logging in..." : "Log in"}
+            </button>
+
+            <p className="text-center text-xs sm:text-sm text-slate-500">
+              Don't Have an Account?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/register")}
+                className="text-orange-600 font-bold hover:underline cursor-pointer"
+              >
+                Register
+              </button>
+            </p>
           </div>
-
-          <button
-            id="login-submit"
-            onClick={handleLogin}
-            disabled={loading}
-            style={loading ? { ...styles.loginBtn, opacity: 0.6, cursor: "not-allowed" } : styles.loginBtn}
-          >
-            {loading ? "Logging in..." : "Log in"}
-          </button>
-
-          <p style={styles.registerText}>
-            Don't Have an Account?{" "}
-            <span onClick={() => navigate("/register")} style={styles.registerLink}>Register</span>
-          </p>
         </div>
 
         {/* ── RIGHT SIDE – Image ── */}
-        <div style={styles.rightPanel}>
-          <img src={deliveryImg} alt="Delivery person" style={styles.image} />
+        <div className="hidden lg:flex w-[45%] bg-orange-500 m-4 rounded-2xl overflow-hidden items-center justify-center shrink-0">
+          <img src={deliveryImg} alt="Delivery person" className="w-full h-full object-cover" />
         </div>
 
       </div>
@@ -130,130 +145,3 @@ export default function Login() {
     </div>
   );
 }
-
-const styles = {
-  pageWrapper: {
-    minHeight: "100vh",
-    backgroundColor: "#F97316",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "24px",
-    fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
-  },
-  card: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    borderRadius: "28px",
-    overflow: "hidden",
-    width: "100%",
-    maxWidth: "860px",
-    minHeight: "520px",
-    boxShadow: "0 8px 40px rgba(0,0,0,0.15)",
-  },
-  leftPanel: {
-    flex: 1,
-    padding: "60px 52px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "800",
-    color: "#111111",
-    margin: "0 0 36px 0",
-  },
-  errorBanner: {
-    backgroundColor: "#FEE2E2",
-    border: "1px solid #FCA5A5",
-    color: "#B91C1C",
-    padding: "12px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    marginBottom: "20px",
-  },
-  fieldGroup: {
-    marginBottom: "24px",
-  },
-  label: {
-    display: "block",
-    fontSize: "14px",
-    color: "#444",
-    marginBottom: "8px",
-  },
-  input: {
-    width: "100%",
-    border: "none",
-    borderBottom: "1.5px solid #333",
-    outline: "none",
-    fontSize: "15px",
-    padding: "6px 0",
-    color: "#111",
-    backgroundColor: "transparent",
-    boxSizing: "border-box",
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "28px",
-    marginTop: "4px",
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontSize: "14px",
-    color: "#444",
-    cursor: "pointer",
-  },
-  checkbox: {
-    width: "16px",
-    height: "16px",
-    accentColor: "#F97316",
-  },
-  forgotLink: {
-    fontSize: "14px",
-    color: "#444",
-    cursor: "pointer",
-  },
-  loginBtn: {
-    width: "100%",
-    padding: "14px",
-    backgroundColor: "#F97316",
-    color: "#fff",
-    border: "none",
-    borderRadius: "50px",
-    fontSize: "16px",
-    fontWeight: "700",
-    cursor: "pointer",
-    marginBottom: "20px",
-  },
-  registerText: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#555",
-    margin: 0,
-  },
-  registerLink: {
-    color: "#F97316",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  rightPanel: {
-    width: "45%",
-    backgroundColor: "#F97316",
-    borderRadius: "20px",
-    margin: "16px",
-    overflow: "hidden",
-    flexShrink: 0,
-  },
-  image: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
-  },
-};

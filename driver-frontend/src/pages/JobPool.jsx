@@ -74,16 +74,16 @@ function JobPool() {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Open Job Pool</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">Claim unassigned retail orders in your delivery zone</p>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Claim unassigned retail orders in your delivery zone</p>
         </div>
         <button
           onClick={fetchJobs}
-          className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-xs self-start sm:self-auto"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin text-orange-500' : 'text-slate-500'} />
           <span>Refresh Pool</span>
@@ -98,11 +98,11 @@ function JobPool() {
       )}
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400 font-medium text-xs">
+        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-400 font-medium text-xs shadow-xs">
           Searching available orders in the dispatch pool...
         </div>
       ) : jobs.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-500 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center text-slate-500 shadow-xs">
           <Briefcase size={36} className="mx-auto text-slate-300 mb-3" />
           <h3 className="text-base font-bold text-slate-800">Job Pool Empty</h3>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
@@ -110,7 +110,7 @@ function JobPool() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
           {jobs.map((job) => (
             <JobCard
               key={job.id}
