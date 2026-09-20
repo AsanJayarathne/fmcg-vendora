@@ -3,11 +3,10 @@ import { Eye } from "lucide-react";
 function PaymentMethodBadge({ method }) {
   const isCash = method === "cash";
   return (
-    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-      isCash
+    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isCash
         ? "bg-green-50 text-green-700 border border-green-200/50"
         : "bg-purple-50 text-purple-700 border border-purple-200/50"
-    }`}>
+      }`}>
       {method}
     </span>
   );
@@ -62,7 +61,7 @@ export default function PaymentsTable({ payments, onViewOrder }) {
 
                   <td className="px-6 py-4 text-slate-500 font-medium">
                     <p className="font-semibold text-slate-700">{payment.orderDate}</p>
-                    <p className="text-[10px] text-slate-400">{payment.orderTime || "—"}</p>
+                    <p className="text-[10px] text-slate-400">{payment.orderTime || "-"}</p>
                   </td>
 
                   <td className="px-6 py-4 text-right font-bold text-slate-900 text-sm">

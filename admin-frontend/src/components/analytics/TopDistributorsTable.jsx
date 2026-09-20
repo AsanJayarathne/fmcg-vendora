@@ -57,7 +57,7 @@ export default function TopDistributorsTable({ data = [], loading = false }) {
                       </td>
 
                       <td className="px-5 py-3.5 font-semibold text-slate-600">
-                        {p.region_name || "—"}
+                        {p.region_name || "-"}
                       </td>
 
                       <td className="px-5 py-3.5 text-center font-bold text-slate-800">

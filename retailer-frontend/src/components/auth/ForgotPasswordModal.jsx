@@ -42,7 +42,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
       setSuccessMessage(data.message || t("auth.resetDispatchedText", "A secure reset link has been dispatched to your email address."));
       setLoading(false);
     } catch (err) {
-      setError(t("auth.networkError", "Network error — unable to connect to the authentication server."));
+      setError(t("auth.networkError", "Network error - unable to connect to the authentication server."));
       setLoading(false);
     }
   };
@@ -56,7 +56,7 @@ export default function ForgotPasswordModal({ isOpen, onClose, portalName = "Ret
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div 
+      <div
         className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative border border-slate-100 transform transition-all animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >

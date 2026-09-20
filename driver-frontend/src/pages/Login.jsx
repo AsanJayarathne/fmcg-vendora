@@ -46,7 +46,7 @@ export default function Login() {
       login(json.data);
       navigate("/");
     } catch (err) {
-      setError("Network error — make sure the backend is running.");
+      setError("Network error - make sure the backend is running.");
       setLoading(false);
     }
   };
@@ -102,7 +102,7 @@ export default function Login() {
               </label>
               <button
                 type="button"
-                onClick={() => setShowForgotModal(true)} 
+                onClick={() => setShowForgotModal(true)}
                 className="text-slate-600 hover:text-orange-600 font-medium transition cursor-pointer"
               >
                 Forgot Password?

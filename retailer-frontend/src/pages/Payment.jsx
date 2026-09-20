@@ -10,24 +10,24 @@ import { FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiLoader, FiGlobe } from "
 
 function Payment() {
   const { state: order } = useLocation();
-  const navigate         = useNavigate();
-  const { auth }         = useAuth();
-  const { t }            = useLanguage();
-  const token            = auth?.token ?? null;
+  const navigate = useNavigate();
+  const { auth } = useAuth();
+  const { t } = useLanguage();
+  const token = auth?.token ?? null;
 
-  const { removeFromCart }   = useContext(CartContext);
+  const { removeFromCart } = useContext(CartContext);
   const { addOrder, cancelOrder, loadOrders } = useContext(OrderContext);
 
   // ── Payment form state ─────────────────────────────────────────
   const [paymentType, setPaymentType] = useState("cash");       // "cash" | "credit" | "cash_credit" | "online"
-  const [orderType,   setOrderType]   = useState("Normal");
+  const [orderType, setOrderType] = useState("Normal");
   const [gatewaySession, setGatewaySession] = useState(null);
   const [pendingOnlineOrder, setPendingOnlineOrder] = useState(null);
 
   // ── Credit account state ───────────────────────────────────────
-  const [creditInfo,    setCreditInfo]    = useState(null);   // null = loading | false = no account
+  const [creditInfo, setCreditInfo] = useState(null);   // null = loading | false = no account
   const [creditLoading, setCreditLoading] = useState(true);
-  const [creditError,   setCreditError]   = useState(null);
+  const [creditError, setCreditError] = useState(null);
 
   // ── Split payment inputs ───────────────────────────────────────
   const [creditInput, setCreditInput] = useState("");          // credit amount input (string for controlled input)
@@ -36,7 +36,7 @@ function Payment() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  const fmt = (val) => 
+  const fmt = (val) =>
     Number(val).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -127,14 +127,14 @@ function Payment() {
   }
 
   // ── Derived values ─────────────────────────────────────────────
-  const urgentCharge   = orderType === "Urgent" ? 500 : 0;
-  const payableTotal   = order.total + urgentCharge;
+  const urgentCharge = orderType === "Urgent" ? 500 : 0;
+  const payableTotal = order.total + urgentCharge;
 
   // Real credit info from backend
-  const creditLimit      = creditInfo ? Number(creditInfo.credit_limit ?? 0) : 0;
-  const availableCredit  = creditInfo ? Number(creditInfo.available_credit ?? 0) : 0;
+  const creditLimit = creditInfo ? Number(creditInfo.credit_limit ?? 0) : 0;
+  const availableCredit = creditInfo ? Number(creditInfo.available_credit ?? 0) : 0;
   const outstandingCredit = creditInfo ? Number(creditInfo.current_balance ?? 0) : 0;
-  const creditBlocked    = creditInfo?.status === "Blocked";
+  const creditBlocked = creditInfo?.status === "Blocked";
 
   // Can use full credit? Only if payable total fits within available credit
   const canUseFullCredit = creditInfo && !creditBlocked && payableTotal <= availableCredit;
@@ -148,17 +148,17 @@ function Payment() {
 
   // Calculate final amounts based on payment type
   let finalCreditAmount = 0;
-  let finalCashAmount   = payableTotal;
+  let finalCashAmount = payableTotal;
 
   if (paymentType === "credit") {
     finalCreditAmount = payableTotal;
-    finalCashAmount   = 0;
+    finalCashAmount = 0;
   } else if (paymentType === "cash_credit") {
     finalCreditAmount = parsedCreditInput;
-    finalCashAmount   = Math.max(0, payableTotal - parsedCreditInput);
+    finalCashAmount = Math.max(0, payableTotal - parsedCreditInput);
   } else if (paymentType === "online") {
     finalCreditAmount = 0;
-    finalCashAmount   = 0;
+    finalCashAmount = 0;
   }
 
   const remainingCredit = availableCredit - finalCreditAmount;
@@ -185,7 +185,7 @@ function Payment() {
     // Build items payload for backend
     const itemsPayload = order.items.map((item) => ({
       product_id: item.productId ?? item.product_id ?? item.id,
-      quantity:   item.quantity,
+      quantity: item.quantity,
     }));
 
     // Map frontend payment type to backend enum
@@ -223,9 +223,9 @@ function Payment() {
         ...placed,
         orderType,
         urgentCharge,
-        total:       payableTotal,
-        cashAmount:  finalCashAmount,
-        creditUsed:  finalCreditAmount,
+        total: payableTotal,
+        cashAmount: finalCashAmount,
+        creditUsed: finalCreditAmount,
         paymentType,
         paymentLabel: paymentType === "cash" ? "Full Cash" : paymentType === "credit" ? "Full Credit" : paymentType === "online" ? "Online" : "Cash + Credit",
       };
@@ -256,9 +256,9 @@ function Payment() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 min-h-screen">
-      
+
       {/* Back button link */}
-      <button 
+      <button
         onClick={() => navigate("/cart")}
         className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-blue-650 transition cursor-pointer mb-6"
       >
@@ -337,18 +337,17 @@ function Payment() {
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <label
             onClick={() => setOrderType("Normal")}
-            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${
-              orderType === "Normal"
+            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${orderType === "Normal"
                 ? "border-blue-650 bg-blue-50/30"
                 : "border-slate-100 hover:bg-slate-50/30"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <input
                 type="radio"
                 name="orderType"
                 checked={orderType === "Normal"}
-                onChange={() => {}}
+                onChange={() => { }}
                 className="accent-blue-600"
               />
               <span className="font-black text-slate-800 text-xs">{t("payment.normalOrder", "Normal Order")}</span>
@@ -360,18 +359,17 @@ function Payment() {
 
           <label
             onClick={() => setOrderType("Urgent")}
-            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${
-              orderType === "Urgent"
+            className={`border rounded-2xl p-4.5 cursor-pointer transition flex flex-col justify-between ${orderType === "Urgent"
                 ? "border-red-200 bg-red-50/30"
                 : "border-slate-100 hover:bg-slate-50/30"
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2">
               <input
                 type="radio"
                 name="orderType"
                 checked={orderType === "Urgent"}
-                onChange={() => {}}
+                onChange={() => { }}
                 className="accent-red-650"
               />
               <span className="font-black text-red-700 text-xs">{t("payment.urgentOrder", "Urgent Order")}</span>
@@ -390,9 +388,9 @@ function Payment() {
         <div className="mt-4 space-y-3">
           {/* Option 1: Full Cash */}
           <label className="flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition hover:bg-slate-50/50"
-            style={{ 
-              borderColor: paymentType === "cash" ? "#2563eb" : "#f1f5f9", 
-              backgroundColor: paymentType === "cash" ? "#f0f9ff" : "" 
+            style={{
+              borderColor: paymentType === "cash" ? "#2563eb" : "#f1f5f9",
+              backgroundColor: paymentType === "cash" ? "#f0f9ff" : ""
             }}
           >
             <input
@@ -415,12 +413,11 @@ function Payment() {
               <span>{t("payment.verifyingCredit", "Verifying credit account limits...")}</span>
             </div>
           ) : creditInfo ? (
-            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
-              !canUseFullCredit ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
-            }`}
-              style={{ 
-                borderColor: paymentType === "credit" ? "#2563eb" : "#f1f5f9", 
-                backgroundColor: paymentType === "credit" ? "#f0f9ff" : "" 
+            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${!canUseFullCredit ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
+              }`}
+              style={{
+                borderColor: paymentType === "credit" ? "#2563eb" : "#f1f5f9",
+                backgroundColor: paymentType === "credit" ? "#f0f9ff" : ""
               }}
             >
               <input
@@ -452,12 +449,11 @@ function Payment() {
 
           {/* Option 3: Cash + Credit */}
           {!creditLoading && creditInfo && (
-            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${
-              creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
-            }`}
-              style={{ 
-                borderColor: paymentType === "cash_credit" ? "#2563eb" : "#f1f5f9", 
-                backgroundColor: paymentType === "cash_credit" ? "#f0f9ff" : "" 
+            <label className={`flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition ${creditBlocked ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-50/50"
+              }`}
+              style={{
+                borderColor: paymentType === "cash_credit" ? "#2563eb" : "#f1f5f9",
+                backgroundColor: paymentType === "cash_credit" ? "#f0f9ff" : ""
               }}
             >
               <input
@@ -484,9 +480,9 @@ function Payment() {
 
           {/* Option 4: Full Online Gateway */}
           <label className="flex items-center gap-3.5 cursor-pointer border rounded-2xl p-4 transition hover:bg-slate-50/50"
-            style={{ 
-              borderColor: paymentType === "online" ? "#2563eb" : "#f1f5f9", 
-              backgroundColor: paymentType === "online" ? "#f0f9ff" : "" 
+            style={{
+              borderColor: paymentType === "online" ? "#2563eb" : "#f1f5f9",
+              backgroundColor: paymentType === "online" ? "#f0f9ff" : ""
             }}
           >
             <input
@@ -511,7 +507,7 @@ function Payment() {
 
           {!creditLoading && !creditInfo && (
             <p className="text-xs font-bold text-slate-400 px-4 py-2 bg-slate-50 border border-slate-100 rounded-2xl">
-              {t("payment.noCreditDistributor", "No credit account available with this distributor — payment limited to cash on delivery.")}
+              {t("payment.noCreditDistributor", "No credit account available with this distributor - payment limited to cash on delivery.")}
               {creditError && <span className="text-red-500 ml-2 font-black">({creditError})</span>}
             </p>
           )}
@@ -521,7 +517,7 @@ function Payment() {
         {creditInfo && !creditBlocked && (paymentType === "credit" || paymentType === "cash_credit") && (
           <div className="mt-6 bg-slate-50/50 border border-slate-100 rounded-2xl p-5 space-y-4">
             <h3 className="font-black text-xs text-slate-700 tracking-wide uppercase">{t("credits.creditOverview", "Credit Account Summary")}</h3>
-            
+
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white border border-slate-100 rounded-2xl p-3.5 shadow-xs">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{t("credits.totalCreditLimit", "Credit Limit")}</p>
@@ -621,17 +617,16 @@ function Payment() {
         <button
           onClick={handleConfirmOrder}
           disabled={submitting}
-          className={`w-full py-4 rounded-full mt-6 font-black text-xs text-white transition-all shadow-xs cursor-pointer ${
-            submitting
+          className={`w-full py-4 rounded-full mt-6 font-black text-xs text-white transition-all shadow-xs cursor-pointer ${submitting
               ? "bg-slate-205 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-755"
-          }`}
+            }`}
         >
           {submitting
             ? t("payment.placingOrder", "Processing Order...")
             : paymentType === "online"
-            ? t("payment.proceedOnlineGateway", "Proceed to Online Gateway")
-            : t("payment.placeOrder", "Confirm & Place Order")}
+              ? t("payment.proceedOnlineGateway", "Proceed to Online Gateway")
+              : t("payment.placeOrder", "Confirm & Place Order")}
         </button>
 
         {/* Payment Gateway Modal Simulator */}

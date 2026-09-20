@@ -50,13 +50,13 @@ export default function RequestedStockTable({ requests = [], onViewRequest }) {
             ) : (
               requests.map((request) => {
                 const code = `REQ-${String(request.request_id).padStart(3, "0")}`;
-                const formattedDate = request.request_date 
+                const formattedDate = request.request_date
                   ? new Date(request.request_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : "—";
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })
+                  : "-";
 
                 return (
                   <tr key={request.request_id} className="hover:bg-slate-50/60 transition duration-150">
@@ -69,7 +69,7 @@ export default function RequestedStockTable({ requests = [], onViewRequest }) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-400 font-medium max-w-xs truncate" title={request.remarks}>
-                      {request.remarks || "—"}
+                      {request.remarks || "-"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center">

@@ -160,6 +160,20 @@ export default function RequestStockPage() {
     setReceiveTarget(null);
   };
 
+  // Update specific item quantity in draft
+  const handleUpdateQuantity = (productId, newQuantity) => {
+    if (newQuantity <= 0) {
+      handleRemoveItem(productId);
+      return;
+    }
+    setCurrentRequest((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item.product_id === productId ? { ...item, quantity: newQuantity } : item
+      ),
+    }));
+  };
+
   // Remove item from draft request
   const handleRemoveItem = (productId) => {
     setCurrentRequest((prev) => ({
@@ -394,6 +408,9 @@ export default function RequestStockPage() {
               <RequestStockTable
                 products={paginatedProducts}
                 onRequestItem={handleRequestItem}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveItem={handleRemoveItem}
+                draftItems={currentRequest.items}
               />
               
               <Pagination

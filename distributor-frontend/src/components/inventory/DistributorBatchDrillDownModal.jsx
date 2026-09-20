@@ -2,16 +2,16 @@ import React from 'react';
 import { X, Layers, AlertCircle, Loader2 } from 'lucide-react';
 
 const STATUS_STYLES = {
-  Active:    { dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50 border-emerald-200/60' },
-  Exhausted: { dot: 'bg-slate-400',   badge: 'text-slate-600  bg-slate-100  border-slate-200'      },
-  Expired:   { dot: 'bg-rose-500',    badge: 'text-rose-700   bg-rose-50   border-rose-200/60'    },
+  Active: { dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50 border-emerald-200/60' },
+  Exhausted: { dot: 'bg-slate-400', badge: 'text-slate-600  bg-slate-100  border-slate-200' },
+  Expired: { dot: 'bg-rose-500', badge: 'text-rose-700   bg-rose-50   border-rose-200/60' },
 };
 
 const fmtPrice = (val) =>
-  val != null ? `LKR ${parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '—';
+  val != null ? `LKR ${parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '-';
 
 const fmtDate = (date) =>
-  date ? new Date(date.replace(/-/g, "/")).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—";
+  date ? new Date(date.replace(/-/g, "/")).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "-";
 
 const isExpiringSoon = (expiryDate) => {
   if (!expiryDate) return false;

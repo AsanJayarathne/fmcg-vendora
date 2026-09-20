@@ -1,19 +1,19 @@
 import { UserPlus, Eye } from "lucide-react";
 
 const STATUS_CONFIG = {
-  OPEN:      { label: "Open",      color: "bg-amber-50 text-amber-700 border border-amber-200/60"      },
-  CLAIMED:   { label: "Claimed",   color: "bg-sky-50 text-sky-700 border border-sky-200/60"          },
+  OPEN: { label: "Open", color: "bg-amber-50 text-amber-700 border border-amber-200/60" },
+  CLAIMED: { label: "Claimed", color: "bg-sky-50 text-sky-700 border border-sky-200/60" },
   DELIVERED: { label: "Delivered", color: "bg-emerald-50 text-emerald-700 border border-emerald-200/60" },
-  RETURNED:  { label: "Returned",  color: "bg-rose-50 text-rose-700 border border-rose-200/60"        },
+  RETURNED: { label: "Returned", color: "bg-rose-50 text-rose-700 border border-rose-200/60" },
 };
 
 function PaymentBadge({ method }) {
   const color =
-    method === "Cash"        ? "bg-green-50 text-green-700 border border-green-200/50" :
-    method === "Credit"      ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
-    method === "Cash_Credit" ? "bg-indigo-50 text-indigo-700 border border-indigo-200/50" :
-    "bg-slate-100 text-slate-600 border border-slate-200";
-  const label = method === "Cash_Credit" ? "Cash + Credit" : (method ?? "—");
+    method === "Cash" ? "bg-green-50 text-green-700 border border-green-200/50" :
+      method === "Credit" ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
+        method === "Cash_Credit" ? "bg-indigo-50 text-indigo-700 border border-indigo-200/50" :
+          "bg-slate-100 text-slate-600 border border-slate-200";
+  const label = method === "Cash_Credit" ? "Cash + Credit" : (method ?? "-");
   return (
     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${color}`}>
       {label}
@@ -22,7 +22,7 @@ function PaymentBadge({ method }) {
 }
 
 function fmtAmount(val) {
-  if (val === null || val === undefined) return "—";
+  if (val === null || val === undefined) return "-";
   return Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2 });
 }
 
@@ -95,7 +95,7 @@ export default function DeliveryTable({ deliveries, onView }) {
 
                     {/* Retailer */}
                     <td className="px-5 py-4">
-                      <p className="font-bold text-slate-800">{d.shop_name ?? "—"}</p>
+                      <p className="font-bold text-slate-800">{d.shop_name ?? "-"}</p>
                       {d.owner_name && (
                         <p className="text-[10px] text-slate-400 font-medium">{d.owner_name}</p>
                       )}
@@ -113,7 +113,7 @@ export default function DeliveryTable({ deliveries, onView }) {
                       {d.collected_amount != null ? (
                         <span className="font-bold text-slate-900">LKR {fmtAmount(d.collected_amount)}</span>
                       ) : (
-                        <span className="text-slate-300 font-medium">—</span>
+                        <span className="text-slate-300 font-medium">-</span>
                       )}
                     </td>
 
@@ -133,11 +133,10 @@ export default function DeliveryTable({ deliveries, onView }) {
                     <td className="px-5 py-4 text-center">
                       <button
                         onClick={() => onView(d)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-2xs transition flex items-center justify-center gap-1 mx-auto cursor-pointer ${
-                          isOpen
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-2xs transition flex items-center justify-center gap-1 mx-auto cursor-pointer ${isOpen
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
                             : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100"
-                        }`}
+                          }`}
                       >
                         {isOpen ? <UserPlus size={12} /> : <Eye size={12} />}
                         {isOpen ? "Assign" : "View"}

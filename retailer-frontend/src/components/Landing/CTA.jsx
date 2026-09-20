@@ -29,7 +29,7 @@ export default function CTA() {
                 Start ordering directly from trusted distributors,
                 manage inventory efficiently, monitor your credit
                 account, and grow your business using powerful
-                analytics—all from one platform.
+                analytics-all from one platform.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-10">

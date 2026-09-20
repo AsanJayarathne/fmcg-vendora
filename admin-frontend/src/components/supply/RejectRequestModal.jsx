@@ -6,9 +6,9 @@ const API_BASE = "http://localhost/fmcg-vendora/backend/api/admin";
 
 const RejectRequestModal = ({ request, onClose, onRejected }) => {
   const { auth } = useAuth();
-  const [remarks, setRemarks]       = useState("");
+  const [remarks, setRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError]           = useState("");
+  const [error, setError] = useState("");
 
   if (!request) return null;
   const reqCode = `REQ-${String(request.request_id).padStart(3, "0")}`;
@@ -52,7 +52,7 @@ const RejectRequestModal = ({ request, onClose, onRejected }) => {
               <span className="text-xs uppercase tracking-wider font-bold text-rose-600">Request Rejection</span>
               <h3 className="text-xl font-black text-slate-800 leading-tight mt-0.5">Reject Supply Request</h3>
               <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                {reqCode} — {request.distributor_name}
+                {reqCode} - {request.distributor_name}
               </p>
             </div>
           </div>

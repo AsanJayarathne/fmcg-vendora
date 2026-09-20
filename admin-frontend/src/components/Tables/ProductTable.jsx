@@ -7,11 +7,10 @@ const StatusBadge = ({ status }) => {
   const isActive = status === "Active";
   return (
     <span
-      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isActive
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isActive
           ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
           : "bg-rose-50 text-rose-700 border border-rose-200/50"
-      }`}
+        }`}
     >
       {status}
     </span>
@@ -50,7 +49,7 @@ export default function ProductTable({ products = [], loading = false, error = "
   const formatPrice = (val) =>
     val != null
       ? `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : "—";
+      : "-";
 
   return (
     <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] shadow-xs">
@@ -111,7 +110,7 @@ export default function ProductTable({ products = [], loading = false, error = "
                     </td>
 
                     <td className="px-6 py-4 font-semibold text-slate-500 text-xs">
-                      {p.unit || "—"}
+                      {p.unit || "-"}
                     </td>
 
                     <td className="px-6 py-4 text-right font-bold text-slate-900 text-sm">

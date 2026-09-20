@@ -10,26 +10,26 @@ import EditProductModal from "../components/EditProductModal";
 import { Package, Plus } from "lucide-react";
 
 const PRODUCTS_API = "http://localhost/fmcg-vendora/backend/api/admin/products.php";
-const STOCK_API    = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php";
+const STOCK_API = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php";
 
 const ProductsPage = () => {
   const { auth } = useAuth();
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editProduct, setEditProduct]   = useState(null);
-  const [refreshKey, setRefreshKey]     = useState(0);
+  const [editProduct, setEditProduct] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const [viewMode, setViewMode]             = useState("grid"); // "grid" or "table"
-  const [products, setProducts]             = useState([]);
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "table"
+  const [products, setProducts] = useState([]);
   const [warehouseStock, setWarehouseStock] = useState([]);
-  const [loading, setLoading]               = useState(true);
-  const [error, setError]                   = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedStatus, setSelectedStatus]     = useState("all");
-  const [sortBy, setSortBy]                     = useState("newest");
-  const [search, setSearch]                     = useState("");
-  const [currentPage, setCurrentPage]           = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const fetchCatalogData = useCallback(async () => {
@@ -42,7 +42,7 @@ const ProductsPage = () => {
         fetch(STOCK_API, { headers }),
       ]);
 
-      const prodJson  = await prodRes.json();
+      const prodJson = await prodRes.json();
       const stockJson = await stockRes.json();
 
       if (!prodJson.success) throw new Error(prodJson.message || "Failed to load products");
@@ -51,7 +51,7 @@ const ProductsPage = () => {
       setProducts(prodJson.data || []);
       setWarehouseStock(stockJson.data || []);
     } catch (err) {
-      setError(err.message || "Network error — could not reach the server");
+      setError(err.message || "Network error - could not reach the server");
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ const ProductsPage = () => {
     setRefreshKey((k) => k + 1);
   };
 
-  const totalProducts  = products.length;
+  const totalProducts = products.length;
   const activeListings = products.filter((p) => p.status === "Active").length;
   const lowStockAlerts = warehouseStock.filter((item) => item.quantity <= 50).length;
 
@@ -87,7 +87,7 @@ const ProductsPage = () => {
         code.toLowerCase().includes(search.toLowerCase());
 
       const matchesCategory = selectedCategory === "all" || p.category_name === selectedCategory;
-      const matchesStatus   = selectedStatus === "all" || p.status.toLowerCase() === selectedStatus.toLowerCase();
+      const matchesStatus = selectedStatus === "all" || p.status.toLowerCase() === selectedStatus.toLowerCase();
 
       return matchesSearch && matchesCategory && matchesStatus;
     });

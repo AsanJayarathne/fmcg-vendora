@@ -49,7 +49,7 @@ export default function Login() {
       login(json.data);
       navigate('/');
     } catch {
-      setError('Network error — make sure the backend is running.');
+      setError('Network error - make sure the backend is running.');
     } finally {
       setLoading(false);
     }
@@ -57,16 +57,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 relative overflow-hidden font-sans">
-      
+
       {/* Dynamic Background Decorative Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600 opacity-20 rounded-full blur-[120px] pointer-events-none animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-violet-600 opacity-15 rounded-full blur-[120px] pointer-events-none animate-pulse" />
 
       <div className="relative w-full max-w-md mx-4 z-10">
-        
+
         {/* Glassmorphic Card */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl px-10 py-12 transition-all duration-300 hover:border-white/20">
-          
+
           {/* Logo & Brand Header */}
           <div className="flex flex-col items-center mb-8">
             <div className="flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner mb-4 transition-transform hover:scale-105 duration-300">
@@ -94,7 +94,7 @@ export default function Login() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            
+
             {/* Email Field */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-blue-200/80 uppercase tracking-wider">Email Address</label>
@@ -122,7 +122,7 @@ export default function Login() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="block text-xs font-semibold text-blue-200/80 uppercase tracking-wider">Password</label>
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowForgotModal(true)}
                   className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"

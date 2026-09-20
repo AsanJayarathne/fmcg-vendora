@@ -1,4 +1,4 @@
-# FMCG Vendora — Online Debit Settlement Implementation Plan
+# FMCG Vendora - Online Debit Settlement Implementation Plan
 
 Comprehensive guide and technical architecture to implement an **Online Debt / Credit Settlement (Full Settlement Only)** feature for retailers across the **Vendora FMCG** system.
 

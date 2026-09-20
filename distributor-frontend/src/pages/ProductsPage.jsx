@@ -138,7 +138,7 @@ export default function ProductsPage() {
   return (
     <div className="min-w-0 overflow-x-hidden space-y-6">
 
-      {/* Page Header — styled like Retailer Products Page */}
+      {/* Page Header - styled like Retailer Products Page */}
       <h1 className="text-3xl font-bold flex items-center text-slate-800">
         <Package className="inline mr-3 text-blue-600 w-8 h-8" />
         Products
@@ -192,7 +192,7 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Category filter horizontal pills — styled like Retailer */}
+      {/* Category filter horizontal pills - styled like Retailer */}
       <CategoryFilter
         categories={categories}
         selectedCategory={selectedCategory}

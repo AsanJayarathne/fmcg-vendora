@@ -120,7 +120,7 @@ export default function OtpVerificationModal({
         if (onSuccess) onSuccess();
       }, 1500);
     } catch (err) {
-      setError(t("auth.networkError", "Network error — unable to reach verification server."));
+      setError(t("auth.networkError", "Network error - unable to reach verification server."));
       setLoading(false);
     }
   };
@@ -145,14 +145,14 @@ export default function OtpVerificationModal({
       }
       setResending(false);
     } catch (err) {
-      setError(t("auth.networkError", "Network error — unable to resend verification code."));
+      setError(t("auth.networkError", "Network error - unable to resend verification code."));
       setResending(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div 
+      <div
         className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative border border-slate-100 transform transition-all animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
@@ -207,11 +207,10 @@ export default function OtpVerificationModal({
                   value={digit}
                   onChange={(e) => handleChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e)}
-                  className={`w-12 h-14 text-center text-2xl font-bold rounded-2xl border outline-none transition-all ${
-                    digit
+                  className={`w-12 h-14 text-center text-2xl font-bold rounded-2xl border outline-none transition-all ${digit
                       ? "border-blue-600 bg-blue-50/50 text-blue-700 ring-2 ring-blue-100"
                       : "border-slate-200 bg-slate-50 focus:border-blue-500 focus:bg-white"
-                  }`}
+                    }`}
                 />
               ))}
             </div>

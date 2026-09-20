@@ -3,12 +3,12 @@ import { FiTag, FiTruck, FiBox, FiX, FiShoppingBag } from "react-icons/fi";
 import { useLanguage } from "../../context/LanguageContext";
 
 const CATEGORY_GRADIENTS = {
-  Dairy:      { from: "#fef3c7", to: "#fcd34d", icon: "🥛" },
-  Beverages:  { from: "#dbeafe", to: "#93c5fd", icon: "🧃" },
-  Snacks:     { from: "#fee2e2", to: "#fca5a5", icon: "🍿" },
-  Soap:       { from: "#f3e8ff", to: "#d8b4fe", icon: "🧼" },
-  Household:  { from: "#d1fae5", to: "#6ee7b7", icon: "🏠" },
-  Default:    { from: "#f1f5f9", to: "#cbd5e1", icon: "📦" },
+  Dairy: { from: "#fef3c7", to: "#fcd34d", icon: "🥛" },
+  Beverages: { from: "#dbeafe", to: "#93c5fd", icon: "🧃" },
+  Snacks: { from: "#fee2e2", to: "#fca5a5", icon: "🍿" },
+  Soap: { from: "#f3e8ff", to: "#d8b4fe", icon: "🧼" },
+  Household: { from: "#d1fae5", to: "#6ee7b7", icon: "🏠" },
+  Default: { from: "#f1f5f9", to: "#cbd5e1", icon: "📦" },
 };
 
 function ProductDetailsModal({ product, onClose, onAddToCart }) {
@@ -26,22 +26,22 @@ function ProductDetailsModal({ product, onClose, onAddToCart }) {
   if (!product) return null;
 
   // Map real API field names
-  const name        = product.product_name   ?? product.name;
-  const category    = product.category_name  ?? product.category ?? "Default";
-  const price       = product.unit_price     ?? product.base_price ?? product.price;
-  const stockQty    = product.available_qty  ?? product.stock_qty  ?? product.stock ?? 0;
-  const unit        = product.unit           ?? "";
-  const description = product.description    ?? t("products.defaultDescription", "High quality product selected from our verified FMCG distributors.");
+  const name = product.product_name ?? product.name;
+  const category = product.category_name ?? product.category ?? "Default";
+  const price = product.unit_price ?? product.base_price ?? product.price;
+  const stockQty = product.available_qty ?? product.stock_qty ?? product.stock ?? 0;
+  const unit = product.unit ?? "";
+  const description = product.description ?? t("products.defaultDescription", "High quality product selected from our verified FMCG distributors.");
 
-  const UPLOADS_BASE   = "http://localhost/fmcg-vendora/backend/uploads/products/";
-  const gradient       = CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Default;
-  const imageUrl       = product.image_url ? `${UPLOADS_BASE}${product.image_url}` : (product.image ?? null);
+  const UPLOADS_BASE = "http://localhost/fmcg-vendora/backend/uploads/products/";
+  const gradient = CATEGORY_GRADIENTS[category] ?? CATEGORY_GRADIENTS.Default;
+  const imageUrl = product.image_url ? `${UPLOADS_BASE}${product.image_url}` : (product.image ?? null);
   const usePlaceholder = !imageUrl || imageUrl.includes("placeholder");
-  
-  const isOutOfStock   = stockQty < 8;
-  const isLowStock     = stockQty >= 8 && stockQty < 48;
 
-  const fmt = (val) => 
+  const isOutOfStock = stockQty < 8;
+  const isLowStock = stockQty >= 8 && stockQty < 48;
+
+  const fmt = (val) =>
     Number(val).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -50,7 +50,7 @@ function ProductDetailsModal({ product, onClose, onAddToCart }) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4 overflow-y-auto">
       <div className="bg-white border border-slate-100 p-5 sm:p-7 rounded-3xl sm:rounded-[32px] w-full max-w-lg max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl relative flex flex-col justify-between animate-fadeIn">
-        
+
         {/* Close icon in top right */}
         <button
           onClick={onClose}
@@ -90,13 +90,12 @@ function ProductDetailsModal({ product, onClose, onAddToCart }) {
           {/* Heading */}
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full border ${
-                isOutOfStock 
-                  ? "text-red-600 bg-red-50 border-red-200" 
-                  : isLowStock 
-                    ? "text-amber-600 bg-amber-50 border-amber-200" 
+              <span className={`inline-flex px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-full border ${isOutOfStock
+                  ? "text-red-600 bg-red-50 border-red-200"
+                  : isLowStock
+                    ? "text-amber-600 bg-amber-50 border-amber-200"
                     : "text-green-600 bg-green-50 border-green-200"
-              }`}>
+                }`}>
                 {isOutOfStock ? `${t("products.outOfStock", "Out of Stock")} (Min 8)` : `${t("products.inStock", "In Stock")} (${stockQty} ${t("common.units", "units")})`}
               </span>
             </div>
@@ -124,7 +123,7 @@ function ProductDetailsModal({ product, onClose, onAddToCart }) {
                 <span className="text-[10px] font-black uppercase tracking-wider">{t("products.distributor", "Distributor")}</span>
               </div>
               <p className="font-bold text-xs sm:text-sm text-slate-800 truncate">
-                {product.distributor_name ?? "—"}
+                {product.distributor_name ?? "-"}
               </p>
             </div>
           </div>
@@ -167,7 +166,7 @@ function ProductDetailsModal({ product, onClose, onAddToCart }) {
           >
             {t("common.close", "Close")}
           </button>
-          
+
           {onAddToCart && (
             <button
               onClick={() => {

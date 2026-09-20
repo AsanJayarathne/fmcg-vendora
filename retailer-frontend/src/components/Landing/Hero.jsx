@@ -35,7 +35,7 @@ function Hero() {
             {/* Description */}
             <p className="mt-4 sm:mt-6 text-sm sm:text-lg lg:text-xl text-slate-600 leading-relaxed sm:leading-8 max-w-xl">
               Manage your stock, track orders, and access flexible
-              credit—all in one powerful platform built specifically
+              credit-all in one powerful platform built specifically
               for modern retailers.
             </p>
 

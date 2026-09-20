@@ -20,7 +20,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { fetchApprovedDrivers, assignDriver } from "../../services/deliveryApi";
 
 function fmt(dateStr) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const d = new Date(dateStr);
   return (
     d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) +
@@ -30,15 +30,15 @@ function fmt(dateStr) {
 }
 
 function fmtAmount(val) {
-  if (val === null || val === undefined) return "—";
+  if (val === null || val === undefined) return "-";
   return Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2 });
 }
 
 const STATUS_CONFIG = {
-  OPEN:      { label: "Open",      color: "bg-amber-50 text-amber-700 border border-amber-200/60"      },
-  CLAIMED:   { label: "Claimed",   color: "bg-sky-50 text-sky-700 border border-sky-200/60"          },
+  OPEN: { label: "Open", color: "bg-amber-50 text-amber-700 border border-amber-200/60" },
+  CLAIMED: { label: "Claimed", color: "bg-sky-50 text-sky-700 border border-sky-200/60" },
   DELIVERED: { label: "Delivered", color: "bg-emerald-50 text-emerald-700 border border-emerald-200/60" },
-  RETURNED:  { label: "Returned",  color: "bg-rose-50 text-rose-700 border border-rose-200/60"        },
+  RETURNED: { label: "Returned", color: "bg-rose-50 text-rose-700 border border-rose-200/60" },
 };
 
 function InfoRow({ icon, label, value, valueClass = "text-slate-800" }) {
@@ -47,7 +47,7 @@ function InfoRow({ icon, label, value, valueClass = "text-slate-800" }) {
       <div className="mt-0.5 text-blue-600 shrink-0">{icon}</div>
       <div className="flex-1 min-w-0">
         <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{label}</p>
-        <p className={`text-xs font-bold mt-0.5 break-words ${valueClass}`}>{value ?? "—"}</p>
+        <p className={`text-xs font-bold mt-0.5 break-words ${valueClass}`}>{value ?? "-"}</p>
       </div>
     </div>
   );
@@ -64,11 +64,11 @@ function SectionHeader({ icon, title }) {
 
 function AssignDriverPanel({ deliveryId, onAssigned, onCancel }) {
   const { auth } = useAuth();
-  const [drivers, setDrivers]   = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
-  const [saving, setSaving]     = useState(false);
-  const [error, setError]       = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchApprovedDrivers(auth?.token)
@@ -106,11 +106,10 @@ function AssignDriverPanel({ deliveryId, onAssigned, onCancel }) {
             <button
               key={d.driver_id}
               onClick={() => setSelected(d.driver_id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left transition cursor-pointer ${
-                selected === d.driver_id
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl border text-left transition cursor-pointer ${selected === d.driver_id
                   ? "border-blue-500 bg-blue-50 shadow-2xs"
                   : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/30"
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold shrink-0">
                 {(d.full_name || "?").split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()}
@@ -151,20 +150,20 @@ function AssignDriverPanel({ deliveryId, onAssigned, onCancel }) {
 
 export default function DeliveryDetailModal({ delivery, onClose, onRefresh }) {
   const [showAssign, setShowAssign] = useState(false);
-  const [activeTab, setActiveTab]   = useState("All Details");
+  const [activeTab, setActiveTab] = useState("All Details");
 
   if (!delivery) return null;
 
   const badge = STATUS_CONFIG[delivery.status] ?? { label: delivery.status, color: "bg-slate-100 text-slate-600 border border-slate-200" };
 
   const paymentColor =
-    delivery.payment_method === "Cash"        ? "text-green-600" :
-    delivery.payment_method === "Credit"      ? "text-purple-600" :
-    delivery.payment_method === "Cash_Credit" ? "text-indigo-600" : "text-slate-700";
+    delivery.payment_method === "Cash" ? "text-green-600" :
+      delivery.payment_method === "Credit" ? "text-purple-600" :
+        delivery.payment_method === "Cash_Credit" ? "text-indigo-600" : "text-slate-700";
 
-  const isOpen      = delivery.status === "OPEN";
+  const isOpen = delivery.status === "OPEN";
   const isDelivered = delivery.status === "DELIVERED";
-  const isReturned  = delivery.status === "RETURNED";
+  const isReturned = delivery.status === "RETURNED";
 
   const timelineSteps = [
     {
@@ -224,11 +223,10 @@ export default function DeliveryDetailModal({ delivery, onClose, onRefresh }) {
             <button
               key={t}
               onClick={() => setActiveTab(t)}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                activeTab === t
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition whitespace-nowrap cursor-pointer ${activeTab === t
                   ? "bg-blue-600 text-white shadow-2xs"
                   : "bg-white border border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300"
-              }`}
+                }`}
             >
               {t}
             </button>
@@ -248,16 +246,14 @@ export default function DeliveryDetailModal({ delivery, onClose, onRefresh }) {
                   const isErr = step.isReturned;
                   return (
                     <div key={step.name} className="relative flex flex-col items-center">
-                      <div className={`h-1.5 w-full rounded-full mb-2 transition-all ${
-                        isErr ? "bg-rose-500" : isComplete ? "bg-emerald-500" : "bg-slate-200"
-                      }`} />
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
-                        isErr
+                      <div className={`h-1.5 w-full rounded-full mb-2 transition-all ${isErr ? "bg-rose-500" : isComplete ? "bg-emerald-500" : "bg-slate-200"
+                        }`} />
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isErr
                           ? "bg-rose-500 text-white shadow-2xs"
                           : isComplete
                             ? "bg-emerald-500 text-white shadow-2xs"
                             : "bg-white border-2 border-slate-200 text-slate-400"
-                      }`}>
+                        }`}>
                         {isErr ? <RotateCcw size={11} /> : isComplete ? <Check size={12} /> : <Clock size={11} />}
                       </div>
                       <p className={`text-xs mt-1 font-bold ${isComplete ? "text-slate-800" : "text-slate-400"}`}>
@@ -274,7 +270,7 @@ export default function DeliveryDetailModal({ delivery, onClose, onRefresh }) {
           {/* Details Columns */}
           {(activeTab === "All Details" || activeTab === "Order & Retailer" || activeTab === "Driver Info") && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              
+
               {/* Order & Retailer */}
               {(activeTab === "All Details" || activeTab === "Order & Retailer") && (
                 <div className="space-y-3">
@@ -297,14 +293,14 @@ export default function DeliveryDetailModal({ delivery, onClose, onRefresh }) {
                       <InfoRow
                         icon={<DollarSign size={13} />}
                         label="Payment Method"
-                        value={delivery.payment_method ?? "—"}
+                        value={delivery.payment_method ?? "-"}
                         valueClass={`font-bold ${paymentColor}`}
                       />
                       {(isDelivered || isReturned) && (
                         <InfoRow
                           icon={<DollarSign size={13} />}
                           label="Collected Amount"
-                          value={delivery.collected_amount != null ? `LKR ${fmtAmount(delivery.collected_amount)}` : "—"}
+                          value={delivery.collected_amount != null ? `LKR ${fmtAmount(delivery.collected_amount)}` : "-"}
                           valueClass={isDelivered ? "font-bold text-green-600" : "font-bold text-slate-700"}
                         />
                       )}

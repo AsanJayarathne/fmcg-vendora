@@ -1,4 +1,4 @@
-# FMCG Vendora — Distributor Bank Settlement & Credit Ledger Implementation Plan
+# FMCG Vendora - Distributor Bank Settlement & Credit Ledger Implementation Plan
 
 Comprehensive technical specification and implementation architecture for **Distributor Manual Bank Settlement & Credit Ledger Reconciliation** across the **Vendora FMCG** platform.
 

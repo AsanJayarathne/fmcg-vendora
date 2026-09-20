@@ -1,8 +1,8 @@
 import { Eye, CheckCircle2 } from "lucide-react";
 
 const STATUS_CONFIG = {
-  Partially_Approved: { badge: "bg-sky-50 text-sky-700 border border-sky-200/60",          label: "Approved — Awaiting Receipt" },
-  Received:           { badge: "bg-emerald-50 text-emerald-700 border border-emerald-200/60", label: "Received ✓" },
+  Partially_Approved: { badge: "bg-sky-50 text-sky-700 border border-sky-200/60", label: "Approved - Awaiting Receipt" },
+  Received: { badge: "bg-emerald-50 text-emerald-700 border border-emerald-200/60", label: "Received ✓" },
 };
 
 export default function ReceivedStockTable({ receivedStocks = [], onViewRequest, onReceiveRequest }) {
@@ -35,9 +35,9 @@ export default function ReceivedStockTable({ receivedStocks = [], onViewRequest,
                 const code = `REQ-${String(stock.request_id).padStart(3, "0")}`;
                 const formattedDate = stock.request_date
                   ? new Date(stock.request_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
-                      day: "numeric", month: "short", year: "numeric",
-                    })
-                  : "—";
+                    day: "numeric", month: "short", year: "numeric",
+                  })
+                  : "-";
                 const cfg = STATUS_CONFIG[stock.status] || STATUS_CONFIG.Partially_Approved;
                 const isPendingReceipt = stock.status === "Partially_Approved";
 
@@ -47,7 +47,7 @@ export default function ReceivedStockTable({ receivedStocks = [], onViewRequest,
                     <td className="px-6 py-4 text-slate-600 font-medium">{formattedDate}</td>
                     <td className="px-6 py-4 text-center font-bold text-slate-800">{stock.item_count || 0}</td>
                     <td className="px-6 py-4 text-xs text-slate-400 font-medium max-w-xs truncate" title={stock.remarks}>
-                      {stock.remarks || "—"}
+                      {stock.remarks || "-"}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.badge}`}>

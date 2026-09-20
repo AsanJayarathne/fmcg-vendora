@@ -7,11 +7,10 @@ const StatusBadge = ({ status }) => {
   const isActive = status === "Active";
   return (
     <span
-      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isActive
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isActive
           ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
           : "bg-rose-50 text-rose-700 border border-rose-200/50"
-      }`}
+        }`}
     >
       {status}
     </span>
@@ -22,7 +21,7 @@ export default function ProductGrid({ products = [], loading = false, error = ""
   const formatPrice = (val) =>
     val != null
       ? `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : "—";
+      : "-";
 
   if (loading) {
     return (
@@ -86,9 +85,8 @@ export default function ProductGrid({ products = [], loading = false, error = ""
                     />
                   ) : null}
                   <div
-                    className={`w-full h-full flex flex-col items-center justify-center text-blue-600 bg-blue-50/50 rounded-xl ${
-                      p.image_url ? "hidden" : "flex"
-                    }`}
+                    className={`w-full h-full flex flex-col items-center justify-center text-blue-600 bg-blue-50/50 rounded-xl ${p.image_url ? "hidden" : "flex"
+                      }`}
                   >
                     <Package size={32} className="mb-1 opacity-80" />
                     <span className="text-xs font-black">{initials}</span>

@@ -4,7 +4,7 @@ import Pagination from "../Pagination";
 import BatchDrillDownPanel from "../warehouse/BatchDrillDownPanel";
 import { Search, RotateCcw, Plus, Layers, Edit2, X, Loader2 } from "lucide-react";
 
-const API     = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php";
+const API = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php";
 const UPLOADS = "http://localhost/fmcg-vendora/backend/uploads/products/";
 
 const ProductThumb = ({ imageUrl, name }) => {
@@ -39,16 +39,15 @@ const getStatus = (qty) => (qty <= 0 ? "Out Of Stock" : qty <= 50 ? "Low Stock" 
 
 const StatusBadge = ({ status }) => {
   const isGood = status === "In Stock";
-  const isLow  = status === "Low Stock";
+  const isLow = status === "Low Stock";
   return (
     <span
-      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isGood
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isGood
           ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
           : isLow
-          ? "bg-amber-50 text-amber-700 border border-amber-200/50"
-          : "bg-rose-50 text-rose-700 border border-rose-200/50"
-      }`}
+            ? "bg-amber-50 text-amber-700 border border-amber-200/50"
+            : "bg-rose-50 text-rose-700 border border-rose-200/50"
+        }`}
     >
       {status}
     </span>
@@ -57,23 +56,23 @@ const StatusBadge = ({ status }) => {
 
 export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
   const { auth } = useAuth();
-  const [items, setItems]     = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   // Filters
-  const [search, setSearch]             = useState("");
+  const [search, setSearch] = useState("");
   const [selectedCategory, setCategory] = useState("All Categories");
-  const [selectedStatus, setStatus]     = useState("All Statuses");
-  const [currentPage, setCurrentPage]   = useState(1);
+  const [selectedStatus, setStatus] = useState("All Statuses");
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Edit batch modal state
-  const [editingItem, setEditingItem]   = useState(null);
-  const [updateQty, setUpdateQty]       = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [updateQty, setUpdateQty] = useState("");
   const [updateExpiry, setUpdateExpiry] = useState("");
-  const [updating, setUpdating]         = useState(false);
-  const [updateError, setUpdateError]   = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState("");
 
   // Batch drill-down state
   const [drillProduct, setDrillProduct] = useState(null);
@@ -84,7 +83,7 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
     setLoading(true);
     setError("");
     try {
-      const res  = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
+      const res = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Failed to fetch stock");
       setItems(json.data || []);
@@ -105,16 +104,16 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
     items.forEach((b) => {
       if (!map[b.product_id]) {
         map[b.product_id] = {
-          product_id:           b.product_id,
-          product_name:         b.product_name,
-          category_name:        b.category_name,
-          unit:                 b.unit,
-          image_url:            b.image_url,
-          base_price:           b.base_price,
+          product_id: b.product_id,
+          product_name: b.product_name,
+          category_name: b.category_name,
+          unit: b.unit,
+          image_url: b.image_url,
+          base_price: b.base_price,
           mrp_max_retail_price: b.mrp_max_retail_price,
-          quantity:             0,
-          earliest_expiry:      null,
-          batches:              [],
+          quantity: 0,
+          earliest_expiry: null,
+          batches: [],
         };
       }
       if (b.status === "Active") map[b.product_id].quantity += parseInt(b.quantity || 0);
@@ -138,8 +137,8 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
       const matchSearch =
         item.product_name.toLowerCase().includes(search.toLowerCase()) ||
         code.toLowerCase().includes(search.toLowerCase());
-      const matchCat    = selectedCategory === "All Categories" || item.category_name === selectedCategory;
-      const status      = getStatus(item.quantity);
+      const matchCat = selectedCategory === "All Categories" || item.category_name === selectedCategory;
+      const status = getStatus(item.quantity);
       const matchStatus = selectedStatus === "All Statuses" || status === selectedStatus;
       return matchSearch && matchCat && matchStatus;
     });
@@ -203,7 +202,7 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
   const fmt = (val) =>
     val != null
       ? `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : "—";
+      : "-";
 
   return (
     <div className="space-y-4 font-sans">
@@ -322,7 +321,7 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
               ) : (
                 paginated.map((item) => {
                   const status = getStatus(item.quantity);
-                  const code   = `PRD-${String(item.product_id).padStart(3, "0")}`;
+                  const code = `PRD-${String(item.product_id).padStart(3, "0")}`;
                   return (
                     <tr key={item.product_id} className="hover:bg-slate-50/60 transition duration-150">
                       <td className="px-6 py-3.5">
@@ -360,7 +359,7 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
                         {item.earliest_expiry ? (
                           <span className="font-semibold text-slate-700">{item.earliest_expiry}</span>
                         ) : (
-                          "—"
+                          "-"
                         )}
                       </td>
 

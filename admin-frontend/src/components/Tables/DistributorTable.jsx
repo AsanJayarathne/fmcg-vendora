@@ -12,27 +12,26 @@ function getInitials(name = "") {
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const d = new Date(dateStr);
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 const StatusBadge = ({ status }) => {
   const isApproved = status === "Approved";
-  const isPending  = status === "Pending";
+  const isPending = status === "Pending";
   const isRejected = status === "Rejected";
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isApproved
-          ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
-          : isPending
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isApproved
+        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
+        : isPending
           ? "bg-amber-50 text-amber-700 border border-amber-200/50"
           : isRejected
-          ? "bg-rose-50 text-rose-700 border border-rose-200/50"
-          : "bg-slate-100 text-slate-600 border border-slate-200"
-      }`}
+            ? "bg-rose-50 text-rose-700 border border-rose-200/50"
+            : "bg-slate-100 text-slate-600 border border-slate-200"
+        }`}
     >
       {status}
     </span>
@@ -43,9 +42,9 @@ const StatusBadge = ({ status }) => {
 const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
   if (!d) return null;
 
-  const isPending  = d.status === "Pending";
+  const isPending = d.status === "Pending";
   const isApproved = d.status === "Approved";
-  const code       = `DST-${String(d.distributor_id).padStart(3, "0")}`;
+  const code = `DST-${String(d.distributor_id).padStart(3, "0")}`;
 
   return (
     <div
@@ -88,15 +87,15 @@ const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
             <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Full Name</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.full_name || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.full_name || "-"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Address</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5 truncate">{d.email || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5 truncate">{d.email || "-"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone Number</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.phone || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.phone || "-"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Applied Date</p>
@@ -113,15 +112,15 @@ const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
             <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Company Name</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_name || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_name || "-"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Assigned Region</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.region_name || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.region_name || "-"}</p>
               </div>
               <div className="col-span-2">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Address</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_address || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.company_address || "-"}</p>
               </div>
             </div>
           </div>
@@ -134,11 +133,11 @@ const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
             <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Business Reg. No.</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.reg_number || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.reg_number || "-"}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">License No.</p>
-                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.lic_number || "—"}</p>
+                <p className="text-sm font-bold text-slate-800 mt-0.5">{d.lic_number || "-"}</p>
               </div>
             </div>
 
@@ -231,9 +230,9 @@ const ReviewModal = ({ distributor: d, updating, onClose, onStatusUpdate }) => {
 
 export default function DistributorTable({ distributors = [], loading, updating, onStatusUpdate }) {
   const [selectedDistributor, setSelectedDistributor] = useState(null);
-  const [search, setSearch]             = useState("");
+  const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [currentPage, setCurrentPage]   = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   const filtered = React.useMemo(() => {
@@ -252,7 +251,7 @@ export default function DistributorTable({ distributors = [], loading, updating,
   }, [distributors, search, filterStatus]);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginated  = filtered.slice(startIndex, startIndex + itemsPerPage);
+  const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
 
   const filterTabs = ["All", "Pending", "Approved", "Rejected", "Blocked"];
 
@@ -269,11 +268,10 @@ export default function DistributorTable({ distributors = [], loading, updating,
                 setFilterStatus(tab);
                 setCurrentPage(1);
               }}
-              className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${
-                filterStatus === tab
-                  ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
-                  : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
-              }`}
+              className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${filterStatus === tab
+                ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
+                : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
+                }`}
             >
               {tab}
             </button>
@@ -347,7 +345,7 @@ export default function DistributorTable({ distributors = [], loading, updating,
 
                       <td className="px-6 py-4">
                         <p className="font-bold text-slate-700 text-xs">{d.email}</p>
-                        <p className="text-slate-400 font-semibold text-xs mt-0.5">{d.phone || "—"}</p>
+                        <p className="text-slate-400 font-semibold text-xs mt-0.5">{d.phone || "-"}</p>
                       </td>
 
                       <td className="px-6 py-4">

@@ -104,7 +104,7 @@ export default function Register() {
         navigate("/login");
       }, 4000);
     } catch (err) {
-      setError("Network error — make sure the backend is running.");
+      setError("Network error - make sure the backend is running.");
       setLoading(false);
     }
   };

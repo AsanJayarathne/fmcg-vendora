@@ -16,14 +16,14 @@ export default function DeliveryPage() {
   const { auth } = useAuth();
 
   const [allDeliveries, setAllDeliveries] = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Filters
-  const [activeTab, setActiveTab]         = useState("All");
-  const [search, setSearch]               = useState("");
-  const [statusFilter, setStatusFilter]   = useState("All");
-  const [currentPage, setCurrentPage]     = useState(1);
+  const [activeTab, setActiveTab] = useState("All");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modal
   const [selectedDelivery, setSelectedDelivery] = useState(null);
@@ -46,11 +46,11 @@ export default function DeliveryPage() {
   useEffect(() => { loadData(); }, [loadData]);
 
   // Metrics
-  const total          = allDeliveries.length;
-  const openCount      = allDeliveries.filter((d) => d.status === "OPEN").length;
-  const claimedCount   = allDeliveries.filter((d) => d.status === "CLAIMED").length;
+  const total = allDeliveries.length;
+  const openCount = allDeliveries.filter((d) => d.status === "OPEN").length;
+  const claimedCount = allDeliveries.filter((d) => d.status === "CLAIMED").length;
   const deliveredCount = allDeliveries.filter((d) => d.status === "DELIVERED").length;
-  const returnedCount  = allDeliveries.filter((d) => d.status === "RETURNED").length;
+  const returnedCount = allDeliveries.filter((d) => d.status === "RETURNED").length;
 
   // Filter logic
   const filtered = useMemo(() => {
@@ -73,8 +73,8 @@ export default function DeliveryPage() {
         (d) =>
           String(d.delivery_id).includes(q) ||
           String(d.order_id).includes(q) ||
-          (d.shop_name   ?? "").toLowerCase().includes(q) ||
-          (d.owner_name  ?? "").toLowerCase().includes(q) ||
+          (d.shop_name ?? "").toLowerCase().includes(q) ||
+          (d.owner_name ?? "").toLowerCase().includes(q) ||
           (d.driver_name ?? "").toLowerCase().includes(q)
       );
     }
@@ -103,7 +103,7 @@ export default function DeliveryPage() {
   return (
     <div className="min-w-0 overflow-x-hidden space-y-6 font-sans">
 
-      {/* Page Header — styled like Retailer */}
+      {/* Page Header - styled like Retailer */}
       <h1 className="text-3xl font-bold flex items-center text-slate-800">
         <Truck className="inline mr-3 text-blue-600 w-8 h-8" />
         Deliveries

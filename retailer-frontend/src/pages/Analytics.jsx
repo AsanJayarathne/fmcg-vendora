@@ -231,9 +231,9 @@ export default function Analytics() {
     return list.map((tx) => {
       const txDate = tx.created_at
         ? new Date(tx.created_at.replace(" ", "T")).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-          })
+          month: "short",
+          day: "numeric",
+        })
         : "";
       return {
         week: `TX-${tx.transaction_id}`,
@@ -310,40 +310,37 @@ export default function Analytics() {
       <div className="flex items-center gap-2 border-b border-slate-200 mb-6 pb-2">
         <button
           onClick={() => setActiveTab("all")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-            activeTab === "all"
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${activeTab === "all"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
-          }`}
+            }`}
         >
           <FiPieChart size={14} />
           <span>{t("analytics.allOverview", "All Overview")}</span>
         </button>
         <button
           onClick={() => setActiveTab("products")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-            activeTab === "products"
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${activeTab === "products"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
-          }`}
+            }`}
         >
           <FiTag size={14} />
           <span>{t("analytics.productPerformance", "Product Performance")}</span>
         </button>
         <button
           onClick={() => setActiveTab("financials")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
-            activeTab === "financials"
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${activeTab === "financials"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
-          }`}
+            }`}
         >
           <FiCreditCard size={14} />
           <span>{t("analytics.financialsCredit", "Financials & Credit")}</span>
         </button>
       </div>
 
-      {/* 6 Key Stat Cards Grid — Arranged in 2 Rows (3 cards per row) */}
+      {/* 6 Key Stat Cards Grid - Arranged in 2 Rows (3 cards per row) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
         <StatCard
           title={t("dashboard.spending", "Total Spending")}

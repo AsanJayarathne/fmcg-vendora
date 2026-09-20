@@ -68,7 +68,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
   const latestDebitTxn = transactions.find(
     (t) => (t.transaction_type || t.type)?.toLowerCase() === "debit"
   );
-  
+
   const debtStartDateStr =
     latestDebitTxn?.created_at ||
     currentAccount?.last_debit_date ||
@@ -80,7 +80,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
   const diffMs = now.getTime() - debtStartDate.getTime();
   const daysElapsed = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
   const daysRemaining = Math.max(0, CREDIT_TERM_DAYS - daysElapsed);
-  
+
   const dueDate = new Date(debtStartDate);
   dueDate.setDate(dueDate.getDate() + CREDIT_TERM_DAYS);
   const formattedDueDate = dueDate.toLocaleDateString("en-GB", {
@@ -141,7 +141,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
 
   return (
     <div className="h-full w-full rounded-3xl bg-white p-6 border border-slate-100 shadow-xs flex flex-col justify-between relative">
-      
+
       {/* Success Notification Banner */}
       {successToast && (
         <div className="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl p-3.5 text-xs font-bold flex items-center justify-between animate-in fade-in duration-200">
@@ -149,8 +149,8 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
             <FiCheckCircle className="text-emerald-600 shrink-0" size={16} />
             <span>{successToast}</span>
           </div>
-          <button 
-            onClick={() => setSuccessToast(null)} 
+          <button
+            onClick={() => setSuccessToast(null)}
             className="text-emerald-500 hover:text-emerald-800 font-black text-xs ml-2 cursor-pointer"
           >
             ✕
@@ -214,15 +214,14 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
 
           {/* 30-Day Settlement Countdown Timeline */}
           <div
-            className={`rounded-2xl border p-4 transition-all duration-300 ${
-              used > 0
+            className={`rounded-2xl border p-4 transition-all duration-300 ${used > 0
                 ? daysRemaining <= 3
                   ? "bg-rose-50/80 border-rose-200 text-rose-900"
                   : daysRemaining <= 10
-                  ? "bg-amber-50/80 border-amber-200 text-amber-900"
-                  : "bg-indigo-50/60 border-indigo-100 text-indigo-900"
+                    ? "bg-amber-50/80 border-amber-200 text-amber-900"
+                    : "bg-indigo-50/60 border-indigo-100 text-indigo-900"
                 : "bg-slate-50/80 border-slate-100 text-slate-700"
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
@@ -233,8 +232,8 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                       ? daysRemaining <= 3
                         ? "text-rose-600 animate-pulse"
                         : daysRemaining <= 10
-                        ? "text-amber-600"
-                        : "text-indigo-600"
+                          ? "text-amber-600"
+                          : "text-indigo-600"
                       : "text-slate-400"
                   }
                 />
@@ -243,15 +242,14 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                 </span>
               </div>
               <span
-                className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
-                  used > 0
+                className={`text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${used > 0
                     ? daysRemaining <= 3
                       ? "bg-rose-100 border-rose-300 text-rose-700"
                       : daysRemaining <= 10
-                      ? "bg-amber-100 border-amber-300 text-amber-800"
-                      : "bg-indigo-100 border-indigo-200 text-indigo-700"
+                        ? "bg-amber-100 border-amber-300 text-amber-800"
+                        : "bg-indigo-100 border-indigo-200 text-indigo-700"
                     : "bg-emerald-50 border-emerald-200 text-emerald-700"
-                }`}
+                  }`}
               >
                 {used > 0
                   ? daysRemaining === 0
@@ -266,7 +264,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-600">
                     {daysRemaining === 0
-                      ? t("credits.gracePeriodExpired", "Grace period expired — please settle debt")
+                      ? t("credits.gracePeriodExpired", "Grace period expired - please settle debt")
                       : `${t("credits.mustSettleWithin", "Must settle within")} ${daysRemaining} ${t("credits.days", "days")}`}
                   </span>
                   <span className="font-bold text-slate-700">{t("credits.due", "Due")}: {formattedDueDate}</span>
@@ -274,13 +272,12 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
                 {/* 30-Day Progress Bar */}
                 <div className="w-full bg-slate-200/60 rounded-full h-1.5 overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      daysRemaining <= 3
+                    className={`h-full rounded-full transition-all duration-500 ${daysRemaining <= 3
                         ? "bg-rose-600"
                         : daysRemaining <= 10
-                        ? "bg-amber-500"
-                        : "bg-indigo-600"
-                    }`}
+                          ? "bg-amber-500"
+                          : "bg-indigo-600"
+                      }`}
                     style={{
                       width: `${Math.min(100, Math.max(5, (daysElapsed / CREDIT_TERM_DAYS) * 100))}%`,
                     }}
@@ -362,7 +359,7 @@ export default function CreditOverview({ data = {}, onSelectDistributor, onRefre
           onClose={() => setGatewaySession(null)}
           onCancel={() => setGatewaySession(null)}
           onSuccess={handlePaymentSuccess}
-          onFailure={() => {}}
+          onFailure={() => { }}
         />
       )}
     </div>

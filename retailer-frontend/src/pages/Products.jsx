@@ -2,39 +2,39 @@ import { useContext, useState, useEffect, useMemo } from "react";
 import { FiShoppingBag } from "react-icons/fi";
 
 import { CartContext } from "../context/CartContextObject";
-import { useAuth }     from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { fetchProductsWithCategories } from "../services/productService";
 
 // Use exact folder casing: components/Products (capital P)
-import SearchBar           from "../components/Products/SearchBar";
-import CategoryFilter      from "../components/Products/CategoryFilter";
-import ProductGrid         from "../components/Products/ProductGrid";
-import TrendingProducts    from "../components/Products/TrendingProducts";
+import SearchBar from "../components/Products/SearchBar";
+import CategoryFilter from "../components/Products/CategoryFilter";
+import ProductGrid from "../components/Products/ProductGrid";
+import TrendingProducts from "../components/Products/TrendingProducts";
 import RecommendedProducts from "../components/Products/RecommendedProducts";
 import ProductDetailsModal from "../components/Products/ProductDetailsModal";
-import AddToCartModal      from "../components/Products/AddToCartModal";
+import AddToCartModal from "../components/Products/AddToCartModal";
 
 function Products() {
-  const { auth }      = useAuth();
+  const { auth } = useAuth();
   const { addToCart } = useContext(CartContext);
-  const { t }         = useLanguage();
+  const { t } = useLanguage();
 
   // ── Data state ────────────────────────────────────────────────
-  const [products,     setProducts]     = useState([]);
-  const [categories,   setCategories]   = useState([]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [distributors, setDistributors] = useState([]);
 
   // ── UI state ─────────────────────────────────────────────────
   const [selectedDistributorId, setSelectedDistributorId] = useState(""); // "" = All
-  const [searchTerm,            setSearchTerm]            = useState("");
-  const [selectedCategoryId,    setSelectedCategoryId]    = useState(null); // null = All
-  const [selectedProduct,       setSelectedProduct]       = useState(null);
-  const [cartProduct,           setCartProduct]           = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // null = All
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [cartProduct, setCartProduct] = useState(null);
 
   // ── Loading & error state ─────────────────────────────────────
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error, setError] = useState(null);
 
   // Token extracted to a stable variable so useEffect dep is a primitive
   const token = auth?.token ?? null;
@@ -130,7 +130,7 @@ function Products() {
         </div>
       )}
 
-      {/* Trending & Recommended — shown only on the unfiltered All view */}
+      {/* Trending & Recommended - shown only on the unfiltered All view */}
       {!selectedCategoryId && !searchTerm && !loading && products.length > 0 && (
         <>
           <TrendingProducts

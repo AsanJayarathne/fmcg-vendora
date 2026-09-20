@@ -131,11 +131,11 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
                   </td>
 
                   <td className="px-6 py-4 font-bold text-rose-600">
-                    {acct ? `LKR ${Number(acct.current_balance).toLocaleString()}.00` : "—"}
+                    {acct ? `LKR ${Number(acct.current_balance).toLocaleString()}.00` : "-"}
                   </td>
 
                   <td className="px-6 py-4 font-bold text-emerald-600">
-                    {acct ? `LKR ${Number(acct.available_credit).toLocaleString()}.00` : "—"}
+                    {acct ? `LKR ${Number(acct.available_credit).toLocaleString()}.00` : "-"}
                   </td>
 
                   <td className="px-6 py-4">

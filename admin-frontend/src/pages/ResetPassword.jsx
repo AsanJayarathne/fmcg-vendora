@@ -46,7 +46,7 @@ export default function ResetPassword() {
         }
       } catch (err) {
         setIsTokenValid(false);
-        setError("Network error — unable to verify reset token.");
+        setError("Network error - unable to verify reset token.");
       } finally {
         setVerifying(false);
       }
@@ -94,7 +94,7 @@ export default function ResetPassword() {
         navigate("/login");
       }, 2500);
     } catch (err) {
-      setError("Network error — unable to connect to authentication server.");
+      setError("Network error - unable to connect to authentication server.");
       setLoading(false);
     }
   };
@@ -106,7 +106,7 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 p-6 relative overflow-hidden font-sans">
       <div className="relative w-full max-w-lg z-10">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 sm:p-10 text-white">
-          
+
           {/* Header */}
           <div className="flex flex-col items-center mb-8">
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner mb-4">

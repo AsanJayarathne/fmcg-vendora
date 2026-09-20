@@ -4,15 +4,15 @@ import { fetchOrderById, approveOrder, rejectOrder, fetchDeliveries } from "../.
 import { useAuth } from "../../auth/AuthContext";
 
 const STATUS_MAP = {
-  Pending:    { label: "Pending",    color: "bg-amber-50 text-amber-700 border border-amber-200/60"   },
-  Processing: { label: "Processing", color: "bg-sky-50 text-sky-700 border border-sky-200/60"       },
-  Approved:   { label: "Approved",   color: "bg-blue-50 text-blue-700 border border-blue-200/60"     },
-  Delivered:  { label: "Delivered",  color: "bg-emerald-50 text-emerald-700 border border-emerald-200/60" },
-  Rejected:   { label: "Rejected",   color: "bg-rose-50 text-rose-700 border border-rose-200/60"     },
+  Pending: { label: "Pending", color: "bg-amber-50 text-amber-700 border border-amber-200/60" },
+  Processing: { label: "Processing", color: "bg-sky-50 text-sky-700 border border-sky-200/60" },
+  Approved: { label: "Approved", color: "bg-blue-50 text-blue-700 border border-blue-200/60" },
+  Delivered: { label: "Delivered", color: "bg-emerald-50 text-emerald-700 border border-emerald-200/60" },
+  Rejected: { label: "Rejected", color: "bg-rose-50 text-rose-700 border border-rose-200/60" },
 };
 
 function fmt(dateStr) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const d = new Date(dateStr);
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
     + " · " + d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -24,10 +24,10 @@ function fmtAmount(val) {
 
 export default function OrderDetailModal({ orderId, onClose, onActionDone }) {
   const { auth } = useAuth();
-  const [order, setOrder]     = useState(null);
+  const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actioning, setActioning] = useState(""); // "approve" | "reject" | ""
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!orderId) return;
@@ -74,7 +74,7 @@ export default function OrderDetailModal({ orderId, onClose, onActionDone }) {
   };
 
   const canApprove = order?.status === "Processing";
-  const canReject  = order?.status === "Processing";
+  const canReject = order?.status === "Processing";
   let badge = STATUS_MAP[order?.status] ?? { label: order?.status, color: "bg-slate-100 text-slate-600 border border-slate-200" };
   if (order?.status === "Rejected" && order?.isReturned) {
     badge = { label: "Returned", color: "bg-purple-50 text-purple-700 border border-purple-200/60" };
@@ -156,11 +156,10 @@ export default function OrderDetailModal({ orderId, onClose, onActionDone }) {
                       <CreditCard size={14} className="text-blue-600" />
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Payment Information</p>
                     </div>
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                      order.payment_method === "Cash" ? "bg-green-50 text-green-700 border border-green-200/50" :
-                      order.payment_method === "Credit" ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
-                      "bg-slate-100 text-slate-600 border border-slate-200"
-                    }`}>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${order.payment_method === "Cash" ? "bg-green-50 text-green-700 border border-green-200/50" :
+                        order.payment_method === "Credit" ? "bg-purple-50 text-purple-700 border border-purple-200/50" :
+                          "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}>
                       {order.payment_method ?? "N/A"}
                     </span>
                   </div>

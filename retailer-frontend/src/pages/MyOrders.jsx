@@ -56,8 +56,8 @@ function useEditCountdown(createdAt) {
 function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType, onExpired }) {
   const { t } = useLanguage();
   if (paymentMethod === "Online" || paymentType === "online") return null;
-  const isPending   = backendStatus === "Pending";
-  const remaining   = useEditCountdown(isPending ? createdAt : null);
+  const isPending = backendStatus === "Pending";
+  const remaining = useEditCountdown(isPending ? createdAt : null);
   const prevPending = useRef(isPending);
 
   useEffect(() => {
@@ -69,44 +69,40 @@ function EditWindowBanner({ createdAt, backendStatus, paymentMethod, paymentType
 
   if (!isPending || remaining <= 0) return null;
 
-  const mins     = Math.floor(remaining / 60);
-  const secs     = remaining % 60;
-  const pad      = (n) => String(n).padStart(2, "0");
+  const mins = Math.floor(remaining / 60);
+  const secs = remaining % 60;
+  const pad = (n) => String(n).padStart(2, "0");
   const isUrgent = remaining <= 60;
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-2xl px-4 py-3 mb-5 text-xs font-semibold border transition-all ${
-        isUrgent
+      className={`flex items-center gap-3 rounded-2xl px-4 py-3 mb-5 text-xs font-semibold border transition-all ${isUrgent
           ? "bg-red-50 border-red-200/80 text-red-700"
           : "bg-amber-50 border-amber-200/80 text-amber-800"
-      }`}
+        }`}
     >
       <span className="relative flex h-3 w-3 shrink-0">
         <span
-          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-            isUrgent ? "bg-red-400" : "bg-amber-400"
-          }`}
+          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isUrgent ? "bg-red-400" : "bg-amber-400"
+            }`}
         />
         <span
-          className={`relative inline-flex rounded-full h-3 w-3 ${
-            isUrgent ? "bg-red-500" : "bg-amber-500"
-          }`}
+          className={`relative inline-flex rounded-full h-3 w-3 ${isUrgent ? "bg-red-500" : "bg-amber-500"
+            }`}
         />
       </span>
 
       <span className="flex-1 font-medium">
         {isUrgent
           ? t("orders.cancelWindowClosingSoon", "⚡ 15-minute cancellation window closing soon!")
-          : t("orders.cancelWindowNotice", "⏱ Order is in 15-minute lock window — you can cancel or confirm immediately.")}
+          : t("orders.cancelWindowNotice", "⏱ Order is in 15-minute lock window - you can cancel or confirm immediately.")}
       </span>
 
       <span
-        className={`font-mono text-sm font-bold px-3 py-1 rounded-xl shadow-2xs ${
-          isUrgent
+        className={`font-mono text-sm font-bold px-3 py-1 rounded-xl shadow-2xs ${isUrgent
             ? "bg-red-100 text-red-700 border border-red-200"
             : "bg-amber-100 text-amber-800 border border-amber-200"
-        }`}
+          }`}
       >
         {pad(mins)}:{pad(secs)}
       </span>
@@ -296,11 +292,11 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
               <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-3">{t("orders.orderInformation", "Order Information")}</h3>
               <div className="space-y-2.5">
                 {[
-                  [t("orders.orderId", "Order ID"),    order.orderId],
+                  [t("orders.orderId", "Order ID"), order.orderId],
                   [t("orders.distributorName", "Distributor"), order.distributor],
-                  [t("orders.orderDate", "Order Date"),  formatDate(order.createdAt)],
-                  [t("orders.paymentType", "Payment"),     order.paymentLabel],
-                  [t("payment.orderType", "Order Type"),  order.orderType],
+                  [t("orders.orderDate", "Order Date"), formatDate(order.createdAt)],
+                  [t("orders.paymentType", "Payment"), order.paymentLabel],
+                  [t("payment.orderType", "Order Type"), order.orderType],
                 ].map(([label, val]) => (
                   <div key={label} className="flex justify-between gap-4 text-xs font-medium">
                     <span className="text-slate-400">{label}</span>
@@ -316,9 +312,8 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
               <div className="space-y-3">
                 {(order.statusHistory ?? []).map((step) => (
                   <div key={step.name} className="flex items-center gap-2.5">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                      step.completed ? "bg-emerald-500 text-white" : "border-2 border-slate-200 bg-white"
-                    }`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${step.completed ? "bg-emerald-500 text-white" : "border-2 border-slate-200 bg-white"
+                      }`}>
                       {step.completed && <FiCheck size={11} />}
                     </span>
                     <span className={`flex-1 text-xs font-semibold ${step.completed ? "text-slate-800" : "text-slate-400"}`}>
@@ -371,10 +366,10 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
               </div>
             );
 
-            const gridColsClass = 
+            const gridColsClass =
               boxes.length === 4 ? "grid-cols-2 md:grid-cols-4" :
-              boxes.length === 3 ? "grid-cols-3" :
-              "grid-cols-2";
+                boxes.length === 3 ? "grid-cols-3" :
+                  "grid-cols-2";
 
             return (
               <div className={`grid gap-3 text-center ${gridColsClass}`}>
@@ -459,10 +454,10 @@ function MyOrders() {
     { key: "Cancelled", label: t("orders.tabCancelled", "Cancelled") },
   ], [t]);
 
-  const [activeTab,    setActiveTab]    = useState("All Orders");
-  const [modalOrder,   setModalOrder]   = useState(null);
+  const [activeTab, setActiveTab] = useState("All Orders");
+  const [modalOrder, setModalOrder] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
-  const [cancelError,  setCancelError]  = useState(null);
+  const [cancelError, setCancelError] = useState(null);
 
   const [orderToConfirmLock, setOrderToConfirmLock] = useState(null);
   const [confirmingLockId, setConfirmingLockId] = useState(null);
@@ -486,10 +481,10 @@ function MyOrders() {
     }
   }
 
-  const filteredOrders  = useMemo(() => filterOrders(orders, activeTab), [orders, activeTab]);
-  const latestOrder     = orders[0];
-  const activeOrders    = orders.filter((o) => !["Delivered", "Cancelled"].includes(o.status));
-  const urgentOrders    = orders.filter((o) => o.orderType === "Urgent");
+  const filteredOrders = useMemo(() => filterOrders(orders, activeTab), [orders, activeTab]);
+  const latestOrder = orders[0];
+  const activeOrders = orders.filter((o) => !["Delivered", "Cancelled"].includes(o.status));
+  const urgentOrders = orders.filter((o) => o.orderType === "Urgent");
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
 
   // Pagination state
@@ -654,9 +649,8 @@ function MyOrders() {
                 return (
                   <div key={step.name} className="text-center">
                     <div className={`h-2 rounded-full mb-2.5 transition-all ${isComplete ? "bg-emerald-500" : "bg-slate-100"}`} />
-                    <div className={`w-7 h-7 mx-auto rounded-full flex items-center justify-center transition-all ${
-                      isComplete ? "bg-emerald-500 text-white shadow-2xs" : "bg-white border-2 border-slate-200"
-                    }`}>
+                    <div className={`w-7 h-7 mx-auto rounded-full flex items-center justify-center transition-all ${isComplete ? "bg-emerald-500 text-white shadow-2xs" : "bg-white border-2 border-slate-200"
+                      }`}>
                       {isComplete && <FiCheck size={14} />}
                     </div>
                     <p className={`text-xs mt-1.5 font-bold ${isComplete ? "text-slate-800" : "text-slate-400"}`}>
@@ -682,11 +676,10 @@ function MyOrders() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition cursor-pointer ${
-                      activeTab === tab.key
+                    className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition cursor-pointer ${activeTab === tab.key
                         ? "bg-white text-blue-600 shadow-2xs font-bold border border-slate-100"
                         : "text-slate-500 hover:text-slate-800"
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>

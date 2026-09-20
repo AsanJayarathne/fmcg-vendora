@@ -23,14 +23,14 @@ const ITEMS_PER_PAGE = 8;
 export default function OrdersPage() {
   const { auth } = useAuth();
 
-  const [allOrders, setAllOrders]       = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [returnedOrderIds, setReturnedOrderIds] = useState(new Set());
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState("");
-  const [activeTab, setActiveTab]       = useState("All Orders");
-  const [currentPage, setCurrentPage]   = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("All Orders");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [actioningId, setActioningId]   = useState(null);
+  const [actioningId, setActioningId] = useState(null);
 
   // Load all orders + deliveries together
   const loadData = useCallback(async () => {
@@ -62,20 +62,20 @@ export default function OrdersPage() {
   // Tab filtering
   const filteredOrders = useMemo(() => {
     switch (activeTab) {
-      case "All Orders":  return allOrders;
-      case "Pending":     return allOrders.filter((o) => o.status === "Pending");
-      case "Processing":  return allOrders.filter((o) => o.status === "Processing");
-      case "Approved":    return allOrders.filter((o) => o.status === "Approved");
-      case "Delivered":   return allOrders.filter((o) => o.status === "Delivered");
+      case "All Orders": return allOrders;
+      case "Pending": return allOrders.filter((o) => o.status === "Pending");
+      case "Processing": return allOrders.filter((o) => o.status === "Processing");
+      case "Approved": return allOrders.filter((o) => o.status === "Approved");
+      case "Delivered": return allOrders.filter((o) => o.status === "Delivered");
       // Returned = Rejected in orders table BUT has a RETURNED delivery record
-      case "Returned":    return allOrders.filter(
-                            (o) => o.status === "Rejected" && returnedOrderIds.has(Number(o.order_id))
-                          );
+      case "Returned": return allOrders.filter(
+        (o) => o.status === "Rejected" && returnedOrderIds.has(Number(o.order_id))
+      );
       // Rejected by distributor = Rejected in orders table but NOT from a returned delivery
-      case "Rejected":    return allOrders.filter(
-                            (o) => o.status === "Rejected" && !returnedOrderIds.has(Number(o.order_id))
-                          );
-      default:            return allOrders;
+      case "Rejected": return allOrders.filter(
+        (o) => o.status === "Rejected" && !returnedOrderIds.has(Number(o.order_id))
+      );
+      default: return allOrders;
     }
   }, [allOrders, activeTab, returnedOrderIds]);
 
@@ -111,8 +111,8 @@ export default function OrdersPage() {
   };
 
   // Metrics
-  const totalCount    = allOrders.length;
-  const pendingCount  = allOrders.filter((o) => o.status === "Pending").length;
+  const totalCount = allOrders.length;
+  const pendingCount = allOrders.filter((o) => o.status === "Pending").length;
   const approvedCount = allOrders.filter((o) => o.status === "Approved").length;
   const returnedCount = allOrders.filter(
     (o) => o.status === "Rejected" && returnedOrderIds.has(Number(o.order_id))
@@ -124,7 +124,7 @@ export default function OrdersPage() {
   return (
     <div className="min-w-0 overflow-x-hidden space-y-6 font-sans">
 
-      {/* Page Header — styled like Retailer */}
+      {/* Page Header - styled like Retailer */}
       <h1 className="text-3xl font-bold flex items-center text-slate-800">
         <ClipboardList className="inline mr-3 text-blue-600 w-8 h-8" />
         Orders

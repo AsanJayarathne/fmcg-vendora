@@ -83,16 +83,16 @@ export default function PaymentsPage() {
         retailer: o.shop_name || "Unknown Retailer",
         orderDate: o.created_at
           ? new Date(o.created_at).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })
-          : "—",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+          : "-",
         orderTime: o.created_at
           ? new Date(o.created_at).toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
+            hour: "2-digit",
+            minute: "2-digit",
+          })
           : "",
         totalAmount: parseFloat(o.total_amount || 0).toFixed(2),
         paid: parseFloat(o.cash_amount || 0).toFixed(2),
@@ -113,8 +113,8 @@ export default function PaymentsPage() {
         rawRetailerId: c.retailer_id,
         retailerId: `RET-${String(c.retailer_id).padStart(3, "0")}`,
         retailer: c.shop_name || "Unknown Retailer",
-        ownerName: c.owner_name || "—",
-        phone: c.phone || "—",
+        ownerName: c.owner_name || "-",
+        phone: c.phone || "-",
         creditLimit: parseFloat(c.credit_limit || 0).toFixed(2),
         outstanding: parseFloat(c.current_balance || 0).toFixed(2),
         availableCredit: parseFloat(c.available_credit || 0).toFixed(2),
@@ -144,10 +144,10 @@ export default function PaymentsPage() {
 
   // Summary metrics
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
-  const totalRevenue    = deliveredOrders.reduce((s, o) => s + parseFloat(o.cash_amount || 0), 0);
+  const totalRevenue = deliveredOrders.reduce((s, o) => s + parseFloat(o.cash_amount || 0), 0);
   const totalOutstanding = credits.reduce((s, c) => s + parseFloat(c.current_balance || 0), 0);
   const creditAccountsCount = credits.length;
-  const totalTransactions   = deliveredOrders.length;
+  const totalTransactions = deliveredOrders.length;
 
   const fmtLKR = (val) =>
     `LKR ${Number(val).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -155,11 +155,11 @@ export default function PaymentsPage() {
   // Fields for selected credit account modal
   const accountFields = selectedAccount
     ? [
-        { icon: <DollarSign size={14} />, label: "Credit Limit", value: `LKR ${Number(selectedAccount.creditLimit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
-        { icon: <DollarSign size={14} />, label: "Outstanding Balance", value: `LKR ${Number(selectedAccount.outstanding).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
-        { icon: <DollarSign size={14} />, label: "Available Credit", value: `LKR ${Number(selectedAccount.availableCredit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
-        { icon: <Phone size={14} />, label: "Contact Phone", value: selectedAccount.phone },
-      ]
+      { icon: <DollarSign size={14} />, label: "Credit Limit", value: `LKR ${Number(selectedAccount.creditLimit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+      { icon: <DollarSign size={14} />, label: "Outstanding Balance", value: `LKR ${Number(selectedAccount.outstanding).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+      { icon: <DollarSign size={14} />, label: "Available Credit", value: `LKR ${Number(selectedAccount.availableCredit).toLocaleString("en-LK", { minimumFractionDigits: 2 })}` },
+      { icon: <Phone size={14} />, label: "Contact Phone", value: selectedAccount.phone },
+    ]
     : [];
 
   return (
@@ -282,7 +282,7 @@ export default function PaymentsPage() {
           status={selectedAccount.status}
           fields={accountFields}
           onClose={() => setSelectedAccount(null)}
-          onAction={() => {}}
+          onAction={() => { }}
         />
       )}
     </div>

@@ -14,22 +14,22 @@ const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function fmtLKR(val) {
   if (val >= 1_000_000) return `LKR ${(val / 1_000_000).toFixed(1)}M`;
-  if (val >= 1_000)     return `LKR ${(val / 1_000).toFixed(1)}K`;
+  if (val >= 1_000) return `LKR ${(val / 1_000).toFixed(1)}K`;
   return `LKR ${Number(val).toLocaleString("en-LK")}`;
 }
 function fmtDate(str) {
-  if (!str) return "—";
+  if (!str) return "-";
   return new Date(str).toLocaleDateString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const styles = {
-    Pending:    "bg-amber-50 text-amber-700 border border-amber-200/60",
+    Pending: "bg-amber-50 text-amber-700 border border-amber-200/60",
     Processing: "bg-sky-50 text-sky-700 border border-sky-200/60",
-    Approved:   "bg-blue-50 text-blue-700 border border-blue-200/60",
-    Delivered:  "bg-emerald-50 text-emerald-700 border border-emerald-200/60",
-    Rejected:   "bg-red-50 text-red-700 border border-red-200/60",
+    Approved: "bg-blue-50 text-blue-700 border border-blue-200/60",
+    Delivered: "bg-emerald-50 text-emerald-700 border border-emerald-200/60",
+    Rejected: "bg-red-50 text-red-700 border border-red-200/60",
   };
   return (
     <span className={`inline-block px-3 py-1 text-[11px] font-semibold rounded-full ${styles[status] ?? "bg-slate-100 text-slate-600 border border-slate-200"}`}>
@@ -41,9 +41,9 @@ function StatusBadge({ status }) {
 // ─── SVG Area Chart ───────────────────────────────────────────────────────────
 function AreaChart({ data, color = "#3b82f6", gradientId = "areaGrad" }) {
   const W = 540, H = 160, PAD = 12;
-  const vals  = data.map((d) => d.value);
-  const max   = Math.max(...vals, 1);
-  const min   = 0;
+  const vals = data.map((d) => d.value);
+  const max = Math.max(...vals, 1);
+  const min = 0;
   const range = max - min || 1;
   const xStep = (W - PAD * 2) / (data.length - 1 || 1);
 
@@ -52,8 +52,8 @@ function AreaChart({ data, color = "#3b82f6", gradientId = "areaGrad" }) {
     y: PAD + ((max - d.value) / range) * (H - PAD * 2),
   }));
 
-  const linePath  = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const areaPath  = `${linePath} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`;
+  const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const areaPath = `${linePath} L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" preserveAspectRatio="none">
@@ -75,11 +75,11 @@ function AreaChart({ data, color = "#3b82f6", gradientId = "areaGrad" }) {
 // ─── Mini Sparkline ───────────────────────────────────────────────────────────
 function Sparkline({ data, color = "#3b82f6" }) {
   const W = 80, H = 32;
-  const vals  = data.map((d) => d.value);
-  const max   = Math.max(...vals, 1);
+  const vals = data.map((d) => d.value);
+  const max = Math.max(...vals, 1);
   const xStep = W / (data.length - 1 || 1);
-  const pts   = vals.map((v, i) => ({ x: i * xStep, y: H - (v / max) * H * 0.85 }));
-  const path  = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const pts = vals.map((v, i) => ({ x: i * xStep, y: H - (v / max) * H * 0.85 }));
+  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-16 h-8">
       <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
@@ -118,15 +118,15 @@ function DashMetricCard({ title, value, subtitle, icon, iconBg, sparkData, spark
 
 export default function Dashboard() {
   const { auth } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
-  const [orders,     setOrders]     = useState([]);
+  const [orders, setOrders] = useState([]);
   const [stockItems, setStockItems] = useState([]);
-  const [retailers,  setRetailers]  = useState([]);
-  const [drivers,    setDrivers]    = useState([]);
-  const [profile,    setProfile]    = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState("");
+  const [retailers, setRetailers] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const load = async () => {
     if (!auth?.token) return;
@@ -134,9 +134,9 @@ export default function Dashboard() {
     try {
       const [ordersData, stockRes, retailersRes, driversRes, profileData] = await Promise.all([
         fetchOrders(auth.token),
-        fetch(`${API_BASE}/distributor/stock.php`,     { headers: { Authorization: `Bearer ${auth.token}` } }).then(r => r.json()),
+        fetch(`${API_BASE}/distributor/stock.php`, { headers: { Authorization: `Bearer ${auth.token}` } }).then(r => r.json()),
         fetch(`${API_BASE}/distributor/retailers.php`, { headers: { Authorization: `Bearer ${auth.token}` } }).then(r => r.json()),
-        fetch(`${API_BASE}/distributor/drivers.php`,   { headers: { Authorization: `Bearer ${auth.token}` } }).then(r => r.json()),
+        fetch(`${API_BASE}/distributor/drivers.php`, { headers: { Authorization: `Bearer ${auth.token}` } }).then(r => r.json()),
         fetchProfile(auth.token).catch(() => null),
       ]);
       setOrders(ordersData ?? []);
@@ -167,12 +167,12 @@ export default function Dashboard() {
     aggregatedStock.filter(i => i.quantity <= 20 && i.quantity > 0), [aggregatedStock]);
 
   // ── Metrics ──
-  const totalOrders    = orders.length;
-  const pendingCount   = orders.filter(o => o.status === "Pending" || o.status === "Processing").length;
+  const totalOrders = orders.length;
+  const pendingCount = orders.filter(o => o.status === "Pending" || o.status === "Processing").length;
   const deliveredCount = orders.filter(o => o.status === "Delivered").length;
-  const lowStockCount  = lowStockItems.length;
-  const approvedShops  = retailers.filter(r => r.status === "Approved").length;
-  const activeDrivers  = drivers.filter(d => d.status === "Approved").length;
+  const lowStockCount = lowStockItems.length;
+  const approvedShops = retailers.filter(r => r.status === "Approved").length;
+  const activeDrivers = drivers.filter(d => d.status === "Approved").length;
 
   const totalRevenue = orders
     .filter(o => o.status === "Delivered")
@@ -184,7 +184,7 @@ export default function Dashboard() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const label = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-      const key   = d.toISOString().split("T")[0];
+      const key = d.toISOString().split("T")[0];
       grouped[key] = { label, value: 0 };
     }
     orders.forEach(o => {
@@ -199,19 +199,19 @@ export default function Dashboard() {
   // ── Order status distribution ──
   const orderStatusDist = useMemo(() => {
     const counts = {
-      Delivered:  orders.filter(o => o.status === "Delivered").length,
-      Approved:   orders.filter(o => o.status === "Approved").length,
+      Delivered: orders.filter(o => o.status === "Delivered").length,
+      Approved: orders.filter(o => o.status === "Approved").length,
       Processing: orders.filter(o => o.status === "Processing").length,
-      Pending:    orders.filter(o => o.status === "Pending").length,
-      Rejected:   orders.filter(o => o.status === "Rejected").length,
+      Pending: orders.filter(o => o.status === "Pending").length,
+      Rejected: orders.filter(o => o.status === "Rejected").length,
     };
     const total = orders.length || 1;
     return [
-      { label: "Delivered",  count: counts.Delivered,  pct: Math.round(counts.Delivered  / total * 100), color: "bg-emerald-500" },
-      { label: "Approved",   count: counts.Approved,   pct: Math.round(counts.Approved   / total * 100), color: "bg-blue-500"    },
-      { label: "Processing", count: counts.Processing, pct: Math.round(counts.Processing / total * 100), color: "bg-indigo-400"  },
-      { label: "Pending",    count: counts.Pending,    pct: Math.round(counts.Pending    / total * 100), color: "bg-amber-400"   },
-      { label: "Rejected",   count: counts.Rejected,   pct: Math.round(counts.Rejected   / total * 100), color: "bg-red-400"    },
+      { label: "Delivered", count: counts.Delivered, pct: Math.round(counts.Delivered / total * 100), color: "bg-emerald-500" },
+      { label: "Approved", count: counts.Approved, pct: Math.round(counts.Approved / total * 100), color: "bg-blue-500" },
+      { label: "Processing", count: counts.Processing, pct: Math.round(counts.Processing / total * 100), color: "bg-indigo-400" },
+      { label: "Pending", count: counts.Pending, pct: Math.round(counts.Pending / total * 100), color: "bg-amber-400" },
+      { label: "Rejected", count: counts.Rejected, pct: Math.round(counts.Rejected / total * 100), color: "bg-red-400" },
     ].filter(s => s.count > 0);
   }, [orders]);
 
@@ -222,8 +222,8 @@ export default function Dashboard() {
     orders.forEach(o => {
       if (o.status === "Delivered" || o.status === "Approved") {
         const addr = (o.shop_address || "").toLowerCase();
-        const val  = parseFloat(o.total_amount || 0);
-        let found  = false;
+        const val = parseFloat(o.total_amount || 0);
+        let found = false;
         for (const t of Object.keys(zones)) {
           if (t !== "Other" && addr.includes(t.toLowerCase())) { zones[t] += val; found = true; break; }
         }
@@ -250,10 +250,10 @@ export default function Dashboard() {
 
   // ── Quick actions ──
   const quickActions = [
-    { label: "Manage Orders",   icon: ShoppingCart, path: "/orders",       color: "bg-blue-50 text-blue-600 hover:bg-blue-100"     },
-    { label: "Manage Delivery", icon: Truck,        path: "/delivery",     color: "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"},
-    { label: "Request Stock",   icon: Package,      path: "/request-stock",color: "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"},
-    { label: "Shops & Drivers", icon: Store,        path: "/shops",        color: "bg-purple-50 text-purple-600 hover:bg-purple-100"},
+    { label: "Manage Orders", icon: ShoppingCart, path: "/orders", color: "bg-blue-50 text-blue-600 hover:bg-blue-100" },
+    { label: "Manage Delivery", icon: Truck, path: "/delivery", color: "bg-indigo-50 text-indigo-600 hover:bg-indigo-100" },
+    { label: "Request Stock", icon: Package, path: "/request-stock", color: "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" },
+    { label: "Shops & Drivers", icon: Store, path: "/shops", color: "bg-purple-50 text-purple-600 hover:bg-purple-100" },
   ];
 
   // ─── Loading ────────────────────────────────────────────────────────────────
@@ -348,9 +348,9 @@ export default function Dashboard() {
 
           <div className="mt-5 grid grid-cols-3 gap-3">
             {[
-              { label: "Shops",   val: approvedShops, icon: Store },
-              { label: "Drivers", val: activeDrivers, icon: Truck  },
-              { label: "SKUs",    val: aggregatedStock.length, icon: Package },
+              { label: "Shops", val: approvedShops, icon: Store },
+              { label: "Drivers", val: activeDrivers, icon: Truck },
+              { label: "SKUs", val: aggregatedStock.length, icon: Package },
             ].map(({ label, val, icon: Icon }) => (
               <div key={label} className="bg-white/10 rounded-2xl px-4 py-3">
                 <Icon size={16} className="text-blue-200 mb-1" />
@@ -402,7 +402,7 @@ export default function Dashboard() {
               {[...Array(4)].map((_, i) => {
                 const max = Math.max(...salesData.map(d => d.value), 1);
                 const val = max - (max / 3) * i;
-                return <span key={i}>{val >= 1000 ? `${(val/1000).toFixed(0)}K` : Math.round(val)}</span>;
+                return <span key={i}>{val >= 1000 ? `${(val / 1000).toFixed(0)}K` : Math.round(val)}</span>;
               })}
             </div>
             <div className="flex-1">
@@ -516,7 +516,7 @@ export default function Dashboard() {
                       <ShoppingCart size={13} className="text-blue-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-gray-800 truncate">{o.shop_name || "—"}</p>
+                      <p className="text-xs font-bold text-gray-800 truncate">{o.shop_name || "-"}</p>
                       <p className="text-[10px] text-gray-400">#{o.order_id} · {fmtDate(o.created_at)}</p>
                     </div>
                   </div>
@@ -559,9 +559,8 @@ export default function Dashboard() {
                         <p className="text-xs font-bold text-gray-800 truncate">{p.product_name}</p>
                         <p className="text-[10px] text-gray-400">{p.category_name}</p>
                       </div>
-                      <span className={`shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full ${
-                        p.quantity <= 5 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
-                      }`}>
+                      <span className={`shrink-0 text-[10px] font-black px-2 py-0.5 rounded-full ${p.quantity <= 5 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"
+                        }`}>
                         {p.quantity} {p.unit || "units"}
                       </span>
                     </div>

@@ -1,4 +1,4 @@
-# Vendora Backend — Developer Index
+# Vendora Backend - Developer Index
 
 > **Stack:** PHP 8 (OOP, no framework) · MySQL · XAMPP  
 > **Pattern:** `util → repository → service → controller → api`  
@@ -32,7 +32,7 @@ Authorization: Bearer <token>
 ```
 backend/
 ├── util/                          # Shared helpers (no business logic)
-│   ├── Database.php               # PDO singleton — one connection per request
+│   ├── Database.php               # PDO singleton - one connection per request
 │   ├── cors.php                   # CORS headers for React frontends
 │   └── auth.php                   # requireAuth(), requireRole(), sendSuccess(), sendError(), getBody()
 │
@@ -94,8 +94,8 @@ backend/
 │   ├── retailer/
 │   │   ├── products.php           # ?category_id=X
 │   │   ├── orders.php             # GET POST PUT DELETE ?id=X
-│   │   ├── credit.php             # GET — view own credit + transactions
-│   │   └── deliveries.php         # GET — track deliveries
+│   │   ├── credit.php             # GET - view own credit + transactions
+│   │   └── deliveries.php         # GET - track deliveries
 │   ├── driver/
 │   │   └── deliveries.php         # ?type=open|mine  PUT ?id=X&action=claim|deliver|return
 │   └── notifications.php          # GET ?unread  PUT ?id=X (or all)
@@ -156,7 +156,7 @@ Every protected request:
 | Method | URL | Body | Returns |
 |---|---|---|---|
 | `POST` | `/api/auth/login.php` | `{email, password}` | token + profile |
-| `DELETE` | `/api/auth/logout.php` | — | success |
+| `DELETE` | `/api/auth/logout.php` | - | success |
 
 ---
 
@@ -164,7 +164,7 @@ Every protected request:
 
 | Method | URL | Params / Body | Action |
 |---|---|---|---|
-| `GET` | `/api/admin/products.php` | — | All products with current pricing |
+| `GET` | `/api/admin/products.php` | - | All products with current pricing |
 | `GET` | `/api/admin/products.php` | `?id=X` | Single product |
 | `POST` | `/api/admin/products.php` | `{product_name, category_id, unit, base_price, mrp}` | Create product |
 | `PUT` | `/api/admin/products.php` | `?id=X&action=toggle` | Activate/Deactivate |
@@ -172,14 +172,14 @@ Every protected request:
 | `POST` | `/api/admin/products.php` | `?action=categories` + body | Create category |
 | `PUT` | `/api/admin/products.php` | `?action=categories&id=X` + body | Update category |
 | `POST` | `/api/admin/products.php` | `?action=pricing` + `{product_id, base_price, mrp}` | Set new price (versioned) |
-| `GET` | `/api/admin/warehouse-stock.php` | — | All warehouse stock |
+| `GET` | `/api/admin/warehouse-stock.php` | - | All warehouse stock |
 | `PUT` | `/api/admin/warehouse-stock.php` | `{product_id, quantity}` | Adjust warehouse qty |
-| `GET` | `/api/admin/supply-requests.php` | — | All supply requests |
+| `GET` | `/api/admin/supply-requests.php` | - | All supply requests |
 | `GET` | `/api/admin/supply-requests.php` | `?id=X` | Request + items |
 | `GET` | `/api/admin/supply-requests.php` | `?status=Pending` | Filter by status |
 | `PUT` | `/api/admin/supply-requests.php` | `?id=X&action=approve` + `{approvals:[{request_item_id, approved_qty}]}` | **Atomic stock deduction** |
 | `PUT` | `/api/admin/supply-requests.php` | `?id=X&action=reject` + `{remarks}` | Reject request |
-| `GET` | `/api/admin/distributors.php` | — | All distributors |
+| `GET` | `/api/admin/distributors.php` | - | All distributors |
 | `PUT` | `/api/admin/distributors.php` | `?id=X` + `{status: Approved|Rejected|Blocked}` | Update distributor status |
 
 ---
@@ -189,25 +189,25 @@ Every protected request:
 
 | Method | URL | Params / Body | Action |
 |---|---|---|---|
-| `GET` | `/api/distributor/retailers.php` | — | All retailers in region |
+| `GET` | `/api/distributor/retailers.php` | - | All retailers in region |
 | `GET` | `/api/distributor/retailers.php` | `?status=Pending` | Filter |
 | `PUT` | `/api/distributor/retailers.php` | `?id=X` + `{status}` | Approve/Reject/Block retailer |
-| `GET` | `/api/distributor/orders.php` | — | All orders |
+| `GET` | `/api/distributor/orders.php` | - | All orders |
 | `GET` | `/api/distributor/orders.php` | `?id=X` | Order + items |
 | `GET` | `/api/distributor/orders.php` | `?status=Processing` | Filter by status |
 | `PUT` | `/api/distributor/orders.php` | `?id=X&action=approve` | Approve → creates delivery |
 | `PUT` | `/api/distributor/orders.php` | `?id=X&action=reject` | Reject order |
-| `GET` | `/api/distributor/stock.php` | — | Own stock |
+| `GET` | `/api/distributor/stock.php` | - | Own stock |
 | `GET` | `/api/distributor/stock.php` | `?low_stock` | Items below threshold (qty < 50) |
-| `GET` | `/api/distributor/deliveries.php` | — | All deliveries |
+| `GET` | `/api/distributor/deliveries.php` | - | All deliveries |
 | `GET` | `/api/distributor/deliveries.php` | `?type=open` | Open pool (unclaimed) |
-| `GET` | `/api/distributor/credit.php` | — | All retailer credit accounts |
+| `GET` | `/api/distributor/credit.php` | - | All retailer credit accounts |
 | `GET` | `/api/distributor/credit.php` | `?retailer_id=X` | Credit + transaction ledger |
 | `POST` | `/api/distributor/credit.php` | `{retailer_id, credit_limit}` | Create credit account |
 | `PUT` | `/api/distributor/credit.php` | `?id=X` + `{credit_limit}` | Update limit |
 | `PUT` | `/api/distributor/credit.php` | `?id=X&action=block` | Block account |
 | `PUT` | `/api/distributor/credit.php` | `?id=X&action=unblock` | Unblock account |
-| `GET` | `/api/distributor/supply-requests.php` | — | Own supply requests |
+| `GET` | `/api/distributor/supply-requests.php` | - | Own supply requests |
 | `POST` | `/api/distributor/supply-requests.php` | `{items:[{product_id, quantity}], remarks}` | Submit request |
 
 ---
@@ -217,15 +217,15 @@ Every protected request:
 
 | Method | URL | Params / Body | Action |
 |---|---|---|---|
-| `GET` | `/api/retailer/products.php` | — | Catalog (only distributor's stock > 0) |
+| `GET` | `/api/retailer/products.php` | - | Catalog (only distributor's stock > 0) |
 | `GET` | `/api/retailer/products.php` | `?category_id=X` | Filter by category |
-| `GET` | `/api/retailer/orders.php` | — | Order history |
+| `GET` | `/api/retailer/orders.php` | - | Order history |
 | `GET` | `/api/retailer/orders.php` | `?id=X` | Order + items + editable flag |
 | `POST` | `/api/retailer/orders.php` | `{payment_method, items:[{product_id,quantity}]}` | Place order (credit gate runs) |
 | `PUT` | `/api/retailer/orders.php` | `?id=X` + `{items}` | Modify order (within lock window) |
 | `DELETE` | `/api/retailer/orders.php` | `?id=X` | Cancel order (within lock window) |
-| `GET` | `/api/retailer/credit.php` | — | Credit balance + transaction history |
-| `GET` | `/api/retailer/deliveries.php` | — | Track deliveries for own orders |
+| `GET` | `/api/retailer/credit.php` | - | Credit balance + transaction history |
+| `GET` | `/api/retailer/deliveries.php` | - | Track deliveries for own orders |
 
 ---
 
@@ -236,7 +236,7 @@ Every protected request:
 |---|---|---|---|
 | `GET` | `/api/driver/deliveries.php` | `?type=open` | Open pool in own distributor's region |
 | `GET` | `/api/driver/deliveries.php` | `?type=mine` | Own claimed deliveries |
-| `PUT` | `/api/driver/deliveries.php` | `?id=X&action=claim` | Claim delivery (atomic — no race condition) |
+| `PUT` | `/api/driver/deliveries.php` | `?id=X&action=claim` | Claim delivery (atomic - no race condition) |
 | `PUT` | `/api/driver/deliveries.php` | `?id=X&action=deliver` + `{collected_amount, remarks}` | Mark delivered |
 | `PUT` | `/api/driver/deliveries.php` | `?id=X&action=return` + `{remarks}` | Mark returned |
 
@@ -331,7 +331,7 @@ Pending (editable) → [15 min passes] → Processing (locked) → Approved → 
 | **Class & Object** | Every file is a class; instantiated with `new` |
 | **Encapsulation** | `private` properties, exposed via `public` methods only |
 | **Constructor injection** | Each service receives repositories via `__construct()` |
-| **Singleton pattern** | `Database::getConnection()` — static method, one PDO instance |
+| **Singleton pattern** | `Database::getConnection()` - static method, one PDO instance |
 | **Exception handling** | Services `throw new Exception(msg, code)`, controllers `catch` |
 | **Type hints** | `string $email`, `int $id`, `?array` return types throughout |
 | **Match expression** | Controllers use `match($method)` instead of if/else chains |

@@ -155,7 +155,7 @@ const AddBatchModal = ({ onClose, onBatchAdded }) => {
                 required
                 className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer"
               >
-                <option value="">— Select a product —</option>
+                <option value="">- Select a product -</option>
                 {products.map((p) => (
                   <option key={p.product_id} value={p.product_id}>
                     {p.product_name} ({p.category_name})
@@ -168,13 +168,13 @@ const AddBatchModal = ({ onClose, onBatchAdded }) => {
           {/* Quantity */}
           <Field label="Received Quantity" name="quantity" type="number" required min="1" placeholder="e.g. 500" />
 
-          {/* Prices — side by side */}
+          {/* Prices - side by side */}
           <div className="grid grid-cols-2 gap-3">
             <Field label="Cost Price (Rs.)" name="cost_price" type="number" required min="0.01" step="0.01" placeholder="e.g. 85.00" />
             <Field label="Selling Price (Rs.)" name="selling_price" type="number" required min="0.01" step="0.01" placeholder="e.g. 100.00" />
           </div>
 
-          {/* Dates — three side by side */}
+          {/* Dates - three side by side */}
           <div className="grid grid-cols-3 gap-3">
             <Field label="Mfg Date" name="mfg_date" type="date" />
             <Field label="Expiry Date" name="expiry_date" type="date" />

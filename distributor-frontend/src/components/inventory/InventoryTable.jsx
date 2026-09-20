@@ -3,17 +3,17 @@ import { PackageCheck, AlertCircle } from "lucide-react";
 export default function InventoryTable({ items = [], onSelectProduct, selectedProductId }) {
 
   const getStatus = (qty) => {
-    if (qty <= 0)  return "Out of Stock";
+    if (qty <= 0) return "Out of Stock";
     if (qty <= 20) return "Low";
     return "Good";
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Good":         return "bg-emerald-50 text-emerald-700 border border-emerald-200/60";
-      case "Low":          return "bg-amber-50 text-amber-700 border border-amber-200/60";
+      case "Good": return "bg-emerald-50 text-emerald-700 border border-emerald-200/60";
+      case "Low": return "bg-amber-50 text-amber-700 border border-amber-200/60";
       case "Out of Stock": return "bg-rose-50 text-rose-700 border border-rose-200/60";
-      default:             return "bg-slate-100 text-slate-600 border border-slate-200";
+      default: return "bg-slate-100 text-slate-600 border border-slate-200";
     }
   };
 
@@ -28,7 +28,7 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
     const active = batches
       .filter((b) => b.expiry_date && b.status === "Active")
       .sort((a, b) => new Date(a.expiry_date) - new Date(b.expiry_date));
-    if (!active.length) return "—";
+    if (!active.length) return "-";
     return new Date(active[0].expiry_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
       day: "numeric", month: "short", year: "numeric",
     });
@@ -65,8 +65,8 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
             ) : (
               items.map((item) => {
                 const totalQty = Number(item.stock ?? item.quantity ?? 0);
-                const status   = getStatus(totalQty);
-                const code     = `PRD-${String(item.product_id).padStart(3, "0")}`;
+                const status = getStatus(totalQty);
+                const code = `PRD-${String(item.product_id).padStart(3, "0")}`;
                 const isSelected = selectedProductId === item.product_id;
                 const soonExpiry = hasSoonExpiry(item.batches);
 
@@ -74,9 +74,8 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
                   <tr
                     key={item.product_id}
                     onClick={() => onSelectProduct && onSelectProduct(item)}
-                    className={`hover:bg-slate-50/60 transition duration-150 cursor-pointer ${
-                      isSelected ? "bg-blue-50/40 hover:bg-blue-50/60" : ""
-                    }`}
+                    className={`hover:bg-slate-50/60 transition duration-150 cursor-pointer ${isSelected ? "bg-blue-50/40 hover:bg-blue-50/60" : ""
+                      }`}
                   >
                     <td className="px-6 py-4">
                       <div className="font-bold text-slate-800">{item.product_name}</div>

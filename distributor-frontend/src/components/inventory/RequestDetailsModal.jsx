@@ -5,13 +5,13 @@ export default function RequestDetailsModal({ request, onClose }) {
   if (!request) return null;
 
   const code = `REQ-${String(request.request_id).padStart(3, "0")}`;
-  const formattedDate = request.request_date 
+  const formattedDate = request.request_date
     ? new Date(request.request_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+    : "-";
 
   return (
     <div
@@ -19,7 +19,7 @@ export default function RequestDetailsModal({ request, onClose }) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-lg border border-slate-100 overflow-hidden transform transition-all scale-100 animate-slide-up">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/50">
           <div>
@@ -84,7 +84,7 @@ export default function RequestDetailsModal({ request, onClose }) {
                         </td>
                         <td className="px-4 py-3 text-right font-bold text-slate-700">{item.requested_qty}</td>
                         <td className="px-4 py-3 text-right font-bold text-emerald-600">
-                          {item.approved_qty !== null ? item.approved_qty : "—"}
+                          {item.approved_qty !== null ? item.approved_qty : "-"}
                         </td>
                       </tr>
                     ))

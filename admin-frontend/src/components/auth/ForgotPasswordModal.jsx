@@ -40,7 +40,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
       setSuccessMessage(data.message || "A password reset link has been dispatched to your email.");
       setLoading(false);
     } catch (err) {
-      setError("Network error — unable to connect to authentication server.");
+      setError("Network error - unable to connect to authentication server.");
       setLoading(false);
     }
   };
@@ -54,7 +54,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div 
+      <div
         className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-8 shadow-2xl relative text-white"
         onClick={(e) => e.stopPropagation()}
       >

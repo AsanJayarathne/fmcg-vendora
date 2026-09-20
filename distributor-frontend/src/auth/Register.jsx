@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Eye, EyeOff, AlertCircle, CheckCircle2, Package,
-  User, Mail, Phone, Lock, Building2, MapPin, FileText, IdCard, Globe
+  User, Mail, Phone, Lock, Building2, MapPin, FileText, Globe, ChevronDown
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost/fmcg-vendora/backend/api';
@@ -18,7 +18,6 @@ const INITIAL_FORM = {
   company_name: '',
   company_address: '',
   reg_number: '',
-  lic_number: '',
   region_id: '',
   doc_url: '',
 };
@@ -48,11 +47,23 @@ export default function Register() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1 = account, 2 = company
   const [form, setForm] = useState(INITIAL_FORM);
+  const [regions, setRegions] = useState([]);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/auth/regions.php`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.success && json.data) {
+          setRegions(json.data);
+        }
+      })
+      .catch(err => console.error('Failed to load regions:', err));
+  }, []);
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -64,7 +75,7 @@ export default function Register() {
     const { full_name, email, phone, password, confirm_password } = form;
     if (!full_name.trim()) return 'Full name is required.';
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'A valid email is required.';
-    
+
     const cleanPhone = (phone || '').replace(/[\s\-]/g, '');
     if (!/^(?:\+94|0)?7[0-9]{8}$/.test(cleanPhone)) {
       return 'Please enter a valid Sri Lankan mobile number (e.g., 0712345678 or +94712345678).';
@@ -92,27 +103,26 @@ export default function Register() {
   // ─── Step 2 submission ────────────────────────────────────────────────────
   async function handleSubmit(e) {
     e.preventDefault();
-    const { company_name, company_address, reg_number, lic_number, region_id } = form;
+    const { company_name, company_address, reg_number, region_id } = form;
     if (!company_name.trim()) { setError('Company name is required.'); return; }
     if (!company_address.trim()) { setError('Company address is required.'); return; }
-    if (!reg_number.trim()) { setError('Registration number is required.'); return; }
-    if (!lic_number.trim()) { setError('Licence number is required.'); return; }
-    if (!region_id) { setError('Region ID is required.'); return; }
+    if (!reg_number.trim()) { setError('Business register number is required.'); return; }
+    if (!region_id) { setError('Please select a region.'); return; }
 
     setLoading(true);
     setError('');
     try {
       const payload = {
-        full_name:       form.full_name.trim(),
-        email:           form.email.trim(),
-        phone:           form.phone.trim(),
-        password:        form.password,
-        company_name:    form.company_name.trim(),
+        full_name: form.full_name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+        company_name: form.company_name.trim(),
         company_address: form.company_address.trim(),
-        reg_number:      form.reg_number.trim(),
-        lic_number:      form.lic_number.trim(),
-        region_id:       parseInt(form.region_id, 10),
-        doc_url:         form.doc_url.trim() || null,
+        reg_number: form.reg_number.trim(),
+        lic_number: form.reg_number.trim(),
+        region_id: parseInt(form.region_id, 10),
+        doc_url: form.doc_url.trim() || null,
       };
 
       const res = await fetch(`${API_BASE}/auth/register-distributor.php`, {
@@ -129,7 +139,7 @@ export default function Register() {
       setSuccess('Registration submitted successfully! Your account is awaiting admin approval. You will be notified by email.');
       setTimeout(() => navigate('/login'), 5000);
     } catch {
-      setError('Network error — make sure the backend is running.');
+      setError('Network error - make sure the backend is running.');
     } finally {
       setLoading(false);
     }
@@ -315,43 +325,34 @@ export default function Register() {
                     />
                   </Field>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <Field label="Registration No." id="reg-reg-number" icon={FileText}>
-                      <input
-                        id="reg-reg-number"
-                        name="reg_number"
-                        type="text"
-                        value={form.reg_number}
-                        onChange={handleChange}
-                        placeholder="PV/123456"
-                        className={inputClass()}
-                      />
-                    </Field>
-
-                    <Field label="Licence No." id="reg-lic-number" icon={IdCard}>
-                      <input
-                        id="reg-lic-number"
-                        name="lic_number"
-                        type="text"
-                        value={form.lic_number}
-                        onChange={handleChange}
-                        placeholder="LIC-789"
-                        className={inputClass()}
-                      />
-                    </Field>
-                  </div>
-
-                  <Field label="Region ID" id="reg-region" icon={MapPin}>
+                  <Field label="Business Register Number" id="reg-reg-number" icon={FileText}>
                     <input
-                      id="reg-region"
-                      name="region_id"
-                      type="number"
-                      min="1"
-                      value={form.region_id}
+                      id="reg-reg-number"
+                      name="reg_number"
+                      type="text"
+                      value={form.reg_number}
                       onChange={handleChange}
-                      placeholder="e.g. 1"
+                      placeholder="e.g. PV/123456 or BR-2024-001"
                       className={inputClass()}
                     />
+                  </Field>
+
+                  <Field label="Operating Region" id="reg-region" icon={MapPin}>
+                    <select
+                      id="reg-region"
+                      name="region_id"
+                      value={form.region_id}
+                      onChange={handleChange}
+                      className={`${inputClass()} cursor-pointer appearance-none pr-10`}
+                    >
+                      <option value="" className="bg-slate-900 text-white/50">Select Operating Region</option>
+                      {regions.map((r) => (
+                        <option key={r.region_id} value={r.region_id} className="bg-slate-900 text-white">
+                          {r.region_name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-white/40 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </Field>
 
                   <Field label="Document URL (optional)" id="reg-doc-url" icon={Globe}>

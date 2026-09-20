@@ -2,11 +2,11 @@ import { Eye } from "lucide-react";
 
 const DELIVERY_STATUS = {
   DELIVERED: { label: "Delivered", style: "bg-emerald-50 text-emerald-700 border border-emerald-200/60" },
-  RETURNED:  { label: "Returned",  style: "bg-orange-50 text-orange-700 border border-orange-200/60" },
+  RETURNED: { label: "Returned", style: "bg-orange-50 text-orange-700 border border-orange-200/60" },
 };
 
 function fmtDate(dateStr) {
-  if (!dateStr) return { date: "—", time: "" };
+  if (!dateStr) return { date: "-", time: "" };
   const d = new Date(dateStr);
   return {
     date: d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
@@ -47,9 +47,9 @@ export default function OrderHistoryTable({ deliveries, onView }) {
               </tr>
             ) : (
               deliveries.map((delivery) => {
-                const ordered   = fmtDate(delivery.created_at);
+                const ordered = fmtDate(delivery.created_at);
                 const delivered = fmtDate(delivery.delivery_date);
-                const status    = DELIVERY_STATUS[delivery.status] ?? {
+                const status = DELIVERY_STATUS[delivery.status] ?? {
                   label: delivery.status, style: "bg-slate-100 text-slate-600 border border-slate-200",
                 };
 
@@ -85,7 +85,7 @@ export default function OrderHistoryTable({ deliveries, onView }) {
                     </td>
 
                     <td className="px-6 py-4 font-bold text-slate-600">
-                      {delivery.driver_name ?? <span className="text-slate-300 font-normal">—</span>}
+                      {delivery.driver_name ?? <span className="text-slate-300 font-normal">-</span>}
                     </td>
 
                     <td className="px-6 py-4">

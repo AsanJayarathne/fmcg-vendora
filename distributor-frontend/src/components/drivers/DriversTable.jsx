@@ -46,22 +46,22 @@ export default function DriversTable({ drivers, onRefresh }) {
   // Build the fields array for the selected driver
   const modalFields = selected
     ? [
-        { label: "Full Name", value: selected.full_name },
-        { label: "Phone", value: selected.phone },
-        { label: "Email", value: selected.email },
-        { label: "Vehicle No.", value: selected.vehicle_number },
-        { label: "License No.", value: selected.license_number },
-        {
-          label: "Registered",
-          value: selected.created_at
-            ? new Date(selected.created_at).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })
-            : "—",
-        },
-      ]
+      { label: "Full Name", value: selected.full_name },
+      { label: "Phone", value: selected.phone },
+      { label: "Email", value: selected.email },
+      { label: "Vehicle No.", value: selected.vehicle_number },
+      { label: "License No.", value: selected.license_number },
+      {
+        label: "Registered",
+        value: selected.created_at
+          ? new Date(selected.created_at).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+          : "-",
+      },
+    ]
     : [];
 
   return (
@@ -102,17 +102,17 @@ export default function DriversTable({ drivers, onRefresh }) {
                   <td className="px-6 py-4 text-slate-700">
                     <div className="flex items-center gap-2 font-medium">
                       <Phone size={13} className="text-slate-400" />
-                      {driver.phone || "—"}
+                      {driver.phone || "-"}
                     </div>
                   </td>
 
                   <td className="px-6 py-4 text-slate-700">
-                    <p className="font-bold text-slate-800">{driver.vehicle_number || "—"}</p>
+                    <p className="font-bold text-slate-800">{driver.vehicle_number || "-"}</p>
                     <p className="text-[10px] text-slate-400 font-medium">Vehicle</p>
                   </td>
 
                   <td className="px-6 py-4 text-slate-700">
-                    <p className="font-bold text-slate-800">{driver.license_number || "—"}</p>
+                    <p className="font-bold text-slate-800">{driver.license_number || "-"}</p>
                     <p className="text-[10px] text-slate-400 font-medium">License No.</p>
                   </td>
 
@@ -125,9 +125,9 @@ export default function DriversTable({ drivers, onRefresh }) {
                   <td className="px-6 py-4 text-slate-600 font-medium">
                     {driver.created_at
                       ? new Date(driver.created_at).toLocaleDateString("en-GB", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })
-                      : "—"}
+                        day: "numeric", month: "short", year: "numeric",
+                      })
+                      : "-"}
                   </td>
 
                   <td className="px-6 py-4">

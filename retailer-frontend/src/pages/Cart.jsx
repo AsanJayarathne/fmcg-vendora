@@ -99,13 +99,13 @@ function Cart() {
 
       const subtotal = item.subtotal ?? item.price * item.quantity;
       const discount = item.discount ?? 0;
-      const total    = item.total    ?? subtotal - discount;
+      const total = item.total ?? subtotal - discount;
 
       groups[distributorName].items.push({ ...item, subtotal, discount, total });
       groups[distributorName].totalQuantity += item.quantity;
-      groups[distributorName].subtotal      += subtotal;
-      groups[distributorName].discount      += discount;
-      groups[distributorName].total         += total;
+      groups[distributorName].subtotal += subtotal;
+      groups[distributorName].discount += discount;
+      groups[distributorName].total += total;
 
       return groups;
     }, {});
@@ -176,7 +176,7 @@ function Cart() {
                       {order.distributor}
                     </h2>
                     <p className="text-[11px] font-bold text-slate-400 mt-0.5">
-                      {order.items.length} {t("common.items", "product lines")} — {order.totalQuantity} {t("common.units", "units")}
+                      {order.items.length} {t("common.items", "product lines")} - {order.totalQuantity} {t("common.units", "units")}
                     </p>
                   </div>
 

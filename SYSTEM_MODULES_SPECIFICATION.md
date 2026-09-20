@@ -1,4 +1,4 @@
-# FMCG Vendora — System Modules Specification
+# FMCG Vendora - System Modules Specification
 
 Comprehensive architectural breakdown of all core functional modules, user roles, business workflows, and technical components across the **Vendora FMCG** platform.
 

@@ -98,18 +98,20 @@ class AuthController {
                 'phone'     => trim($body['phone']     ?? ''),
                 'password'  => $body['password']       ?? '',
             ];
+            $regNum = trim($body['reg_number'] ?? ($body['business_reg_number'] ?? ''));
+            $licNum = trim($body['lic_number'] ?? '') ?: $regNum;
             $profileData = [
                 'company_name'    => trim($body['company_name']    ?? ''),
                 'company_address' => trim($body['company_address'] ?? ''),
-                'reg_number'      => trim($body['reg_number']      ?? ''),
-                'lic_number'      => trim($body['lic_number']      ?? ''),
+                'reg_number'      => $regNum,
+                'lic_number'      => $licNum,
                 'region_id'       => (int)($body['region_id']      ?? 0),
                 'doc_url'         => trim($body['doc_url']         ?? '') ?: null,
             ];
             if (!$userData['full_name'] || !$userData['email'] || !$userData['phone'] || !$userData['password']
                 || !$profileData['company_name'] || !$profileData['company_address']
-                || !$profileData['reg_number'] || !$profileData['lic_number'] || !$profileData['region_id']) {
-                sendError('Required fields: full_name, email, phone, password, company_name, company_address, reg_number, lic_number, region_id', 400);
+                || !$profileData['reg_number'] || !$profileData['region_id']) {
+                sendError('Required fields: full_name, email, phone, password, company_name, company_address, reg_number, region_id', 400);
             }
             $this->validateEmail($userData['email']);
             $this->validateSriLankanPhone($userData['phone']);

@@ -1,4 +1,4 @@
-# FMCG Vendora — Dynamic Soft Stock Reservation Implementation Plan
+# FMCG Vendora - Dynamic Soft Stock Reservation Implementation Plan
 
 Comprehensive architectural specification and technical implementation plan for **Dynamic Soft Stock Reservation & Overselling Prevention** across the **Vendora FMCG** ordering lifecycle.
 

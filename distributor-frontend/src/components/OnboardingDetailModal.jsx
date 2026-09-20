@@ -110,7 +110,7 @@ function DetailRow({ icon, label, value }) {
       {icon ? <span className="text-blue-600 mt-0.5 shrink-0">{icon}</span> : <User size={14} className="text-blue-600 mt-0.5 shrink-0" />}
       <div className="min-w-0 flex-1">
         <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{label}</p>
-        <p className="text-slate-800 font-bold text-xs truncate mt-0.5">{value || "—"}</p>
+        <p className="text-slate-800 font-bold text-xs truncate mt-0.5">{value || "-"}</p>
       </div>
     </div>
   );

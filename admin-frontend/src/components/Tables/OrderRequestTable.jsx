@@ -10,22 +10,21 @@ const TABS = ["All", "Pending", "Partially_Approved", "Rejected", "Received"];
 
 const StatusBadge = ({ status }) => {
   const isApproved = status === "Partially_Approved" || status === "Received";
-  const isPending  = status === "Pending";
+  const isPending = status === "Pending";
   const isRejected = status === "Rejected";
 
   const displayLabel = status === "Partially_Approved" ? "Approved" : status;
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isApproved
+      className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isApproved
           ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50"
           : isPending
-          ? "bg-amber-50 text-amber-700 border border-amber-200/50"
-          : isRejected
-          ? "bg-rose-50 text-rose-700 border border-rose-200/50"
-          : "bg-slate-100 text-slate-600 border border-slate-200"
-      }`}
+            ? "bg-amber-50 text-amber-700 border border-amber-200/50"
+            : isRejected
+              ? "bg-rose-50 text-rose-700 border border-rose-200/50"
+              : "bg-slate-100 text-slate-600 border border-slate-200"
+        }`}
     >
       {displayLabel}
     </span>
@@ -34,24 +33,24 @@ const StatusBadge = ({ status }) => {
 
 export default function OrderRequestTable() {
   const { auth } = useAuth();
-  const [requests, setRequests]     = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState("");
-  const [activeTab, setActiveTab]   = useState("All");
-  const [search, setSearch]         = useState("");
-  const [currentPage, setPage]      = useState(1);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("All");
+  const [search, setSearch] = useState("");
+  const [currentPage, setPage] = useState(1);
   const itemsPerPage = 8;
 
   // Modal states
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [approveTarget, setApproveTarget]   = useState(null);
-  const [rejectTarget, setRejectTarget]     = useState(null);
+  const [approveTarget, setApproveTarget] = useState(null);
+  const [rejectTarget, setRejectTarget] = useState(null);
 
   const fetchRequests = async () => {
     setLoading(true);
     setError("");
     try {
-      const res  = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
+      const res = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Failed to load supply requests");
       setRequests(json.data || []);
@@ -69,13 +68,13 @@ export default function OrderRequestTable() {
   const loadDetails = async (requestId, mode) => {
     setLoadingDetails(true);
     try {
-      const res  = await fetch(`${API}?id=${requestId}`, {
+      const res = await fetch(`${API}?id=${requestId}`, {
         headers: { Authorization: `Bearer ${auth?.token}` },
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Failed to load details");
       if (mode === "approve") setApproveTarget(json.data);
-      if (mode === "reject")  setRejectTarget(json.data);
+      if (mode === "reject") setRejectTarget(json.data);
     } catch (err) {
       alert(err.message);
     } finally {
@@ -86,7 +85,7 @@ export default function OrderRequestTable() {
   const filtered = useMemo(() => {
     return requests.filter((r) => {
       const matchTab = activeTab === "All" || r.status === activeTab;
-      const code     = `REQ-${String(r.request_id).padStart(3, "0")}`;
+      const code = `REQ-${String(r.request_id).padStart(3, "0")}`;
       const matchSearch =
         !search ||
         code.toLowerCase().includes(search.toLowerCase()) ||
@@ -97,7 +96,7 @@ export default function OrderRequestTable() {
   }, [requests, activeTab, search]);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginated  = filtered.slice(startIndex, startIndex + itemsPerPage);
+  const paginated = filtered.slice(startIndex, startIndex + itemsPerPage);
 
   const counts = useMemo(() => {
     const c = { All: requests.length };
@@ -136,18 +135,16 @@ export default function OrderRequestTable() {
                   setActiveTab(tab);
                   setPage(1);
                 }}
-                className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 ${
-                  activeTab === tab
+                className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5 ${activeTab === tab
                     ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
                     : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
-                }`}
+                  }`}
               >
                 {label}
                 {counts[tab] > 0 && (
                   <span
-                    className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[9px] font-black ${
-                      activeTab === tab ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
-                    }`}
+                    className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-[9px] font-black ${activeTab === tab ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
+                      }`}
                   >
                     {counts[tab]}
                   </span>
@@ -214,7 +211,7 @@ export default function OrderRequestTable() {
                 </tr>
               ) : (
                 paginated.map((r) => {
-                  const code      = `REQ-${String(r.request_id).padStart(3, "0")}`;
+                  const code = `REQ-${String(r.request_id).padStart(3, "0")}`;
                   const isPending = r.status === "Pending";
                   return (
                     <tr key={r.request_id} className="hover:bg-slate-50/60 transition duration-150">
@@ -227,18 +224,18 @@ export default function OrderRequestTable() {
                       </td>
 
                       <td className="px-6 py-4 font-bold text-slate-600 text-xs">
-                        {r.region_name || "—"}
+                        {r.region_name || "-"}
                       </td>
 
                       <td className="px-6 py-4 font-semibold text-slate-500 text-xs">
                         {r.request_date
                           ? new Date(r.request_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-                          : "—"}
+                          : "-"}
                       </td>
 
                       <td className="px-6 py-4 text-center">
                         <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold shadow-2xs">
-                          {r.item_count ?? "—"} items
+                          {r.item_count ?? "-"} items
                         </span>
                       </td>
 

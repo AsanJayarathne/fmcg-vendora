@@ -130,7 +130,7 @@ export default function RegisterStep2() {
       setRegisteredEmail(email.trim());
       setShowOtpModal(true);
     } catch (err) {
-      setError(err.message || t("auth.networkError", "Network error — make sure the backend is running."));
+      setError(err.message || t("auth.networkError", "Network error - make sure the backend is running."));
       setLoading(false);
     }
   };

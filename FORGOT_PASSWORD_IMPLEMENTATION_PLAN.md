@@ -1,4 +1,4 @@
-# FMCG Vendora — Auth Security & Email Verification Plan
+# FMCG Vendora - Auth Security & Email Verification Plan
 ## Registration Email OTP Verification + Forgot & Reset Password Flow
 
 Comprehensive technical architecture and implementation guide to implement:

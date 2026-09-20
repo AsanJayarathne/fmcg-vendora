@@ -24,21 +24,21 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
   const [activeTab, setActiveTab] = useState("general");
 
   const [form, setForm] = useState({
-    full_name:       profile?.full_name       ?? "",
-    phone:           profile?.phone           ?? "",
-    company_name:    profile?.company_name    ?? "",
+    full_name: profile?.full_name ?? "",
+    phone: profile?.phone ?? "",
+    company_name: profile?.company_name ?? "",
     company_address: profile?.company_address ?? "",
   });
 
   const [saving, setSaving] = useState(false);
-  const [toast, setToast]   = useState(null); // { type: 'success'|'error', msg }
+  const [toast, setToast] = useState(null); // { type: 'success'|'error', msg }
 
   useEffect(() => {
     if (profile) {
       setForm({
-        full_name:       profile.full_name       ?? "",
-        phone:           profile.phone           ?? "",
-        company_name:    profile.company_name    ?? "",
+        full_name: profile.full_name ?? "",
+        phone: profile.phone ?? "",
+        company_name: profile.company_name ?? "",
         company_address: profile.company_address ?? "",
       });
     }
@@ -88,11 +88,10 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
       {/* Toast Alert */}
       {toast && (
         <div
-          className={`flex items-center justify-between gap-3 p-4 rounded-2xl text-xs font-bold border shadow-xs animate-slide-down ${
-            toast.type === "success"
+          className={`flex items-center justify-between gap-3 p-4 rounded-2xl text-xs font-bold border shadow-xs animate-slide-down ${toast.type === "success"
               ? "bg-emerald-50 border-emerald-200/80 text-emerald-800"
               : "bg-rose-50 border-rose-200/80 text-rose-800"
-          }`}
+            }`}
         >
           <div className="flex items-center gap-2">
             {toast.type === "success" ? (
@@ -114,7 +113,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
       {/* Main Profile Header Hero Card */}
       <div className="overflow-hidden bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xs relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-50 to-indigo-50/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-        
+
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5">
             <div className="relative">
@@ -139,7 +138,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
               </div>
 
               <p className="text-xs text-slate-400 font-semibold mt-1 flex flex-wrap items-center gap-2">
-                <span>Representative: <strong className="text-slate-700">{form.full_name || "—"}</strong></span>
+                <span>Representative: <strong className="text-slate-700">{form.full_name || "-"}</strong></span>
                 <span>•</span>
                 <span className="flex items-center gap-1 text-slate-600">
                   <MapPin size={12} className="text-blue-500" />
@@ -179,11 +178,10 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-                  isCurrent
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${isCurrent
                     ? "bg-slate-900 text-white shadow-xs"
                     : "bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100/80"
-                }`}
+                  }`}
               >
                 <Icon size={14} className={isCurrent ? "text-blue-400" : "text-slate-400"} />
                 {tab.label}

@@ -2,13 +2,13 @@ import React from 'react';
 import { X, Layers } from 'lucide-react';
 
 const statusStyles = {
-  Active:    { dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
-  Exhausted: { dot: 'bg-slate-400',   badge: 'text-slate-600  bg-slate-50  border-slate-200'    },
-  Expired:   { dot: 'bg-rose-500',    badge: 'text-rose-700   bg-rose-50   border-rose-100'      },
+  Active: { dot: 'bg-emerald-500', badge: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+  Exhausted: { dot: 'bg-slate-400', badge: 'text-slate-600  bg-slate-50  border-slate-200' },
+  Expired: { dot: 'bg-rose-500', badge: 'text-rose-700   bg-rose-50   border-rose-100' },
 };
 
 const fmt = (val) =>
-  val != null ? `Rs. ${parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '—';
+  val != null ? `Rs. ${parseFloat(val).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '-';
 
 const BatchDrillDownPanel = ({ product, batches, loading, onClose }) => {
   if (!product) return null;
@@ -74,9 +74,9 @@ const BatchDrillDownPanel = ({ product, batches, loading, onClose }) => {
                       <td className="px-5 py-3.5 text-right font-bold text-slate-900">{Number(b.quantity).toLocaleString()}</td>
                       <td className="px-5 py-3.5 text-right text-slate-600">{fmt(b.cost_price)}</td>
                       <td className="px-5 py-3.5 text-right text-slate-600">{fmt(b.selling_price)}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{b.mfg_date || '—'}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{b.expiry_date || '—'}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{b.received_at || '—'}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{b.mfg_date || '-'}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{b.expiry_date || '-'}</td>
+                      <td className="px-5 py-3.5 text-slate-500">{b.received_at || '-'}</td>
                       <td className="px-5 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${style.badge}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />

@@ -46,24 +46,24 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
   // Build the fields array for the selected shop
   const modalFields = selected
     ? [
-        { icon: <User size={14} />, label: "Owner", value: selected.owner_name || selected.full_name },
-        { icon: <Phone size={14} />, label: "Phone", value: selected.phone || selected.contact },
-        { icon: <MapPin size={14} />, label: "Address", value: selected.shop_address },
-        { icon: <MapPin size={14} />, label: "City", value: selected.city },
-        { icon: <CreditCard size={14} />, label: "NIC", value: selected.nic_number },
-        { icon: <FileText size={14} />, label: "BR Number", value: selected.br_number || "—" },
-        {
-          icon: <Calendar size={14} />,
-          label: "Registered",
-          value: selected.created_at
-            ? new Date(selected.created_at).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })
-            : "—",
-        },
-      ]
+      { icon: <User size={14} />, label: "Owner", value: selected.owner_name || selected.full_name },
+      { icon: <Phone size={14} />, label: "Phone", value: selected.phone || selected.contact },
+      { icon: <MapPin size={14} />, label: "Address", value: selected.shop_address },
+      { icon: <MapPin size={14} />, label: "City", value: selected.city },
+      { icon: <CreditCard size={14} />, label: "NIC", value: selected.nic_number },
+      { icon: <FileText size={14} />, label: "BR Number", value: selected.br_number || "-" },
+      {
+        icon: <Calendar size={14} />,
+        label: "Registered",
+        value: selected.created_at
+          ? new Date(selected.created_at).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+          : "-",
+      },
+    ]
     : [];
 
   return (
@@ -104,13 +104,13 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
                   <td className="px-6 py-4 text-slate-700">
                     <div className="flex items-center gap-2 font-medium">
                       <Phone size={13} className="text-slate-400" />
-                      {shop.phone || shop.contact || "—"}
+                      {shop.phone || shop.contact || "-"}
                     </div>
                   </td>
 
                   <td className="px-6 py-4 text-slate-700">
-                    <p className="font-semibold text-slate-800">{shop.shop_address || "—"}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{shop.city || "—"}</p>
+                    <p className="font-semibold text-slate-800">{shop.shop_address || "-"}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{shop.city || "-"}</p>
                   </td>
 
                   <td className="px-6 py-4">
@@ -132,9 +132,9 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
                   <td className="px-6 py-4 text-slate-600 font-medium">
                     {shop.created_at
                       ? new Date(shop.created_at).toLocaleDateString("en-GB", {
-                          day: "numeric", month: "short", year: "numeric",
-                        })
-                      : "—"}
+                        day: "numeric", month: "short", year: "numeric",
+                      })
+                      : "-"}
                   </td>
 
                   <td className="px-6 py-4">

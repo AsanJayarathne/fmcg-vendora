@@ -18,7 +18,7 @@ class WarehouseStockController {
         } catch (Exception $e) { sendError($e->getMessage(), $e->getCode() ?: 400); }
     }
 
-    /** GET — return all warehouse batches, or batches for a single product */
+    /** GET - return all warehouse batches, or batches for a single product */
     private function getStock(): void {
         if (isset($_GET['product_id'])) {
             $productId = (int)$_GET['product_id'];
@@ -31,7 +31,7 @@ class WarehouseStockController {
         }
     }
 
-    /** POST — add a new warehouse batch when goods arrive from manufacturer */
+    /** POST - add a new warehouse batch when goods arrive from manufacturer */
     private function addBatch(): void {
         $body         = getBody();
         $productId    = (int)($body['product_id']    ?? 0);
@@ -54,7 +54,7 @@ class WarehouseStockController {
         sendSuccess($batch, 'Warehouse batch added successfully', 201);
     }
 
-    /** PUT — update an existing batch (quantity correction / expiry update) */
+    /** PUT - update an existing batch (quantity correction / expiry update) */
     private function updateBatch(): void {
         $batchId = (int)($_GET['batch_id'] ?? 0);
         if (!$batchId) sendError('batch_id is required as a query parameter', 400);

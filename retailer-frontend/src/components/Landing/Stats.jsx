@@ -54,7 +54,7 @@ export default function Stats() {
           <p className="text-blue-100 text-sm sm:text-lg mt-3 sm:mt-5 max-w-3xl mx-auto leading-relaxed">
             Vendora connects retailers with distributors, providing
             smarter ordering, inventory management, flexible credit,
-            and real-time analytics—all from one platform.
+            and real-time analytics-all from one platform.
           </p>
         </div>
 

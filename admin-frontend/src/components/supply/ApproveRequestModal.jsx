@@ -7,10 +7,10 @@ const API_BASE = "http://localhost/fmcg-vendora/backend/api/admin";
 const ApproveRequestModal = ({ request, onClose, onApproved }) => {
   const { auth } = useAuth();
   const [warehouseStock, setWarehouseStock] = useState({});
-  const [loadingStock, setLoadingStock]     = useState(true);
-  const [approvals, setApprovals]           = useState({});
-  const [submitting, setSubmitting]         = useState(false);
-  const [error, setError]                   = useState("");
+  const [loadingStock, setLoadingStock] = useState(true);
+  const [approvals, setApprovals] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!request?.items) return;
@@ -23,7 +23,7 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
     const fetchStocks = async () => {
       setLoadingStock(true);
       try {
-        const res  = await fetch(`${API_BASE}/warehouse-stock.php`, {
+        const res = await fetch(`${API_BASE}/warehouse-stock.php`, {
           headers: { Authorization: `Bearer ${auth?.token}` },
         });
         const json = await res.json();
@@ -51,7 +51,7 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
 
   const handleSubmit = async () => {
     for (const item of request?.items || []) {
-      const approved  = approvals[item.request_item_id] || 0;
+      const approved = approvals[item.request_item_id] || 0;
       const available = warehouseStock[item.product_id] || 0;
       if (approved > available) {
         setError(`Approved qty for "${item.product_name}" (${approved}) exceeds available warehouse stock (${available}).`);
@@ -65,13 +65,13 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
     try {
       const itemsPayload = (request?.items || []).map((item) => ({
         request_item_id: item.request_item_id,
-        approved_qty:    approvals[item.request_item_id] ?? 0,
+        approved_qty: approvals[item.request_item_id] ?? 0,
       }));
 
       const res = await fetch(`${API_BASE}/supply-requests.php?id=${request.request_id}&action=approve`, {
-        method:  "PUT",
+        method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${auth?.token}` },
-        body:    JSON.stringify({ approvals: itemsPayload, items: itemsPayload }),
+        body: JSON.stringify({ approvals: itemsPayload, items: itemsPayload }),
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.message || "Failed to approve request");
@@ -130,11 +130,11 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
           <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <div>
               <p className="font-bold text-slate-800 text-sm">{request.distributor_name}</p>
-              <p className="text-slate-400 font-semibold mt-0.5">Region: {request.region_name || "—"}</p>
+              <p className="text-slate-400 font-semibold mt-0.5">Region: {request.region_name || "-"}</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Request Date</p>
-              <p className="text-sm font-bold text-slate-700 mt-0.5">{request.request_date || "—"}</p>
+              <p className="text-sm font-bold text-slate-700 mt-0.5">{request.request_date || "-"}</p>
             </div>
           </div>
 
@@ -160,7 +160,7 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
                 ) : (
                   (request?.items || []).map((item) => {
                     const available = warehouseStock[item.product_id] ?? 0;
-                    const approved  = approvals[item.request_item_id] ?? 0;
+                    const approved = approvals[item.request_item_id] ?? 0;
                     const isExceeded = approved > available;
 
                     return (
@@ -187,9 +187,8 @@ const ApproveRequestModal = ({ request, onClose, onApproved }) => {
                             max={available}
                             value={approved}
                             onChange={(e) => handleQtyChange(item.request_item_id, e.target.value)}
-                            className={`w-28 text-right border ${
-                              isExceeded ? "border-rose-500 focus:ring-rose-500/10" : "border-slate-200 focus:border-blue-500"
-                            } rounded-full px-3 py-2 text-xs font-bold outline-none bg-white text-slate-800 transition shadow-2xs`}
+                            className={`w-28 text-right border ${isExceeded ? "border-rose-500 focus:ring-rose-500/10" : "border-slate-200 focus:border-blue-500"
+                              } rounded-full px-3 py-2 text-xs font-bold outline-none bg-white text-slate-800 transition shadow-2xs`}
                           />
                         </td>
                       </tr>
