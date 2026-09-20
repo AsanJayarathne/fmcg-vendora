@@ -144,8 +144,8 @@ INSERT INTO `distributor` (`distributor_id`, `user_id`, `company_name`, `company
 -- ============================================================
 -- 9. RETAILER (Assigned to Colombo District - ID 1)
 -- ============================================================
-INSERT INTO `retailer` (`retailer_id`, `user_id`, `region_id`, `shop_name`, `owner_name`, `shop_address`, `city`, `latitude`, `longitude`, `nic_number`, `phone`, `status`) VALUES
-(1, 3, 1, 'Star Grocery Store', 'Mr. Ram', '456 Market Rd', 'Colombo', 6.92707860, 79.86124300, 'NIC123456', NULL, 'Approved');
+INSERT INTO `retailer` (`retailer_id`, `user_id`, `region_id`, `shop_name`, `owner_name`, `shop_address`, `city`, `latitude`, `longitude`, `nic_number`, `br_number`, `phone`, `status`) VALUES
+(1, 3, 1, 'Star Grocery Store', 'Mr. Ram', '456 Market Rd', 'Colombo', 6.92707860, 79.86124300, 'NIC123456', 'BR-2024-001', NULL, 'Approved');
 
 -- ============================================================
 -- 10. DRIVER

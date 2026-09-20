@@ -19,6 +19,17 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    const token = localStorage.getItem('vendora_token');
+    if (token) {
+      fetch("http://localhost/fmcg-vendora/backend/api/auth/logout.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ token }),
+      }).catch((err) => console.error("Logout notification error:", err));
+    }
     localStorage.removeItem('vendora_token');
     localStorage.removeItem('vendora_role');
     localStorage.removeItem('vendora_profile_id');

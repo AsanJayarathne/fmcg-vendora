@@ -11,6 +11,10 @@ class RetailerRepository {
         $stmt = $this->db->prepare("SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url, dr.region_name FROM retailer r JOIN users u ON u.user_id = r.user_id JOIN distributor_region dr ON dr.region_id = r.region_id WHERE r.retailer_id = ?");
         $stmt->execute([$retailerId]); return $stmt->fetch() ?: null;
     }
+    public function findByNic(string $nicNumber): ?array {
+        $stmt = $this->db->prepare("SELECT * FROM retailer WHERE nic_number = ? LIMIT 1");
+        $stmt->execute([$nicNumber]); return $stmt->fetch() ?: null;
+    }
     public function getByRegion(int $regionId, string $status = '', int $distributorId = 0): array {
         if ($distributorId > 0) {
             $sql = "SELECT r.*, u.full_name, u.email, u.phone, u.avatar_url,
@@ -39,8 +43,8 @@ class RetailerRepository {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     public function create(int $userId, array $data): int {
-        $stmt = $this->db->prepare("INSERT INTO retailer (user_id, region_id, shop_name, owner_name, shop_address, city, latitude, longitude, nic_number, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$userId, $data['region_id'], $data['shop_name'], $data['owner_name'], $data['shop_address'], $data['city'] ?? null, $data['latitude'] ?? null, $data['longitude'] ?? null, $data['nic_number'], $data['phone'] ?? null]);
+        $stmt = $this->db->prepare("INSERT INTO retailer (user_id, region_id, shop_name, owner_name, shop_address, city, latitude, longitude, nic_number, br_number, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$userId, $data['region_id'], $data['shop_name'], $data['owner_name'], $data['shop_address'], $data['city'] ?? null, $data['latitude'] ?? null, $data['longitude'] ?? null, $data['nic_number'], $data['br_number'] ?? null, $data['phone'] ?? null]);
         return (int)$this->db->lastInsertId();
     }
     public function updateStatus(int $retailerId, string $status): void {

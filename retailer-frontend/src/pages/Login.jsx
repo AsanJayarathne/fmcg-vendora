@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock, FiGlobe } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import loginImage from "../assets/images/shop.png"; 
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -13,6 +13,7 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -143,16 +144,25 @@ function Login() {
 
               <div className="flex items-center gap-2 mt-1.5">
 
-                <FiLock className="text-gray-500" />
+                <FiLock className="text-gray-500 shrink-0" />
 
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="********"
                   className="bg-transparent outline-none w-full font-semibold text-sm"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError(""); }}
                   required
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer p-1 shrink-0 transition"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
 
               </div>
 

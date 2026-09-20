@@ -9,35 +9,39 @@ require_once __DIR__ . '/../repository/DriverRepository.php';
 require_once __DIR__ . '/../repository/EmailVerificationRepository.php';
 require_once __DIR__ . '/../repository/PasswordResetRepository.php';
 
-class AuthService {
-    private UserRepository            $userRepo;
-    private TokenRepository           $tokenRepo;
-    private DistributorRepository     $distributorRepo;
-    private RetailerRepository        $retailerRepo;
-    private DriverRepository          $driverRepo;
+class AuthService
+{
+    private UserRepository $userRepo;
+    private TokenRepository $tokenRepo;
+    private DistributorRepository $distributorRepo;
+    private RetailerRepository $retailerRepo;
+    private DriverRepository $driverRepo;
     private EmailVerificationRepository $emailVerifyRepo;
-    private PasswordResetRepository   $passwordResetRepo;
-    private Mailer                    $mailer;
+    private PasswordResetRepository $passwordResetRepo;
+    private Mailer $mailer;
 
-    public function __construct() {
-        $this->userRepo          = new UserRepository();
-        $this->tokenRepo         = new TokenRepository();
-        $this->distributorRepo   = new DistributorRepository();
-        $this->retailerRepo      = new RetailerRepository();
-        $this->driverRepo        = new DriverRepository();
-        $this->emailVerifyRepo   = new EmailVerificationRepository();
+    public function __construct()
+    {
+        $this->userRepo = new UserRepository();
+        $this->tokenRepo = new TokenRepository();
+        $this->distributorRepo = new DistributorRepository();
+        $this->retailerRepo = new RetailerRepository();
+        $this->driverRepo = new DriverRepository();
+        $this->emailVerifyRepo = new EmailVerificationRepository();
         $this->passwordResetRepo = new PasswordResetRepository();
-        $this->mailer            = new Mailer();
+        $this->mailer = new Mailer();
     }
 
     // ─── Authentication ──────────────────────────────────────────────────────
 
-    public function login(string $email, string $password): array {
+    public function login(string $email, string $password): array
+    {
         $user = $this->userRepo->findByEmail($email);
-        if (!$user) throw new Exception("Invalid email or password", 401);
+        if (!$user)
+            throw new Exception("Invalid email or password", 401);
 
         // Check if email has been verified
-        if (isset($user['is_email_verified']) && (int)$user['is_email_verified'] === 0) {
+        if (isset($user['is_email_verified']) && (int) $user['is_email_verified'] === 0) {
             throw new Exception("Please verify your email address before logging in.", 403);
         }
 
@@ -48,7 +52,8 @@ class AuthService {
         // Support both bcrypt and SHA2 (legacy seed data uses SHA2)
         $validPassword = password_verify($password, $user['password'])
             || hash('sha256', $password) === $user['password'];
-        if (!$validPassword) throw new Exception("Invalid email or password", 401);
+        if (!$validPassword)
+            throw new Exception("Invalid email or password", 401);
 
         $this->tokenRepo->deleteExpiredForUser($user['user_id']);
         $token = bin2hex(random_bytes(32));
@@ -56,125 +61,136 @@ class AuthService {
         $profileId = $this->getProfileId($user['user_id'], $user['role_name']);
 
         return [
-            'token'      => $token,
-            'user_id'    => $user['user_id'],
-            'role'       => $user['role_name'],
-            'full_name'  => $user['full_name'],
-            'email'      => $user['email'],
+            'token' => $token,
+            'user_id' => $user['user_id'],
+            'role' => $user['role_name'],
+            'full_name' => $user['full_name'],
+            'email' => $user['email'],
             'profile_id' => $profileId,
             'avatar_url' => $user['avatar_url'] ?? null,
         ];
     }
 
-    public function logout(string $token): void {
+    public function logout(string $token): void
+    {
         $this->tokenRepo->deleteByToken($token);
     }
 
     // ─── Registration with Email OTP ─────────────────────────────────────────
 
-    public function registerRetailer(array $userData, array $profileData): array {
-        $db = Database::getConnection();
-        $db->beginTransaction();
-        try {
-            if ($this->userRepo->findByEmail($userData['email'])) {
-                throw new Exception("Email is already registered", 400);
-            }
-            $userData['role_id']           = 3;     // RETAILER
-            $userData['is_active']         = false; // Inactive until Distributor approves
-            $userData['is_email_verified'] = false; // Requires OTP confirmation
-
-            $userId = $this->userRepo->create($userData);
-            $this->retailerRepo->create($userId, $profileData);
-
-            // Generate 6-digit OTP
-            $otpCode   = sprintf('%06d', random_int(100000, 999999));
-            $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $this->emailVerifyRepo->createOtp($userData['email'], $otpCode, $expiresAt);
-
-            // Send Verification Email
-            $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
-
-            $db->commit();
-            return [
-                'user_id'               => $userId,
-                'email'                 => $userData['email'],
-                'requires_verification' => true
-            ];
-        } catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+    public function registerRetailer(array $userData, array $profileData): array
+    {
+        if ($this->userRepo->findByEmail($userData['email'])) {
+            throw new Exception("Email is already registered", 400);
         }
+        if ($this->userRepo->findByPhone($userData['phone'])) {
+            throw new Exception("Phone number is already registered", 400);
+        }
+        if (!empty($profileData['nic_number']) && $this->retailerRepo->findByNic($profileData['nic_number'])) {
+            throw new Exception("This NIC number is already registered to an existing shop.", 400);
+        }
+
+        $userData['role_id'] = 3; // RETAILER
+
+        $stagedPayload = [
+            'role_id' => 3,
+            'user_data' => $userData,
+            'profile_data' => $profileData,
+        ];
+
+        // Generate 6-digit OTP
+        $otpCode = sprintf('%06d', random_int(100000, 999999));
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+        $this->emailVerifyRepo->createOtp(
+            $userData['email'],
+            $otpCode,
+            $expiresAt,
+            json_encode($stagedPayload, JSON_UNESCAPED_UNICODE)
+        );
+
+        // Send Verification Email
+        $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
+
+        return [
+            'email' => $userData['email'],
+            'requires_verification' => true
+        ];
     }
 
-    public function registerDistributor(array $userData, array $profileData): array {
-        $db = Database::getConnection();
-        $db->beginTransaction();
-        try {
-            if ($this->userRepo->findByEmail($userData['email'])) {
-                throw new Exception("Email is already registered", 400);
-            }
-            $userData['role_id']           = 2;     // DISTRIBUTOR
-            $userData['is_active']         = false; // Inactive until Admin approves
-            $userData['is_email_verified'] = false;
-
-            $userId = $this->userRepo->create($userData);
-            $this->distributorRepo->create($userId, $profileData);
-
-            $otpCode   = sprintf('%06d', random_int(100000, 999999));
-            $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $this->emailVerifyRepo->createOtp($userData['email'], $otpCode, $expiresAt);
-
-            $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
-
-            $db->commit();
-            return [
-                'user_id'               => $userId,
-                'email'                 => $userData['email'],
-                'requires_verification' => true
-            ];
-        } catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+    public function registerDistributor(array $userData, array $profileData): array
+    {
+        if ($this->userRepo->findByEmail($userData['email'])) {
+            throw new Exception("Email is already registered", 400);
         }
+        if ($this->userRepo->findByPhone($userData['phone'])) {
+            throw new Exception("Phone number is already registered", 400);
+        }
+
+        $userData['role_id'] = 2; // DISTRIBUTOR
+
+        $stagedPayload = [
+            'role_id' => 2,
+            'user_data' => $userData,
+            'profile_data' => $profileData,
+        ];
+
+        $otpCode = sprintf('%06d', random_int(100000, 999999));
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+        $this->emailVerifyRepo->createOtp(
+            $userData['email'],
+            $otpCode,
+            $expiresAt,
+            json_encode($stagedPayload, JSON_UNESCAPED_UNICODE)
+        );
+
+        $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
+
+        return [
+            'email' => $userData['email'],
+            'requires_verification' => true
+        ];
     }
 
-    public function registerDriver(array $userData, array $profileData): array {
-        $db = Database::getConnection();
-        $db->beginTransaction();
-        try {
-            if ($this->userRepo->findByEmail($userData['email'])) {
-                throw new Exception("Email is already registered", 400);
-            }
-            $userData['role_id']           = 4;     // DRIVER
-            $userData['is_active']         = false; // Inactive until Distributor approves
-            $userData['is_email_verified'] = false;
-
-            $userId = $this->userRepo->create($userData);
-            $this->driverRepo->create($userId, $profileData);
-
-            $otpCode   = sprintf('%06d', random_int(100000, 999999));
-            $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            $this->emailVerifyRepo->createOtp($userData['email'], $otpCode, $expiresAt);
-
-            $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
-
-            $db->commit();
-            return [
-                'user_id'               => $userId,
-                'email'                 => $userData['email'],
-                'requires_verification' => true
-            ];
-        } catch (Exception $e) {
-            $db->rollBack();
-            throw $e;
+    public function registerDriver(array $userData, array $profileData): array
+    {
+        if ($this->userRepo->findByEmail($userData['email'])) {
+            throw new Exception("Email is already registered", 400);
         }
+        if ($this->userRepo->findByPhone($userData['phone'])) {
+            throw new Exception("Phone number is already registered", 400);
+        }
+
+        $userData['role_id'] = 4; // DRIVER
+
+        $stagedPayload = [
+            'role_id' => 4,
+            'user_data' => $userData,
+            'profile_data' => $profileData,
+        ];
+
+        $otpCode = sprintf('%06d', random_int(100000, 999999));
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+        $this->emailVerifyRepo->createOtp(
+            $userData['email'],
+            $otpCode,
+            $expiresAt,
+            json_encode($stagedPayload, JSON_UNESCAPED_UNICODE)
+        );
+
+        $this->mailer->sendVerificationOtp($userData['email'], $userData['full_name'], $otpCode);
+
+        return [
+            'email' => $userData['email'],
+            'requires_verification' => true
+        ];
     }
 
     // ─── Email OTP Verification Flow ─────────────────────────────────────────
 
-    public function verifyEmailOtp(string $email, string $code): array {
+    public function verifyEmailOtp(string $email, string $code): array
+    {
         $email = trim($email);
-        $code  = trim($code);
+        $code = trim($code);
 
         if (!$email || !$code) {
             throw new Exception("Email and verification code are required", 400);
@@ -186,43 +202,109 @@ class AuthService {
         }
 
         // Rate limit: Max 5 failed attempts per OTP
-        if ((int)$otpRecord['attempts'] >= 5) {
-            $this->emailVerifyRepo->markOtpAsUsed((int)$otpRecord['id']);
+        if ((int) $otpRecord['attempts'] >= 5) {
+            $this->emailVerifyRepo->markOtpAsUsed((int) $otpRecord['id']);
             throw new Exception("Too many incorrect attempts. This code has expired. Please request a new code.", 429);
         }
 
         // Timing-safe comparison
         if (!hash_equals($otpRecord['code'], $code)) {
-            $this->emailVerifyRepo->incrementAttempts((int)$otpRecord['id']);
-            $remaining = 4 - (int)$otpRecord['attempts'];
-            $msg = $remaining > 0 
-                ? "Incorrect verification code. {$remaining} attempts remaining." 
+            $this->emailVerifyRepo->incrementAttempts((int) $otpRecord['id']);
+            $remaining = 4 - (int) $otpRecord['attempts'];
+            $msg = $remaining > 0
+                ? "Incorrect verification code. {$remaining} attempts remaining."
                 : "Incorrect verification code. Code expired due to too many failed attempts.";
             throw new Exception($msg, 400);
         }
 
-        // Mark OTP as used and mark user email as verified
-        $this->emailVerifyRepo->markOtpAsUsed((int)$otpRecord['id']);
+        // Check if this OTP holds staged registration data
+        if (!empty($otpRecord['registration_data'])) {
+            $staged = json_decode($otpRecord['registration_data'], true);
+            if ($staged && isset($staged['role_id'], $staged['user_data'])) {
+                $db = Database::getConnection();
+                $db->beginTransaction();
+                try {
+                    $stagedUser    = $staged['user_data'];
+                    $stagedProfile = $staged['profile_data'] ?? [];
+                    $roleId        = (int) $staged['role_id'];
+
+                    // Double check email and phone aren't already taken
+                    if ($this->userRepo->findByEmail($email)) {
+                        throw new Exception("An account with this email already exists.", 400);
+                    }
+                    if (!empty($stagedUser['phone']) && $this->userRepo->findByPhone($stagedUser['phone'])) {
+                        throw new Exception("An account with this phone number already exists.", 400);
+                    }
+                    if ($roleId === 3 && !empty($stagedProfile['nic_number']) && $this->retailerRepo->findByNic($stagedProfile['nic_number'])) {
+                        throw new Exception("This NIC number is already registered to an existing shop.", 400);
+                    }
+
+                    $stagedUser['role_id']           = $roleId;
+                    $stagedUser['is_active']         = false; // Pending distributor / admin approval
+                    $stagedUser['is_email_verified'] = true;  // Verified!
+
+                    $userId = $this->userRepo->create($stagedUser);
+
+                    match ($roleId) {
+                        2 => $this->distributorRepo->create($userId, $stagedProfile),
+                        3 => $this->retailerRepo->create($userId, $stagedProfile),
+                        4 => $this->driverRepo->create($userId, $stagedProfile),
+                        default => throw new Exception("Unknown role for registration", 400),
+                    };
+
+                    $this->emailVerifyRepo->markOtpAsUsed((int) $otpRecord['id']);
+                    $db->commit();
+
+                    return [
+                        'verified' => true,
+                        'email' => $email,
+                        'user_id' => $userId,
+                        'message' => 'Email verified successfully! Your registration is complete and pending approval.'
+                    ];
+                } catch (Exception $e) {
+                    $db->rollBack();
+                    if ($e instanceof PDOException && $e->getCode() == '23000') {
+                        if (str_contains($e->getMessage(), 'uq_retailer_nic')) {
+                            throw new Exception("This NIC number is already registered to an existing shop.", 400);
+                        }
+                        if (str_contains($e->getMessage(), 'uq_users_phone')) {
+                            throw new Exception("This phone number is already registered.", 400);
+                        }
+                        if (str_contains($e->getMessage(), 'uq_users_email')) {
+                            throw new Exception("This email is already registered.", 400);
+                        }
+                    }
+                    throw $e;
+                }
+            }
+        }
+
+        // Fallback for non-staged OTP (e.g. existing unverified user)
+        $this->emailVerifyRepo->markOtpAsUsed((int) $otpRecord['id']);
         $this->userRepo->setEmailVerifiedByEmail($email);
 
         return [
             'verified' => true,
-            'email'    => $email,
-            'message'  => 'Email verified successfully! You may now log in or wait for account approval.'
+            'email' => $email,
+            'message' => 'Email verified successfully! You may now log in or wait for account approval.'
         ];
     }
 
-    public function resendVerificationOtp(string $email): array {
+    public function resendVerificationOtp(string $email): array
+    {
         $email = trim($email);
-        if (!$email) throw new Exception("Email is required", 400);
+        if (!$email)
+            throw new Exception("Email is required", 400);
 
+        $stagedRecord = $this->emailVerifyRepo->findLatestPendingStaged($email);
         $user = $this->userRepo->findByEmail($email);
-        if (!$user) {
+
+        if (!$stagedRecord && !$user) {
             // Anti-enumeration: still return success message
             return ['sent' => true, 'message' => 'If this email is registered, a new verification code has been sent.'];
         }
 
-        if (isset($user['is_email_verified']) && (int)$user['is_email_verified'] === 1) {
+        if ($user && isset($user['is_email_verified']) && (int) $user['is_email_verified'] === 1) {
             return ['already_verified' => true, 'message' => 'Your email is already verified. Please log in.'];
         }
 
@@ -236,21 +318,31 @@ class AuthService {
             }
         }
 
-        $otpCode   = sprintf('%06d', random_int(100000, 999999));
+        $otpCode = sprintf('%06d', random_int(100000, 999999));
         $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-        $this->emailVerifyRepo->createOtp($email, $otpCode, $expiresAt);
 
-        $this->mailer->sendVerificationOtp($email, $user['full_name'], $otpCode);
+        if ($stagedRecord && !empty($stagedRecord['registration_data'])) {
+            $stagedJson = $stagedRecord['registration_data'];
+            $staged = json_decode($stagedJson, true);
+            $fullName = $staged['user_data']['full_name'] ?? 'User';
+
+            $this->emailVerifyRepo->createOtp($email, $otpCode, $expiresAt, $stagedJson);
+            $this->mailer->sendVerificationOtp($email, $fullName, $otpCode);
+        } elseif ($user) {
+            $this->emailVerifyRepo->createOtp($email, $otpCode, $expiresAt, null);
+            $this->mailer->sendVerificationOtp($email, $user['full_name'], $otpCode);
+        }
 
         return [
-            'sent'    => true,
+            'sent' => true,
             'message' => 'A fresh verification code has been sent to your email address.'
         ];
     }
 
     // ─── Forgot & Reset Password Flow ────────────────────────────────────────
 
-    public function forgotPassword(string $email, ?string $portalUrl = null): array {
+    public function forgotPassword(string $email, ?string $portalUrl = null): array
+    {
         $email = trim($email);
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("A valid email address is required", 400);
@@ -259,7 +351,7 @@ class AuthService {
         $user = $this->userRepo->findByEmail($email);
         if ($user) {
             // Generate cryptographically secure token
-            $token     = bin2hex(random_bytes(32));
+            $token = bin2hex(random_bytes(32));
             $expiresAt = date('Y-m-d H:i:s', strtotime('+15 minutes'));
             $this->passwordResetRepo->createToken($email, $token, $expiresAt);
 
@@ -273,12 +365,13 @@ class AuthService {
 
         // Always return generic success to prevent account enumeration
         return [
-            'sent'    => true,
+            'sent' => true,
             'message' => 'If this email is registered with Vendora FMCG, a password reset link has been sent.'
         ];
     }
 
-    public function verifyResetToken(string $email, string $token): array {
+    public function verifyResetToken(string $email, string $token): array
+    {
         $email = trim($email);
         $token = trim($token);
 
@@ -297,7 +390,8 @@ class AuthService {
         ];
     }
 
-    public function resetPassword(string $email, string $token, string $newPassword): array {
+    public function resetPassword(string $email, string $token, string $newPassword): array
+    {
         $email = trim($email);
         $token = trim($token);
 
@@ -321,13 +415,13 @@ class AuthService {
 
         // Hash new password using bcrypt
         $passwordHash = password_hash($newPassword, PASSWORD_BCRYPT);
-        $this->userRepo->updatePassword((int)$user['user_id'], $passwordHash);
+        $this->userRepo->updatePassword((int) $user['user_id'], $passwordHash);
 
         // Mark token as used (single-use enforcement)
         $this->passwordResetRepo->markTokenAsUsed($token);
 
         // Invalidate all active user sessions across devices
-        $this->tokenRepo->deleteAllForUser((int)$user['user_id']);
+        $this->tokenRepo->deleteAllForUser((int) $user['user_id']);
 
         return [
             'success' => true,
@@ -337,23 +431,25 @@ class AuthService {
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    private function getDefaultPortalUrl(string $role): string {
+    private function getDefaultPortalUrl(string $role): string
+    {
         $env = parse_ini_file(__DIR__ . '/../.env') ?: [];
         return match ($role) {
-            'RETAILER'    => $env['FRONTEND_RETAILER_URL']    ?? 'http://localhost:5173',
+            'RETAILER'    => $env['FRONTEND_RETAILER_URL']    ?? 'http://localhost:5176',
             'DISTRIBUTOR' => $env['FRONTEND_DISTRIBUTOR_URL'] ?? 'http://localhost:5174',
             'DRIVER'      => $env['FRONTEND_DRIVER_URL']      ?? 'http://localhost:5175',
-            'ADMIN'       => $env['FRONTEND_ADMIN_URL']       ?? 'http://localhost:5176',
-            default       => 'http://localhost:5173',
+            'ADMIN'       => $env['FRONTEND_ADMIN_URL']       ?? 'http://localhost:5173',
+            default       => 'http://localhost:5176',
         };
     }
 
-    private function getProfileId(int $userId, string $role): ?int {
+    private function getProfileId(int $userId, string $role): ?int
+    {
         return match ($role) {
             'DISTRIBUTOR' => $this->distributorRepo->findByUserId($userId)['distributor_id'] ?? null,
-            'RETAILER'    => $this->retailerRepo->findByUserId($userId)['retailer_id']        ?? null,
-            'DRIVER'      => $this->driverRepo->findByUserId($userId)['driver_id']             ?? null,
-            default       => null,
+            'RETAILER' => $this->retailerRepo->findByUserId($userId)['retailer_id'] ?? null,
+            'DRIVER' => $this->driverRepo->findByUserId($userId)['driver_id'] ?? null,
+            default => null,
         };
     }
 }
