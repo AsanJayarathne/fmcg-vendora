@@ -9,17 +9,17 @@ class EmailVerificationRepository {
     }
 
     /**
-     * Create a new OTP code for an email.
+     * Create a new OTP code for an email with optional staged registration data.
      */
-    public function createOtp(string $email, string $code, string $expiresAt): bool {
+    public function createOtp(string $email, string $code, string $expiresAt, ?string $registrationData = null): bool {
         // Invalidate any existing unused OTPs for this email first
         $this->invalidatePreviousOtps($email);
 
         $stmt = $this->db->prepare("
-            INSERT INTO email_verifications (email, code, attempts, expires_at, used)
-            VALUES (?, ?, 0, ?, 0)
+            INSERT INTO email_verifications (email, code, attempts, expires_at, used, registration_data)
+            VALUES (?, ?, 0, ?, 0, ?)
         ");
-        return $stmt->execute([$email, $code, $expiresAt]);
+        return $stmt->execute([$email, $code, $expiresAt, $registrationData]);
     }
 
     /**
@@ -29,6 +29,19 @@ class EmailVerificationRepository {
         $stmt = $this->db->prepare("
             SELECT * FROM email_verifications 
             WHERE email = ? AND used = 0 AND expires_at > NOW()
+            ORDER BY id DESC LIMIT 1
+        ");
+        $stmt->execute([$email]);
+        return $stmt->fetch() ?: null;
+    }
+
+    /**
+     * Find latest pending staged registration OTP for an email.
+     */
+    public function findLatestPendingStaged(string $email): ?array {
+        $stmt = $this->db->prepare("
+            SELECT * FROM email_verifications 
+            WHERE email = ? AND used = 0 AND registration_data IS NOT NULL
             ORDER BY id DESC LIMIT 1
         ");
         $stmt->execute([$email]);

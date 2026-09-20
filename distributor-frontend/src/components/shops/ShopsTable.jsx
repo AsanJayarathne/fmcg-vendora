@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, MapPin, Calendar, CreditCard, User, Eye } from "lucide-react";
+import { Phone, MapPin, Calendar, CreditCard, User, Eye, FileText } from "lucide-react";
 import OnboardingDetailModal, { getStatusStyle } from "../OnboardingDetailModal";
 
 const API_BASE = "http://localhost/fmcg-vendora/backend/api";
@@ -51,6 +51,7 @@ export default function ShopsTable({ shops, creditAccounts = {}, onRefresh }) {
         { icon: <MapPin size={14} />, label: "Address", value: selected.shop_address },
         { icon: <MapPin size={14} />, label: "City", value: selected.city },
         { icon: <CreditCard size={14} />, label: "NIC", value: selected.nic_number },
+        { icon: <FileText size={14} />, label: "BR Number", value: selected.br_number || "—" },
         {
           icon: <Calendar size={14} />,
           label: "Registered",

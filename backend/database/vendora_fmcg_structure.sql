@@ -194,6 +194,7 @@ CREATE TABLE `retailer` (
   `latitude`     decimal(10,8)                                   DEFAULT NULL,
   `longitude`    decimal(11,8)                                   DEFAULT NULL,
   `nic_number`   varchar(20)                                     NOT NULL,
+  `br_number`    varchar(50)                                     DEFAULT NULL,
   `phone`        varchar(20)                                     DEFAULT NULL,
   `status`       enum('Pending','Approved','Rejected','Blocked')  DEFAULT 'Pending',
   `created_at`   timestamp                                       NOT NULL DEFAULT current_timestamp(),
@@ -539,13 +540,14 @@ CREATE TABLE `gateway_payments` (
 -- 28. EMAIL VERIFICATIONS (OTP)
 -- ============================================================
 CREATE TABLE `email_verifications` (
-  `id`         int(11)      NOT NULL AUTO_INCREMENT,
-  `email`      varchar(100) NOT NULL,
-  `code`       varchar(6)   NOT NULL,
-  `attempts`   int(11)      NOT NULL DEFAULT 0,
-  `expires_at` datetime     NOT NULL,
-  `used`       tinyint(1)   NOT NULL DEFAULT 0,
-  `created_at` timestamp    NOT NULL DEFAULT current_timestamp(),
+  `id`                int(11)      NOT NULL AUTO_INCREMENT,
+  `email`             varchar(100) NOT NULL,
+  `code`              varchar(6)   NOT NULL,
+  `attempts`          int(11)      NOT NULL DEFAULT 0,
+  `expires_at`        datetime     NOT NULL,
+  `used`              tinyint(1)   NOT NULL DEFAULT 0,
+  `registration_data` json                  DEFAULT NULL,
+  `created_at`        timestamp    NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `idx_verify_email` (`email`),
   KEY `idx_verify_code` (`code`)

@@ -93,8 +93,8 @@ export default function RegisterStep2() {
     }
 
     // Validate step 2 fields
-    if (!shopName.trim() || !shopAddress.trim() || !city.trim() || !regionId) {
-      setError(t("auth.fillBusinessFields", "Please fill in all business information fields (Shop Name, Address, City, Region)."));
+    if (!shopName.trim() || !shopAddress.trim() || !city.trim() || !regionId || !regForm.businessReg?.trim()) {
+      setError("Please fill in all business information fields (Shop Name, Address, BR Number, City, Region).");
       return;
     }
 
@@ -116,6 +116,7 @@ export default function RegisterStep2() {
           : shopAddress.trim(),
         city: city.trim(),
         nic_number: nic.trim(),
+        br_number: regForm.businessReg.trim(),
         latitude: regForm.latitude ? parseFloat(regForm.latitude) : null,
         longitude: regForm.longitude ? parseFloat(regForm.longitude) : null,
       };
@@ -196,8 +197,8 @@ export default function RegisterStep2() {
             />
 
             <FormInput
-              label={t("auth.brn", "Business Registration Number")}
-              placeholder="Jayarathna Stores Pvt Ltd"
+              label="Business Registration Number"
+              placeholder="e.g. PV-12345 / BR-2024-001"
               value={regForm.businessReg}
               onChange={(e) => handleChange("businessReg", e.target.value)}
             />
