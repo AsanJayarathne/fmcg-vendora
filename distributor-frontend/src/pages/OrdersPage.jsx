@@ -129,8 +129,8 @@ export default function OrdersPage() {
         <ClipboardList className="inline mr-3 text-blue-600 w-8 h-8" />
         Orders
         {!loading && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({filteredOrders.length} orders)
+          <span className="ml-3 text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
+            {filteredOrders.length} Orders
           </span>
         )}
       </h1>

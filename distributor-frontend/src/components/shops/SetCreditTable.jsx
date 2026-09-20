@@ -81,7 +81,7 @@ export default function SetCreditTable({ shops, creditAccounts: initialAccounts 
               <th className="px-6 py-4">Retailer ID</th>
               <th className="px-6 py-4">Retailer Shop</th>
               <th className="px-6 py-4">Current Credit Limit</th>
-              <th className="px-6 py-4">New Credit Limit (LKR)</th>
+              <th className="px-6 py-4">New Credit Limit</th>
               <th className="px-6 py-4">Outstanding Balance</th>
               <th className="px-6 py-4">Available Credit</th>
               <th className="px-6 py-4 text-center">Action</th>

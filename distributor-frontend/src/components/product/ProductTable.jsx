@@ -26,9 +26,9 @@ export default function ProductTable({ products = [], onViewProduct }) {
           <tr>
             <th className="px-6 py-3.5">Product</th>
             <th className="px-6 py-3.5">Category</th>
-            <th className="px-6 py-3.5">Base Price (LKR)</th>
-            <th className="px-6 py-3.5">MRP (LKR)</th>
-            <th className="px-6 py-3.5">My Selling Price (LKR)</th>
+            <th className="px-6 py-3.5">Base Price</th>
+            <th className="px-6 py-3.5">MRP</th>
+            <th className="px-6 py-3.5">My Selling Price</th>
             <th className="px-6 py-3.5">Stock</th>
             <th className="px-6 py-3.5 text-center">Action</th>
           </tr>

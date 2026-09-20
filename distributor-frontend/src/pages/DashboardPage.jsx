@@ -391,7 +391,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-800">Sales Trend</h3>
-              <p className="text-xs text-slate-400 mt-0.5 font-normal">Last 7 days revenue (LKR)</p>
+              <p className="text-xs text-slate-400 mt-0.5 font-normal">Last 7 days revenue</p>
             </div>
             <span className="px-3 py-1 text-[10px] font-bold bg-blue-50 text-blue-600 rounded-full border border-blue-100">7 Days</span>
           </div>
@@ -477,7 +477,7 @@ export default function Dashboard() {
                       </div>
                       <div className="text-right">
                         <span className="text-xs font-bold text-gray-800">{fmtLKR(val)}</span>
-                        <span className="text-[10px] text-gray-400 ml-1">({pct}%)</span>
+                        <span className="text-[10px] font-semibold text-slate-500 ml-1.5">{pct}%</span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">

@@ -29,7 +29,7 @@ export default function OrderHistoryTable({ deliveries, onView }) {
               <th className="px-6 py-4">Retailer</th>
               <th className="px-6 py-4">Order Date</th>
               <th className="px-6 py-4">Delivery Date</th>
-              <th className="px-6 py-4 text-right">Amount (LKR)</th>
+              <th className="px-6 py-4 text-right">Amount</th>
               <th className="px-6 py-4">Driver</th>
               <th className="px-6 py-4">Status</th>
               <th className="px-6 py-4 text-center">Action</th>

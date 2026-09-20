@@ -117,8 +117,8 @@ export default function ShopsPage() {
         <Store className="inline mr-3 text-blue-600 w-8 h-8" />
         Retailer Shops
         {!loading && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({searchedShops.length} shops)
+          <span className="ml-3 text-xs font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
+            {searchedShops.length} Shops
           </span>
         )}
       </h1>

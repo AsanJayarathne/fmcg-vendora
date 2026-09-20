@@ -21,12 +21,17 @@ export default function InventoryInsights({ insights }) {
         {list.map((item) => (
           <div
             key={item.title}
-            className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-slate-200 transition-all duration-200 space-y-1"
+            className="p-4 rounded-2xl bg-slate-50/80 border border-slate-100 hover:border-slate-200 transition-all duration-200 space-y-1.5 flex flex-col justify-between"
           >
-            <p className="text-xs font-semibold text-slate-500">{item.title}</p>
-            <h3 className="text-2xl font-bold text-slate-800 tracking-tight">
-              {item.value}
-            </h3>
+            <div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-slate-500">{item.title}</p>
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tight mt-1">
+                {item.value}
+              </h3>
+            </div>
             <p className="text-[11px] text-slate-400 font-medium">
               {item.note}
             </p>
