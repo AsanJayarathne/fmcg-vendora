@@ -223,7 +223,7 @@ const en = {
     cardNumber: "Card Number",
     expiry: "Expiry (MM/YY)",
     cvv: "CVV",
-    payNow: "Pay LKR {amount}",
+    payNow: "Pay LKR",
     paymentSuccess: "Payment Successful! Order Confirmed.",
   },
   orders: {

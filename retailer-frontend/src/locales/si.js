@@ -261,7 +261,7 @@ const si = {
     cardNumber: "කාඩ්පත් අංකය",
     expiry: "කල්ඉකුත්වීම (මාසය/වසර)",
     cvv: "CVV අංකය",
-    payNow: "රු. {amount}ක් ගෙවන්න",
+    payNow: "ගෙවන්න රු.",
     paymentSuccess: "ගෙවීම සාර්ථකයි! ඇණවුම තහවුරු විය.",
   },
   orders: {

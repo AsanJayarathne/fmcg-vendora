@@ -139,7 +139,7 @@ export default function Navbar() {
               setNotifOpen(!notifOpen);
               setMenuOpen(false);
             }}
-            className="flex items-center gap-2 px-3.5 h-9 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition cursor-pointer shadow-xs"
+            className="flex items-center gap-2 px-4 h-9 text-xs sm:text-sm font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 active:scale-[0.98] transition cursor-pointer shadow-xs shadow-blue-200"
           >
             <span className="hidden sm:inline">Messages</span>
             <Bell size={16} className="text-white" />

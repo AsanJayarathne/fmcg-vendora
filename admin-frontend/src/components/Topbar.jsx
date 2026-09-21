@@ -123,7 +123,7 @@ export default function Topbar() {
               setNotifOpen(!notifOpen);
               setMenuOpen(false);
             }}
-            className="relative flex items-center gap-2 px-3.5 h-9 text-xs font-bold text-white bg-slate-900 rounded-full hover:bg-slate-800 transition cursor-pointer shadow-2xs"
+            className="relative flex items-center gap-2 px-3.5 h-9 text-xs font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 active:scale-[0.98] transition cursor-pointer shadow-2xs shadow-blue-200"
           >
             <span className="hidden sm:inline">Messages</span>
             <Bell size={15} className="text-white" />

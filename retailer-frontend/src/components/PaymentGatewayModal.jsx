@@ -176,18 +176,9 @@ export default function PaymentGatewayModal({ sessionData, onClose, onSuccess, o
               ) : (
                 <>
                   <FiCheckCircle size={16} />
-                  <span>{t("payment.payNow", "Pay Now")} (LKR {fmt(sessionData.amount)})</span>
+                  <span>{t("payment.payNow", "Pay LKR")} {fmt(sessionData.amount)}</span>
                 </>
               )}
-            </button>
-
-            <button
-              onClick={() => handleSimulatePayment("FAILED")}
-              disabled={loading}
-              className="w-full bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs py-2.5 rounded-full cursor-pointer transition flex items-center justify-center gap-2 border border-amber-200 disabled:opacity-50"
-            >
-              <FiXCircle size={15} />
-              <span>{t("payment.simulateDecline", "Simulate Payment Failure / Decline")}</span>
             </button>
 
             <button

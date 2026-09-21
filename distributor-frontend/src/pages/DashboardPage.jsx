@@ -72,23 +72,8 @@ function AreaChart({ data, color = "#3b82f6", gradientId = "areaGrad" }) {
   );
 }
 
-// ─── Mini Sparkline ───────────────────────────────────────────────────────────
-function Sparkline({ data, color = "#3b82f6" }) {
-  const W = 80, H = 32;
-  const vals = data.map((d) => d.value);
-  const max = Math.max(...vals, 1);
-  const xStep = W / (data.length - 1 || 1);
-  const pts = vals.map((v, i) => ({ x: i * xStep, y: H - (v / max) * H * 0.85 }));
-  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-16 h-8">
-      <path d={path} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 // ─── Metric Card ─────────────────────────────────────────────────────────────
-function DashMetricCard({ title, value, subtitle, icon, iconBg, sparkData, sparkColor, trend, trendLabel, onClick }) {
+function DashMetricCard({ title, value, subtitle, icon, iconBg, trend, trendLabel, onClick }) {
   const up = trend > 0;
   return (
     <button
@@ -99,7 +84,6 @@ function DashMetricCard({ title, value, subtitle, icon, iconBg, sparkData, spark
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
-        {sparkData && <Sparkline data={sparkData} color={sparkColor} />}
       </div>
       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{title}</p>
       <h3 className="text-2xl font-bold text-slate-800 leading-tight">{value}</h3>
