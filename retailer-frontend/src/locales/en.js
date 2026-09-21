@@ -94,7 +94,7 @@ const en = {
     shopName: "Shop / Business Name",
     ownerName: "Owner Full Name",
     email: "Email Address",
-    phone: "Phone Number (SMS OTP Verification)",
+    phone: "Phone Number",
     category: "Store Category",
     selectCategory: "Select Category",
     brn: "Business Registration No. (Optional)",
