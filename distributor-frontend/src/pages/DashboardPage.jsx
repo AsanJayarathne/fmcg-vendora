@@ -199,27 +199,36 @@ export default function Dashboard() {
     ].filter(s => s.count > 0);
   }, [orders]);
 
-  // ── Territory data ──
-  const territoryData = useMemo(() => {
-    const zones = { Kegalle: 0, Colombo: 0, Galle: 0, Kandy: 0, Kurunegala: 0, Other: 0 };
-    let total = 0;
-    orders.forEach(o => {
-      if (o.status === "Delivered" || o.status === "Approved") {
-        const addr = (o.shop_address || "").toLowerCase();
+  // ── Sales by Retailers (Top Retailers by Revenue) ──
+  const salesByRetailerData = useMemo(() => {
+    const retailerMap = {};
+    let totalRev = 0;
+    orders.forEach((o) => {
+      if (o.status === "Delivered" || o.status === "Approved" || o.status === "Processing") {
+        const name = o.shop_name || o.owner_name || `Shop #${o.retailer_id || "N/A"}`;
         const val = parseFloat(o.total_amount || 0);
-        let found = false;
-        for (const t of Object.keys(zones)) {
-          if (t !== "Other" && addr.includes(t.toLowerCase())) { zones[t] += val; found = true; break; }
+        if (!retailerMap[name]) {
+          retailerMap[name] = {
+            name,
+            retailer_id: o.retailer_id,
+            shop_address: o.city || o.shop_address || "",
+            val: 0,
+            orderCount: 0,
+          };
         }
-        if (!found) zones.Other += val;
-        total += val;
+        retailerMap[name].val += val;
+        retailerMap[name].orderCount += 1;
+        totalRev += val;
       }
     });
-    return Object.entries(zones)
-      .filter(([, v]) => v > 0)
-      .sort(([, a], [, b]) => b - a)
+
+    return Object.values(retailerMap)
+      .sort((a, b) => b.val - a.val)
       .slice(0, 5)
-      .map(([name, val]) => ({ name, val, pct: total > 0 ? Math.round((val / total) * 100) : 0 }));
+      .map((item) => ({
+        ...item,
+        pct: totalRev > 0 ? Math.round((item.val / totalRev) * 100) : 0,
+      }));
   }, [orders]);
 
   // ── Recent orders (last 6) ──
@@ -439,40 +448,65 @@ export default function Dashboard() {
       {/* ── Territory + Recent Orders + Low Stock ── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
 
-        {/* Territory / Region */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-sm font-black text-gray-800 mb-1">Sales by Region</h3>
-          <p className="text-xs text-gray-400 mb-4">Revenue distribution by region</p>
-
-          {territoryData.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No regional sales data yet</p>
-          ) : (
-            <div className="space-y-4">
-              {territoryData.map(({ name, val, pct }, i) => {
-                const colors = ["bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-cyan-500"];
-                return (
-                  <div key={name}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${colors[i % colors.length]}`} />
-                        <span className="text-xs font-semibold text-gray-700">{name}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-gray-800">{fmtLKR(val)}</span>
-                        <span className="text-[10px] font-semibold text-slate-500 ml-1.5">{pct}%</span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${colors[i % colors.length]} transition-all duration-700`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+        {/* Sales by Retailers */}
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-black text-gray-800">Sales by Retailers</h3>
+              {salesByRetailerData.length > 0 && (
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                  Top {salesByRetailerData.length} Shops
+                </span>
+              )}
             </div>
-          )}
+            <p className="text-xs text-gray-400 mb-4">Revenue distribution across retail partners</p>
+
+            {salesByRetailerData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+                <Store size={32} className="mb-2 opacity-30 text-blue-500" />
+                <p className="text-xs font-bold text-slate-700">No retailer sales recorded yet</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 text-center">Approved and delivered store orders will show here.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {salesByRetailerData.map(({ name, val, pct, orderCount, shop_address }, i) => {
+                  const colors = ["bg-blue-500", "bg-indigo-500", "bg-violet-500", "bg-purple-500", "bg-cyan-500"];
+                  return (
+                    <div key={name} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${colors[i % colors.length]}`} />
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-gray-800 block truncate">{name}</span>
+                            <span className="text-[10px] text-gray-400 block truncate">
+                              {orderCount} {orderCount === 1 ? 'order' : 'orders'}{shop_address ? ` • ${shop_address}` : ''}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0 ml-2">
+                          <span className="text-xs font-extrabold text-gray-900">{fmtLKR(val)}</span>
+                          <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md ml-1.5">{pct}%</span>
+                        </div>
+                      </div>
+                      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${colors[i % colors.length]} transition-all duration-700`}
+                          style={{ width: `${Math.max(pct, 3)}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => navigate("/shops")}
+            className="flex items-center gap-1.5 mt-4 pt-3 border-t border-slate-50 text-xs font-bold text-blue-600 hover:text-blue-700 transition cursor-pointer"
+          >
+            View all retailers <ArrowRight size={13} />
+          </button>
         </div>
 
         {/* Recent Orders */}

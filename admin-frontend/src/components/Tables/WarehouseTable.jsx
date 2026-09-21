@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import Pagination from "../Pagination";
 import BatchDrillDownPanel from "../warehouse/BatchDrillDownPanel";
-import { Search, RotateCcw, Plus, Layers, Edit2, X, Loader2 } from "lucide-react";
+import { Search, RotateCcw, Plus, Layers, Edit2, X, Loader2, Boxes } from "lucide-react";
 
 const API = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php";
 const UPLOADS = "http://localhost/fmcg-vendora/backend/uploads/products/";
@@ -73,6 +73,7 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
   const [updateExpiry, setUpdateExpiry] = useState("");
   const [updating, setUpdating] = useState(false);
   const [updateError, setUpdateError] = useState("");
+  const [noBatchItem, setNoBatchItem] = useState(null);
 
   // Batch drill-down state
   const [drillProduct, setDrillProduct] = useState(null);
@@ -147,14 +148,25 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleUpdateClick = (item) => {
-    const firstActive = item.batches.find((b) => b.status === "Active");
-    if (!firstActive) {
-      alert("No active batch found for this product.");
+    // Look for active batch first; if none (e.g. out of stock), fallback to latest batch
+    const targetBatch =
+      item.batches?.find((b) => b.status === "Active") ||
+      (item.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : null);
+
+    if (!targetBatch) {
+      setNoBatchItem(item);
       return;
     }
-    setEditingItem({ ...item, batch_id: firstActive.batch_id, batch_qty: firstActive.quantity, batch_expiry: firstActive.expiry_date });
-    setUpdateQty(firstActive.quantity);
-    setUpdateExpiry(firstActive.expiry_date || "");
+    setEditingItem({
+      ...item,
+      batch_id: targetBatch.batch_id,
+      batch_number: targetBatch.batch_number,
+      batch_status: targetBatch.status,
+      batch_qty: targetBatch.quantity,
+      batch_expiry: targetBatch.expiry_date,
+    });
+    setUpdateQty(targetBatch.quantity);
+    setUpdateExpiry(targetBatch.expiry_date || "");
     setUpdateError("");
   };
 
@@ -433,7 +445,9 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
               )}
 
               <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-3 text-xs text-slate-500 font-medium">
-                Adjusting first active batch stock level.
+                {editingItem.batch_number
+                  ? `Batch #${editingItem.batch_number}${editingItem.batch_status ? ` (${editingItem.batch_status})` : ""}`
+                  : "Adjusting batch stock level."}
               </div>
 
               <div className="space-y-1">
@@ -482,6 +496,49 @@ export default function WarehouseTable({ onAddBatchClick, refreshKey }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* No Batch Found Notice Modal */}
+      {noBatchItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm font-sans"
+          onClick={() => setNoBatchItem(null)}
+        >
+          <div
+            className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-sm p-6 overflow-hidden border border-slate-100 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 border border-amber-100">
+              <Boxes size={22} />
+            </div>
+            <h3 className="text-base font-bold text-slate-800">No Batches Found</h3>
+            <p className="text-xs text-slate-500 mt-2 font-medium">
+              There are no existing batches for <strong className="text-slate-700">{noBatchItem.product_name}</strong>. Please add a new batch to restock this product.
+            </p>
+            <div className="mt-6 flex gap-2 justify-center">
+              <button
+                type="button"
+                onClick={() => setNoBatchItem(null)}
+                className="px-5 py-2.5 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+              >
+                Close
+              </button>
+              {onAddBatchClick && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNoBatchItem(null);
+                    onAddBatchClick();
+                  }}
+                  className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer shadow-2xs flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  Add Batch
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

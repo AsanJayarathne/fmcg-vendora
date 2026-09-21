@@ -118,11 +118,12 @@ class AnalyticsController {
                     SELECT 
                         DATE_FORMAT(o.created_at, '%b') AS month_name,
                         MONTH(o.created_at) AS month_num,
+                        YEAR(o.created_at) AS year_num,
                         COALESCE(SUM(o.total_amount), 0) AS revenue,
                         COUNT(o.order_id) AS orders
                     FROM orders o
-                    GROUP BY month_name, month_num
-                    ORDER BY month_num ASC
+                    GROUP BY YEAR(o.created_at), MONTH(o.created_at), DATE_FORMAT(o.created_at, '%b')
+                    ORDER BY YEAR(o.created_at) ASC, MONTH(o.created_at) ASC
                 ");
                 $monthlyTrend = $stmt->fetchAll(PDO::FETCH_ASSOC);
             } catch (Exception $e) { /* fallback */ }
