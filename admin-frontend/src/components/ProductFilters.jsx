@@ -21,11 +21,10 @@ const ProductFilters = ({
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${
-            selectedCategory === "all"
-              ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
-              : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
-          }`}
+          className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${selectedCategory === "all"
+            ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
+            : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
+            }`}
         >
           All Categories
         </button>
@@ -34,11 +33,10 @@ const ProductFilters = ({
           <button
             key={cat}
             onClick={() => onCategoryChange(cat)}
-            className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${
-              selectedCategory === cat
-                ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-200"
-                : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
-            }`}
+            className={`px-5 py-2.5 rounded-full border text-xs font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-[0.98] ${selectedCategory === cat
+              ? "bg-red-600 border-blue-600 text-white shadow-sm shadow-blue-200"
+              : "bg-white border-slate-200 hover:border-blue-500 text-slate-500 hover:text-blue-600"
+              }`}
           >
             {cat}
           </button>
@@ -92,11 +90,10 @@ const ProductFilters = ({
               type="button"
               onClick={() => onViewModeChange("grid")}
               title="Grid View"
-              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${
-                viewMode === "grid"
-                  ? "bg-blue-600 text-white shadow-2xs"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
+              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${viewMode === "grid"
+                ? "bg-blue-600 text-white shadow-2xs"
+                : "text-slate-400 hover:text-slate-600"
+                }`}
             >
               <LayoutGrid size={16} />
             </button>
@@ -104,11 +101,10 @@ const ProductFilters = ({
               type="button"
               onClick={() => onViewModeChange("table")}
               title="Table View"
-              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${
-                viewMode === "table"
-                  ? "bg-blue-600 text-white shadow-2xs"
-                  : "text-slate-400 hover:text-slate-600"
-              }`}
+              className={`p-2.5 rounded-full transition-all duration-200 cursor-pointer ${viewMode === "table"
+                ? "bg-blue-600 text-white shadow-2xs"
+                : "text-slate-400 hover:text-slate-600"
+                }`}
             >
               <List size={16} />
             </button>
