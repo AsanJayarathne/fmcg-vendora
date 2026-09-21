@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardFilterModal from "../components/dashboard/DashboardFilterModal";
 import StatCard from "../components/dashboard/StatCard";
-import { FiCreditCard, FiFileText, FiTag, FiTrendingUp, FiLoader } from "react-icons/fi";
+import { FiCreditCard, FiFileText, FiTag, FiTrendingUp, FiLoader, FiTruck, FiCheckCircle, FiClock, FiDollarSign, FiPackage } from "react-icons/fi";
 
 import RecentOrdersStatus from "../components/orders/RecentOrdersStatus";
 import RecentlyOrderedProducts from "../components/Products/RecentlyOrderedProducts.jsx";
@@ -167,46 +167,99 @@ export default function Dashboard() {
     setFilterStatus("");
   };
 
-  // ── Metrics Computation ──────────────────────────────────────────
-  // Gross volume spent across filtered orders
-  const spendingVal = useMemo(() => {
-    const total = filteredOrders
-      .filter((o) => o.backendStatus !== "Rejected")
-      .reduce((sum, o) => sum + Number(o.total || 0), 0);
-    return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [filteredOrders]);
+  // ── Metrics Computation (Handover & Collection Logics) ────────────
+  const todayStr = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }, []);
 
-  // Total orders placed in selection
-  const totalOrdersVal = useMemo(() => {
-    return String(filteredOrders.length);
-  }, [filteredOrders]);
-
-  // Total unique products ordered
-  const productsVal = useMemo(() => {
-    const unique = new Set();
-    filteredOrders.forEach((o) => {
-      (o.items ?? []).forEach((item) => {
-        const id = item.id || item.productId || item.product_id;
-        if (id) unique.add(id);
-      });
+  // 1. Pending Handover Orders (Active orders waiting to be delivered by driver)
+  const pendingHandoverOrders = useMemo(() => {
+    return filteredOrders.filter((o) => {
+      const isDelivered = o.backendStatus === "Delivered" || o.deliveryStatus === "DELIVERED" || o.status === "Delivered";
+      const isCancelled = o.backendStatus === "Rejected" || o.backendStatus === "Cancelled" || o.status === "Cancelled";
+      return !isDelivered && !isCancelled;
     });
-    return String(unique.size);
   }, [filteredOrders]);
 
-  // Bulk discounts savings sum
-  const savingsVal = useMemo(() => {
-    const total = filteredOrders
-      .reduce((sum, o) => sum + Number(o.discount || 0), 0);
-    return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // Out for delivery count (claimed by driver)
+  const outForDeliveryCount = useMemo(() => {
+    return pendingHandoverOrders.filter(
+      (o) => o.deliveryStatus === "CLAIMED" || o.status === "Out for Delivery"
+    ).length;
+  }, [pendingHandoverOrders]);
+
+  // 2. Handovered Orders (Delivered/Completed)
+  const deliveredOrders = useMemo(() => {
+    return filteredOrders.filter(
+      (o) => o.backendStatus === "Delivered" || o.deliveryStatus === "DELIVERED" || o.status === "Delivered"
+    );
   }, [filteredOrders]);
+
+  // Delivered today specifically
+  const deliveredTodayOrders = useMemo(() => {
+    return filteredOrders.filter((o) => {
+      const isDelivered = o.backendStatus === "Delivered" || o.deliveryStatus === "DELIVERED" || o.status === "Delivered";
+      const oDate = o.createdAt ? o.createdAt.split(' ')[0] : "";
+      return isDelivered && (timeframe === "All Time" ? true : oDate === todayStr);
+    });
+  }, [filteredOrders, todayStr, timeframe]);
+
+  // 3. Amount of Cash to Collect (Cash due on pending orders upon handover)
+  const cashToCollectVal = useMemo(() => {
+    const total = pendingHandoverOrders.reduce((sum, o) => {
+      const isCash = o.paymentMethod === "Cash" || o.paymentType === "cash";
+      const isCashCredit = o.paymentMethod === "Cash_Credit" || o.paymentType === "cash_credit";
+      const cashPortion = isCash ? Number(o.total || 0) : (isCashCredit ? Number(o.cashAmount || 0) : 0);
+      const debtPortion = Number(o.outstandingSettled || o.outstandingCredit || 0);
+      return sum + cashPortion + debtPortion;
+    }, 0);
+    return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [pendingHandoverOrders]);
+
+  // 4. Daily Collection Amount (Cash collected/paid for handed over orders today)
+  const dailyCollectionVal = useMemo(() => {
+    const total = deliveredTodayOrders.reduce((sum, o) => {
+      const isCash = o.paymentMethod === "Cash" || o.paymentType === "cash";
+      const isCashCredit = o.paymentMethod === "Cash_Credit" || o.paymentType === "cash_credit";
+      const cashPortion = isCash ? Number(o.total || 0) : (isCashCredit ? Number(o.cashAmount || 0) : 0);
+      const debtPortion = Number(o.outstandingSettled || o.outstandingCredit || 0);
+      return sum + cashPortion + debtPortion;
+    }, 0);
+    return `Rs. ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }, [deliveredTodayOrders]);
 
   // Stats Card dataset mapping
   const stats = useMemo(() => [
-    { title: t("dashboard.spending", "Spending"), value: spendingVal, color: "green", icon: <FiCreditCard size={18} />, subtitle: `${t("dashboard.spending", "Spending")} (${timeframe})` },
-    { title: t("dashboard.totalOrder", "Total Order"), value: totalOrdersVal, color: "blue", icon: <FiFileText size={18} />, subtitle: t("dashboard.filteredOrdersCount", "Filtered orders count") },
-    { title: t("dashboard.noOfProducts", "No of Products"), value: productsVal, color: "orange", icon: <FiTag size={18} />, subtitle: t("dashboard.distinctProducts", "Distinct products purchased") },
-    { title: t("dashboard.savings", "Savings"), value: savingsVal, color: "purple", icon: <FiTrendingUp size={18} />, subtitle: t("dashboard.savingSummary", "Bulk promotions savings") },
-  ], [spendingVal, totalOrdersVal, productsVal, savingsVal, timeframe, t]);
+    {
+      title: t("dashboard.ordersToHandover", "Orders to Handover"),
+      value: String(pendingHandoverOrders.length),
+      color: "blue",
+      icon: <FiTruck size={20} />,
+      subtitle: `${outForDeliveryCount} ${t("dashboard.activeDeliveryCount", "in active delivery")}`,
+    },
+    {
+      title: t("dashboard.cashToCollect", "Cash to Collect"),
+      value: cashToCollectVal,
+      color: "orange",
+      icon: <FiClock size={20} />,
+      subtitle: t("dashboard.dueOnDelivery", "Due on pending deliveries"),
+    },
+    {
+      title: t("dashboard.ordersHandovered", "Orders Handovered"),
+      value: String(deliveredOrders.length),
+      color: "green",
+      icon: <FiCheckCircle size={20} />,
+      subtitle: `${deliveredTodayOrders.length} ${t("dashboard.handedOverToday", "handed over today")}`,
+    },
+    {
+      title: t("dashboard.dailyCollectionAmount", "Daily Collection Amount"),
+      value: dailyCollectionVal,
+      color: "purple",
+      icon: <FiDollarSign size={20} />,
+      subtitle: t("dashboard.settledHandoverCollections", "Settled handover collections"),
+    },
+  ], [pendingHandoverOrders, outForDeliveryCount, deliveredOrders, deliveredTodayOrders, cashToCollectVal, dailyCollectionVal, t]);
 
   // Credit details computation
   const creditData = useMemo(() => {

@@ -60,19 +60,28 @@ function Dashboard() {
       return sum + totalCol;
     }, 0);
 
-  // Collected Cash Amount (Replaces Return component)
-  const cashCollected = deliveries
-    .filter(d => d.status === 'DELIVERED')
-    .reduce((sum, d) => {
-      const collected = parseFloat(d.collected_amount);
-      if (!isNaN(collected) && collected > 0) {
-        return sum + collected;
-      }
-      const cashAmt = parseFloat(d.cash_amount) || 0;
-      const outstanding = parseFloat(d.outstanding_credit) || 0;
-      const totalCol = (cashAmt + outstanding) > 0 ? (cashAmt + outstanding) : (d.payment_method === 'Cash' ? (parseFloat(d.order_amount) || 0) : 0);
-      return sum + totalCol;
-    }, 0);
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  // Daily Collection Amount (ONLY deliveries completed TODAY)
+  const todayDelivered = deliveries.filter(d => {
+    if (d.status !== 'DELIVERED') return false;
+    const delivDate = d.delivery_date || d.updated_at || d.created_at;
+    if (!delivDate) return false;
+    const datePart = delivDate.split(' ')[0].split('T')[0];
+    return datePart === todayStr;
+  });
+
+  const dailyCashCollected = todayDelivered.reduce((sum, d) => {
+    const collected = parseFloat(d.collected_amount);
+    if (!isNaN(collected) && collected > 0) {
+      return sum + collected;
+    }
+    const cashAmt = parseFloat(d.cash_amount) || 0;
+    const outstanding = parseFloat(d.outstanding_credit) || 0;
+    const totalCol = (cashAmt + outstanding) > 0 ? (cashAmt + outstanding) : (d.payment_method === 'Cash' ? (parseFloat(d.order_amount) || 0) : 0);
+    return sum + totalCol;
+  }, 0);
 
   const stats = [
     {
@@ -100,12 +109,12 @@ function Dashboard() {
       subtitle: 'From active route stops'
     },
     {
-      label: 'Collected Cash Amount',
-      value: `Rs. ${cashCollected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      label: 'Daily Collection Amount',
+      value: `Rs. ${dailyCashCollected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: HandCoins,
       iconColor: 'text-emerald-600',
       iconBg: 'bg-emerald-50 border-emerald-100',
-      subtitle: 'Settled shift collections'
+      subtitle: `${todayDelivered.length} completed today`
     },
   ];
 
