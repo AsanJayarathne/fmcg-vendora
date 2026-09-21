@@ -137,35 +137,35 @@ export default function RegisterStep1() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mt-6">
             <FormInput
               label={t("auth.firstName", "First Name")}
-              placeholder="John"
+              placeholder="First Name"
               value={regForm.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
             />
 
             <FormInput
               label={t("auth.lastName", "Last Name")}
-              placeholder="Carter"
+              placeholder="Last Name"
               value={regForm.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
             />
 
             <FormInput
               label={t("auth.shopName", "Shop Name")}
-              placeholder="Jayarathna Stores"
+              placeholder="Shop Name"
               value={regForm.shopName}
               onChange={(e) => handleChange("shopName", e.target.value)}
             />
 
             <FormInput
               label={t("auth.nicNumber", "NIC Number")}
-              placeholder="921234567V or 200212345678"
+              placeholder="92*******V"
               value={regForm.nic}
               onChange={(e) => handleChange("nic", e.target.value)}
             />
 
             <FormInput
               label={t("auth.email", "Email Address")}
-              placeholder="john@gmail.com"
+              placeholder="jayarathne@gmail.com"
               type="email"
               value={regForm.email}
               onChange={(e) => handleChange("email", e.target.value)}
@@ -173,7 +173,7 @@ export default function RegisterStep1() {
 
             <FormInput
               label={t("auth.phone", "Phone Number")}
-              placeholder="076 1234567 or +94 76 1234567"
+              placeholder="076****** "
               value={regForm.phone}
               onChange={(e) => handleChange("phone", e.target.value)}
             />
@@ -190,13 +190,12 @@ export default function RegisterStep1() {
                 <div className="mt-2 text-xs space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                   <div className="flex gap-1 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden mb-1.5">
                     <div
-                      className={`h-full transition-all duration-300 ${
-                        passScore <= 2
+                      className={`h-full transition-all duration-300 ${passScore <= 2
                           ? "w-1/3 bg-red-500"
                           : passScore <= 4
-                          ? "w-2/3 bg-amber-500"
-                          : "w-full bg-emerald-500"
-                      }`}
+                            ? "w-2/3 bg-amber-500"
+                            : "w-full bg-emerald-500"
+                        }`}
                     />
                   </div>
                   <p className={`flex items-center gap-1.5 ${passCriteria.minLength ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>

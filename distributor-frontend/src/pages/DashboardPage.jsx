@@ -304,8 +304,6 @@ export default function Dashboard() {
           subtitle="All incoming orders"
           icon={<ShoppingCart size={20} className="text-blue-600" />}
           iconBg="bg-blue-100"
-          sparkData={salesData}
-          sparkColor="#3b82f6"
           onClick={() => navigate("/orders")}
         />
         <DashMetricCard

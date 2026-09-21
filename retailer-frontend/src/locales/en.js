@@ -116,7 +116,7 @@ const en = {
     sendingLink: "Sending Link...",
     resetDispatched: "Reset Link Dispatched",
     resetDispatchedText: "A secure reset link has been dispatched to your email address.",
-    otpTitle: "Verify Mobile Number",
+    otpTitle: "Verify Email Address",
     otpSubtitle: "Enter the 6-digit verification code sent to",
     verifyOtp: "Verify Code",
     verifyingOtp: "Verifying...",

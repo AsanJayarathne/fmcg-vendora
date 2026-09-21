@@ -1,6 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { MapPin, Map as MapIcon } from "lucide-react";
+import { MapPin, Map as MapIcon, Loader2 } from "lucide-react";
 import { FiGlobe } from "react-icons/fi";
 import LeftPanel from "../components/RegisterPage/LeftPanel";
 import FormInput from "../components/RegisterPage/FormInput";
@@ -282,12 +282,12 @@ export default function RegisterStep2() {
           </div>
 
           <div className="mt-10 mb-4 flex flex-col items-center gap-4">
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => navigate("/register")}
                 disabled={loading}
-                className="w-44 h-12 rounded-full border border-blue-700 text-blue-700 text-lg font-semibold hover:bg-blue-50 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-3 rounded-full border-2 border-blue-700 text-blue-700 text-base font-bold hover:bg-blue-50 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer min-w-[130px] flex items-center justify-center"
               >
                 {t("common.back", "Back")}
               </button>
@@ -296,9 +296,16 @@ export default function RegisterStep2() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-44 h-12 rounded-full bg-blue-700 text-white text-lg font-semibold hover:bg-blue-800 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-3 rounded-full bg-blue-700 text-white text-base font-bold hover:bg-blue-800 transition active:scale-[0.98] shadow-md shadow-blue-700/20 disabled:opacity-50 cursor-pointer min-w-[230px] whitespace-nowrap flex items-center justify-center gap-2"
               >
-                {loading ? t("auth.registering", "Submitting...") : t("auth.completeRegistration", "Register")}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>{t("auth.registering", "Submitting...")}</span>
+                  </span>
+                ) : (
+                  t("auth.completeRegistration", "Complete Registration")
+                )}
               </button>
             </div>
 
