@@ -260,6 +260,10 @@ export default function MyInventoryPage() {
             setSelectedProduct(null);
             setBatchDetails([]);
           }}
+          onBatchUpdated={() => {
+            fetchStock();
+            if (selectedProduct) fetchBatchDetails(selectedProduct);
+          }}
         />
       )}
     </div>

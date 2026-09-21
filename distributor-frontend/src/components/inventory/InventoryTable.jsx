@@ -19,17 +19,20 @@ export default function InventoryTable({ items = [], onSelectProduct, selectedPr
 
   const hasSoonExpiry = (batches = []) =>
     batches.some((b) => {
-      if (!b.expiry_date || b.status !== "Active") return false;
-      const days = (new Date(b.expiry_date) - new Date()) / (1000 * 60 * 60 * 24);
+      if (!b.expiry_date || b.expiry_date === '0000-00-00' || b.status !== "Active") return false;
+      const parsed = new Date(b.expiry_date.replace(/-/g, "/"));
+      if (isNaN(parsed.getTime())) return false;
+      const days = (parsed - new Date()) / (1000 * 60 * 60 * 24);
       return days >= 0 && days <= 30;
     });
 
   const nearestExpiry = (batches = []) => {
     const active = batches
-      .filter((b) => b.expiry_date && b.status === "Active")
+      .filter((b) => b.expiry_date && b.expiry_date !== '0000-00-00' && b.status === "Active")
       .sort((a, b) => new Date(a.expiry_date) - new Date(b.expiry_date));
     if (!active.length) return "-";
-    return new Date(active[0].expiry_date.replace(/-/g, "/")).toLocaleDateString(undefined, {
+    const d = new Date(active[0].expiry_date.replace(/-/g, "/"));
+    return isNaN(d.getTime()) ? "-" : d.toLocaleDateString(undefined, {
       day: "numeric", month: "short", year: "numeric",
     });
   };

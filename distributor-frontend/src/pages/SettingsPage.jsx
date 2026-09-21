@@ -66,8 +66,8 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* 4 Overview Metric Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* 3 Overview Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard
           title="Account Status"
           value={profile?.status || "Approved"}
@@ -88,13 +88,6 @@ export default function SettingsPage() {
           subtitle="Registered Business"
           icon={<FileText size={20} />}
           color="amber"
-        />
-        <MetricCard
-          title="Operating License"
-          value={profile?.lic_number || profile?.reg_number || "LIC-001"}
-          subtitle="Authorized Distributor"
-          icon={<Award size={20} />}
-          color="violet"
         />
       </div>
 

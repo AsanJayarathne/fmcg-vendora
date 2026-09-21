@@ -10,14 +10,33 @@ if (!$distributor) sendError('Distributor not found', 404);
 $stockRepo     = new StockRepository();
 $distributorId = (int)$distributor['distributor_id'];
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') sendError('Method not allowed', 405);
-    if (isset($_GET['product_id'])) {
-        // Return individual batch rows for a specific product (real drill-down)
-        $productId = (int)$_GET['product_id'];
-        sendSuccess($stockRepo->getDistributorBatchesFull($distributorId, $productId));
-    } elseif (isset($_GET['low_stock'])) {
-        sendSuccess($stockRepo->getLowStock($distributorId));
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    if ($method === 'GET') {
+        if (isset($_GET['product_id'])) {
+            // Return individual batch rows for a specific product (real drill-down)
+            $productId = (int)$_GET['product_id'];
+            sendSuccess($stockRepo->getDistributorBatchesFull($distributorId, $productId));
+        } elseif (isset($_GET['low_stock'])) {
+            sendSuccess($stockRepo->getLowStock($distributorId));
+        } else {
+            sendSuccess($stockRepo->getDistributorStock($distributorId));
+        }
+    } elseif ($method === 'PUT') {
+        $batchId = (int)($_GET['batch_id'] ?? 0);
+        if (!$batchId) sendError('batch_id is required', 400);
+
+        $batch = $stockRepo->getDistributorBatchById($batchId, $distributorId);
+        if (!$batch) sendError("Batch #$batchId not found or unauthorized", 404);
+
+        $body       = getBody();
+        $qty        = isset($body['quantity']) ? (int)$body['quantity'] : null;
+        $expiryDate = array_key_exists('expiry_date', $body) ? (trim($body['expiry_date']) ?: null) : 'SKIP';
+
+        $stockRepo->updateDistributorBatch($batchId, $distributorId, $qty, $expiryDate);
+        $updated = $stockRepo->getDistributorBatchById($batchId, $distributorId);
+        sendSuccess($updated, 'Batch updated successfully');
     } else {
-        sendSuccess($stockRepo->getDistributorStock($distributorId));
+        sendError('Method not allowed', 405);
     }
 } catch (Exception $e) { sendError($e->getMessage(), $e->getCode() ?: 400); }

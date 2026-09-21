@@ -204,10 +204,24 @@ class StockRepository {
         )->execute();
     }
 
-    // ── Distributor Batch ──────────────────────────────────────────────────────
+    public function backfillMissingDistributorExpiryDates(): void {
+        $this->db->exec(
+            "UPDATE distributor_batch 
+             SET expiry_date = DATE_ADD(COALESCE(received_at, CURDATE()), INTERVAL 1 YEAR),
+                 mfg_date = COALESCE(mfg_date, DATE_SUB(COALESCE(received_at, CURDATE()), INTERVAL 1 MONTH))
+             WHERE expiry_date IS NULL OR expiry_date = '0000-00-00'"
+        );
+        $this->db->exec(
+            "UPDATE warehouse_batch 
+             SET expiry_date = DATE_ADD(COALESCE(received_at, CURDATE()), INTERVAL 1 YEAR),
+                 mfg_date = COALESCE(mfg_date, DATE_SUB(COALESCE(received_at, CURDATE()), INTERVAL 1 MONTH))
+             WHERE expiry_date IS NULL OR expiry_date = '0000-00-00'"
+        );
+    }
 
     /** Get all batches for a distributor (with product info). */
     public function getDistributorStock(int $distributorId): array {
+        $this->backfillMissingDistributorExpiryDates();
         $this->markExpiredDistributorBatches($distributorId);
         $stmt = $this->db->prepare(
             "SELECT db.*, p.product_name, p.unit, pc.category_name
@@ -226,6 +240,7 @@ class StockRepository {
      * Returns ALL statuses (Active/Exhausted/Expired) ordered newest-received first.
      */
     public function getDistributorBatchesFull(int $distributorId, int $productId): array {
+        $this->backfillMissingDistributorExpiryDates();
         $this->markExpiredDistributorBatches($distributorId);
         $stmt = $this->db->prepare(
             "SELECT db.*, p.product_name, p.unit, pc.category_name
@@ -237,6 +252,45 @@ class StockRepository {
         );
         $stmt->execute([$distributorId, $productId]);
         return $stmt->fetchAll();
+    }
+
+    /** Get single distributor batch by ID */
+    public function getDistributorBatchById(int $distBatchId, int $distributorId): ?array {
+        $stmt = $this->db->prepare(
+            "SELECT db.*, p.product_name, p.unit, pc.category_name
+             FROM distributor_batch db
+             JOIN product p           ON p.product_id   = db.product_id
+             JOIN product_category pc ON pc.category_id  = p.category_id
+             WHERE db.dist_batch_id = ? AND db.distributor_id = ?"
+        );
+        $stmt->execute([$distBatchId, $distributorId]);
+        return $stmt->fetch() ?: null;
+    }
+
+    /** Update distributor batch quantity and/or expiry date */
+    public function updateDistributorBatch(int $distBatchId, int $distributorId, ?int $qty, ?string $expiryDate): void {
+        $setParts = [];
+        $params   = [];
+
+        if ($qty !== null) {
+            $newStatus  = $qty <= 0 ? 'Exhausted' : 'Active';
+            $setParts[] = 'quantity = ?';
+            $params[]   = $qty;
+            $setParts[] = 'status = ?';
+            $params[]   = $newStatus;
+        }
+        if ($expiryDate !== 'SKIP') {
+            $setParts[] = 'expiry_date = ?';
+            $params[]   = $expiryDate;
+            if ($expiryDate && strtotime($expiryDate) < strtotime(date('Y-m-d'))) {
+                $setParts[] = "status = 'Expired'";
+            }
+        }
+        if (empty($setParts)) return;
+        $params[] = $distBatchId;
+        $params[] = $distributorId;
+        $this->db->prepare('UPDATE distributor_batch SET ' . implode(', ', $setParts) . ' WHERE dist_batch_id = ? AND distributor_id = ?')
+                 ->execute($params);
     }
 
     /** Get active batches for a product at a distributor (FEFO order). */

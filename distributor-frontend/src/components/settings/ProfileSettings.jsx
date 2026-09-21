@@ -282,7 +282,7 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="md:col-span-2">
+              <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Company Name
                 </label>
@@ -310,21 +310,6 @@ export default function ProfileSettings({ profile, onChangePassword, onSaved }) 
                     className="w-full bg-slate-100/70 border border-slate-200/80 rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-600 outline-none cursor-not-allowed"
                   />
                   <FileText size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Operating License (Lic No.)
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={profile?.lic_number || profile?.reg_number || "LIC-001"}
-                    readOnly
-                    className="w-full bg-slate-100/70 border border-slate-200/80 rounded-2xl px-4 py-3 pl-10 text-xs font-bold text-slate-600 outline-none cursor-not-allowed"
-                  />
-                  <ShieldCheck size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 </div>
               </div>
 

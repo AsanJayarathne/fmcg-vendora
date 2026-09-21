@@ -4,7 +4,7 @@ import {
   FiShoppingCart,
   FiTruck,
   FiBarChart2,
-  FiRefreshCcw,
+  FiFileText,
 } from "react-icons/fi";
 import img1 from "../../assets/images/Inventory Dashboard.png";
 import img2 from "../../assets/images/Flexible Credit.png";
@@ -55,11 +55,11 @@ const features = [
     image: img5,
   },
   {
-    title: "Quick Returns",
+    title: "Instant Payments & Invoicing",
     description:
-      "Request product returns or replacements directly through the platform.",
-    icon: <FiRefreshCcw size={24} />,
-    color: "bg-red-100 text-red-500",
+      "Settle orders securely via card gateway, track payment receipts, and download digital invoices.",
+    icon: <FiFileText size={24} />,
+    color: "bg-indigo-100 text-indigo-600",
     image: img6,
   },
 ];
