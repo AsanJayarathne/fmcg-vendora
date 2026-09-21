@@ -9,12 +9,15 @@ import {
   FiXCircle,
   FiAlertCircle,
   FiCheck,
+  FiDownload,
+  FiFileText,
 } from "react-icons/fi";
 import { OrderContext } from "../context/OrderContextObject";
 import { useLanguage } from "../context/LanguageContext";
 import OrdersHeader from "../components/orders/OrdersHeader";
 import OrdersStats from "../components/orders/OrdersStats";
 import Pagination from "../components/orders/Pagination";
+import RetailerInvoiceModal from "../components/orders/RetailerInvoiceModal";
 import {
   LOCK_WINDOW_MS,
   filterOrders,
@@ -227,9 +230,11 @@ function ConfirmNowModal({ orderId, onConfirm, onClose, isConfirming }) {
 }
 
 // ── Order Detail Modal ────────────────────────────────────────────────────────
-function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLock, confirmingLockId }) {
+function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLock, confirmingLockId, onOpenInvoice }) {
   const { t } = useLanguage();
   if (!order) return null;
+
+  const isDelivered = order.status === "Delivered" || order.backendStatus === "Delivered" || String(order.status).toLowerCase() === "delivered";
 
   return (
     <div
@@ -253,6 +258,7 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusClass(order.status)}`}>
               {order.status}
             </span>
+
             {order.editable && order.paymentMethod !== "Online" && order.paymentType !== "online" && (
               <>
                 <button
@@ -428,7 +434,18 @@ function OrderDetailModal({ order, onClose, onCancel, cancellingId, onConfirmLoc
         </div>
 
         {/* Modal footer */}
-        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+          {isDelivered ? (
+            <button
+              onClick={() => onOpenInvoice && onOpenInvoice(order)}
+              className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 text-xs font-bold transition cursor-pointer shadow-2xs"
+            >
+              <FiDownload size={15} />
+              <span>{t("orders.downloadInvoice", "Download Invoice")}</span>
+            </button>
+          ) : (
+            <div />
+          )}
           <button
             onClick={onClose}
             className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer"
@@ -487,9 +504,10 @@ function MyOrders() {
   const urgentOrders = orders.filter((o) => o.orderType === "Urgent");
   const deliveredOrders = orders.filter((o) => o.status === "Delivered");
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
+
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -742,6 +760,7 @@ function MyOrders() {
                             >
                               {t("orders.viewDetails", "View Detail")}
                             </button>
+
                             {order.editable && order.paymentMethod !== "Online" && order.paymentType !== "online" && (
                               <>
                                 <button
@@ -793,7 +812,15 @@ function MyOrders() {
         cancellingId={cancellingId}
         onConfirmLock={handleConfirmLockClick}
         confirmingLockId={confirmingLockId}
+        onOpenInvoice={(ord) => setInvoiceOrder(ord)}
       />
+
+      {invoiceOrder && (
+        <RetailerInvoiceModal
+          order={invoiceOrder}
+          onClose={() => setInvoiceOrder(null)}
+        />
+      )}
 
       {orderToCancel && (
         <CancelConfirmModal

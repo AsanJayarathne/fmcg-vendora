@@ -59,3 +59,77 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+@media print {
+  @page {
+    size: portrait;
+    margin: 8mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Completely remove the main application tree from the print document flow */
+  #root {
+    display: none !important;
+  }
+
+  /* Hide interactive non-printable controls */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Make modal overlay flow naturally at the very top of page 1 */
+  .retailer-invoice-portal-overlay {
+    position: static !important;
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+
+  .retailer-invoice-card {
+    position: static !important;
+    display: block !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    border-radius: 0 !important;
+  }
+
+  #printable-retailer-invoice {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  /* Prevent awkward page-breaks */
+  .no-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
