@@ -197,7 +197,7 @@ export default function RegisterStep2() {
             />
 
             <FormInput
-              label="Business Registration Number"
+              label={t("auth.brn", "Business Registration Number")}
               placeholder="e.g. PV-12345 / BR-2024-001"
               value={regForm.businessReg}
               onChange={(e) => handleChange("businessReg", e.target.value)}
