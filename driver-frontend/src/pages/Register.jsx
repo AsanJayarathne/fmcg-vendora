@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import deliveryImg from "../assets/delivery.png";
+import OtpVerificationModal from "../components/auth/OtpVerificationModal";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost/fmcg-vendora/backend/api/auth/distributors.php")
@@ -99,14 +101,27 @@ export default function Register() {
         return;
       }
 
-      setSuccess("Registration submitted successfully! Awaiting distributor approval.");
-      setTimeout(() => {
-        navigate("/login");
-      }, 4000);
+      setLoading(false);
+      if (json.data?.requires_verification) {
+        setShowOtpModal(true);
+      } else {
+        setSuccess("Registration submitted successfully! Awaiting distributor approval.");
+        setTimeout(() => {
+          navigate("/login");
+        }, 4000);
+      }
     } catch (err) {
       setError("Network error - make sure the backend is running.");
       setLoading(false);
     }
+  };
+
+  const handleOtpSuccess = () => {
+    setShowOtpModal(false);
+    setSuccess("Email verified successfully! Your driver account has been submitted for distributor approval.");
+    setTimeout(() => {
+      navigate("/login");
+    }, 4000);
   };
 
   return (
@@ -254,6 +269,15 @@ export default function Register() {
         </div>
 
       </div>
+
+      {/* OTP Verification Modal */}
+      <OtpVerificationModal
+        isOpen={showOtpModal}
+        email={form.email.trim()}
+        onSuccess={handleOtpSuccess}
+        onClose={() => setShowOtpModal(false)}
+        portalName="Driver Portal"
+      />
     </div>
   );
 }
