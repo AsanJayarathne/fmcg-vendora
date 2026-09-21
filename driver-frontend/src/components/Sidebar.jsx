@@ -31,7 +31,7 @@ function Sidebar({ isOpen = false, onClose }) {
       {/* Mobile Backdrop Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 md:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 md:hidden transition-opacity duration-300 print:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -42,7 +42,7 @@ function Sidebar({ isOpen = false, onClose }) {
         className={`
           fixed top-0 bottom-0 left-0 z-50
           w-64 max-w-[85vw] h-screen bg-white flex flex-col p-4 border-r border-slate-100
-          transition-transform duration-300 ease-in-out
+          transition-transform duration-300 ease-in-out print:hidden
           md:static md:translate-x-0 md:w-64 md:z-auto shrink-0 md:shadow-none
           ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
         `}

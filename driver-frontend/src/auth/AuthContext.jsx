@@ -39,8 +39,16 @@ export function AuthProvider({ children }) {
     setAuth(null);
   }
 
+  function updateUser(newData) {
+    const name = newData.fullName || newData.full_name;
+    if (name) {
+      localStorage.setItem('vendora_driver_name', name);
+      setAuth((prev) => (prev ? { ...prev, fullName: name } : prev));
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -127,7 +127,7 @@ function TopBar({ onToggleSidebar }) {
   }, [showProfileMenu, showNotifications]);
 
   return (
-    <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-30 flex-shrink-0">
+    <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-3.5 sm:px-6 sticky top-0 z-30 flex-shrink-0 print:hidden">
       {/* Mobile Hamburger Button */}
       <div className="flex items-center gap-2">
         <button

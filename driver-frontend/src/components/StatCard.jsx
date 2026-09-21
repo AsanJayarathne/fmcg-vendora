@@ -1,12 +1,21 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
-function StatCard({ label, value, icon: Icon, percentage, percentageUp }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  percentage,
+  percentageUp,
+  iconColor = 'text-orange-600',
+  iconBg = 'bg-orange-50/80 border-orange-100',
+  subtitle
+}) {
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-4">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</span>
         {Icon && (
-          <div className="w-11 h-11 rounded-xl bg-orange-50/80 border border-orange-100 flex items-center justify-center text-orange-600">
+          <div className={`w-11 h-11 rounded-xl border flex items-center justify-center ${iconBg} ${iconColor}`}>
             <Icon size={20} />
           </div>
         )}
@@ -22,8 +31,11 @@ function StatCard({ label, value, icon: Icon, percentage, percentageUp }) {
               {percentageUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
               {percentage}
             </span>
-            <span className="text-[11px] text-slate-400 font-medium">vs last shift</span>
+            <span className="text-[11px] text-slate-400 font-medium">{subtitle || 'vs last shift'}</span>
           </div>
+        )}
+        {!percentage && subtitle && (
+          <div className="text-[11px] text-slate-400 font-medium pt-0.5">{subtitle}</div>
         )}
       </div>
     </div>
