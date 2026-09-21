@@ -16,11 +16,10 @@ import {
   Boxes,
 } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
-import { fetchAnalyticsData } from "../services/analyticsApi";
+import { fetchRawAnalyticsData, computeAnalyticsForTimeframe } from "../services/analyticsApi";
 
 import AnalyticsKpiCards from "../components/analytics/AnalyticsKpiCards";
 import SalesOverview from "../components/analytics/SalesOverview";
-import SalesByTerritory from "../components/analytics/SalesByTerritory";
 import TopProductsTable from "../components/analytics/TopProductsTable";
 import OrderStatusBreakdown from "../components/analytics/OrderStatusBreakdown";
 import PaymentBreakdown from "../components/analytics/PaymentBreakdown";
@@ -32,14 +31,14 @@ import InventoryInsights from "../components/analytics/InventoryInsights";
 function formatAmount(val) {
   if (val >= 1_000_000) return `LKR ${(val / 1_000_000).toFixed(2)}M`;
   if (val >= 1_000)     return `LKR ${(val / 1_000).toFixed(1)}K`;
-  return `LKR ${val.toLocaleString("en-LK", { minimumFractionDigits: 2 })}`;
+  return `LKR ${Number(val || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}`;
 }
 
 export default function AnalyticsPage() {
   const { auth } = useAuth();
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [rawData, setRawData]   = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
   const [timeframe, setTimeframe] = useState("This Month");
   const [activeTab, setActiveTab] = useState("all");
   const [toastMessage, setToastMessage] = useState("");
@@ -54,8 +53,8 @@ export default function AnalyticsPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await fetchAnalyticsData(auth.token);
-      setData(result);
+      const result = await fetchRawAnalyticsData(auth.token);
+      setRawData(result);
     } catch (e) {
       setError(e.message || "Failed to load analytics");
     } finally {
@@ -69,29 +68,14 @@ export default function AnalyticsPage() {
 
   const handleRefresh = () => {
     load();
-    showToast("Analytics metrics refreshed with latest live data.");
+    showToast("Analytics metrics refreshed with live operational data.");
   };
 
-  // Adjusted KPI values based on selected timeframe filter multiplier
+  // Re-compute all analytics metrics, charts and tables dynamically on timeframe change
   const filteredData = useMemo(() => {
-    if (!data) return null;
-    let multiplier = 1;
-    if (timeframe === "Last Month") multiplier = 0.88;
-    else if (timeframe === "This Quarter") multiplier = 2.6;
-    else if (timeframe === "All Time") multiplier = 4.2;
-
-    const kpis = {
-      ...data.kpis,
-      totalOrders: Math.round(data.kpis.totalOrders * (timeframe === "This Month" ? 1 : multiplier)),
-      totalRevenue: Math.round(data.kpis.totalRevenue * (timeframe === "This Month" ? 1 : multiplier)),
-      totalOutstanding: Math.round(data.kpis.totalOutstanding * (timeframe === "This Month" ? 1 : multiplier > 1 ? 1.2 : 0.9)),
-    };
-
-    return {
-      ...data,
-      kpis,
-    };
-  }, [data, timeframe]);
+    if (!rawData) return null;
+    return computeAnalyticsForTimeframe(rawData, timeframe);
+  }, [rawData, timeframe]);
 
   if (loading) {
     return (
@@ -118,14 +102,14 @@ export default function AnalyticsPage() {
     );
   }
 
-  const { kpis, salesData, territoryData, topProducts, orderStatusData, paymentData,
+  const { kpis, salesData, topProducts, orderStatusData, paymentData,
           outstandingRetailers, driverPerformance, retailerGrowth, inventoryInsights } = filteredData;
 
   const kpiCards = [
     {
       title: "Total Retailers",
       value: String(kpis.totalRetailers),
-      change: "Registered in region",
+      change: "Registered in territory",
       icon: <Store size={22} />,
       iconBg: "bg-purple-50",
       iconColor: "text-purple-600",
@@ -134,7 +118,7 @@ export default function AnalyticsPage() {
     {
       title: "Active Drivers",
       value: String(kpis.activeDrivers),
-      change: "Approved & operational",
+      change: "Approved & on fleet",
       icon: <Truck size={22} />,
       iconBg: "bg-amber-50",
       iconColor: "text-amber-600",
@@ -152,29 +136,29 @@ export default function AnalyticsPage() {
     {
       title: "Total Revenue",
       value: formatAmount(kpis.totalRevenue),
-      change: "Delivered volume",
+      change: "Delivered & approved",
       icon: <DollarSign size={22} />,
       iconBg: "bg-emerald-50",
       iconColor: "text-emerald-600",
       changeColor: "text-emerald-600",
     },
     {
-      title: "Outstanding",
+      title: "Outstanding Due",
       value: formatAmount(kpis.totalOutstanding),
       change: "Open credit balances",
       icon: <CreditCard size={22} />,
-      iconBg: "bg-orange-50",
-      iconColor: "text-orange-600",
+      iconBg: "bg-rose-50",
+      iconColor: "text-rose-600",
       changeColor: kpis.totalOutstanding > 0 ? "text-rose-500" : "text-emerald-600",
     },
     {
       title: "Low Stock Alert",
       value: String(kpis.lowStockCount),
-      change: "Products need restock",
+      change: "Items need restocking",
       icon: <AlertTriangle size={22} />,
-      iconBg: "bg-rose-50",
-      iconColor: "text-rose-600",
-      changeColor: kpis.lowStockCount > 0 ? "text-rose-500" : "text-emerald-600",
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-600",
+      changeColor: kpis.lowStockCount > 0 ? "text-amber-600" : "text-emerald-600",
     },
   ];
 
@@ -201,7 +185,7 @@ export default function AnalyticsPage() {
             <span>Distributor Analytics</span>
           </h1>
           <p className="text-slate-400 text-sm mt-1 font-normal">
-            Overview of sales, orders, and delivery metrics
+            Real-time business intelligence, revenue trends, fulfillment metrics, and fleet performance
           </p>
         </div>
 
@@ -227,16 +211,16 @@ export default function AnalyticsPage() {
             className="flex items-center gap-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer"
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-            <span>Refresh</span>
+            <span>Refresh Data</span>
           </button>
         </div>
       </div>
 
       {/* View Switcher Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab("all")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
             activeTab === "all"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
@@ -247,7 +231,7 @@ export default function AnalyticsPage() {
         </button>
         <button
           onClick={() => setActiveTab("sales")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
             activeTab === "sales"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
@@ -258,7 +242,7 @@ export default function AnalyticsPage() {
         </button>
         <button
           onClick={() => setActiveTab("retailers")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
             activeTab === "retailers"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
@@ -269,7 +253,7 @@ export default function AnalyticsPage() {
         </button>
         <button
           onClick={() => setActiveTab("inventory")}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer ${
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition cursor-pointer shrink-0 ${
             activeTab === "inventory"
               ? "bg-blue-600 text-white shadow-xs"
               : "text-slate-500 hover:text-blue-600 hover:bg-blue-50/60"
@@ -283,33 +267,32 @@ export default function AnalyticsPage() {
       {/* 6 Key Stat Cards Grid */}
       <AnalyticsKpiCards kpis={kpiCards} />
 
-      {/* Section 1: Sales & Revenue Overview */}
-      {(activeTab === "all" || activeTab === "sales") && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <SalesOverview data={salesData} />
-          <SalesByTerritory data={territoryData} />
-        </div>
-      )}
-
-      {/* Section 2: Products, Orders & Payment Method Breakdown */}
+      {/* Section 1: Revenue Trends & Retailer Growth */}
       {(activeTab === "all" || activeTab === "sales" || activeTab === "retailers") && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <TopProductsTable products={topProducts} />
-          <OrderStatusBreakdown data={orderStatusData} totalOrders={totalOrdersLabel} />
-          <PaymentBreakdown data={paymentData} totalRevenue={totalRevenueLabel} />
-        </div>
-      )}
-
-      {/* Section 3: Retailer Balances, Driver Delivery & Growth Trends */}
-      {(activeTab === "all" || activeTab === "retailers" || activeTab === "inventory") && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <OutstandingRetailers retailers={outstandingRetailers} />
-          <DriverPerformance drivers={driverPerformance} />
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <SalesOverview data={salesData} timeframe={timeframe} />
           <RetailerGrowth data={retailerGrowth} />
         </div>
       )}
 
-      {/* Section 4: Inventory & Operational Summary */}
+      {/* Section 2: Order Status, Payment Channels & Driver Performance */}
+      {(activeTab === "all" || activeTab === "sales" || activeTab === "retailers" || activeTab === "inventory") && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          <OrderStatusBreakdown data={orderStatusData} totalOrders={totalOrdersLabel} />
+          <PaymentBreakdown data={paymentData} totalRevenue={totalRevenueLabel} />
+          <DriverPerformance drivers={driverPerformance} />
+        </div>
+      )}
+
+      {/* Section 3: High-Performing Products & Retailer Balances */}
+      {(activeTab === "all" || activeTab === "sales" || activeTab === "retailers") && (
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <TopProductsTable products={topProducts} />
+          <OutstandingRetailers retailers={outstandingRetailers} />
+        </div>
+      )}
+
+      {/* Section 4: Inventory & Warehouse Summary */}
       {(activeTab === "all" || activeTab === "inventory") && (
         <InventoryInsights insights={inventoryInsights} />
       )}
