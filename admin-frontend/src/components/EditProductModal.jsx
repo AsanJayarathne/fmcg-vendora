@@ -163,7 +163,6 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${product.product_name}?`)) return;
     setError("");
     setSuccess("");
     setSubmitting(true);
@@ -172,11 +171,16 @@ export default function EditProductModal({ product, onClose, onProductUpdated })
         method: "DELETE",
         headers: { Authorization: `Bearer ${auth?.token}` },
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Unexpected server response while deleting product.");
+      }
       if (!data.success) throw new Error(data.message || "Failed to delete product");
       setSuccess("Product deleted successfully!");
       onProductUpdated();
-      setTimeout(onClose, 900);
+      setTimeout(onClose, 800);
     } catch (err) {
       setError(err.message);
       setSubmitting(false);

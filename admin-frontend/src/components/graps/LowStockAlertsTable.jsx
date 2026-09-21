@@ -33,7 +33,7 @@ const LowStockAlertsTable = ({ stockItems = [], loading = false }) => {
                 {alertItems.length} {alertItems.length === 1 ? "Alert" : "Alerts"}
               </span>
             </div>
-            <p className="text-[10px] font-semibold text-slate-400">Inventory items needing reorder</p>
+            <p className="text-[10px] font-semibold text-slate-400">Inventory items with low stock level</p>
           </div>
         </div>
         <button
@@ -53,7 +53,7 @@ const LowStockAlertsTable = ({ stockItems = [], loading = false }) => {
                 <th className="px-4 py-3">Product</th>
                 <th className="px-4 py-3 text-right">Current</th>
                 <th className="px-4 py-3 text-right">Min Stock</th>
-                <th className="px-4 py-3 text-center">Action</th>
+                <th className="px-4 py-3 text-center">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -99,12 +99,9 @@ const LowStockAlertsTable = ({ stockItems = [], loading = false }) => {
                         50 {item.unit || "units"}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => navigate("/warehouse")}
-                          className="px-3.5 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition cursor-pointer shadow-2xs"
-                        >
-                          Reorder
-                        </button>
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${st.color}`}>
+                          {st.label}
+                        </span>
                       </td>
                     </tr>
                   );

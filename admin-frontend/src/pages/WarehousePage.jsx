@@ -9,15 +9,15 @@ const API = "http://localhost/fmcg-vendora/backend/api/admin/warehouse-stock.php
 
 const WarehousePage = () => {
   const { auth } = useAuth();
-  const [summary, setSummary]                 = useState(null);
+  const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
-  const [showAddBatch, setShowAddBatch]       = useState(false);
+  const [showAddBatch, setShowAddBatch] = useState(false);
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
   const fetchSummary = async () => {
     setSummaryLoading(true);
     try {
-      const res  = await fetch(`${API}?summary=1`, {
+      const res = await fetch(`${API}?summary=1`, {
         headers: { Authorization: `Bearer ${auth?.token}` },
       });
       const json = await res.json();
@@ -44,11 +44,7 @@ const WarehousePage = () => {
       <h1 className="text-3xl font-bold flex items-center text-slate-800">
         <Boxes className="inline mr-3 text-blue-600 w-8 h-8" />
         Warehouse Management
-        {!summaryLoading && totalSKUs !== null && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({totalSKUs} SKUs)
-          </span>
-        )}
+
       </h1>
 
       {/* Stat Cards */}

@@ -117,7 +117,14 @@ export default function AddProductModal({ onClose, onProductAdded }) {
         headers: { Authorization: `Bearer ${auth?.token}` },
         body:    fd,
       });
-      const data = await res.json();
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error("Server returned an unexpected response. Please try again.");
+      }
+
       if (!data.success) throw new Error(data.message || "Failed to add product");
 
       onProductAdded();

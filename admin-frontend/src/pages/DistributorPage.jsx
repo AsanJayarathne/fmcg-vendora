@@ -9,9 +9,9 @@ const API_BASE = "http://localhost/fmcg-vendora/backend/api";
 const DistributorPage = () => {
   const { auth } = useAuth();
   const [distributors, setDistributors] = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState("");
-  const [updating, setUpdating]         = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [updating, setUpdating] = useState(null);
 
   const fetchDistributors = useCallback(async () => {
     setLoading(true);
@@ -68,11 +68,7 @@ const DistributorPage = () => {
         <h1 className="text-3xl font-bold flex items-center text-slate-800">
           <Building2 className="inline mr-3 text-blue-600 w-8 h-8" />
           Distributor Management
-          {!loading && (
-            <span className="ml-3 text-base font-normal text-slate-500">
-              ({distributors.length} companies)
-            </span>
-          )}
+
         </h1>
 
         <button

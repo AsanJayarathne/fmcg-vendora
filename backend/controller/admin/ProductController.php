@@ -88,7 +88,6 @@ class ProductController {
         }
 
         $id = $this->productRepo->create($data);
-        $this->stockRepo->adjustWarehouse($id, 0);
 
         if (!empty($body['base_price']) && !empty($body['mrp'])) {
             $base = (float)$body['base_price'];
@@ -213,6 +212,11 @@ class ProductController {
 
         $ext      = self::ALLOWED_TYPES[$mimeType];
         $filename = 'prod_' . uniqid('', true) . '.' . $ext;
+
+        if (!is_dir(self::UPLOAD_DIR)) {
+            @mkdir(self::UPLOAD_DIR, 0755, true);
+        }
+
         $dest     = self::UPLOAD_DIR . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest)) {

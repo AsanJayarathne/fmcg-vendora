@@ -119,11 +119,7 @@ const ProductsPage = () => {
         <h1 className="text-3xl font-bold flex items-center text-slate-800">
           <Package className="inline mr-3 text-blue-600 w-8 h-8" />
           Products Catalog
-          {!loading && (
-            <span className="ml-3 text-base font-normal text-slate-500">
-              ({sortedProducts.length} items)
-            </span>
-          )}
+
         </h1>
 
         <button

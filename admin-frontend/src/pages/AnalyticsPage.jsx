@@ -14,8 +14,8 @@ const COLORS = ["bg-blue-600", "bg-emerald-500", "bg-amber-500", "bg-violet-600"
 export default function AnalyticsPage() {
   const { auth } = useAuth();
   const [timeRange, setTimeRange] = useState("This Month");
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [analyticsData, setAnalyticsData] = useState(null);
 
   const fetchAnalytics = useCallback(async () => {
@@ -53,11 +53,7 @@ export default function AnalyticsPage() {
         <h1 className="text-3xl font-bold flex items-center text-slate-800">
           <BarChart3 className="inline mr-3 text-blue-600 w-8 h-8" />
           Business Analytics
-          {!loading && (
-            <span className="ml-3 text-base font-normal text-slate-500">
-              (Live MySQL Database)
-            </span>
-          )}
+
         </h1>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -67,11 +63,10 @@ export default function AnalyticsPage() {
               <button
                 key={r}
                 onClick={() => setTimeRange(r)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  timeRange === r
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${timeRange === r
                     ? "bg-white text-slate-800 shadow-2xs"
                     : "text-slate-500 hover:text-slate-800"
-                }`}
+                  }`}
               >
                 {r}
               </button>

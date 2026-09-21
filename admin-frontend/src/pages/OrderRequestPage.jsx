@@ -9,12 +9,12 @@ const API = "http://localhost/fmcg-vendora/backend/api/admin/supply-requests.php
 const OrderRequestPage = () => {
   const { auth } = useAuth();
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const fetchSummaryData = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
+      const res = await fetch(API, { headers: { Authorization: `Bearer ${auth?.token}` } });
       const json = await res.json();
       if (json.success) setRequests(json.data || []);
     } catch { /* silent */ }
@@ -28,8 +28,8 @@ const OrderRequestPage = () => {
   }, [auth?.token, fetchSummaryData]);
 
   const metrics = useMemo(() => {
-    const total    = requests.length;
-    const pending  = requests.filter((r) => r.status === "Pending").length;
+    const total = requests.length;
+    const pending = requests.filter((r) => r.status === "Pending").length;
     const approved = requests.filter((r) => r.status === "Partially_Approved" || r.status === "Received").length;
     const rejected = requests.filter((r) => r.status === "Rejected").length;
     return { total, pending, approved, rejected };
@@ -42,11 +42,7 @@ const OrderRequestPage = () => {
       <h1 className="text-3xl font-bold flex items-center text-slate-800">
         <Truck className="inline mr-3 text-blue-600 w-8 h-8" />
         Supply Requests
-        {!loading && (
-          <span className="ml-3 text-base font-normal text-slate-500">
-            ({metrics.total} requests)
-          </span>
-        )}
+
       </h1>
 
       {/* Top Metric Summary Cards */}

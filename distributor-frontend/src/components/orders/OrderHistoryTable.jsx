@@ -92,11 +92,6 @@ export default function OrderHistoryTable({ deliveries, onView }) {
                       <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${status.style}`}>
                         {status.label}
                       </span>
-                      {delivery.status === "RETURNED" && delivery.remarks && (
-                        <p className="text-[10px] text-slate-400 mt-0.5 max-w-[140px] truncate" title={delivery.remarks}>
-                          {delivery.remarks}
-                        </p>
-                      )}
                     </td>
 
                     <td className="px-6 py-4">

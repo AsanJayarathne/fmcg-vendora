@@ -97,9 +97,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold flex items-center text-slate-800">
           <LayoutDashboard className="inline mr-3 text-blue-600 w-8 h-8" />
           Company Admin Dashboard
-          <span className="ml-3 text-base font-normal text-slate-500">
-            (Live Overview)
-          </span>
+
         </h1>
 
         <button
