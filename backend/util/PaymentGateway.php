@@ -9,9 +9,10 @@ class PaymentGateway {
     private string $currency;
 
     public function __construct() {
-        $this->merchantId     = $_ENV['GATEWAY_MERCHANT_ID'] ?? 'VENDORA_MOCK_MERCHANT';
-        $this->merchantSecret = $_ENV['GATEWAY_SECRET']      ?? 'vendora_mock_secret_key_2026';
-        $this->gatewayName    = $_ENV['GATEWAY_NAME']        ?? 'Vendora Mock Gateway (Sandbox)';
+        $env = parse_ini_file(__DIR__ . '/../.env') ?: [];
+        $this->merchantId     = $env['GATEWAY_MERCHANT_ID'] ?? $_ENV['GATEWAY_MERCHANT_ID'] ?? 'VENDORA_MOCK_MERCHANT';
+        $this->merchantSecret = $env['GATEWAY_SECRET']      ?? $_ENV['GATEWAY_SECRET']      ?? 'vendora_mock_secret_key_2026';
+        $this->gatewayName    = $env['GATEWAY_NAME']        ?? $_ENV['GATEWAY_NAME']        ?? 'Vendora Mock Gateway (Sandbox)';
         $this->currency       = 'LKR';
     }
 
@@ -55,6 +56,10 @@ class PaymentGateway {
      */
     public function generateSettlementToken(int $creditId): string {
         return 'GW_CREDIT_' . $creditId . '_' . time() . '_' . bin2hex(random_bytes(4));
+    }
+
+    public function getMerchantId(): string {
+        return $this->merchantId;
     }
 
     public function getGatewayName(): string {

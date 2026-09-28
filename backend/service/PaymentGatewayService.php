@@ -62,7 +62,7 @@ class PaymentGatewayService {
             'transaction_token'  => $token,
             'signature'          => $signature,
             'gateway_name'       => $this->gateway->getGatewayName(),
-            'merchant_id'        => $_ENV['GATEWAY_MERCHANT_ID'] ?? 'VENDORA_MOCK_MERCHANT',
+            'merchant_id'        => $this->gateway->getMerchantId(),
             'shop_name'          => $order['shop_name'] ?? 'Retailer',
             'distributor_name'   => $order['distributor_name'] ?? 'Distributor',
         ];
@@ -110,7 +110,7 @@ class PaymentGatewayService {
             'transaction_token'  => $token,
             'signature'          => $signature,
             'gateway_name'       => $this->gateway->getGatewayName(),
-            'merchant_id'        => $_ENV['GATEWAY_MERCHANT_ID'] ?? 'VENDORA_MOCK_MERCHANT',
+            'merchant_id'        => $this->gateway->getMerchantId(),
             'shop_name'          => $retailer['shop_name'] ?? 'Retailer',
             'distributor_name'   => $distributor['company_name'] ?? 'Distributor',
         ];
